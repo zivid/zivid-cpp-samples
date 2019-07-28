@@ -1,4 +1,5 @@
 
+
 # cpp-extra-samples
 
 This repository contains additional **C++** code samples for **Zivid**.
@@ -23,6 +24,12 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 	- [**ReadPCLVis3D**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividPCL/ReadPCLVis3D/ReadPCLVis3D.cpp) - This example shows how to read a PCL point cloud and visualize it.
 	- [**CaptureWritePCLVis3D**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividPCL/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp) - This example shows how capture a Zivid point cloud, save it to a .PCD file format, and visualize it.
 	- [**CaptureFromFileWritePCLVis3D**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividPCL/CaptureFromFileWritePCLVis3D/CaptureFromFileWritePCLVis3D.cpp) - This example shows how capture a Zivid point cloud from an emulated Zivid camera, save it to a .PCD file format, and visualize it.
+	- **Dependencies:**
+		- [PCL](http://pointclouds.org/) version 1.9.1
+
+- [**Downsample**](https://github.com/zivid/cpp-extra-samples/tree/master/Downsample)  - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
+	- **Dependencies:**
+		- [Eigen](http://eigen.tuxfamily.org/) version 3.3.90 or newer
 
 ## Instructions
 
@@ -41,7 +48,7 @@ git clone https://github.com/zivid/cpp-extra-samples
 [comment]: <> (Choose a sample solution and configure it with CMake.)
 [comment]: <> (Launch Visual Studio, open, build, and run the sample solution.)
 
-Choose a sample solution, configure it with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our tutorials for configuring [**Zivid**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/61472793/Configure+Zivid+Extra+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows) and  [**Zivid & PCL**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/44204066/Configure+C+Zivid+Point+Cloud+Library+PCL+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows) samples with CMake and building them using Visual Studio in Windows.
+Choose a sample solution, configure it with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our tutorials for configuring [**Zivid**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/61472793/Configure+Zivid+Extra+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows), [**Zivid & PCL**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/44204066/Configure+C+Zivid+Point+Cloud+Library+PCL+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows), and [**Downsample**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/76480513/Configure+C+Downsample+Sample+with+CMake+and+build+it+using+Visual+Studio+in+Windows) samples with CMake and building them using Visual Studio in Windows.
 
 #### Ubuntu
 
@@ -77,5 +84,5 @@ If you need assistance with using Zivid cameras, visit our [**Knowledge Base**](
 
 ## Licence
 
-Zivid Samples are distributed under the [BSD license](LICENSE).
+Zivid Samples are distributed under the [BSD license](https://github.com/zivid/cpp-extra-samples/blob/master/LICENSE).
 
