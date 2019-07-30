@@ -13,6 +13,7 @@ Eigen::MatrixXf sumline(Eigen::MatrixXf&, int, int);
 Eigen::MatrixXf gridsum(Eigen::MatrixXf&, int);
 Zivid::PointCloud downsample(Zivid::PointCloud&, int);
 float isnanmask(float);
+float nantozero(float);
 float myround(float);
 
 int main()
@@ -20,10 +21,6 @@ int main()
 	try
 	{
 		Zivid::Application zivid;
-
-		std::cout << "Setting up visualization" << std::endl;
-		//Zivid::CloudVisualizer vis;
-		//zivid.setDefaultComputeDevice(vis.computeDevice());
 
 		std::string Filename = "Zivid3D.zdf";
 		std::cout << "Reading " << Filename << " point cloud" << std::endl;
@@ -36,6 +33,7 @@ int main()
 
 		pointCloudDownsampled = downsample(pointCloud, dsf);
 
+		std::cout << "Setting up visualization" << std::endl;
 		{
 			Zivid::CloudVisualizer vis;
 			zivid.setDefaultComputeDevice(vis.computeDevice());
@@ -72,17 +70,10 @@ int main()
 Eigen::MatrixXf sumline(Eigen::MatrixXf& matrix, int dsf)
 {
 	Eigen::MatrixXf reshapedMatrix = matrix.reshaped(dsf, (int)matrix.rows() * (int)matrix.cols() / dsf);
+	
+	std::function<float(float)> nan_to_zero_wrap = nantozero;
 
-	//I don't know a better way of doing this
-	//reshapedMatrix = reshapedMatrix.unaryExpr([](float v) { return std::isfinite(v) ? v : 0.0; });
-
-	for (int i = 0; i < reshapedMatrix.size(); ++i)
-	{
-		if (std::isnan(reshapedMatrix(i)))
-		{
-			reshapedMatrix(i) = 0;
-		}
-	}
+	reshapedMatrix = reshapedMatrix.unaryExpr(nan_to_zero_wrap);
 
 	return reshapedMatrix.colwise().sum().reshaped((int)matrix.rows() / dsf, (int)matrix.cols()).transpose();
 }
@@ -109,6 +100,18 @@ float isnanmask(float x)
 	}
 }
 
+float nantozero(float x)
+{
+	if (std::isnan(x))
+	{
+		return 0;
+	}
+	else
+	{
+		return x;
+	}
+}
+
 Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 {
 	/*
@@ -122,9 +125,8 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 	Eigen::MatrixXi g(pointCloud.height(), pointCloud.width());
 	Eigen::MatrixXi b(pointCloud.height(), pointCloud.width());
 	Eigen::MatrixXf contrast(pointCloud.height(), pointCloud.width());
-	Eigen::MatrixXf zeros(pointCloud.height(), pointCloud.width());
-	Eigen::MatrixXf ones(pointCloud.height(), pointCloud.width());
-	Eigen::MatrixXf nanm(pointCloud.height(), pointCloud.width());
+
+	// Getting Zivid Point cloud data and converting it to Eigen matrices
 
 	for (int i = 0; i < pointCloud.height(); i++)
 	{
@@ -137,9 +139,6 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 			g(i, j) = pointCloud(i, j).green();
 			b(i, j) = pointCloud(i, j).blue();
 			contrast(i, j) = pointCloud(i, j).contrast;
-			zeros(i, j) = 0;
-			ones(i, j) = 1;
-			nanm(i, j) = std::nan("1");
 		}
 	}
 
@@ -147,33 +146,37 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 	Eigen::MatrixXf gf = g.template cast<float>();
 	Eigen::MatrixXf bf = b.template cast<float>();
 
-	//Eigen::MatrixXf rfA = gridsum(rf, dsf) / (dsf*dsf);
-	//Eigen::MatrixXf bfA = gridsum(gf, dsf) / (dsf*dsf);
-	//Eigen::MatrixXf gfA = gridsum(bf, dsf) / (dsf*dsf);
-
 	std::function<float(float)> round_wrap = myround;
 
-	Eigen::MatrixXf rfAA = (gridsum(rf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
-	Eigen::MatrixXf bfAA = (gridsum(gf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
-	Eigen::MatrixXf gfAA = (gridsum(bf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
-
-	Eigen::MatrixXi redDownsampled = (rfAA).template cast<int>();
-	Eigen::MatrixXi greenDownsampled = (bfAA).template cast<int>();
-	Eigen::MatrixXi blueDownsampled = (gfAA).template cast<int>();
+	Eigen::MatrixXi redDownsampled = ((gridsum(rf, dsf) / (dsf*dsf)).unaryExpr(round_wrap)).template cast<int>();
+	Eigen::MatrixXi greenDownsampled = ((gridsum(gf, dsf) / (dsf*dsf)).unaryExpr(round_wrap)).template cast<int>();
+	Eigen::MatrixXi blueDownsampled = ((gridsum(bf, dsf) / (dsf*dsf)).unaryExpr(round_wrap)).template cast<int>();
 
 	std::function<float(float)> is_nan_mask_wrap = isnanmask;
-	Eigen::MatrixXf nanMask = z.unaryExpr(is_nan_mask_wrap);
 
-	contrast = nanMask.cwiseProduct(contrast);
-	auto contrastWeight = gridsum(contrast, dsf);
+	std::function<float(float)> nan_to_zero_wrap = nantozero;
 
-	Eigen::MatrixXf xc = x.cwiseProduct(contrast);
-	Eigen::MatrixXf yc = y.cwiseProduct(contrast);
-	Eigen::MatrixXf zc = z.cwiseProduct(contrast);
+	Eigen::MatrixXf contrastNulled = (z.unaryExpr(is_nan_mask_wrap)).cwiseProduct(contrast.unaryExpr(nan_to_zero_wrap));
 
-	Eigen::MatrixXf X_new = gridsum(xc, dsf).cwiseQuotient(contrastWeight);
-	Eigen::MatrixXf Y_new = gridsum(yc, dsf).cwiseQuotient(contrastWeight);
-	Eigen::MatrixXf Z_new = gridsum(zc, dsf).cwiseQuotient(contrastWeight);
+	auto contrastWeight = gridsum(contrastNulled, dsf);
+
+	/*Eigen::MatrixXf contrastContrasted = contrast.cwiseProduct(contrastNulled);
+	Eigen::MatrixXf contrastWeighted = gridsum(contrastContrasted, dsf).cwiseQuotient(gridsum(contrastNulled, dsf));
+	std::cout << contrast({ 0,1,2,3,4,5,6,7 }, { 0,1,2,3,4,5,6,7 }) << std::endl;
+	std::cout << contrastNulled({ 0,1,2,3,4,5,6,7 }, { 0,1,2,3,4,5,6,7 }) << std::endl;
+	std::cout << contrastContrasted({ 0,1,2,3,4,5,6,7 }, { 0,1,2,3,4,5,6,7 }) << std::endl;
+	std::cout << contrastWeight({ 0,1,2,3,4,5,6,7 }, { 0,1,2,3,4,5,6,7 }) << std::endl;
+	std::cout << contrastWeighted({ 0,1, }, { 0,1, }) << std::endl;*/
+
+	Eigen::MatrixXf xContrasted = x.cwiseProduct(contrastNulled);
+	Eigen::MatrixXf yContrasted = y.cwiseProduct(contrastNulled);
+	Eigen::MatrixXf zContrasted = z.cwiseProduct(contrastNulled);
+
+	Eigen::MatrixXf xWeighted = gridsum(xContrasted, dsf).cwiseQuotient(gridsum(contrastNulled, dsf));
+	Eigen::MatrixXf yWeighted = gridsum(yContrasted, dsf).cwiseQuotient(gridsum(contrastNulled, dsf));
+	Eigen::MatrixXf zWeighted = gridsum(zContrasted, dsf).cwiseQuotient(gridsum(contrastNulled, dsf));
+
+	// Filling in the Zivid Point cloud data from Eigen matrices
 
 	Zivid::PointCloud pointCloudDownsampled(redDownsampled.rows(), redDownsampled.cols());
 
@@ -182,10 +185,10 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 		for (int j = 0; j < redDownsampled.cols(); j++)
 		{
 			pointCloudDownsampled(i, j).setRgb(redDownsampled(i, j), greenDownsampled(i, j), blueDownsampled(i, j));
-			pointCloudDownsampled(i, j).setContrast(1);
-			pointCloudDownsampled(i, j).x = X_new(i, j);
-			pointCloudDownsampled(i, j).y = Y_new(i, j);
-			pointCloudDownsampled(i, j).z = Z_new(i, j);
+			//pointCloudDownsampled(i, j).setContrast(1);
+			pointCloudDownsampled(i, j).x = xWeighted(i, j);
+			pointCloudDownsampled(i, j).y = yWeighted(i, j);
+			pointCloudDownsampled(i, j).z = zWeighted(i, j);
 		}
 	}
 
