@@ -10,10 +10,10 @@ Import a ZDF point cloud and downsample it.
 #include <iostream>
 Eigen::MatrixXf sumline(Eigen::MatrixXf&, int, int);
 Eigen::MatrixXf gridsum(Eigen::MatrixXf&, int);
-Zivid::PointCloud downsample(Zivid::PointCloud&, int);
+float myround(float); 
 float isnanmask(float);
 float nantozero(float);
-float myround(float);
+Zivid::PointCloud downsample(Zivid::PointCloud&, int);
 
 int main()
 {
