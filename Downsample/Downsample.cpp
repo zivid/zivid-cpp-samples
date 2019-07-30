@@ -12,8 +12,8 @@ Import a ZDF point cloud and downsample it.
 Eigen::MatrixXf sumline(Eigen::MatrixXf&, int, int);
 Eigen::MatrixXf gridsum(Eigen::MatrixXf&, int);
 Zivid::PointCloud downsample(Zivid::PointCloud&, int);
-float MyIsNaN(float);
-float MyRound(float);
+float isnanmask(float);
+float myround(float);
 
 int main()
 {
@@ -92,12 +92,12 @@ Eigen::MatrixXf gridsum(Eigen::MatrixXf& r, int dsf)
 	return sumline(sumline(r, dsf), dsf);
 }
 
-float MyRound(float x)
+float myround(float x)
 {
 	return std::round(x);
 }
 
-float MyIsNaN(float x)
+float isnanmask(float x)
 {
 	if (std::isnan(x))
 	{
@@ -122,6 +122,9 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 	Eigen::MatrixXi g(pointCloud.height(), pointCloud.width());
 	Eigen::MatrixXi b(pointCloud.height(), pointCloud.width());
 	Eigen::MatrixXf contrast(pointCloud.height(), pointCloud.width());
+	Eigen::MatrixXf zeros(pointCloud.height(), pointCloud.width());
+	Eigen::MatrixXf ones(pointCloud.height(), pointCloud.width());
+	Eigen::MatrixXf nanm(pointCloud.height(), pointCloud.width());
 
 	for (int i = 0; i < pointCloud.height(); i++)
 	{
@@ -134,6 +137,9 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 			g(i, j) = pointCloud(i, j).green();
 			b(i, j) = pointCloud(i, j).blue();
 			contrast(i, j) = pointCloud(i, j).contrast;
+			zeros(i, j) = 0;
+			ones(i, j) = 1;
+			nanm(i, j) = std::nan("1");
 		}
 	}
 
@@ -141,66 +147,25 @@ Zivid::PointCloud downsample(Zivid::PointCloud& pointCloud, int dsf)
 	Eigen::MatrixXf gf = g.template cast<float>();
 	Eigen::MatrixXf bf = b.template cast<float>();
 
-	Eigen::MatrixXf rfA = gridsum(rf, dsf) / (dsf*dsf);
-	Eigen::MatrixXf bfA = gridsum(gf, dsf) / (dsf*dsf);
-	Eigen::MatrixXf gfA = gridsum(bf, dsf) / (dsf*dsf);
+	//Eigen::MatrixXf rfA = gridsum(rf, dsf) / (dsf*dsf);
+	//Eigen::MatrixXf bfA = gridsum(gf, dsf) / (dsf*dsf);
+	//Eigen::MatrixXf gfA = gridsum(bf, dsf) / (dsf*dsf);
 
-	std::function<float(float)> round_wrap = MyRound;
+	std::function<float(float)> round_wrap = myround;
 
-	Eigen::MatrixXf rfAA = rfA.unaryExpr(round_wrap);
-	Eigen::MatrixXf bfAA = bfA.unaryExpr(round_wrap);
-	Eigen::MatrixXf gfAA = gfA.unaryExpr(round_wrap);
-
-	/*std::cout << "rfAA" << std::endl;
-	std::cout << rfAA({ 0,1,2,3 }, { 0,1,2,3,4,5 }) << std::endl;
-	std::cout << rfAA.rows() << std::endl;
-	std::cout << rfAA.cols() << std::endl;
-	//Eigen::round(sdf);
-	rfA.array().round();
-	std::cout << "kkk" << std::endl;
-	//rfA.cw
-	std::cout << rfA({ 0,1,2,3 }, { 0,1,2,3,4,5 }) << std::endl;
-	std::cout << rfA.rows() << std::endl;
-	std::cout << rfA.cols() << std::endl;
-
-	Eigen::ArrayXf rfR = rfA.array().round();
-	std::cout << rfR({ 0,1,2,3 }, { 0,1,2,3,4,5 }) << std::endl;
-	std::cout << rfR.rows() << std::endl;
-	std::cout << rfR.cols() << std::endl;
-
-	Eigen::MatrixXf rfM = rfR.matrix();
-	std::cout << rfM({ 0,1,2,3 }, { 0,1,2,3,4,5 }) << std::endl;
-	std::cout << rfM.rows() << std::endl;
-	std::cout << rfM.cols() << std::endl;*/
-
-	//the problem is that going to int is always floor! not good. need to round to closest.
-	//Eigen::MatrixXi redDownsampled = (gridsum(rf, dsf) / (dsf*dsf)).template cast<int>();
-	//Eigen::MatrixXi greenDownsampled = (gridsum(gf, dsf) / (dsf*dsf)).template cast<int>();
-	//Eigen::MatrixXi blueDownsampled = (gridsum(bf, dsf) / (dsf*dsf)).template cast<int>();
+	Eigen::MatrixXf rfAA = (gridsum(rf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
+	Eigen::MatrixXf bfAA = (gridsum(gf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
+	Eigen::MatrixXf gfAA = (gridsum(bf, dsf) / (dsf*dsf)).unaryExpr(round_wrap);
 
 	Eigen::MatrixXi redDownsampled = (rfAA).template cast<int>();
 	Eigen::MatrixXi greenDownsampled = (bfAA).template cast<int>();
 	Eigen::MatrixXi blueDownsampled = (gfAA).template cast<int>();
 
-	//std::function<float(float,float)> nan_to_zero = MyNaNToZero;
+	std::function<float(float)> is_nan_mask_wrap = isnanmask;
+	Eigen::MatrixXf nanMask = z.unaryExpr(is_nan_mask_wrap);
 
-	//Gooood?
-	std::function<float(float)> my_is_nan_wrap = MyRound;
-	Eigen::MatrixXf mask = z.unaryExpr(my_is_nan_wrap);
-	contrast = mask.cwiseProduct(contrast);
-
-	//I don't know a better way do do this.
-	/*for (int i = 0; i < contrast.size(); ++i)
-	{
-		if (std::isnan(z(i)))
-		{
-			contrast(i) = 0;
-		}
-	}*/
+	contrast = nanMask.cwiseProduct(contrast);
 	auto contrastWeight = gridsum(contrast, dsf);
-	//std::cout << "sdasadsad" << std::endl;
-	//std::cout << contrastWeight << std::endl;
-
 
 	Eigen::MatrixXf xc = x.cwiseProduct(contrast);
 	Eigen::MatrixXf yc = y.cwiseProduct(contrast);
