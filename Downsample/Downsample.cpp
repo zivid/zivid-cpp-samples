@@ -8,8 +8,6 @@ Import a ZDF point cloud and downsample it.
 #include <Eigen/Core>
 
 #include <iostream>
-#include <stdexcept>
-
 Eigen::MatrixXf sumline(Eigen::MatrixXf&, int, int);
 Eigen::MatrixXf gridsum(Eigen::MatrixXf&, int);
 Zivid::PointCloud downsample(Zivid::PointCloud&, int);
