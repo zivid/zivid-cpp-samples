@@ -50,7 +50,7 @@ Zivid::PointCloud downsample(const Zivid::PointCloud& pointCloud, int downsampli
 
 	if ((pointCloud.height() % downsamplingFactor) || (pointCloud.width() % downsamplingFactor))
 	{
-		throw std::invalid_argument("Downsampling factor (" + std::to_string(downsamplingFactor) + ") has to be divisible by the width (" + std::to_string(pointCloud.width()) + ") and height (" + std::to_string(pointCloud.height()) + ") of the input point cloud.");
+		throw std::invalid_argument("Downsampling factor (" + std::to_string(downsamplingFactor) + ") has to a factor of the width (" + std::to_string(pointCloud.width()) + ") and height (" + std::to_string(pointCloud.height()) + ") of the input point cloud.");
 	}
 
 	Eigen::MatrixXf x(pointCloud.height(), pointCloud.width());
