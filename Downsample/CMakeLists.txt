@@ -16,8 +16,6 @@ add_custom_target(
             ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
 )
 
-#find_package(Eigen3 REQUIRED)
-SET( EIGEN3_INCLUDE_DIR "$ENV{EIGEN3_INCLUDE_DIR}" )
 IF( NOT EIGEN3_INCLUDE_DIR )
     MESSAGE( FATAL_ERROR "Please point the environment variable EIGEN3_INCLUDE_DIR to the include directory of your Eigen3 installation.")
 ENDIF()
