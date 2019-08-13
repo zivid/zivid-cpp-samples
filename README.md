@@ -16,7 +16,8 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 	- [**CaptureSavePLY**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/CaptureSavePLY/CaptureSavePLY.cpp) - This example shows how to capture a Zivid point cloud and save it to a .PLY file format.
 	- [**ConnectToSerialNumberCamera**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/ConnectToSerialNumberCamera/ConnectToSerialNumberCamera.cpp) - This example shows how to connect to a specific Zivid camera based on its serial number.
 	- [**GetCameraIntrinsics**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/GetCameraIntrinsics/GetCameraIntrinsics.cpp) - This example shows how to read the intrinsic calibration parameters of the Zivid camera (OpenCV model).
-	- [**ReadZDF**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/ReadZDF/ReadZDF.cpp) - This example shows how to import and display a Zivid point cloud from a .ZDF file.
+	- [**ReadIterateZDF**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/ReadIterateZDF/ReadIterateZDF.cpp) - This example shows how to import, display and iterate over a Zivid point cloud from a .ZDF
+file.
 	- [**ZDF2PLY**](https://github.com/zivid/cpp-extra-samples/tree/master/Zivid/ZDF2PLY/ZDF2PLY.cpp) - This example shows how to convert a Zivid point cloud from a .ZDF file format to a .PLY file format.
 
 - [**ZividPCL**](https://github.com/zivid/cpp-extra-samples/tree/master/ZividPCL)
