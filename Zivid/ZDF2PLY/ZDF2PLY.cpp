@@ -9,22 +9,21 @@ to a .PLY file format.
 
 int main()
 {
-	try
-	{
-		Zivid::Application zivid;
+    try
+    {
+        Zivid::Application zivid;
 
-		std::string FilenameZDF = "Zivid3D.zdf";
-		std::string FilenamePLY = "Zivid3D.ply";
+        std::string FilenameZDF = "Zivid3D.zdf";
+        std::string FilenamePLY = "Zivid3D.ply";
 
-		Zivid::Frame frame = Zivid::Frame(FilenameZDF);
+        Zivid::Frame frame = Zivid::Frame(FilenameZDF);
 
-		std::cout << "Saving the frame to " << FilenamePLY << std::endl;
-		frame.save(FilenamePLY);
-
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-		return EXIT_FAILURE;
-	}
+        std::cout << "Saving the frame to " << FilenamePLY << std::endl;
+        frame.save(FilenamePLY);
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error: " << Zivid::toString(e) << std::endl;
+        return EXIT_FAILURE;
+    }
 }
