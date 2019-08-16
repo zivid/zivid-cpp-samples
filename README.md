@@ -31,6 +31,11 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 	- **Dependencies:**
 		- [Eigen](http://eigen.tuxfamily.org/) version 3.3.90 or newer
 
+- [**ZividOpenCV**](https://github.com/zivid/cpp-extra-samples/tree/master/ZividOpenCV)
+	- [**ZDF2OpenCV**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividOpenCV/ZDF2OpenCV/ZDF2OpenCV.cpp) - Import a ZDF point cloud and convert it to OpenCV format.
+	- **Dependencies:**
+		- [OpenCV](https://opencv.org/) version 4.0.1-dev or newer
+
 ## Instructions
 
 [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
