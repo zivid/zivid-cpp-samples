@@ -1,8 +1,8 @@
-
-
 # cpp-extra-samples
 
 This repository contains additional **C++** code samples for **Zivid**.
+
+[![Build Status][ci-badge]][ci-url]
 
 The basic samples are available at [https://www.zivid.com/downloads](https://www.zivid.com/downloads).
 The Windows Zivid installer adds these samples in C:\Users\Public\Documents\Zivid\samples and they should build out of the box using Visual Studio 2015 or 2017.
@@ -86,3 +86,5 @@ If you need assistance with using Zivid cameras, visit our [**Knowledge Base**](
 
 Zivid Samples are distributed under the [BSD license](https://github.com/zivid/cpp-extra-samples/blob/master/LICENSE).
 
+[ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/5e76c4a5-26ad-4cbb-8ab5-b9588e1ed2b2/4
+[ci-url]: https://dev.azure.com/zivid-devops/cpp-extra-samples/_build/latest?definitionId=4&branchName=master
