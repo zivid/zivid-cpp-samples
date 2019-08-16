@@ -10,29 +10,29 @@ file.
 
 int main()
 {
-	try
-	{
-		Zivid::Application zivid;
+    try
+    {
+        Zivid::Application zivid;
 
-		std::cout << "Setting up visualization" << std::endl;
-		Zivid::CloudVisualizer vis;
-		zivid.setDefaultComputeDevice(vis.computeDevice());
+        std::cout << "Setting up visualization" << std::endl;
+        Zivid::CloudVisualizer vis;
+        zivid.setDefaultComputeDevice(vis.computeDevice());
 
-		std::string Filename = "Zivid3D.zdf";
-		std::cout << "Reading " << Filename << " point cloud" << std::endl;
-		Zivid::Frame frame = Zivid::Frame(Filename);
+        std::string Filename = "Zivid3D.zdf";
+        std::cout << "Reading " << Filename << " point cloud" << std::endl;
+        Zivid::Frame frame = Zivid::Frame(Filename);
 
-		std::cout << "Displaying the frame" << std::endl;
-		vis.showMaximized();
-		vis.show(frame);
-		vis.resetToFit();
+        std::cout << "Displaying the frame" << std::endl;
+        vis.showMaximized();
+        vis.show(frame);
+        vis.resetToFit();
 
-		std::cout << "Running the visualizer. Blocking until the window closes" << std::endl;
-		vis.run();
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-		return EXIT_FAILURE;
-	}
+        std::cout << "Running the visualizer. Blocking until the window closes" << std::endl;
+        vis.run();
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error: " << Zivid::toString(e) << std::endl;
+        return EXIT_FAILURE;
+    }
 }
