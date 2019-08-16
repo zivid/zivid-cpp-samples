@@ -1,0 +1,16 @@
+jobs:
+- job: Linux
+  pool:
+    vmImage: ubuntu-16.04
+  strategy:
+    matrix:
+      Ubuntu1804:
+        os: 'ubuntu:18.04'
+        command: './lint.sh'
+  steps:
+  - script: docker run
+              --volume $PWD:/host
+              --workdir /host/continuous-integration/linux
+              $(os)
+              bash -c "./setup.sh && $(command)"
+    displayName: 'Lint'
