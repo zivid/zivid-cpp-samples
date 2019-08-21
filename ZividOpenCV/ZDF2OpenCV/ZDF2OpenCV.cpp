@@ -21,34 +21,34 @@ enum class Axis
 };
 
 template<Axis axis>
-static float getValue(const Zivid::Point &p);
+float getValue(const Zivid::Point &p);
 
 template<>
-static float getValue<Axis::X>(const Zivid::Point &p)
+float getValue<Axis::X>(const Zivid::Point &p)
 {
     return p.x;
 }
 
 template<>
-static float getValue<Axis::Y>(const Zivid::Point &p)
+float getValue<Axis::Y>(const Zivid::Point &p)
 {
     return p.y;
 }
 
 template<>
-static float getValue<Axis::Z>(const Zivid::Point &p)
+float getValue<Axis::Z>(const Zivid::Point &p)
 {
     return p.z;
 }
 
 template<Axis axis>
-static bool isLesserOrNan(const Zivid::Point &a, const Zivid::Point &b)
+bool isLesserOrNan(const Zivid::Point &a, const Zivid::Point &b)
 {
     return getValue<axis>(a) < getValue<axis>(b) ? true : std::isnan(getValue<axis>(a));
 }
 
 template<Axis axis>
-static bool isGreaterOrNaN(const Zivid::Point &a, const Zivid::Point &b)
+bool isGreaterOrNaN(const Zivid::Point &a, const Zivid::Point &b)
 {
     return getValue<axis>(a) > getValue<axis>(b) ? true : std::isnan(getValue<axis>(a));
 }
