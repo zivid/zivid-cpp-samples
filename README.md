@@ -39,7 +39,7 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 ## Instructions
 
 [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
-Note: The version tested with Zivid cameras is 1.4.0.
+Note: The version tested with Zivid cameras is 1.5.0.
 
 #### Windows
 
