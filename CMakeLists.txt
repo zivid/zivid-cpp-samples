@@ -100,9 +100,9 @@ message(STATUS "All samples: ${SAMPLES}")
 foreach(SAMPLE ${SAMPLES})
     get_filename_component(SAMPLE_NAME ${SAMPLE} NAME)
 
-	add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
+    add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
 
-	target_link_libraries(${SAMPLE_NAME} Zivid::Core)
+    target_link_libraries(${SAMPLE_NAME} Zivid::Core)
 
     if(${SAMPLE_NAME} IN_LIST Vis3D_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Zivid::Vis3D)
