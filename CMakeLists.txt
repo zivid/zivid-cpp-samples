@@ -60,7 +60,7 @@ endif()
 
 if(USE_PCL)
     if(NOT PCL_FOUND)
-        message(FATAL_ERROR "Point Cloud Library (PCL) not found. Please point PCL_DIR to the directory of your PCL installation (containing the file PCLConfig.cmake), or disable the PCL samples with -DUSE_OPENCV=OFF.")
+        message(FATAL_ERROR "Point Cloud Library (PCL) not found. Please point PCL_DIR to the directory of your PCL installation (containing the file PCLConfig.cmake), or disable the PCL samples with -DUSE_PCL=OFF.")
     endif()
 else()
     disable_samples("PCL")
