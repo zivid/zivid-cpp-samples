@@ -39,7 +39,7 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 ## Instructions
 
 [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
-Note: The version tested with Zivid cameras is 1.4.0.
+Note: The version tested with Zivid cameras is 1.5.0.
 
 #### Windows
 
@@ -53,34 +53,38 @@ git clone https://github.com/zivid/cpp-extra-samples
 [comment]: <> (Choose a sample solution and configure it with CMake.)
 [comment]: <> (Launch Visual Studio, open, build, and run the sample solution.)
 
-Choose a sample solution, configure it with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our tutorials for configuring [**Zivid**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/61472793/Configure+Zivid+Extra+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows), [**Zivid & PCL**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/44204066/Configure+C+Zivid+Point+Cloud+Library+PCL+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows), [**Downsample**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/76480513/Configure+C+Downsample+Sample+with+CMake+and+build+it+using+Visual+Studio+in+Windows), and [**Zivid & OpenCV**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/84115471/Configure+C+Zivid+OpenCV+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows) samples with CMake and building them using Visual Studio in Windows.
+Configure the sample solution with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our tutorial for configuring [**C++ Extra Samples**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/61472793/Configure+C+Extra+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows) with CMake and building them using Visual Studio in Windows.
 
 #### Ubuntu
 
 Open the Terminal by pressing *Ctrl + Alt + T* keys on the keyboard.
 
-Navigage to a location where you want to clone the repository, then run to following command:
+Navigate to a location where you want to clone the repository, then run to following commands:
 
 ```
 git clone https://github.com/zivid/cpp-extra-samples
+cd cpp-extra-samples
 ```
 
- Navigage to the sample solution directory:
-```
-cd cpp-extra-samples/Zivid
-```
-
-Build the sample project:
+Build the project:
 ```
 mkdir build
 cd build
-cmake ..
+cmake <options, see below> ..
 make -j
 ```
 
-Run the sample:
+Some of the samples depend on external libraries, in particular Eigen 3, OpenCV or PCL. If you don't want to install those, you can disable the samples depending on them by passing the following options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`, `-DUSEPCL=OFF`.
+
+If you do want to use them:
+- **Eigen 3**: Set `-DEIGEN3_INCLUDE_DIR=<path>` where `<path>` is the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.)
+- **PCL** and **OpenCV**: If a recent enough version is installed on your system, these should just work. If not, set `-DPCL_DIR=<path>` / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
+
+Note that some of the samples depend on the Zivid Cloud Visualizer. These can be hard to build on Linux, due to a dynamic dependency on a specific version of Qt. Until we fix that problem, we suggest disabling those samples by passing `-DUSE_VIS3D=OFF` as an argument to `cmake`.
+
+The samples can now be run from the `build` directory, for instance like this:
 ```
-./ReadZDF
+./ZDF2PLY
 ```
 
 ## Support
