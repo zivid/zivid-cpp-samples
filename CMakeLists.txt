@@ -27,12 +27,13 @@ set(SAMPLES
     ZividPCL/CaptureFromFileWritePCLVis3D
     ZividPCL/ZDF2PCD
     ZividOpenCV/ZDF2OpenCV
+    ZividOpenCV/CaptureUndistortRGB
     Downsample)
 
 set(Eigen3_DEPENDING Downsample)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
-set(OpenCV_DEPENDING ZDF2OpenCV)
-set(Vis3D_DEPENDING Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF)
+set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB)
+set(Vis3D_DEPENDING Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF CaptureUndistortRGB)
 
 macro(disable_samples DEPENDENCY_NAME)
     message("${DEPENDENCY_NAME} samples have been disabled:")
