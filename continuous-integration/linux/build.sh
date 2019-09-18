@@ -3,8 +3,6 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
 
-"$SCRIPT_DIR/lint.sh"
-
 cd $ROOT_DIR
 mkdir build || exit $?
 cd build || exit $?

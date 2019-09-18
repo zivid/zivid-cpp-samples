@@ -6,7 +6,7 @@ jobs:
     matrix:
       Ubuntu1804:
         os: 'ubuntu:18.04'
-        command: './test.sh'
+        command: './lint.sh && ./build.sh'
   steps:
   - script: docker run
               --volume $PWD:/host
