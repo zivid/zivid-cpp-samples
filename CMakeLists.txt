@@ -10,10 +10,6 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_VIS3D "Enable samples which depend on the Zivid Cloud Visualizer. These can be hard to get to build on Linux due to a specific Qt dependency" ON)
 
-find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
-find_package(PCL 1.2 QUIET)
-find_package(OpenCV 4.0.1 QUIET OPTIONAL_COMPONENTS core highgui)
-
 set(SAMPLES
     Zivid/CaptureHDRCompleteSettings
     Zivid/CaptureHDRLoop
@@ -34,6 +30,8 @@ set(Eigen3_DEPENDING Downsample)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
 set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB)
 set(Vis3D_DEPENDING Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF CaptureUndistortRGB)
+
+find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 
 macro(disable_samples DEPENDENCY_NAME)
     message("${DEPENDENCY_NAME} samples have been disabled:")
@@ -60,6 +58,7 @@ else()
 endif()
 
 if(USE_PCL)
+    find_package(PCL 1.2)
     if(NOT PCL_FOUND)
         message(FATAL_ERROR "Point Cloud Library (PCL) not found. Please point PCL_DIR to the directory of your PCL installation (containing the file PCLConfig.cmake), or disable the PCL samples with -DUSE_PCL=OFF.")
     endif()
@@ -68,6 +67,7 @@ else()
 endif()
 
 if(USE_OPENCV)
+    find_package(OpenCV 4.0.1 OPTIONAL_COMPONENTS core highgui)
     if(NOT OpenCV_FOUND)
         message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF.")
     endif()
@@ -100,9 +100,9 @@ message(STATUS "All samples: ${SAMPLES}")
 foreach(SAMPLE ${SAMPLES})
     get_filename_component(SAMPLE_NAME ${SAMPLE} NAME)
 
-	add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
+    add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
 
-	target_link_libraries(${SAMPLE_NAME} Zivid::Core)
+    target_link_libraries(${SAMPLE_NAME} Zivid::Core)
 
     if(${SAMPLE_NAME} IN_LIST Vis3D_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Zivid::Vis3D)
