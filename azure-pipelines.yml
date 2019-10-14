@@ -6,11 +6,11 @@ jobs:
     matrix:
       Ubuntu1804:
         os: 'ubuntu:18.04'
-        command: './lint.sh'
+        command: './lint.sh && ./build.sh'
   steps:
   - script: docker run
               --volume $PWD:/host
               --workdir /host/continuous-integration/linux
               $(os)
               bash -c "./setup.sh && $(command)"
-    displayName: 'Lint'
+    displayName: 'Test'
