@@ -8,7 +8,7 @@ set(ZIVID_VERSION 1.5.0)
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
-option(USE_VIS3D "Enable samples which depend on the Zivid Cloud Visualizer. These can be hard to get to build on Linux due to a specific Qt dependency" ON)
+option(USE_VIS3D "Enable samples which depend on the Zivid Cloud Visualizer" ON)
 
 set(SAMPLES
     Zivid/CaptureHDRCompleteSettings
