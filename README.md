@@ -33,9 +33,9 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 
 - [**ZividOpenCV**](https://github.com/zivid/cpp-extra-samples/tree/master/ZividOpenCV)
 	- [**ZDF2OpenCV**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividOpenCV/ZDF2OpenCV/ZDF2OpenCV.cpp) - Import a ZDF point cloud and convert it to OpenCV format.
-	- [**CaptureUndistortRGB**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividOpenCV/ZDF2OpenCV/CaptureUndistortRGB.cpp) - Undistort an RGB image from a ZDF point cloud using Zivid camera intrinsics.
+	- [**CaptureUndistortRGB**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividOpenCV/CaptureUndistortRGB/CaptureUndistortRGB.cpp) - Use Zivid camera intrinsics to undistort an RGB image. This example will prompt the user for whether to capture a 2D or a 3D image. In both instances it will operate on a 2D image. However, in the 3D case it will extract 2D image from a ZDF point cloud. The 2D variant is faster.
 	- **Dependencies:**
-		- [OpenCV](https://opencv.org/) version 4.0.1-dev or newer
+		- [OpenCV](https://opencv.org/) version 4.0.1 or newer
 
 - [**HandEyeCalibration**](https://github.com/zivid/cpp-extra-samples/tree/master/HandEyeCalibration)
 	- [**UtilizeEyeInHandCalibration**](https://github.com/zivid/cpp-extra-samples/blob/master/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp) - Transform a 3D point from camera frame to robot base frame using hand-eye calibration matrix.
