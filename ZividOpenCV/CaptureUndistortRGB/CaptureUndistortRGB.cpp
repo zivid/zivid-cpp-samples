@@ -113,8 +113,8 @@ cv::Mat pointCloudToRGB(const Zivid::PointCloud &pointCloud)
 
 std::tuple<cv::Mat, cv::Mat> reformatCameraIntrinsics(const Zivid::CameraIntrinsics &cameraIntrinsics)
 {
-    cv::Mat distortionCoefficients(cv::Size(1, 5), CV_64FC1, cv::Scalar(0));
-    cv::Mat cameraMatrix(cv::Size(3, 3), CV_64FC1, cv::Scalar(0));
+    cv::Mat distortionCoefficients(1, 5, CV_64FC1, cv::Scalar(0));
+    cv::Mat cameraMatrix(3, 3, CV_64FC1, cv::Scalar(0));
 
     distortionCoefficients.at<double>(0, 0) = cameraIntrinsics.distortion().k1().value();
     distortionCoefficients.at<double>(0, 1) = cameraIntrinsics.distortion().k2().value();
