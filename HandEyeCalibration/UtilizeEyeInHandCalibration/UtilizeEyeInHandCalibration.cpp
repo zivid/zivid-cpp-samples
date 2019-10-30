@@ -74,10 +74,10 @@ int main()
         std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.segment(0, 3).transpose() << std::endl;
 
         // Read camera pose in end-effector frame (result of eye-in-hand calibration)
-        const auto eyeInHandTransformation = readTransform("../HandEyeCalibration/handEyeTransform.yaml");
+        const auto eyeInHandTransformation = readTransform("handEyeTransform.yaml");
 
         // Read end-effector pose in robot base frame
-        const auto endEffectorPose = readTransform("../HandEyeCalibration/robotTransform.yaml");
+        const auto endEffectorPose = readTransform("robotTransform.yaml");
 
         // convert to Eigen matrices for easier computation
         const auto transformEndEffectorToCamera = cvToEigen(eyeInHandTransformation);
