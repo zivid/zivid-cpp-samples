@@ -10,6 +10,9 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_VIS3D "Enable samples which depend on the Zivid Cloud Visualizer. These can be hard to get to build on Linux due to a specific Qt dependency" ON)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(CompilerOptions)
+
 set(SAMPLES
     Zivid/CaptureHDRCompleteSettings
     Zivid/CaptureHDRLoop
@@ -109,12 +112,12 @@ foreach(SAMPLE ${SAMPLES})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Eigen3_DEPENDING)
-        target_include_directories(${SAMPLE_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR})
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${EIGEN3_INCLUDE_DIR})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST PCL_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} ${PCL_LIBRARIES})
-        target_include_directories(${SAMPLE_NAME} PRIVATE ${PCL_INCLUDE_DIRS})
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
