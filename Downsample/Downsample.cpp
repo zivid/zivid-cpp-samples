@@ -68,9 +68,9 @@ Zivid::PointCloud downsample(const Zivid::PointCloud &pointCloud, int downsampli
     Eigen::MatrixXi b(pointCloud.height(), pointCloud.width());
     Eigen::MatrixXf contrast(pointCloud.height(), pointCloud.width());
 
-    for(int i = 0; i < pointCloud.height(); i++)
+    for(size_t i = 0; i < pointCloud.height(); i++)
     {
-        for(int j = 0; j < pointCloud.width(); j++)
+        for(size_t j = 0; j < pointCloud.width(); j++)
         {
             x(i, j) = pointCloud(i, j).x;
             y(i, j) = pointCloud(i, j).y;
