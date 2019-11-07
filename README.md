@@ -37,6 +37,12 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 	- **Dependencies:**
 		- [OpenCV](https://opencv.org/) version 4.0.1-dev or newer
 
+- [**HandEyeCalibration**](https://github.com/zivid/cpp-extra-samples/tree/master/HandEyeCalibration)
+	- [**UtilizeEyeInHandCalibration**](https://github.com/zivid/cpp-extra-samples/blob/master/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp) - Transform a 3D point from camera frame to robot base frame using hand-eye calibration matrix.
+	- **Dependencies:**
+		- [OpenCV](https://opencv.org/) version 4.0.1-dev or newer
+		- [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
+
 ## Instructions
 
 [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
