@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(CppExtraSamples)
 
 set(CMAKE_CXX_STANDARD 11)
-set(ZIVID_VERSION 1.5.0)
+set(ZIVID_VERSION 1.6.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
