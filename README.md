@@ -87,8 +87,6 @@ If you do want to use them:
 - **Eigen 3**: Set `-DEIGEN3_INCLUDE_DIR=<path>` where `<path>` is the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.)
 - **PCL** and **OpenCV**: If a recent enough version is installed on your system, these should just work. If not, set `-DPCL_DIR=<path>` / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
 
-Note that some of the samples depend on the Zivid Cloud Visualizer. These can be hard to build on Linux, due to a dynamic dependency on a specific version of Qt. Until we fix that problem, we suggest disabling those samples by passing `-DUSE_VIS3D=OFF` as an argument to `cmake`.
-
 The samples can now be run from the `build` directory, for instance like this:
 ```
 ./ZDF2PLY

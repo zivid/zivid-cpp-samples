@@ -9,6 +9,5 @@ cd build || exit $?
 cmake -DCMAKE_CXX_COMPILER=clang++-8 \
     -DUSE_EIGEN3=OFF \
     -DUSE_OPENCV=OFF \
-    -DUSE_VIS3D=OFF \
     .. || exit $?
 cmake --build . || exit $?
