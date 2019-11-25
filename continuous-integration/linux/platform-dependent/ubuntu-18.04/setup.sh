@@ -15,6 +15,7 @@ apt-yes install \
     cmake \
     libpcl-dev \
     wget \
+    ninja-build \
     || exit $?
 
 function install_www_deb {

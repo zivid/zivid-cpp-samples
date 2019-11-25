@@ -16,7 +16,7 @@ function build()
 
     mkdir --parents "$BUILD_DIR" || exit $?
     cd "$BUILD_DIR" || exit $?
-    cmake -DCMAKE_CXX_COMPILER="$COMPILER" \
+    cmake -GNinja -DCMAKE_CXX_COMPILER="$COMPILER" \
         -DUSE_EIGEN3=OFF \
         -DUSE_OPENCV=OFF \
         -DWARNINGS=ON \
