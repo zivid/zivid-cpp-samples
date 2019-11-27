@@ -25,5 +25,5 @@ function build()
     cmake --build . || exit $?
 }
 
-build clang++-8 clang || exit $?
-build g++-7 gcc || exit $?
+build clang++ clang || exit $?
+build g++ gcc || exit $?

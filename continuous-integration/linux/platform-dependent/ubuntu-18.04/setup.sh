@@ -10,7 +10,7 @@ apt-yes update || exit $?
 apt-yes dist-upgrade || exit $?
 
 apt-yes install \
-    clang-8 \
+    clang \
     clang-format-8 \
     cmake \
     libpcl-dev \
