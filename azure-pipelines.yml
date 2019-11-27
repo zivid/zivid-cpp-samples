@@ -14,6 +14,9 @@ jobs:
       Ubuntu1804:
         os: 'ubuntu:18.04'
         command: './lint.sh && ./build.sh'
+      Ubuntu1604:
+        os: 'ubuntu:16.04'
+        command: './build.sh --skip-clang'
   steps:
   - script: docker run
               --volume $PWD:/host
