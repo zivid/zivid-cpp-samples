@@ -42,9 +42,9 @@ int main()
             cloud.points[i].x = Point.x;
             cloud.points[i].y = Point.y;
             cloud.points[i].z = Point.z;
-            cloud.points[i].r = (uint8_t)Point.red();
-            cloud.points[i].g = (uint8_t)Point.green();
-            cloud.points[i].b = (uint8_t)Point.blue();
+            cloud.points[i].r = Point.red();
+            cloud.points[i].g = Point.green();
+            cloud.points[i].b = Point.blue();
         }
 
         //Saving to a .PCD file format

@@ -152,17 +152,14 @@ cv::Mat imageToBGR(const Zivid::Image<Zivid::RGBA8> &image)
 
 cv::Mat pointCloudToBGR(const Zivid::PointCloud &pointCloud)
 {
-    cv::Mat bgr(static_cast<int>(pointCloud.height()),
-                static_cast<int>(pointCloud.width()),
-                CV_8UC3,
-                cv::Scalar(0, 0, 0));
+    cv::Mat bgr(pointCloud.height(), pointCloud.width(), CV_8UC3, cv::Scalar(0, 0, 0));
 
     const auto height = pointCloud.height();
     const auto width = pointCloud.width();
 
-    for(int i = 0; i < height; i++)
+    for(size_t i = 0; i < height; i++)
     {
-        for(int j = 0; j < width; j++)
+        for(size_t j = 0; j < width; j++)
         {
             cv::Vec3b &color = bgr.at<cv::Vec3b>(i, j);
             color[0] = pointCloud(i, j).blue();
