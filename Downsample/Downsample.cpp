@@ -13,7 +13,7 @@ Import a ZDF point cloud and downsample it.
 Zivid::PointCloud downsample(const Zivid::PointCloud &, int);
 Eigen::MatrixXi downsampleAndRound(const Eigen::MatrixXi &, int);
 Eigen::MatrixXf gridSum(const Eigen::MatrixXf &, int);
-Eigen::MatrixXf lineSum(const Eigen::MatrixXf &, int);
+Eigen::MatrixXf lineSum(Eigen::MatrixXf, int);
 float nanToZero(float);
 void visualizePointCloud(const Zivid::PointCloud &, Zivid::Application &);
 
@@ -133,22 +133,25 @@ Eigen::MatrixXi downsampleAndRound(const Eigen::MatrixXi &matrixi, int downsampl
 
 Eigen::MatrixXf gridSum(const Eigen::MatrixXf &r, int downsamplingFactor)
 {
-    return lineSum(lineSum(r, downsamplingFactor), downsamplingFactor);
+    return lineSum(lineSum(r, downsamplingFactor).transpose(), downsamplingFactor).transpose();
 }
 
-Eigen::MatrixXf lineSum(const Eigen::MatrixXf &matrix, int downsamplingFactor)
+Eigen::MatrixXf lineSum(Eigen::MatrixXf matrix, int downsamplingFactor)
 {
-    Eigen::MatrixXf reshapedMatrix =
-        matrix.reshaped(downsamplingFactor, (int)matrix.rows() * (int)matrix.cols() / downsamplingFactor);
-
+    Eigen::Map<Eigen::MatrixXf> flattenedMatrixMap(matrix.data(),
+                                                   downsamplingFactor,
+                                                   (int)matrix.rows() * (int)matrix.cols() / downsamplingFactor);
     std::function<float(float)> nan_to_zero_functor = nanToZero;
 
-    reshapedMatrix = reshapedMatrix.unaryExpr(nan_to_zero_functor);
+    Eigen::MatrixXf flattenedMatrixNansRemoved = flattenedMatrixMap.unaryExpr(nan_to_zero_functor);
 
-    return reshapedMatrix.colwise()
-        .sum()
-        .reshaped((int)matrix.rows() / downsamplingFactor, (int)matrix.cols())
-        .transpose();
+    Eigen::MatrixXf flattenedMatrixColwiseSum = flattenedMatrixNansRemoved.colwise().sum();
+
+    Eigen::Map<Eigen::MatrixXf> reshapedMatrixMap(flattenedMatrixColwiseSum.data(),
+                                                  (int)matrix.rows() / downsamplingFactor,
+                                                  (int)matrix.cols());
+
+    return reshapedMatrixMap;
 }
 
 float nanToZero(float x)
