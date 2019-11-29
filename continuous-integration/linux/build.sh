@@ -2,12 +2,28 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
+BUILD_ROOT_DIR="$ROOT_DIR/build"
 
-cd $ROOT_DIR
-mkdir build || exit $?
-cd build || exit $?
-cmake -DCMAKE_CXX_COMPILER=clang++-8 \
-    -DUSE_EIGEN3=OFF \
-    -DUSE_OPENCV=OFF \
-    .. || exit $?
-cmake --build . || exit $?
+function build()
+{
+    COMPILER=$1
+    BUILD_SUBDIR=$2
+    BUILD_DIR="$BUILD_ROOT_DIR/$BUILD_SUBDIR"
+
+    echo "-----------------------------------------------"
+    echo "            Building with $COMPILER"
+    echo "-----------------------------------------------"
+
+    mkdir --parents "$BUILD_DIR" || exit $?
+    cd "$BUILD_DIR" || exit $?
+    cmake -GNinja -DCMAKE_CXX_COMPILER="$COMPILER" \
+        -DUSE_EIGEN3=OFF \
+        -DUSE_OPENCV=OFF \
+        -DWARNINGS=ON \
+        -DWARNINGS_AS_ERRORS=OFF \
+        ../.. || exit $?
+    cmake --build . || exit $?
+}
+
+build clang++ clang || exit $?
+build g++ gcc || exit $?

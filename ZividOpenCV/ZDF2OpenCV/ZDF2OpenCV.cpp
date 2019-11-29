@@ -99,9 +99,9 @@ int main()
             std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isGreaterOrNaN<Axis::Z>);
 
         // Filling in OpenCV matrices with the cloud data
-        for(int i = 0; i < pointCloud.height(); i++)
+        for(size_t i = 0; i < pointCloud.height(); i++)
         {
-            for(int j = 0; j < pointCloud.width(); j++)
+            for(size_t j = 0; j < pointCloud.width(); j++)
             {
                 cv::Vec3b &color = rgb.at<cv::Vec3b>(i, j);
                 color[0] = pointCloud(i, j).blue();
@@ -130,9 +130,9 @@ int main()
         cv::applyColorMap(z, zJetColorMap, cv::COLORMAP_JET);
 
         // Setting nans to black
-        for(int i = 0; i < pointCloud.height(); i++)
+        for(size_t i = 0; i < pointCloud.height(); i++)
         {
-            for(int j = 0; j < pointCloud.width(); j++)
+            for(size_t j = 0; j < pointCloud.width(); j++)
             {
                 if(std::isnan(pointCloud(i, j).z))
                 {

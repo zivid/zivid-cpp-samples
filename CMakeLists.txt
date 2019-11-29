@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(CppExtraSamples)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(CompilerOptions)
+
 set(ZIVID_VERSION 1.7.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
@@ -105,12 +107,12 @@ foreach(SAMPLE ${SAMPLES})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Eigen3_DEPENDING)
-        target_include_directories(${SAMPLE_NAME} PRIVATE ${EIGEN3_INCLUDE_DIR})
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${EIGEN3_INCLUDE_DIR})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST PCL_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} ${PCL_LIBRARIES})
-        target_include_directories(${SAMPLE_NAME} PRIVATE ${PCL_INCLUDE_DIRS})
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
