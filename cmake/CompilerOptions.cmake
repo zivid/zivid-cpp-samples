@@ -46,8 +46,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
         endif()
 
-        set(WARNINGS_THAT_SHOULD_BE_IGNORED # WHY it is ok to ignore
-        #TODO, see the Clang options
+        set(WARNINGS_THAT_SHOULD_BE_IGNORED # WHY it is ok to ignore        
+            4702 # Got unreachable warnings from external, even though they are generallly ignored by /experimental:external
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
