@@ -48,6 +48,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
         set(WARNINGS_THAT_SHOULD_BE_IGNORED # WHY it is ok to ignore        
             4702 # Got unreachable warnings from external, even though they are generallly ignored by /experimental:external
+            4710 # If the compiler decides to not inline a function, that's their decision.
+            4711 # If the compiler decides to inline a function, that's their decision.
+            4571 # Just a non-interesting informational warning about msvc changing behaviour in 7.1
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
