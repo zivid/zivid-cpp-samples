@@ -18,6 +18,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             c++98-compat                    # Code base should be modern
             c++98-compat-pedantic           # Code base should be modern
             newline-eof                     # Legacy warning, no benefit when using modern compilers and editors
+            sign-conversion                 # Happens a lot in these samples, would complicate them too much to handle manually
+            sign-compare                    # Happens a lot in these samples, would complicate them too much to handle manually
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-${WARNING}")
@@ -51,6 +53,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
             4710 # If the compiler decides to not inline a function, that's their decision.
             4711 # If the compiler decides to inline a function, that's their decision.
             4571 # Just a non-interesting informational warning about msvc changing behaviour in 7.1
+            4267 # Conversion: Happens a lot in these samples, would complicate them too much to handle manually
+            4365 # Conversion: Happens a lot in these samples, would complicate them too much to handle manually
+            4388 # Signed/unsigned comparison: Happens a lot in these samples, would complicate them too much to handle manually
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
