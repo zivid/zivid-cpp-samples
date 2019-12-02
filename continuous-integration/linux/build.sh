@@ -2,7 +2,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
-BUILD_ROOT_DIR="$ROOT_DIR/build"
+BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 #There's a C++11 compatibility bug in the Zivid API which makes it fail on
 #older versions of Clang, such as the default Clang 3.8.2 on Ubuntu 16.04.
@@ -36,7 +36,7 @@ function build()
         -DWARNINGS=ON \
         -DWARNINGS_AS_ERRORS=OFF \
         "$OS_SPECIFIC_OPTIONS" \
-        ../.. || exit $?
+        ../../.. || exit $?
     cmake --build . || exit $?
 }
 
