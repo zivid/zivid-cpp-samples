@@ -34,7 +34,7 @@ function build()
         -DUSE_EIGEN3=OFF \
         -DUSE_OPENCV=OFF \
         -DWARNINGS=ON \
-        -DWARNINGS_AS_ERRORS=OFF \
+        -DWARNINGS_AS_ERRORS=ON \
         "$OS_SPECIFIC_OPTIONS" \
         ../.. || exit $?
     cmake --build . || exit $?
