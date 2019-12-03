@@ -29,7 +29,7 @@ Check out our [tutorial on configuring and building these samples on Ubuntu](htt
 
 - [**Downsample**](https://github.com/zivid/cpp-extra-samples/tree/master/Downsample)  - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
 	- **Dependencies:**
-		- [Eigen](http://eigen.tuxfamily.org/) version 3.3.90 or newer
+		- [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
 
 - [**ZividOpenCV**](https://github.com/zivid/cpp-extra-samples/tree/master/ZividOpenCV)
 	- [**ZDF2OpenCV**](https://github.com/zivid/cpp-extra-samples/blob/master/ZividOpenCV/ZDF2OpenCV/ZDF2OpenCV.cpp) - Import a ZDF point cloud and convert it to OpenCV format.
