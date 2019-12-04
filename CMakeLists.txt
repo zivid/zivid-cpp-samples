@@ -26,11 +26,12 @@ set(SAMPLES
     ZividOpenCV/ZDF2OpenCV
     ZividOpenCV/CaptureUndistortRGB
     Downsample
-    HandEyeCalibration/UtilizeEyeInHandCalibration)
+    HandEyeCalibration/UtilizeEyeInHandCalibration
+    HandEyeCalibration/PoseConversions)
 
-set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration)
+set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
-set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration)
+set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
 set(Vis3D_DEPENDING Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF CaptureUndistortRGB)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
@@ -120,7 +121,23 @@ foreach(SAMPLE ${SAMPLES})
     endif()
 
     add_dependencies(${SAMPLE_NAME} CopyZdf)
+
     if(WIN32)
         add_dependencies(${SAMPLE_NAME} CopyDlls)
     endif()
 endforeach()
+
+# TODO: Generalize how input file dependencies are copied, see issue #46
+add_custom_target(
+    CopyHandEyeFiles
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/HandEyeCalibration/robotTransform.yaml
+            ${CMAKE_CURRENT_SOURCE_DIR}/HandEyeCalibration/handEyeTransform.yaml
+            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+)
+if(TARGET UtilizeEyeInHandCalibration)
+    add_dependencies("UtilizeEyeInHandCalibration" CopyHandEyeFiles)
+endif()
+if(TARGET PoseConversions)
+    add_dependencies("PoseConversions" CopyHandEyeFiles)
+endif()
