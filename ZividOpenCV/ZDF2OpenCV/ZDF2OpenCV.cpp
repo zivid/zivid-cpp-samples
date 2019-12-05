@@ -116,9 +116,12 @@ int main()
                 }
                 else
                 {
-                    x.at<uchar>(i, j) = (uchar)(255.0f * (pointCloud(i, j).x - minX->x) / (maxX->x - minX->x));
-                    y.at<uchar>(i, j) = (uchar)(255.0f * (pointCloud(i, j).y - minY->y) / (maxY->y - minY->y));
-                    z.at<uchar>(i, j) = (uchar)(255.0f * (pointCloud(i, j).z - minZ->z) / (maxZ->z - minZ->z));
+                    x.at<uchar>(i, j) =
+                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).x - minX->x) / (maxX->x - minX->x)));
+                    y.at<uchar>(i, j) =
+                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).y - minY->y) / (maxY->y - minY->y)));
+                    z.at<uchar>(i, j) =
+                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).z - minZ->z) / (maxZ->z - minZ->z)));
                 }
             }
         }
