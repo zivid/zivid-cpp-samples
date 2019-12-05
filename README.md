@@ -104,3 +104,15 @@ Zivid Samples are distributed under the [BSD license](https://github.com/zivid/c
 
 [ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/5e76c4a5-26ad-4cbb-8ab5-b9588e1ed2b2/4
 [ci-url]: https://dev.azure.com/zivid-devops/cpp-extra-samples/_build/latest?definitionId=4&branchName=master
+
+## Development
+
+To run continuous integration locally, use [Docker](https://www.docker.com). With Docker installed, run this command:
+```
+docker run -it -v <unixy-repo-path>:/host -w /host/continuous-integration/linux ubuntu:18.04
+```
+Where <unixy-repo-path> is the unixy path to the repo on your computer. On Linux, use `$PWD` for this. On Windows you need to translate the windowsy path to a unixy one (e.g. `/c/Users/alice/Documents/cpp-extra-samples`).
+
+Now run `./setup.sh` to install dependencies. Once setup has completed, you can run `./lint.sh && ./build.sh` repeatedly to check your code.
+
+Tip: If your build hangs, try to increase the memory available to Docker.
