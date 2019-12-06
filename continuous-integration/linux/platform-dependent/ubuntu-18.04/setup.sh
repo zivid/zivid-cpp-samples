@@ -12,6 +12,7 @@ apt-yes dist-upgrade || exit $?
 apt-yes install \
     clang \
     clang-format-8 \
+    clang-tidy-8 \
     cmake \
     libpcl-dev \
     wget \
