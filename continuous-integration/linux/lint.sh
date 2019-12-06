@@ -29,3 +29,15 @@ if [ $errorsFound -ne 0 ]; then
     exit 1
 fi
 echo "All files are properly formatted!" ["$0"]
+
+BUILD_DIR="$ROOT_DIR/build/ci/tidy"
+mkdir --parents "$BUILD_DIR" || exit $?
+cd "$BUILD_DIR" || exit $?
+cmake -GNinja \
+    -DUSE_EIGEN3=OFF \
+    -DUSE_OPENCV=OFF \
+    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-8" \
+    -DWARNINGS=ON \
+    -DWARNINGS_AS_ERRORS=ON \
+    ../../.. || exit $?
+cmake --build . || exit $?
