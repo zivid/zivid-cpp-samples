@@ -1,3 +1,5 @@
-build
+/build
 *.swp
 *.swo
+.idea
+cmake-build-*
