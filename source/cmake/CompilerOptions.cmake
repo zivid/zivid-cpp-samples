@@ -61,6 +61,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
                  # This warning is purely informational
             4244 # Narrowing conversions: Too strict and noisy for this code base
             4242 # Narrowing conversions: Too strict and noisy for this code base
+            4820 # The type and order of elements caused the compiler to add padding to the end of a struct
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
