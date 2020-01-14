@@ -1,8 +1,3 @@
-/*
-This example shows how to capture a Zivid point cloud and save it to a .PLY
-file format.
-*/
-
 #include <Zivid/Zivid.h>
 
 #include <chrono>
@@ -14,20 +9,20 @@ int main()
     {
         Zivid::Application zivid;
 
-        auto FilenamePLY = "Zivid3D.ply";
+        auto resultFile = "result.zdf";
 
-        std::cout << "Connecting to the camera" << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring the camera settings" << std::endl;
+        std::cout << "Adjusting the camera settings" << std::endl;
         camera << Zivid::Settings::Iris{ 20 } << Zivid::Settings::ExposureTime{ std::chrono::microseconds{ 8333 } }
                << Zivid::Settings::Filters::Outlier::Enabled::yes << Zivid::Settings::Filters::Outlier::Threshold{ 5 };
 
-        std::cout << "Capturing a frame" << std::endl;
+        std::cout << "Capture a frame" << std::endl;
         auto frame = camera.capture();
 
-        std::cout << "Saving the frame to " << FilenamePLY << std::endl;
-        frame.save(FilenamePLY);
+        std::cout << "Saving frame to file: " << resultFile << std::endl;
+        frame.save(resultFile);
     }
     catch(const std::exception &e)
     {

@@ -12,27 +12,30 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 
 set(SAMPLES
-    Zivid/CaptureHDRCompleteSettings
-    Zivid/CaptureHDRLoop
-    Zivid/CaptureSavePLY
-    Zivid/ConnectToSerialNumberCamera
-    Zivid/GetCameraIntrinsics
-    Zivid/ReadZDF
-    Zivid/ZDF2PLY
-    ZividPCL/ReadPCLVis3D
-    ZividPCL/CaptureWritePCLVis3D
-    ZividPCL/CaptureFromFileWritePCLVis3D
-    ZividPCL/ZDF2PCD
-    ZividOpenCV/ZDF2OpenCV
-    ZividOpenCV/CaptureUndistortRGB
-    Downsample
-    HandEyeCalibration/UtilizeEyeInHandCalibration
-    HandEyeCalibration/PoseConversions)
+    Camera/Basic/Capture
+    Camera/Basic/Capture2D
+    Camera/Basic/CaptureAssistant
+    Camera/Basic/CaptureFromFile
+    Camera/Basic/CaptureHDR
+    Camera/InfoUtilOther/CameraUserData
+    Camera/InfoUtilOther/GetCameraIntrinsics
+    Applications/Basic/Visualization/CaptureFromFileVis3D
+    Applications/Basic/Visualization/CaptureLiveVis3D
+    Applications/Basic/Visualization/CaptureVis3D
+    Applications/Basic/Visualization/CaptureHDRLoop
+    Applications/Basic/Visualization/ReadPCLVis3D
+    Applications/Basic/Visualization/CaptureWritePCLVis3D
+    Applications/Basic/FileFormats/ReadZDF
+    Applications/Advanced/CaptureUndistortRGB
+    Applications/Advanced/Downsample
+    Applications/Advanced/HandEyeCalibration/HandEyeCalibration
+    Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration
+    Applications/Advanced/HandEyeCalibration/PoseConversions)
 
 set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
 set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
-set(Vis3D_DEPENDING Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF CaptureUndistortRGB)
+set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadZDF CaptureUndistortRGB)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 
@@ -131,8 +134,8 @@ endforeach()
 add_custom_target(
     CopyHandEyeFiles
     COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/HandEyeCalibration/robotTransform.yaml
-            ${CMAKE_CURRENT_SOURCE_DIR}/HandEyeCalibration/handEyeTransform.yaml
+            ${CMAKE_CURRENT_SOURCE_DIR}/Applications/Advanced/HandEyeCalibration/robotTransform.yaml
+            ${CMAKE_CURRENT_SOURCE_DIR}/Applications/Advanced/HandEyeCalibration/handEyeTransform.yaml
             ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
 )
 if(TARGET UtilizeEyeInHandCalibration)
