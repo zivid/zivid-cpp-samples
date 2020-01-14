@@ -12,38 +12,38 @@ There are two main categories of samples: **Camera** and **Applications**. The s
 
 - **Camera**
   - **Basic**
-    - [**Capture**]([Capture-url]) - This example shows how to acquire images from the Zivid camera.
-    - [**Capture2D**]([Capture2D-url]) - This example shows how to acquire only 2D images from the Zivid camera.
-    - [**CaptureAssistant**]([CaptureAssistant-url]) - This example shows how to use Capture Assistant to acquire HDR images from the Zivid camera.
-    - [**CaptureFromFile**]([CaptureFromFile-url]) - This example shows how to acquire HDR images from file. This example can be used without access to a physical camera.
-    - [**CaptureHDR**]([CaptureHDR-url]) - This example shows how to acquire HDR images from the Zivid camera.
+    - [**Capture**][Capture-url] - This example shows how to acquire images from the Zivid camera.
+    - [**Capture2D**][Capture2D-url] - This example shows how to acquire only 2D images from the Zivid camera.
+    - [**CaptureAssistant**][CaptureAssistant-url] - This example shows how to use Capture Assistant to acquire HDR images from the Zivid camera.
+    - [**CaptureFromFile**][CaptureFromFile-url] - This example shows how to acquire HDR images from file. This example can be used without access to a physical camera.
+    - [**CaptureHDR**][CaptureHDR-url] - This example shows how to acquire HDR images from the Zivid camera.
   - **InfoUtilOther**
-    - [**CameraUserData**]([CameraUserData-url]) - This example shows how to store user data on the Zivid camera.
-    - [**GetCameraIntrinsics**]([GetCameraIntrinsics-url]) - This example shows how to get camera intrinsics from the Zivid camera.
+    - [**CameraUserData**][CameraUserData-url] - This example shows how to store user data on the Zivid camera.
+    - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - This example shows how to get camera intrinsics from the Zivid camera.
 
 - **Applications**
   - **Basic**
-    - [**CaptureHDRLoop**]([CaptureHDRLoop-url]) - This example shows how to acquire HDR images from the Zivid camera in a loop (while actively changing some HDR settings).
+    - [**CaptureHDRLoop**][CaptureHDRLoop-url] - This example shows how to acquire HDR images from the Zivid camera in a loop (while actively changing some HDR settings).
     - **Visualization**
-      - [**CaptureFromFileVis3D**]([CaptureFromFileVis3D-url]) - This example shows how capture a Zivid point cloud from file, and visualize it.
-      - [**CaptureVis3D**]([CaptureVis3D-url]) - This example shows how to capture a Zivid point cloud, and visualize it.
-      - [**CaptureLiveVis3D**]([CaptureLiveVis3D-url]) - This example shows how to continuosly capture a Zivid point cloud, and visualize it.
-      - [**CaptureWritePCLVis3D**]([CaptureWritePCLVis3D-url]) - This example shows how capture a Zivid point cloud, save it to a .PCD file format, and visualize it.
-      - [**ReadPCLVis3D**]([ReadPCLVis3D-url]) - This example shows how to read a PCL point cloud and visualize it.
+      - [**CaptureFromFileVis3D**][CaptureFromFileVis3D-url] - This example shows how capture a Zivid point cloud from file, and visualize it.
+      - [**CaptureVis3D**][CaptureVis3D-url] - This example shows how to capture a Zivid point cloud, and visualize it.
+      - [**CaptureLiveVis3D**][CaptureLiveVis3D-url] - This example shows how to continuosly capture a Zivid point cloud, and visualize it.
+      - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - This example shows how capture a Zivid point cloud, save it to a .PCD file format, and visualize it.
+      - [**ReadPCLVis3D**][ReadPCLVis3D-url] - This example shows how to read a PCL point cloud and visualize it.
     - **FileFormats**
-      - [**ReadZDF**]([ReadZDF-url]) - This example shows how to import and display a Zivid point cloud from a .ZDF file.
+      - [**ReadZDF**][ReadZDF-url] - This example shows how to import and display a Zivid point cloud from a .ZDF file.
   - **Advanced**
-    - [**HandEyeCalibration**]([HandEyeCalibration-url])
-      - [**HandEyeCalibration**]([HandEyeCalibration-url]) - This samples shows how to perform a complete Hand Eye calibration
-      - [**UtilizeEyeInHandCalibration**]([UtilizeEyeInHandCalibration-url]) - Transform a 3D point from camera frame to robot base frame using hand-eye calibration matrix.
-      - [**PoseConversions**]([PoseConversions-url]) - Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector)
-    - [**Downsample**](Downsample-url)  - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
+    - [**HandEyeCalibration**][HandEyeCalibration-url]
+      - [**HandEyeCalibration**][HandEyeCalibrationSample-url] - This samples shows how to perform a complete Hand Eye calibration
+      - [**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url] - Transform a 3D point from camera frame to robot base frame using hand-eye calibration matrix.
+      - [**PoseConversions**][PoseConversions-url] - Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector)
+    - [**Downsample**][Downsample-url]  - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
       - **Dependencies:**
         - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
-    - [**CaptureUndistortRGB**]([CaptureUndistortRGB-url]) - Use Zivid camera intrinsics to undistort an RGB image. This example will prompt the user for whether to capture a 2D or a 3D image. In both instances it will operate on a 2D image. However, in the 3D case it will extract 2D image from a ZDF point cloud. The 2D variant is faster.
+    - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use Zivid camera intrinsics to undistort an RGB image. This example will prompt the user for whether to capture a 2D or a 3D image. In both instances it will operate on a 2D image. However, in the 3D case it will extract 2D image from a ZDF point cloud. The 2D variant is faster.
       - **Dependencies:**
         - [OpenCV](https://opencv.org/) version 4.0.1 or newer
-    - [**CreateDepthMap**]([CreateDepthMap-url]) - Import a ZDF point cloud and convert it to OpenCV format, then extract and visualize depth map.
+    - [**CreateDepthMap**][CreateDepthMap-url] - Import a ZDF point cloud and convert it to OpenCV format, then extract and visualize depth map.
       - **Dependencies:**
         - [OpenCV](https://opencv.org/) version 4.0.1 or newer
 
@@ -129,19 +129,19 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureAssistant-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/Basic/CaptureAssistant/CaptureAssistant.cpp
 [CaptureFromFile-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/Basic/CaptureFromFile/CaptureFromFile.cpp
 [CaptureHDR-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/Basic/CaptureHDR/CaptureHDR.cpp
-[InfoUtilOther-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/InfoUtilOther
 [CameraUserData-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
-[CaptureHDRLoop-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Basic/CaptureHDRLoop/CaptureHDRLoop.cpp
+[CaptureHDRLoop-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Basic/Visualization/CaptureHDRLoop/CaptureHDRLoop.cpp
 [CaptureFromFileVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Basic/Visualization/CaptureFromFileVis3D/CaptureFromFileVis3D.cpp
 [CaptureVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp
 [CaptureLiveVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Basic/Visualization/CaptureLiveVis3D/CaptureLiveVis3D.cpp
 [CaptureWritePCLVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp
 [ReadPCLVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp
 [ReadZDF-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Basic/FileFormats/ReadZDF/ReadZDF.cpp
+[HandEyeCalibration-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Advanced/HandEyeCalibration
 [HandEyeCalibrationSample-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp
 [UtilizeEyeInHandCalibration-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
 [PoseConversions-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
-[Downsample-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Advanced/Downsample
+[Downsample-url]: https://github.com/zivid/cpp-extra-samples/tree/master/Applications/Advanced/Downsample/Downsample.cpp
 [CaptureUndistortRGB-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp
