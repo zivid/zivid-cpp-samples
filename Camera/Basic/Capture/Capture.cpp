@@ -10,6 +10,7 @@ int main()
         Zivid::Application zivid;
 
         auto resultFile = "result.zdf";
+        auto resultFilePLY = "result.ply";
 
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
@@ -23,6 +24,8 @@ int main()
 
         std::cout << "Saving frame to file: " << resultFile << std::endl;
         frame.save(resultFile);
+        std::cout << "Saving frame to file: " << resultFilePLY << std::endl;
+        frame.save(resultFilePLY);
     }
     catch(const std::exception &e)
     {
