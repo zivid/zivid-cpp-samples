@@ -34,5 +34,5 @@ The following applications assume that a **Transformation Matrix** has been foun
   * AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
 
 [SampleHandEyeCalibration-url]: https://www.zivid.com/hubfs/softwarefiles/releases/1.6.0+7a245bbe-26/doc/cpp/zivid_sample_code.html#autotoc_md10
-[UtilizeEyeInHandCalibration-url]: https://github.com/zivid/cpp-extra-samples/blob/master/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
-[PoseConversions-url]: https://github.com/zivid/cpp-extra-samples/blob/master/HandEyeCalibration/PoseConversions/PoseConversions.cpp
+[UtilizeEyeInHandCalibration-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
+[PoseConversions-url]: https://github.com/zivid/cpp-extra-samples/blob/master/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
