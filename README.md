@@ -31,7 +31,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - This example shows how capture a Zivid point cloud, save it to a .PCD file format, and visualize it.
       - [**ReadPCLVis3D**][ReadPCLVis3D-url] - This example shows how to read a PCL point cloud and visualize it.
     - **FileFormats**
-      - [**ReadZDF**][ReadZDF-url] - This example shows how to import and display a Zivid point cloud from a .ZDF file.
+      - [**ReadIterateZDF**][ReadIterateZDF-url] - This example shows how to import and display a Zivid point cloud from a .ZDF file.
   - **Advanced**
     - [**HandEyeCalibration**][HandEyeCalibration-url]
       - [**HandEyeCalibration**][HandEyeCalibrationSample-url] - This samples shows how to perform a complete Hand Eye calibration
@@ -137,7 +137,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureLiveVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/source/Applications/Basic/Visualization/CaptureLiveVis3D/CaptureLiveVis3D.cpp
 [CaptureWritePCLVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp
 [ReadPCLVis3D-url]: https://github.com/zivid/cpp-extra-samples/blob/master/source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp
-[ReadZDF-url]: https://github.com/zivid/cpp-extra-samples/tree/master/source/Applications/Basic/FileFormats/ReadZDF/ReadZDF.cpp
+[ReadIterateZDF-url]: https://github.com/zivid/cpp-extra-samples/tree/master/source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp
 [HandEyeCalibration-url]: https://github.com/zivid/cpp-extra-samples/tree/master/source/Applications/Advanced/HandEyeCalibration
 [HandEyeCalibrationSample-url]: https://github.com/zivid/cpp-extra-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp
 [UtilizeEyeInHandCalibration-url]: https://github.com/zivid/cpp-extra-samples/blob/master/source/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
