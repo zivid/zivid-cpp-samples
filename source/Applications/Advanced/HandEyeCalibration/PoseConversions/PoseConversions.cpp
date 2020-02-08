@@ -155,7 +155,7 @@ Representations zividToRobot(const Eigen::Affine3d &transformationMatrix)
     std::cout << robotRepresentations.quaternion.coeffs() << std::endl;
 
     // Rotation Matrix to Roll-Pitch-Yaw
-    for(int i = 0; i < nofRotationConventions; i++)
+    for(size_t i = 0; i < nofRotationConventions; i++)
     {
         const RotationConvention convention{ static_cast<RotationConvention>(i) };
         std::cout << "\nConverting Rotation Matrix to Roll-Pitch-Yaw angles (" << toString(convention)
