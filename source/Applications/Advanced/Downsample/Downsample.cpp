@@ -140,7 +140,7 @@ Eigen::MatrixXf lineSum(Eigen::MatrixXf matrix, int downsamplingFactor)
 {
     Eigen::Map<Eigen::MatrixXf> flattenedMatrixMap(matrix.data(),
                                                    downsamplingFactor,
-                                                   (int)matrix.rows() * (int)matrix.cols() / downsamplingFactor);
+                                                   matrix.rows() * matrix.cols() / downsamplingFactor);
     std::function<float(float)> nan_to_zero_functor = nanToZero;
 
     Eigen::MatrixXf flattenedMatrixNansRemoved = flattenedMatrixMap.unaryExpr(nan_to_zero_functor);
@@ -148,8 +148,8 @@ Eigen::MatrixXf lineSum(Eigen::MatrixXf matrix, int downsamplingFactor)
     Eigen::MatrixXf flattenedMatrixColwiseSum = flattenedMatrixNansRemoved.colwise().sum();
 
     Eigen::Map<Eigen::MatrixXf> reshapedMatrixMap(flattenedMatrixColwiseSum.data(),
-                                                  (int)matrix.rows() / downsamplingFactor,
-                                                  (int)matrix.cols());
+                                                  matrix.rows() / downsamplingFactor,
+                                                  matrix.cols());
 
     return reshapedMatrixMap;
 }
