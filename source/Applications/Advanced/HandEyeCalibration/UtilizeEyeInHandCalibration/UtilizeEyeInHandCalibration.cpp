@@ -9,6 +9,43 @@ coordinates from the camera frame to the robot base frame.
 #include <cmath>
 #include <iostream>
 
+Eigen::MatrixXd cvToEigen(const cv::Mat &);
+cv::Mat readTransform(const std::string &);
+
+int main()
+{
+    try
+    {
+        // define (picking) point in camera frame
+        const Eigen::Vector4d pointInCameraFrame(81.2, 18.0, 594.6, 1);
+        std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.segment(0, 3).transpose() << std::endl;
+
+        // Read camera pose in end-effector frame (result of eye-in-hand calibration)
+        const auto eyeInHandTransformation = readTransform("handEyeTransform.yaml");
+
+        // Read end-effector pose in robot base frame
+        const auto endEffectorPose = readTransform("robotTransform.yaml");
+
+        // convert to Eigen matrices for easier computation
+        const auto transformEndEffectorToCamera = cvToEigen(eyeInHandTransformation);
+        const auto transformBaseToEndEffector = cvToEigen(endEffectorPose);
+
+        // Compute camera pose in robot base frame
+        const auto transform_base_to_camera = transformBaseToEndEffector * transformEndEffectorToCamera;
+
+        // compute (picking) point in robot base frame
+        const auto pointInBaseFrame = transform_base_to_camera * pointInCameraFrame;
+        std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.segment(0, 3).transpose()
+                  << std::endl;
+    }
+
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+}
+
 Eigen::MatrixXd cvToEigen(const cv::Mat &cvMat)
 {
     if(cvMat.dims > 2)
@@ -62,39 +99,5 @@ cv::Mat readTransform(const std::string &file_name)
     {
         fileStorage.release();
         throw;
-    }
-}
-
-int main()
-{
-    try
-    {
-        // define (picking) point in camera frame
-        const Eigen::Vector4d pointInCameraFrame(81.2, 18.0, 594.6, 1);
-        std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.segment(0, 3).transpose() << std::endl;
-
-        // Read camera pose in end-effector frame (result of eye-in-hand calibration)
-        const auto eyeInHandTransformation = readTransform("handEyeTransform.yaml");
-
-        // Read end-effector pose in robot base frame
-        const auto endEffectorPose = readTransform("robotTransform.yaml");
-
-        // convert to Eigen matrices for easier computation
-        const auto transformEndEffectorToCamera = cvToEigen(eyeInHandTransformation);
-        const auto transformBaseToEndEffector = cvToEigen(endEffectorPose);
-
-        // Compute camera pose in robot base frame
-        const auto transform_base_to_camera = transformBaseToEndEffector * transformEndEffectorToCamera;
-
-        // compute (picking) point in robot base frame
-        const auto pointInBaseFrame = transform_base_to_camera * pointInCameraFrame;
-        std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.segment(0, 3).transpose()
-                  << std::endl;
-    }
-
-    catch(const std::exception &e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return EXIT_FAILURE;
     }
 }

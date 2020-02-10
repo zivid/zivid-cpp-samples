@@ -155,7 +155,7 @@ Representations zividToRobot(const Eigen::Affine3d &transformationMatrix)
     std::cout << robotRepresentations.quaternion.coeffs() << std::endl;
 
     // Rotation Matrix to Roll-Pitch-Yaw
-    for(int i = 0; i < nofRotationConventions; i++)
+    for(size_t i = 0; i < nofRotationConventions; i++)
     {
         const RotationConvention convention{ static_cast<RotationConvention>(i) };
         std::cout << "\nConverting Rotation Matrix to Roll-Pitch-Yaw angles (" << toString(convention)
@@ -211,8 +211,10 @@ std::string toString(RotationConvention convention)
         case RotationConvention::XYZ_Extrinsic: return "XYZ_Extrinsic";
         case RotationConvention::ZYX_Intrinsic: return "ZYX_Intrinsic";
         case RotationConvention::ZYX_Extrinsic: return "ZYX_Extrinsic";
-        default: throw std::invalid_argument("Invalid RotationConvention");
+        case RotationConvention::NOF_ROT: break;
     }
+
+    throw std::invalid_argument("Invalid RotationConvention");
 }
 
 // The following function converts Rotation Matrix to Roll-Pitch-Yaw angles in radians.
@@ -228,8 +230,10 @@ Eigen::Array3d rotationMatrixToRollPitchYaw(const Eigen::Matrix3d &rotationMatri
         case RotationConvention::XYZ_Extrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
         case RotationConvention::ZYX_Intrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
         case RotationConvention::ZYX_Extrinsic: return rotationMatrix.eulerAngles(0, 1, 2);
-        default: throw std::invalid_argument("Invalid rotation");
+        case RotationConvention::NOF_ROT: break;
     }
+
+    throw std::invalid_argument("Invalid rotation");
 }
 
 // The following function converts Roll-Pitch-Yaw angles in radians to Rotation Matrix.
@@ -248,14 +252,14 @@ Eigen::Matrix3d rollPitchYawToRotationMatrix(const Eigen::Array3d &rollPitchYaw,
                     * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
                     * Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ()))
                 .matrix();
-            break;
         case RotationConvention::ZYX_Intrinsic:
         case RotationConvention::XYZ_Extrinsic:
             return (Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ())
                     * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
                     * Eigen::AngleAxisd(rollPitchYaw[0], Eigen::Vector3d::UnitX()))
                 .matrix();
-            break;
-        default: throw std::invalid_argument("Invalid orientation");
+        case RotationConvention::NOF_ROT: break;
     }
+
+    throw std::invalid_argument("Invalid orientation");
 }
