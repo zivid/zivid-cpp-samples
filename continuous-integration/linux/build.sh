@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR=$(realpath "$SCRIPT_DIR/../../source")
+ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
+SOURCE_DIR="$ROOT_DIR/source"
 BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 #There's a C++11 compatibility bug in the Zivid API which makes it fail on
@@ -36,7 +37,7 @@ function build()
         -DWARNINGS=ON \
         -DWARNINGS_AS_ERRORS=ON \
         "$OS_SPECIFIC_OPTIONS" \
-        ../../.. || exit $?
+        "$SOURCE_DIR" || exit $?
     cmake --build . || exit $?
 }
 
