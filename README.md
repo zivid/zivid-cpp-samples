@@ -50,7 +50,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
 ## Instructions
 
 [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
-Note: The version tested with Zivid cameras is 1.7.0.
+Note: The version tested with Zivid cameras is 1.8.0.
 
 ### Windows
 
