@@ -2,9 +2,10 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
+SOURCE_DIR="$ROOT_DIR/source"
 
-cppFiles=$(find "$ROOT_DIR" -name '*.cpp')
-hFiles=$(find "$ROOT_DIR" -name '*.h')
+cppFiles=$(find "$SOURCE_DIR" -name '*.cpp')
+hFiles=$(find "$SOURCE_DIR" -name '*.h')
 
 if [ -z "$cppFiles" ]; then
     echo Error: Cannot find C++ source files
