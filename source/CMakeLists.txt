@@ -17,12 +17,12 @@ set(SAMPLES
     Camera/Basic/CaptureAssistant
     Camera/Basic/CaptureFromFile
     Camera/Basic/CaptureHDR
+    Camera/Basic/CaptureHDRLoop
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Applications/Basic/Visualization/CaptureFromFileVis3D
     Applications/Basic/Visualization/CaptureLiveVis3D
     Applications/Basic/Visualization/CaptureVis3D
-    Applications/Basic/Visualization/CaptureHDRLoop
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/Visualization/CaptureWritePCLVis3D
     Applications/Basic/FileFormats/ReadIterateZDF
@@ -35,7 +35,7 @@ set(SAMPLES
 set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
 set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
-set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureHDRLoop CaptureHDRCompleteSettings ReadIterateZDF CaptureUndistortRGB)
+set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV ReadIterateZDF CaptureUndistortRGB)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 

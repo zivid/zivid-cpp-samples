@@ -3,7 +3,6 @@ This example shows how to acquire HDR images from the Zivid camera in a loop
 (while actively changing some HDR settings).
 */
 
-#include <Zivid/CloudVisualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <iostream>
@@ -13,10 +12,6 @@ int main()
     try
     {
         Zivid::Application zivid;
-
-        std::cout << "Setting up visualization" << std::endl;
-        Zivid::CloudVisualizer vis;
-        zivid.setDefaultComputeDevice(vis.computeDevice());
 
         std::cout << "Connecting to the camera" << std::endl;
         auto camera = zivid.connectCamera();
@@ -53,14 +48,6 @@ int main()
         frames[1].save("25.zdf");
         frames[2].save("30.zdf");
         hdrFrame.save("HDR.zdf");
-
-        std::cout << "Displaying the HDR frame" << std::endl;
-        vis.showMaximized();
-        vis.show(hdrFrame);
-        vis.resetToFit();
-
-        std::cout << "Running the visualizer. Blocking until the window closes" << std::endl;
-        vis.run();
     }
     catch(const std::exception &e)
     {
