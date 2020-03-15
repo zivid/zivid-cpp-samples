@@ -17,6 +17,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CaptureAssistant**][CaptureAssistant-url] - This example shows how to use Capture Assistant to acquire HDR images from the Zivid camera.
     - [**CaptureFromFile**][CaptureFromFile-url] - This example shows how to acquire HDR images from file. This example can be used without access to a physical camera.
     - [**CaptureHDR**][CaptureHDR-url] - This example shows how to acquire HDR images from the Zivid camera.
+    - [**CaptureHDRCompleteSettings**][CaptureHDRCompleteSettings-url] - This example shows how to acquire an HDR image from the Zivid camera with fully configured settings for each frame.
     - [**CaptureHDRLoop**][CaptureHDRLoop-url] - This example shows how to acquire HDR images from the Zivid camera in a loop, with settings from .yml files.
   - **InfoUtilOther**
     - [**CameraUserData**][CameraUserData-url] - This example shows how to store user data on the Zivid camera.
@@ -132,6 +133,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureFromFile-url]: source/Camera/Basic/CaptureFromFile/CaptureFromFile.cpp
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
 [CaptureHDRLoop-url]: source/Camera/Basic/CaptureHDRLoop/CaptureHDRLoop.cpp
+[CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
 [CaptureFromFileVis3D-url]: source/Applications/Basic/Visualization/CaptureFromFileVis3D/CaptureFromFileVis3D.cpp

@@ -17,6 +17,7 @@ set(SAMPLES
     Camera/Basic/CaptureAssistant
     Camera/Basic/CaptureFromFile
     Camera/Basic/CaptureHDR
+    Camera/Basic/CaptureHDRCompleteSettings
     Camera/Basic/CaptureHDRLoop
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
