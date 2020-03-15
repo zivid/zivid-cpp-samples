@@ -1,9 +1,7 @@
 /*
-This example shows how to import, display and iterate over a Zivid point cloud from a .ZDF
-file.
+This example shows how to import a Zivid point cloud from a .ZDF file, iterate through, and extract individual points.
 */
 
-#include <Zivid/CloudVisualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <iostream>
@@ -14,21 +12,9 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Setting up visualization" << std::endl;
-        Zivid::CloudVisualizer vis;
-        zivid.setDefaultComputeDevice(vis.computeDevice());
-
         const std::string Filename = "Zivid3D.zdf";
         std::cout << "Reading " << Filename << " point cloud" << std::endl;
         const Zivid::Frame frame = Zivid::Frame(Filename);
-
-        std::cout << "Displaying the frame" << std::endl;
-        vis.showMaximized();
-        vis.show(frame);
-        vis.resetToFit();
-
-        std::cout << "Running the visualizer. Blocking until the window closes" << std::endl;
-        vis.run();
 
         // Extracting point cloud from the frame
         const auto pointCloud = frame.getPointCloud();

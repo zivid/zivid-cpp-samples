@@ -32,7 +32,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - This example shows how capture a Zivid point cloud, save it to a .PCD file format, and visualize it.
       - [**ReadPCLVis3D**][ReadPCLVis3D-url] - This example shows how to read a PCL point cloud and visualize it.
     - **FileFormats**
-      - [**ReadIterateZDF**][ReadIterateZDF-url] - This example shows how to import and display a Zivid point cloud from a .ZDF file.
+      - [**ReadIterateZDF**][ReadIterateZDF-url] - This example shows how to import a Zivid point cloud from a .ZDF file, iterate through, and extract individual points.
   - **Advanced**
     - [**HandEyeCalibration**][HandEyeCalibration-url]
       - [**HandEyeCalibration**][HandEyeCalibrationSample-url] - This samples shows how to perform a complete Hand Eye calibration
