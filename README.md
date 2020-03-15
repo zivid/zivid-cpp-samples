@@ -17,7 +17,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CaptureAssistant**][CaptureAssistant-url] - This example shows how to use Capture Assistant to acquire HDR images from the Zivid camera.
     - [**CaptureFromFile**][CaptureFromFile-url] - This example shows how to acquire HDR images from file. This example can be used without access to a physical camera.
     - [**CaptureHDR**][CaptureHDR-url] - This example shows how to acquire HDR images from the Zivid camera.
-    - [**CaptureHDRLoop**][CaptureHDRLoop-url] - This example shows how to acquire HDR images from the Zivid camera in a loop (while actively changing some HDR settings).
+    - [**CaptureHDRLoop**][CaptureHDRLoop-url] - This example shows how to acquire HDR images from the Zivid camera in a loop, with settings from .yml files.
   - **InfoUtilOther**
     - [**CameraUserData**][CameraUserData-url] - This example shows how to store user data on the Zivid camera.
     - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - This example shows how to get camera intrinsics from the Zivid camera.

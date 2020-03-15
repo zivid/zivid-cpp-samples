@@ -1,6 +1,6 @@
 /*
-This example shows how to acquire HDR images from the Zivid camera in a loop
-(while actively changing some HDR settings).
+This example shows how to acquire HDR images from the Zivid camera in a loop,
+with settings from .yml files.
 */
 
 #include <Zivid/Zivid.h>
@@ -16,38 +16,30 @@ int main()
         std::cout << "Connecting to the camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Recording HDR source images" << std::endl;
-        std::vector<Zivid::Frame> frames;
-
-        camera << Zivid::Settings::Brightness{ 1 } << Zivid::Settings::Gain{ 1 }
-               << Zivid::Settings::Bidirectional{ false } << Zivid::Settings::Filters::Contrast::Enabled::yes
-               << Zivid::Settings::Filters::Contrast::Threshold{ 5 } << Zivid::Settings::Filters::Gaussian::Enabled::yes
-               << Zivid::Settings::Filters::Gaussian::Sigma{ 1.5 } << Zivid::Settings::Filters::Outlier::Enabled::yes
-               << Zivid::Settings::Filters::Outlier::Threshold{ 5 }
-               << Zivid::Settings::Filters::Reflection::Enabled::yes
-               << Zivid::Settings::Filters::Saturated::Enabled::yes << Zivid::Settings::BlueBalance{ 1.081 }
-               << Zivid::Settings::RedBalance{ 1.709 };
-
-        size_t iris[3] = { 10U, 20U, 30U };
-        int exposureTime[3] = { 10000, 20000, 30000 };
-
-        for(size_t i = 0; i < 3; ++i)
+        const size_t captures = 3;
+        const size_t framesPerCapture = 3;
+        for(size_t set = 1; set <= captures; set++)
         {
-            camera << Zivid::Settings::Iris{ iris[i] }
-                   << Zivid::Settings::ExposureTime{ std::chrono::microseconds{ exposureTime[i] } };
+            std::cout << "Configuring HDR settings" << std::endl;
 
-            frames.emplace_back(camera.capture());
-            std::cout << "Frame " << i << " " << camera.settings() << std::endl;
+            std::vector<Zivid::Settings> settingsVector;
+            for(size_t frame = 1; frame <= framesPerCapture; frame++)
+            {
+                std::stringstream settingsPath;
+                settingsPath << "Settings/set" << set << "/frame_0" << frame << ".yml";
+                std::cout << "Add settings from " << settingsPath.str() << ":" << std::endl;
+                const auto setting = Zivid::Settings(settingsPath.str());
+                std::cout << setting.toString() << std::endl;
+                settingsVector.emplace_back(setting);
+            }
+
+            const auto hdrFrame = Zivid::HDR::capture(camera, settingsVector);
+
+            std::stringstream hdrPath;
+            hdrPath << "HDR_" << set << ".zdf";
+            std::cout << "Saving the HDR to " << hdrPath.str() << std::endl;
+            hdrFrame.save(hdrPath.str());
         }
-
-        std::cout << "Creating the HDR frame" << std::endl;
-        auto hdrFrame = Zivid::HDR::combineFrames(begin(frames), end(frames));
-
-        std::cout << "Saving the frames" << std::endl;
-        frames[0].save("20.zdf");
-        frames[1].save("25.zdf");
-        frames[2].save("30.zdf");
-        hdrFrame.save("HDR.zdf");
     }
     catch(const std::exception &e)
     {

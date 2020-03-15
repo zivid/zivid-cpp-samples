@@ -144,3 +144,13 @@ endif()
 if(TARGET PoseConversions)
     add_dependencies("PoseConversions" CopyHandEyeFiles)
 endif()
+
+add_custom_target(
+    CopyCameraSettings
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/Settings/
+            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/Settings
+)
+if(TARGET CaptureHDRLoop)
+    add_dependencies("CaptureHDRLoop" CopyCameraSettings)
+endif()
