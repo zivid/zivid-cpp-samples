@@ -11,12 +11,13 @@ This tutorial describes how to use Zivid SDK to capture point clouds and 2D imag
    2. [Manual Configuration](#manual-configuration)
       1. [Single](#single-frame)
       2. [HDR](#hdr-frame)
-      3. [From File](#from-file)
-      4. [2D](#2d-settings)
+      3. [2D](#2d-settings)
+   3. [From File](#from-file)
 4. [Capture](#capture)
     1. [HDR](#capture-hdr)
     2. [2D](#capture-2d)
 5. [Save](#save)
+    1. [2D](#save-2d)
 
 ### Prerequisites
 
@@ -105,11 +106,11 @@ As opposed to manual configuration of settings, there are only two parameters to
 
 ### Manual configuration
 
-We may choose to configure settings manually ([go to source][settings-url]). For more information about what each settings does, please see [Zivid One+ Camera Settings][kb-camera_settings-url].
+We may choose to configure settings manually. For more information about what each settings does, please see [Zivid One+ Camera Settings][kb-camera_settings-url].
 
 #### Single Frame
 
-We can configure settings for an individual frame directly to the camera.
+We can configure settings for an individual frame directly to the camera ([go to source][settings-url]).
 ```cpp
 camera << Zivid::Settings::Iris{ 20 }
        << Zivid::Settings::ExposureTime{ std::chrono::microseconds{ 8333 } }
@@ -133,13 +134,24 @@ camera << Zivid::Settings::Iris{ 20 }
 We may also set a list of settings to be used in an [HDR capture](#capture-hdr).
 ```cpp
 std::vector<Zivid::Settings> settingsVector;
-for(const size_t iris : { 20U, 25U, 30U })
+for(const size_t iris : { 14U, 21U, 35U })
 {
     std::cout << "Add settings for frame with iris = " << iris << std::endl;
-    auto setting = Zivid::Settings::Settings();
-    setting.set(Zivid::Settings::Iris{ iris });
-    settingsVector.emplace_back(setting);
+    auto settings = Zivid::Settings::Settings();
+    settings.set(Zivid::Settings::Iris{ iris });
+    settingsVector.emplace_back(settings);
 }
+```
+
+#### 2D Settings
+
+It is possible to only capture a 2D image. This is faster than a 3D capture, and can be used . 2D settings are configured as follows ([go to source][settings2d-url]).
+```cpp
+auto settings2D = Zivid::Settings2D();
+settings2D.set(Zivid::Settings2D::ExposureTime{ std::chrono::microseconds{ 10000 } });
+settings2D.set(Zivid::Settings2D::Gain{ 1.0 });
+settings2D.set(Zivid::Settings2D::Iris{ 35 });
+settings2D.set(Zivid::Settings2D::Brightness{ 1.0 });
 ```
 
 ### From File
@@ -151,17 +163,6 @@ camera.setSettings(Zivid::Settings("frame_01.yml"));
 You may also apply settings from file while connecting to the camera.
 ```cpp
 auto camera = zivid.connectCamera(Zivid::Settings("frame_01.yml"));
-```
-
-### 2D Settings
-
-It is possible to only capture a 2D image. This is faster than a 3D capture, and can be used . 2D settings are configured as follows ([go to source][settings2d-url]).
-```cpp
-auto settings = Zivid::Settings2D();
-settings.set(Zivid::Settings2D::ExposureTime{ std::chrono::microseconds{ 10000 } });
-settings.set(Zivid::Settings2D::Gain{ 1.0 });
-settings.set(Zivid::Settings2D::Iris{ 35 });
-settings.set(Zivid::Settings2D::Brightness{ 1.0 });
 ```
 
 ## Capture
@@ -183,17 +184,23 @@ It is possible to [manually create](#hdr-frame) the `settingsVector`, if not set
 
 If we only want to capture a 2D image, which is faster than 3D, we can do so via the 2D API ([go to source][capture2d-url]).
 ```cpp
-auto frame = camera.capture2D(settings);
+auto frame2D = camera.capture2D(settings2D);
 ```
 
 ## Save
 
 We can now save our results ([go to source][save-url]).
 ```cpp
-const auto resultFile = "result.zdf";
-frame.save(resultFile);
+frame.save("result.zdf");
 ```
 The API detects which format to use. See [Point Cloud][kb-point_cloud-url] for a list of supported formats.
+
+## Save 2D
+
+If we captured a 2D image, we can save it ([go to source][save2d-url]).
+```cpp
+frame2D.save("result.png");
+```
 
 ## Conclusion
 
@@ -212,5 +219,6 @@ This tutorial shows how to use the Zivid SDK to connect to, configure and captur
 [settings2d-url]: Capture2D/Capture2D.cpp#L16-L19
 [captureHDR-url]: CaptureAssistant/CaptureAssistant.cpp#L31
 [save-url]: Capture/Capture.cpp#L25
+[save2d-url]: Capture2D/Capture2D.cpp#L34
 [kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/427396/Point+Cloud
 [filecamera-url]: CaptureFromFile/CaptureFromFile.cpp#L13-L17
