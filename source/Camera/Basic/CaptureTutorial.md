@@ -106,7 +106,7 @@ As opposed to manual configuration of settings, there are only two parameters to
 
 ### Manual configuration
 
-We may choose to configure settings manually. For more information about what each settings does, please see [Zivid One+ Camera Settings][kb-camera_settings-url].
+We may choose to configure settings manually ([go to source][settings-url]). For more information about what each settings does, please see [Zivid One+ Camera Settings][kb-settings-url].
 
 #### Single Frame
 
@@ -213,7 +213,7 @@ This tutorial shows how to use the Zivid SDK to connect to, configure and captur
 [connect-url]: Capture/Capture.cpp#L15
 [captureassistant-url]: CaptureAssistant/CaptureAssistant.cpp#L18-L22
 [settings-url]: Capture/Capture.cpp#L18-L19
-[kb-camera_settings-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/99713044/Zivid+One+Camera+Settings
+[kb-settings-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/99713044/Zivid+One+Camera+Settings
 [capture-url]: Capture/Capture.cpp#L22
 [capture2d-url]: Capture2D/Capture2D.cpp#L22
 [settings2d-url]: Capture2D/Capture2D.cpp#L16-L19
