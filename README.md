@@ -22,6 +22,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
   - **InfoUtilOther**
     - [**CameraUserData**][CameraUserData-url] - This example shows how to store user data on the Zivid camera.
     - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - This example shows how to get camera intrinsics from the Zivid camera.
+    - [**FirmwareUpdater**][FirmwareUpdater-url] - This example shows how to use Zivid APIs to update the firmware on the Zivid camera.
 
 - **Applications**
   - **Basic**
@@ -136,6 +137,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
+[FirmwareUpdater-url]: source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
 [CaptureFromFileVis3D-url]: source/Applications/Basic/Visualization/CaptureFromFileVis3D/CaptureFromFileVis3D.cpp
 [CaptureVis3D-url]: source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp
 [CaptureLiveVis3D-url]: source/Applications/Basic/Visualization/CaptureLiveVis3D/CaptureLiveVis3D.cpp
