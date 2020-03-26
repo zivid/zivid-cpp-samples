@@ -22,6 +22,7 @@ set(SAMPLES
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
+    Camera/InfoUtilOther/ZividBenchmark
     Applications/Basic/Visualization/CaptureFromFileVis3D
     Applications/Basic/Visualization/CaptureLiveVis3D
     Applications/Basic/Visualization/CaptureVis3D
@@ -156,3 +157,5 @@ add_custom_target(
 if(TARGET CaptureHDRLoop)
     add_dependencies("CaptureHDRLoop" CopyCameraSettings)
 endif()
+
+target_compile_definitions(ZividBenchmark PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")
