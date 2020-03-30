@@ -28,7 +28,6 @@ if [ $errorsFound -ne 0 ]; then
     echo "ERROR: $errorsFound formatting error(s) found! See the diffs for each file printed above."
     exit 1
 fi
-echo "All files are properly formatted!" ["$0"]
 
 BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit $?
@@ -39,5 +38,7 @@ cmake -GNinja \
     -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-8" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
-    ../../.. || exit $?
+    "$SOURCE_DIR" || exit $?
 cmake --build . || exit $?
+
+echo "All files are properly formatted!" ["$0"]
