@@ -23,26 +23,26 @@ int main()
         std::cout << "Saving camera intrinsics to " << fileNameIntrinsics << std::endl;
         intrinsics.save(fileNameIntrinsics);
 
-        std::cout << intrinsics.description << " - " << intrinsics << std::endl;
+        std::cout << Zivid::CameraIntrinsics::description << " - " << intrinsics << std::endl;
 
-        std::cout << camera.intrinsics().cameraMatrix().cx().description
+        std::cout << Zivid::CameraIntrinsics::CameraMatrix::CX::description
                   << ": CX = " << camera.intrinsics().cameraMatrix().cx().value() << std::endl;
-        std::cout << camera.intrinsics().cameraMatrix().cy().description
+        std::cout << Zivid::CameraIntrinsics::CameraMatrix::CY::description
                   << ": CY = " << camera.intrinsics().cameraMatrix().cy().value() << std::endl;
-        std::cout << camera.intrinsics().cameraMatrix().fx().description
+        std::cout << Zivid::CameraIntrinsics::CameraMatrix::FX::description
                   << ": FX = " << camera.intrinsics().cameraMatrix().fx().value() << std::endl;
-        std::cout << camera.intrinsics().cameraMatrix().fy().description
+        std::cout << Zivid::CameraIntrinsics::CameraMatrix::FY::description
                   << ": FY = " << camera.intrinsics().cameraMatrix().fy().value() << std::endl;
 
-        std::cout << camera.intrinsics().distortion().k1().description
+        std::cout << Zivid::CameraIntrinsics::Distortion::K1::description
                   << ": K1 = " << camera.intrinsics().distortion().k1().value() << std::endl;
-        std::cout << camera.intrinsics().distortion().k2().description
+        std::cout << Zivid::CameraIntrinsics::Distortion::K2::description
                   << ": K2 = " << camera.intrinsics().distortion().k2().value() << std::endl;
-        std::cout << camera.intrinsics().distortion().k3().description
+        std::cout << Zivid::CameraIntrinsics::Distortion::K3::description
                   << ": K3 = " << camera.intrinsics().distortion().k3().value() << std::endl;
-        std::cout << camera.intrinsics().distortion().p1().description
+        std::cout << Zivid::CameraIntrinsics::Distortion::P1::description
                   << ": P1 = " << camera.intrinsics().distortion().p1().value() << std::endl;
-        std::cout << camera.intrinsics().distortion().p2().description
+        std::cout << Zivid::CameraIntrinsics::Distortion::P2::description
                   << ": P2 = " << camera.intrinsics().distortion().p2().value() << std::endl;
     }
     catch(const std::exception &e)

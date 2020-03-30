@@ -41,27 +41,27 @@ int main()
         std::cout << "Running the Zivid visualizer. Blocking until the window closes" << std::endl;
         vis.run();
 
-        auto PointCloud = frame.getPointCloud();
+        auto pointCloud = frame.getPointCloud();
 
         // Creating a PointCloud structure
         pcl::PointCloud<pcl::PointXYZRGB> cloud;
 
         // Filling in the cloud data
-        cloud.width = PointCloud.width();
-        cloud.height = PointCloud.height();
+        cloud.width = pointCloud.width();
+        cloud.height = pointCloud.height();
         cloud.is_dense = false;
         cloud.points.resize(cloud.width * cloud.height);
 
         for(size_t i = 0; i < cloud.points.size(); ++i)
         {
-            auto Point = PointCloud.operator()(i);
+            auto point = pointCloud.operator()(i);
 
-            cloud.points[i].x = Point.x;
-            cloud.points[i].y = Point.y;
-            cloud.points[i].z = Point.z;
-            cloud.points[i].r = Point.red();
-            cloud.points[i].g = Point.green();
-            cloud.points[i].b = Point.blue();
+            cloud.points[i].x = point.x;
+            cloud.points[i].y = point.y;
+            cloud.points[i].z = point.z;
+            cloud.points[i].r = point.red();
+            cloud.points[i].g = point.green();
+            cloud.points[i].b = point.blue();
         }
 
         //Simple Cloud Visualization
