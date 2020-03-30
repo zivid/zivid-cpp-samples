@@ -39,14 +39,11 @@ namespace
 
     std::string getWriteData(int argc, const char *const *argv)
     {
-        if(argc >= 3)
-        {
-            return argv[2];
-        }
-        else
+        if(argc < 3)
         {
             throw usageException(argv);
         }
+        return argv[2];
     }
 
     void write(Zivid::Camera &camera, const std::string &string)

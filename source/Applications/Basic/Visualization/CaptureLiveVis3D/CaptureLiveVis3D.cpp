@@ -17,7 +17,7 @@ int main()
 
         std::cout << "Start live capturing of frames" << std::endl;
         auto resetToFit = true;
-        camera.setFrameCallback([&vis, &resetToFit](Zivid::Frame frame) {
+        camera.setFrameCallback([&vis, &resetToFit](const Zivid::Frame &frame) {
             vis.show(frame);
             if(resetToFit)
             {

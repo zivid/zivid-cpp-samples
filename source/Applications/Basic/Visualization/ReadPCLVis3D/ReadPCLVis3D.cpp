@@ -22,8 +22,10 @@ int main()
         // Reading a .PCL point cloud
         if(pcl::io::loadPCDFile<pcl::PointXYZRGB>(filenamePCD, *cloudPTR) == -1) //* load the file
         {
-            PCL_ERROR(
-                "Run ZDF2PCD sample to get a Zivid point cloud in .PCD file format, then copy it in the correct directory for this sample. \n");
+            std::cerr
+                << "Error: "
+                << "Run ZDF2PCD sample to get a Zivid point cloud in .PCD file format, then copy it in the correct directory for this sample. \n"
+                << std::endl;
             return (-1);
         }
         std::cout << "Loaded " << cloudPTR->width * cloudPTR->height << " data points from " + filenamePCD << std::endl;
