@@ -132,6 +132,11 @@ namespace
         if(!filterList.empty()) std::cout << "  filters = " << filterList << std::endl;
     }
 
+    void printAssistedCapture3DHeader(const size_t numFrames)
+    {
+        printHeaderLine(numFrames, { "Running assisted capture ", " times:" });
+    }
+
     void printCapture2DHeader(const size_t numFrames, const Zivid::Settings2D &settings)
     {
         printHeaderLine(numFrames, { "Capturing ", " 2D frames:" });
@@ -167,6 +172,11 @@ namespace
     {
         printResults({ "  3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
                      durations);
+    }
+
+    void printAssistedCapture3DResults(const std::vector<Duration> &durations)
+    {
+        printResults({ "  Suggest settings time:" }, durations);
     }
 
     void printNegligableFilters()
@@ -317,6 +327,36 @@ namespace
         return totalDurations;
     }
 
+    void benchmarkAssistedCapture3D(Zivid::Camera &camera, const size_t numFrames)
+    {
+        printAssistedCapture3DHeader(numFrames);
+
+        Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters(
+            std::chrono::milliseconds{ 1200 }, Zivid::CaptureAssistant::AmbientLightFrequency::none);
+
+        for(size_t i = 0; i < 5; i++) // Warmup
+        {
+            const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+        }
+
+        std::vector<Duration> suggestSettingsDurations;
+
+        for(size_t i = 0; i < numFrames; i++)
+        {
+            const auto beforeSuggestSettings = HighResClock::now();
+            const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+            const auto afterSuggestSettings = HighResClock::now();
+
+            suggestSettingsDurations.push_back(afterSuggestSettings - beforeSuggestSettings);
+        }
+
+        std::vector<Duration> allDurations;
+        allDurations.push_back(computeMedianDuration(suggestSettingsDurations));
+        allDurations.push_back(computeAverageDuration(suggestSettingsDurations));
+
+        printAssistedCapture3DResults(allDurations);
+    }
+
     std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
                                                              const std::vector<Duration> &captureDurationFilter)
     {
@@ -437,6 +477,7 @@ int main()
 
         benchmarkConnect(camera, numConnects);
         camera.connect();
+        benchmarkAssistedCapture3D(camera, numFrames3D);
         benchmarkCapture3DAndFilters(camera, oneIris, exposureTimeOneFrame, numFrames3D);
         benchmarkCapture3D(camera, makeSettingsVector(twoIrises, exposureTimeTwoFrames, false, false), numFrames3D);
         benchmarkCapture3DAndFilters(camera, threeIrises, exposureTimeThreeFrames, numFrames3D);
