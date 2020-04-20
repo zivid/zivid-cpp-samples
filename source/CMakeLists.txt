@@ -39,6 +39,7 @@ set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
 set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
 set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureUndistortRGB)
+set(Clipp_DEPENDING CameraUserData)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 
@@ -124,6 +125,10 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} ${OpenCV_LIBS})
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
     endif()
 
     add_dependencies(${SAMPLE_NAME} CopyZdf)

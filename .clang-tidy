@@ -13,11 +13,7 @@ Checks: >
   -bugprone-macro-parentheses,
   -cppcoreguidelines-avoid-magic-numbers,
   -readability-magic-numbers,
-<<<<<<< HEAD
-  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-union-access,
-=======
->>>>>>> 389f478... fixup! Fix warnings from clang-tidy
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false

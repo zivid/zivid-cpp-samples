@@ -5,7 +5,7 @@ ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
 SOURCE_DIR="$ROOT_DIR/source"
 
 cppFiles=$(find "$SOURCE_DIR" -name '*.cpp')
-hFiles=$(find "$SOURCE_DIR" -name '*.h')
+hFiles=$(find "$SOURCE_DIR" -name '*.h' -not -path "$SOURCE_DIR/3rd-party/*")
 
 if [ -z "$cppFiles" ]; then
     echo Error: Cannot find C++ source files
