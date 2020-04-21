@@ -85,11 +85,6 @@ namespace
         rawFile << string << std::endl;
     }
 
-    void addStringsToRawFile(const std::vector<std::string> &strings)
-    {
-        std::for_each(strings.cbegin(), strings.cend(), addToRawFile);
-    }
-
     void printProgress(const int iteration, const int total)
     {
         std::cout << "..." << iteration << "/" << total << "   "
