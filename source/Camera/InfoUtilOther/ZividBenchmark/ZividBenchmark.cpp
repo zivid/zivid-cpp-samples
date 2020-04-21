@@ -4,7 +4,7 @@
 
 namespace
 {
-    const int PRINT_WIDTH = 56;
+    const int printWidth = 56;
 
     using HighResClock = std::chrono::high_resolution_clock;
     using Duration = std::chrono::nanoseconds;
@@ -21,10 +21,8 @@ namespace
         {
             return (durations.at(durations.size() / 2 - 1) + durations.at(durations.size() / 2)) / 2;
         }
-        else
-        {
-            return durations.at(durations.size() / 2);
-        }
+
+        return durations.at(durations.size() / 2);
     }
 
     template<typename T>
@@ -74,7 +72,7 @@ namespace
 
     void printSeparationLine(const char &separator, const std::string &followingString)
     {
-        std::cout << std::left << std::setfill(separator) << std::setw(PRINT_WIDTH) << followingString << std::endl;
+        std::cout << std::left << std::setfill(separator) << std::setw(printWidth) << followingString << std::endl;
     }
 
     void printPrimarySeparationLine()
@@ -89,7 +87,7 @@ namespace
 
     void printCentered(const std::string &text)
     {
-        constexpr size_t columns{ PRINT_WIDTH };
+        constexpr size_t columns{ printWidth };
         std::cout << std::string((columns - text.size()) / 2, ' ') << text << std::endl;
     }
 
@@ -227,9 +225,11 @@ namespace
     size_t getMinExposureTime(const std::string &modelName)
     {
         if(modelName.substr(0, 14) == "Zivid One Plus")
+        {
             return 6500; // Min for Zivid One Plus
-        else
-            return 8333; // Min for Zivid One
+        }
+
+        return 8333; // Min for Zivid One
     }
 
     std::vector<Zivid::Settings> makeSettingsVector(const std::vector<unsigned int> &irises,
