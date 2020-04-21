@@ -99,7 +99,7 @@ namespace
         std::cout << std::string((columns - text.size()) / 2, ' ') << text << std::endl;
     }
 
-    void printFormated(const std::vector<std::string> &stringList)
+    void printFormatted(const std::vector<std::string> &stringList)
     {
         std::cout << std::left << std::setfill(' ') << std::setw(32) << stringList.at(0) << std::setw(13)
                   << stringList.at(1) << stringList.at(2) << std::endl;
@@ -156,13 +156,13 @@ namespace
 
     void printResultLine(const std::string &name, const Duration &durationMedian, const Duration &durationMean)
     {
-        printFormated({ name, formatDuration(durationMedian), formatDuration(durationMean) });
+        printFormatted({ name, formatDuration(durationMedian), formatDuration(durationMean) });
     }
 
     void printResults(const std::vector<std::string> &names, const std::vector<Duration> &durations)
     {
         printSecondarySeparationLine();
-        printFormated({ "  Time:", "Median", "Mean" });
+        printFormatted({ "  Time:", "Median", "Mean" });
         for(size_t i = 0; i < names.size(); i++)
         {
             printResultLine(names.at(i), durations.at(i + i), durations.at(i + i + 1));
@@ -188,9 +188,9 @@ namespace
     void printNegligableFilters()
     {
         const std::string negligable = "negligible";
-        printFormated({ "  Contrast", negligable, negligable });
-        printFormated({ "  Outlier", negligable, negligable });
-        printFormated({ "  Saturated", negligable, negligable });
+        printFormatted({ "  Contrast", negligable, negligable });
+        printFormatted({ "  Outlier", negligable, negligable });
+        printFormatted({ "  Saturated", negligable, negligable });
     }
 
     void printFilterResults(const std::vector<Duration> &durations)
