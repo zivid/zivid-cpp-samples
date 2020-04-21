@@ -170,6 +170,7 @@ namespace
         printHeaderLine(numFrames, { "Capturing ", " 2D frames:" });
         addToRawFile("Capturing 2D frames:");
         std::cout << "  exposure time = { " << settings.exposureTime().toString() << " }" << std::endl;
+        addToRawFile("  exposure time = " + settings.exposureTime().toString());
     }
 
     void printSaveHeader(const size_t numFrames)
@@ -308,9 +309,9 @@ namespace
             const auto afterDisconnect = HighResClock::now();
 
             connectDurations.push_back(afterConnect - beforeConnect);
-            addToRawFile(std::string("connect duration: ") + formatDuration(afterConnect - beforeConnect));
+            addToRawFile(std::string("3D connect duration: ") + formatDuration(afterConnect - beforeConnect));
             disconnectDurations.push_back(afterDisconnect - afterConnect);
-            addToRawFile(std::string("disconnect duration: ") + formatDuration(afterDisconnect - afterConnect));
+            addToRawFile(std::string("3D disconnect duration: ") + formatDuration(afterDisconnect - afterConnect));
         }
 
         allDurations.push_back(computeMedianDuration(connectDurations));
