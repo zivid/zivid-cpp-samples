@@ -72,6 +72,12 @@ namespace
         return {};
     }
 
+    void printProgress(const int iteration, const int total)
+    {
+        std::cout << "..." << iteration << "/" << total << "   "
+                  << "\r";
+    }
+
     void printSeparationLine(const char &separator, const std::string &followingString)
     {
         std::cout << std::left << std::setfill(separator) << std::setw(PRINT_WIDTH) << followingString << std::endl;
@@ -267,6 +273,7 @@ namespace
 
         for(size_t i = 0; i < numConnects; i++)
         {
+            printProgress(i + 1, numConnects);
             const auto beforeConnect = HighResClock::now();
             camera.connect();
             const auto afterConnect = HighResClock::now();
@@ -293,6 +300,7 @@ namespace
 
         for(size_t i = 0; i < 5; i++) // Warmup frames
         {
+            printProgress(i + 1, 5);
             const auto frame = Zivid::HDR::capture(camera, settingsVector);
             frame.getPointCloud();
         }
@@ -304,6 +312,7 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
+            printProgress(i + 1, numFrames);
             const auto beforeCapture = HighResClock::now();
             const auto frame = Zivid::HDR::capture(camera, settingsVector);
             const auto afterCapture = HighResClock::now();
@@ -405,6 +414,7 @@ namespace
 
         for(size_t i = 0; i < 5; i++) // Warmup frames
         {
+            printProgress(i + 1, 5);
             camera.capture2D(settings);
         }
 
@@ -413,6 +423,7 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
+            printProgress(i + 1, numFrames);
             const auto beforeCapture = HighResClock::now();
             const auto frame2D = camera.capture2D(settings);
             const auto afterCapture = HighResClock::now();
@@ -439,6 +450,7 @@ namespace
             std::vector<Duration> durationsPerFormat;
             for(size_t j = 0; j < numFrames; j++)
             {
+                printProgress(j + 1, numFrames);
                 const auto beforeSave = HighResClock::now();
                 frame.save(fileName);
                 const auto afterSave = HighResClock::now();
