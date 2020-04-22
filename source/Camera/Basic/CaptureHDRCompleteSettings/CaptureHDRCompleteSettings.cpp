@@ -34,17 +34,17 @@ int main()
             .set(Zivid::Settings::RedBalance{ 1.709 });
 
         std::cout << "Configuring settings different for all HDR frames" << std::endl;
-        const size_t iris[3] = { 17U, 27U, 27U };
-        const int exposureTime[3] = { 10000, 10000, 40000 };
-        const double gain[3] = { 1.0, 1.0, 2.0 };
+        const std::vector<size_t> iris{ 17U, 27U, 27U };
+        const std::vector<int> exposureTime{ 10000, 10000, 40000 };
+        const std::vector<double> gain{ 1.0, 1.0, 2.0 };
         std::vector<Zivid::Settings> settingsHDR;
-        for(size_t i = 0; i < 3; ++i)
+        for(size_t i = 0; i < iris.size(); ++i)
         {
             settingsHDR.push_back(
-                settingsDefault.set(Zivid::Settings::Iris{ iris[i] })
-                    .set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ exposureTime[i] } })
-                    .set(Zivid::Settings::Gain{ gain[i] }));
-            std::cout << "Frame " << i << " " << settingsHDR[i] << std::endl;
+                settingsDefault.set(Zivid::Settings::Iris{ iris.at(i) })
+                    .set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ exposureTime.at(i) } })
+                    .set(Zivid::Settings::Gain{ gain.at(i) }));
+            std::cout << "Frame " << i << " " << settingsHDR.at(i) << std::endl;
         }
 
         std::cout << "Capturing HDR frame" << std::endl;

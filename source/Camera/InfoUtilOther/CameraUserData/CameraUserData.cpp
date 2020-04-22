@@ -1,5 +1,7 @@
 #include <Zivid/Zivid.h>
 
+#include <clipp.h>
+
 #include <iostream>
 
 namespace
@@ -10,44 +12,6 @@ namespace
         write,
         clear
     };
-
-    std::invalid_argument usageException(const char *const *argv)
-    {
-        return std::invalid_argument{ std::string{ "Usage: " } + argv[0] + " <read|write <string>|clear>" };
-    }
-
-    Mode getMode(int argc, const char *const *argv)
-    {
-        if(argc >= 2)
-        {
-            if(std::string{ "read" } == argv[1])
-            {
-                return Mode::read;
-            }
-            if(std::string{ "write" } == argv[1])
-            {
-                return Mode::write;
-            }
-            if(std::string{ "clear" } == argv[1])
-            {
-                return Mode::clear;
-            }
-        }
-
-        throw usageException(argv);
-    }
-
-    std::string getWriteData(int argc, const char *const *argv)
-    {
-        if(argc >= 3)
-        {
-            return argv[2];
-        }
-        else
-        {
-            throw usageException(argv);
-        }
-    }
 
     void write(Zivid::Camera &camera, const std::string &string)
     {
@@ -81,25 +45,39 @@ int main(int argc, char **argv)
             throw std::runtime_error{ "This camera does not support user data" };
         }
 
-        switch(getMode(argc, argv))
+        std::string userData;
+        Mode selected = Mode::read;
+        auto readMode = (clipp::command("read").set(selected, Mode::read));
+        auto clearMode = (clipp::command("clear").set(selected, Mode::clear));
+        auto writeMode = (clipp::command("write").set(selected, Mode::write), clipp::values("userData", userData));
+
+        auto cli = ((readMode | clearMode | writeMode));
+
+        if(parse(argc, argv, cli))
         {
-            case Mode::read:
-                std::cout << "Reading user data from camera" << std::endl;
-                std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
-                break;
-            case Mode::write:
+            switch(selected)
             {
-                auto userData = getWriteData(argc, argv);
-                std::cout << "Writing '" << userData << "' to the camera" << std::endl;
-                write(camera, userData);
-                std::cout << "Done" << std::endl;
-                break;
+                case Mode::read:
+                    std::cout << "Reading user data from camera" << std::endl;
+                    std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
+                    break;
+                case Mode::write:
+                {
+                    std::cout << "Writing '" << userData << "' to the camera" << std::endl;
+                    write(camera, userData);
+                    std::cout << "Done" << std::endl;
+                    break;
+                }
+                case Mode::clear:
+                    std::cout << "Clearing user data from camera" << std::endl;
+                    clear(camera);
+                    std::cout << "Done" << std::endl;
+                    break;
             }
-            case Mode::clear:
-                std::cout << "Clearing user data from camera" << std::endl;
-                clear(camera);
-                std::cout << "Done" << std::endl;
-                break;
+        }
+        else
+        {
+            std::cout << clipp::usage_lines(cli, *argv) << std::endl;
         }
     }
     catch(const std::exception &e)

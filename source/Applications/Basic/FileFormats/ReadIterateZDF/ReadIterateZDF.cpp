@@ -12,9 +12,9 @@ int main()
     {
         Zivid::Application zivid;
 
-        const std::string Filename = "Zivid3D.zdf";
-        std::cout << "Reading " << Filename << " point cloud" << std::endl;
-        const Zivid::Frame frame = Zivid::Frame(Filename);
+        const std::string filename = "Zivid3D.zdf";
+        std::cout << "Reading " << filename << " point cloud" << std::endl;
+        const Zivid::Frame frame = Zivid::Frame(filename);
 
         // Extracting point cloud from the frame
         const auto pointCloud = frame.getPointCloud();
