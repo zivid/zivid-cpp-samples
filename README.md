@@ -85,11 +85,11 @@ Build the project:
 ```bash
 mkdir build
 cd build
-cmake <options, see below> ..
+cmake <options, see below> ../source
 make -j
 ```
 
-Some of the samples depend on external libraries, in particular Eigen 3, OpenCV or PCL. If you don't want to install those, you can disable the samples depending on them by passing the following options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`, `-DUSEPCL=OFF`.
+Some of the samples depend on external libraries, in particular Eigen 3, OpenCV or PCL. If you don't want to install those, you can disable the samples depending on them by passing the following options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`, `-DUSE_PCL=OFF`.
 
 If you do want to use them:
 
@@ -99,7 +99,7 @@ If you do want to use them:
 The samples can now be run from the `build` directory, for instance like this:
 
 ```bash
-./ZDF2PLY
+./CaptureFromFileVis3D
 ```
 
 ## Support
