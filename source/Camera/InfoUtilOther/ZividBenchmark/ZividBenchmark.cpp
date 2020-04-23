@@ -47,7 +47,10 @@ namespace
         for(size_t i = 0; i < settingsVector.size(); i++)
         {
             settingList += settingsVector.at(i).get<Target>().toString();
-            if(i + 1 != settingsVector.size()) settingList += ", ";
+            if(i + 1 != settingsVector.size())
+            {
+                settingList += ", ";
+            }
         }
         settingList += " }";
         return settingList;
@@ -127,7 +130,10 @@ namespace
         std::cout << "  exposure time = " << makeSettingList<Zivid::Settings::ExposureTime>(settingsVector)
                   << std::endl;
         std::cout << "  iris settings = " << makeSettingList<Zivid::Settings::Iris>(settingsVector) << std::endl;
-        if(!filterList.empty()) std::cout << "  filters = " << filterList << std::endl;
+        if(!filterList.empty())
+        {
+            std::cout << "  filters = " << filterList << std::endl;
+        }
     }
 
     void printAssistedCapture3DHeader(const size_t numFrames)
@@ -217,7 +223,10 @@ namespace
     Zivid::Camera getFirstCamera(Zivid::Application &zivid)
     {
         const auto cameras = zivid.cameras();
-        if(cameras.size() != 1) throw std::runtime_error("At least one camera needs to be connected");
+        if(cameras.size() != 1)
+        {
+            throw std::runtime_error("At least one camera needs to be connected");
+        }
         printZividInfo(cameras.at(0));
         return cameras.at(0);
     }
