@@ -90,6 +90,9 @@ add_custom_target(
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/Zivid3D.zdf
             ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/MiscObjects.zdf
+            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
 )
 
 if(WIN32)

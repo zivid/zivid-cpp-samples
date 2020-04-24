@@ -10,7 +10,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        auto zdfFile = Zivid::Environment::dataPath() + "/MiscObjects.zdf";
+        auto zdfFile = "MiscObjects.zdf";
         auto resultFile = "result.zdf";
 
         std::cout << "Initializing camera emulation using file: " << zdfFile << std::endl;
