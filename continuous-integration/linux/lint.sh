@@ -16,7 +16,7 @@ echo "Checking formatting"
 errorsFound=0
 for fileName in $cppFiles $hFiles; do
     echo $fileName
-    diff $fileName <(clang-format-8 $fileName)
+    diff $fileName <(clang-format-10 $fileName)
     if [ $? -ne 0 ]; then
         let "errorsFound=errorsFound+1"
     else
@@ -35,7 +35,7 @@ cd "$BUILD_DIR" || exit $?
 cmake -GNinja \
     -DUSE_EIGEN3=OFF \
     -DUSE_OPENCV=OFF \
-    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-8" \
+    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
     "$SOURCE_DIR" || exit $?

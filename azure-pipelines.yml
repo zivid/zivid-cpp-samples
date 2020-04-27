@@ -11,9 +11,12 @@ jobs:
     vmImage: ubuntu-16.04
   strategy:
     matrix:
+      Ubuntu2004:
+        os: 'ubuntu:20.04'
+        command: './lint.sh && ./build.sh'
       Ubuntu1804:
         os: 'ubuntu:18.04'
-        command: './lint.sh && ./build.sh'
+        command: './build.sh'
       Ubuntu1604:
         os: 'ubuntu:16.04'
         command: './build.sh --skip-clang'

@@ -115,7 +115,7 @@ Zivid Samples are distributed under the [BSD license](LICENSE).
 To run continuous integration locally, use [Docker](https://www.docker.com). With Docker installed, run this command:
 
 ```bash
-docker run -it -v <unixy-repo-path>:/host -w /host/continuous-integration/linux ubuntu:18.04
+docker run -it -v <unixy-repo-path>:/host -w /host/continuous-integration/linux ubuntu:20.04
 ```
 
 Where `<unixy-repo-path>` is the unixy path to the repo on your computer. On Linux, use `$PWD` for this. On Windows you need to translate the windowsy path to a unixy one (e.g. `/c/Users/alice/Documents/cpp-extra-samples`).
