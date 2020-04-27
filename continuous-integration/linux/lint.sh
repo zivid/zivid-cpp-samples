@@ -33,11 +33,10 @@ BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit $?
 cd "$BUILD_DIR" || exit $?
 cmake -GNinja \
-    -DUSE_EIGEN3=OFF \
-    -DUSE_OPENCV=OFF \
     -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
+    -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
     "$SOURCE_DIR" || exit $?
 cmake --build . || exit $?
 

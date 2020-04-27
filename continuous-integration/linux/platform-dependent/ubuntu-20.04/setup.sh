@@ -15,6 +15,8 @@ apt-yes install \
     clang-tidy-10 \
     cmake \
     libpcl-dev \
+    libeigen3-dev \
+    libopencv-dev \
     wget \
     ninja-build \
     || exit $?
