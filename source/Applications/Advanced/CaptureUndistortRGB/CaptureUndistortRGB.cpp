@@ -12,11 +12,11 @@ Undistort a BGR image from a ZDF point cloud using Zivid camera intrinsics.
 
 #include <iostream>
 
-cv::Mat pointCloudToBGR(const Zivid::PointCloud &);
-cv::Mat imageToBGR(const Zivid::Image<Zivid::RGBA8> &);
-std::tuple<cv::Mat, cv::Mat> reformatCameraIntrinsics(const Zivid::CameraIntrinsics &);
-void displayBGR(const cv::Mat &, const std::string &);
-std::string getInput(void);
+cv::Mat pointCloudToBGR(const Zivid::PointCloud &pointCloud);
+cv::Mat imageToBGR(const Zivid::Image<Zivid::RGBA8> &image);
+std::tuple<cv::Mat, cv::Mat> reformatCameraIntrinsics(const Zivid::CameraIntrinsics &cameraIntrinsics);
+void displayBGR(const cv::Mat &bgr, const std::string &bgrName);
+std::string getInput();
 cv::Mat getImage2D(Zivid::Camera &camera);
 cv::Mat getImage3D(Zivid::Camera &camera, Zivid::Application &zivid);
 
@@ -29,7 +29,7 @@ int main()
         std::cout << "Connecting to the camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Enter \"2d\" or \"3d\" to select mode, then press Enter/Return to confirm" << std::endl;
+        std::cout << R"(Enter "2d" or "3d" to select mode, then press Enter/Return to confirm)" << std::endl;
         const auto command = getInput();
         bool use2D = false;
         if(command == "2d" || command == "2D")
@@ -42,8 +42,8 @@ int main()
         std::cout << "Undistorting the BGR image" << std::endl;
 
         const auto cameraIntrinsticsCV = reformatCameraIntrinsics(camera.intrinsics());
-        const auto distortionCoefficients = std::get<0>(cameraIntrinsticsCV);
-        const auto cameraMatrix = std::get<1>(cameraIntrinsticsCV);
+        const auto &distortionCoefficients = std::get<0>(cameraIntrinsticsCV);
+        const auto &cameraMatrix = std::get<1>(cameraIntrinsticsCV);
 
         const auto size = bgr.size();
         const auto optimalCameraMatrix =
@@ -142,7 +142,7 @@ cv::Mat imageToBGR(const Zivid::Image<Zivid::RGBA8> &image)
     // our own instance with const.
     const cv::Mat rgbaMat(image.height(),
                           image.width(),
-                          CV_8UC4,
+                          CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                           const_cast<void *>(static_cast<const void *>(image.dataPtr())));
     cv::Mat bgr;
     cv::cvtColor(rgbaMat, bgr, cv::COLOR_RGBA2BGR);
@@ -152,6 +152,7 @@ cv::Mat imageToBGR(const Zivid::Image<Zivid::RGBA8> &image)
 
 cv::Mat pointCloudToBGR(const Zivid::PointCloud &pointCloud)
 {
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     cv::Mat bgr(pointCloud.height(), pointCloud.width(), CV_8UC3, cv::Scalar(0, 0, 0));
 
     const auto height = pointCloud.height();
@@ -161,7 +162,7 @@ cv::Mat pointCloudToBGR(const Zivid::PointCloud &pointCloud)
     {
         for(size_t j = 0; j < width; j++)
         {
-            cv::Vec3b &color = bgr.at<cv::Vec3b>(i, j);
+            auto &color = bgr.at<cv::Vec3b>(i, j);
             color[0] = pointCloud(i, j).blue();
             color[1] = pointCloud(i, j).green();
             color[2] = pointCloud(i, j).red();
@@ -173,8 +174,8 @@ cv::Mat pointCloudToBGR(const Zivid::PointCloud &pointCloud)
 
 std::tuple<cv::Mat, cv::Mat> reformatCameraIntrinsics(const Zivid::CameraIntrinsics &cameraIntrinsics)
 {
-    cv::Mat distortionCoefficients(1, 5, CV_64FC1, cv::Scalar(0));
-    cv::Mat cameraMatrix(3, 3, CV_64FC1, cv::Scalar(0));
+    cv::Mat distortionCoefficients(1, 5, CV_64FC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
+    cv::Mat cameraMatrix(3, 3, CV_64FC1, cv::Scalar(0));           // NOLINT(hicpp-signed-bitwise)
 
     distortionCoefficients.at<double>(0, 0) = cameraIntrinsics.distortion().k1().value();
     distortionCoefficients.at<double>(0, 1) = cameraIntrinsics.distortion().k2().value();

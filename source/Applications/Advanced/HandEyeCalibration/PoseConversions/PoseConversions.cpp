@@ -20,31 +20,36 @@ This example shows how to use Eigen to convert to and from:
 
 enum class RotationConvention
 {
-    ZYX_Intrinsic,
-    XYZ_Extrinsic,
-    XYZ_Intrinsic,
-    ZYX_Extrinsic,
-    NOF_ROT
+    zyxIntrinsic,
+    xyzExtrinsic,
+    xyzIntrinsic,
+    zyxExtrinsic,
+    nofROT
 };
-constexpr size_t nofRotationConventions = static_cast<size_t>(RotationConvention::NOF_ROT);
+constexpr size_t nofRotationConventions = static_cast<size_t>(RotationConvention::nofROT);
 
-struct RollPitchYaw
+class RollPitchYaw
 {
-    RotationConvention convention;
-    Eigen::Array3d rollPitchYaw;
+public:
+    RollPitchYaw(RotationConvention convention, Eigen::Array3d rollPitchYaw)
+        : mConvention(convention)
+        , mRollPitchYaw(std::move(rollPitchYaw))
+    {}
+
+    const RotationConvention mConvention;
+    const Eigen::Array3d mRollPitchYaw;
 };
 
 Eigen::Affine3d getTransformationMatrixFromYAML(const std::string &path);
-void saveTransformationMatrixToYAML(const Eigen::Affine3d &, const std::string &path);
-cv::Mat eigenToCv(const Eigen::MatrixXd &);
-Eigen::MatrixXd cvToEigen(const cv::Mat &);
+void saveTransformationMatrixToYAML(const Eigen::Affine3d &transformationMatrix, const std::string &path);
+cv::Mat eigenToCv(const Eigen::MatrixXd &eigenMat);
+Eigen::MatrixXd cvToEigen(const cv::Mat &cvMat);
 Eigen::Array3d rotationMatrixToRollPitchYaw(const Eigen::Matrix3d &rotationMatrix, const RotationConvention &rotation);
 Eigen::Matrix3d rollPitchYawToRotationMatrix(const Eigen::Array3d &rollPitchYaw, const RotationConvention &rotation);
 Eigen::Vector3d rotationMatrixToRotationVector(const Eigen::Matrix3d &rotationMatrix);
-std::array<RollPitchYaw, nofRotationConventions> rotationMatrixToRollPitchYawList(
-    const Eigen::Matrix3d &rotationMatrix);
+std::vector<RollPitchYaw> rotationMatrixToRollPitchYawList(const Eigen::Matrix3d &rotationMatrix);
 Eigen::Matrix3d rotationVectorToRotationMatrix(const Eigen::Vector3d &rotationVector);
-void rollPitchYawListToRotationMatrix(const std::array<RollPitchYaw, nofRotationConventions> &rpyList);
+void rollPitchYawListToRotationMatrix(const std::vector<RollPitchYaw> &rpyList);
 std::string toString(RotationConvention convention);
 void printHeader(const std::string &txt);
 
@@ -53,27 +58,29 @@ int main()
     try
     {
         std::cout << std::setprecision(4);
-        Eigen::IOFormat MatrixFmt(4, 0, ", ", "\n", "[", "]", "[", "]");
-        Eigen::IOFormat VectorFmt(4, 0, ", ", "", "", "", "[", "]");
+        Eigen::IOFormat matrixFormatRules(4, 0, ", ", "\n", "[", "]", "[", "]");
+        Eigen::IOFormat vectorFormatRules(4, 0, ", ", "", "", "", "[", "]");
         printHeader("This example shows conversions to/from Transformation Matrix");
 
         const auto transformationMatrix = getTransformationMatrixFromYAML("robotTransform.yaml");
-        std::cout << transformationMatrix.matrix().format(MatrixFmt) << std::endl;
+        std::cout << transformationMatrix.matrix().format(matrixFormatRules) << std::endl;
 
         // Extract Rotation Matrix and Translation Vector from Transformation Matrix
-        std::cout << "RotationMatrix:\n" << transformationMatrix.linear().format(MatrixFmt) << std::endl;
-        std::cout << "TranslationVector:\n" << transformationMatrix.translation().format(VectorFmt) << std::endl;
+        std::cout << "RotationMatrix:\n" << transformationMatrix.linear().format(matrixFormatRules) << std::endl;
+        std::cout << "TranslationVector:\n"
+                  << transformationMatrix.translation().format(vectorFormatRules) << std::endl;
 
         /*
          * Convert from Rotation Matrix (Zivid) to other representations of orientation (Robot)
          */
         printHeader("Convert from Zivid (Rotation Matrix) to Robot");
         const Eigen::AngleAxisd axisAngle(transformationMatrix.linear());
-        std::cout << "AxisAngle:\n" << axisAngle.axis().format(VectorFmt) << ", " << axisAngle.angle() << std::endl;
+        std::cout << "AxisAngle:\n"
+                  << axisAngle.axis().format(vectorFormatRules) << ", " << axisAngle.angle() << std::endl;
         const auto rotationVector = rotationMatrixToRotationVector(transformationMatrix.linear());
-        std::cout << "Rotation Vector:\n" << rotationVector.format(VectorFmt) << std::endl;
+        std::cout << "Rotation Vector:\n" << rotationVector.format(vectorFormatRules) << std::endl;
         const Eigen::Quaterniond quaternion(transformationMatrix.linear());
-        std::cout << "Quaternion:\n" << quaternion.coeffs().format(VectorFmt) << std::endl;
+        std::cout << "Quaternion:\n" << quaternion.coeffs().format(vectorFormatRules) << std::endl;
         const auto rpyList = rotationMatrixToRollPitchYawList(transformationMatrix.linear());
 
         /*
@@ -81,13 +88,14 @@ int main()
          */
         printHeader("Convert from Robot to Zivid (Rotation Matrix)");
         const auto rotationMatrixFromAxisAngle = axisAngle.toRotationMatrix();
-        std::cout << "Rotation Matrix from Axis Angle:\n" << rotationMatrixFromAxisAngle.format(MatrixFmt) << std::endl;
+        std::cout << "Rotation Matrix from Axis Angle:\n"
+                  << rotationMatrixFromAxisAngle.format(matrixFormatRules) << std::endl;
         const auto rotationMatrixFromRotationVector = rotationVectorToRotationMatrix(rotationVector);
         std::cout << "Rotation Matrix from Rotation Vector:\n"
-                  << rotationMatrixFromRotationVector.format(MatrixFmt) << std::endl;
+                  << rotationMatrixFromRotationVector.format(matrixFormatRules) << std::endl;
         const auto rotationMatrixFromQuaternion = quaternion.toRotationMatrix();
         std::cout << "Rotation Matrix from Quaternion:\n"
-                  << rotationMatrixFromQuaternion.format(MatrixFmt) << std::endl;
+                  << rotationMatrixFromQuaternion.format(matrixFormatRules) << std::endl;
         rollPitchYawListToRotationMatrix(rpyList);
 
         // Combine Rotation Matrix with Translation Vector to form Transformation Matrix
@@ -103,29 +111,29 @@ int main()
     }
 }
 
-void rollPitchYawListToRotationMatrix(const std::array<RollPitchYaw, nofRotationConventions> &rpyList)
+void rollPitchYawListToRotationMatrix(const std::vector<RollPitchYaw> &rpyList)
 {
-    Eigen::IOFormat MatrixFmt(4, 0, ", ", "\n", "[", "]", "[", "]");
+    Eigen::IOFormat matrixFmt(4, 0, ", ", "\n", "[", "]", "[", "]");
     for(const auto &rotation : rpyList)
     {
-        std::cout << "Rotation Matrix from Roll-Pitch-Yaw angles (" << toString(rotation.convention)
+        std::cout << "Rotation Matrix from Roll-Pitch-Yaw angles (" << toString(rotation.mConvention)
                   << "):" << std::endl;
         const auto rotationMatrixFromRollPitchYaw =
-            rollPitchYawToRotationMatrix(rotation.rollPitchYaw, rotation.convention);
-        std::cout << rotationMatrixFromRollPitchYaw.format(MatrixFmt) << std::endl;
+            rollPitchYawToRotationMatrix(rotation.mRollPitchYaw, rotation.mConvention);
+        std::cout << rotationMatrixFromRollPitchYaw.format(matrixFmt) << std::endl;
     }
 }
 
-std::array<RollPitchYaw, nofRotationConventions> rotationMatrixToRollPitchYawList(const Eigen::Matrix3d &rotationMatrix)
+std::vector<RollPitchYaw> rotationMatrixToRollPitchYawList(const Eigen::Matrix3d &rotationMatrix)
 {
-    Eigen::IOFormat VectorFmt(4, 0, ", ", "", "", "", "[", "]");
-    std::array<RollPitchYaw, nofRotationConventions> rpyList;
+    Eigen::IOFormat vectorFmt(4, 0, ", ", "", "", "", "[", "]");
+    std::vector<RollPitchYaw> rpyList;
     for(size_t i = 0; i < nofRotationConventions; i++)
     {
         const RotationConvention convention{ static_cast<RotationConvention>(i) };
         std::cout << "Roll-Pitch-Yaw angles (" << toString(convention) << "):" << std::endl;
-        rpyList[i] = { convention, rotationMatrixToRollPitchYaw(rotationMatrix, convention) };
-        std::cout << rpyList[i].rollPitchYaw.format(VectorFmt) << std::endl;
+        rpyList.emplace_back(convention, rotationMatrixToRollPitchYaw(rotationMatrix, convention));
+        std::cout << rpyList[i].mRollPitchYaw.format(vectorFmt) << std::endl;
     }
     return rpyList;
 }
@@ -164,6 +172,7 @@ void saveTransformationMatrixToYAML(const Eigen::Affine3d &transformationMatrix,
 
 cv::Mat eigenToCv(const Eigen::MatrixXd &eigenMat)
 {
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     cv::Mat cvMat(static_cast<int>(eigenMat.rows()), static_cast<int>(eigenMat.cols()), CV_64FC1, cv::Scalar(0));
 
     cv::eigen2cv(eigenMat, cvMat);
@@ -196,11 +205,11 @@ std::string toString(RotationConvention convention)
 {
     switch(convention)
     {
-        case RotationConvention::XYZ_Intrinsic: return "XYZ_Intrinsic";
-        case RotationConvention::XYZ_Extrinsic: return "XYZ_Extrinsic";
-        case RotationConvention::ZYX_Intrinsic: return "ZYX_Intrinsic";
-        case RotationConvention::ZYX_Extrinsic: return "ZYX_Extrinsic";
-        case RotationConvention::NOF_ROT: break;
+        case RotationConvention::xyzIntrinsic: return "xyzIntrinsic";
+        case RotationConvention::xyzExtrinsic: return "xyzExtrinsic";
+        case RotationConvention::zyxIntrinsic: return "zyxIntrinsic";
+        case RotationConvention::zyxExtrinsic: return "zyxExtrinsic";
+        case RotationConvention::nofROT: break;
     }
 
     throw std::invalid_argument("Invalid RotationConvention");
@@ -215,11 +224,11 @@ Eigen::Array3d rotationMatrixToRollPitchYaw(const Eigen::Matrix3d &rotationMatri
 {
     switch(rotation)
     {
-        case RotationConvention::XYZ_Intrinsic: return rotationMatrix.eulerAngles(0, 1, 2);
-        case RotationConvention::XYZ_Extrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
-        case RotationConvention::ZYX_Intrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
-        case RotationConvention::ZYX_Extrinsic: return rotationMatrix.eulerAngles(0, 1, 2);
-        case RotationConvention::NOF_ROT: break;
+        case RotationConvention::zyxExtrinsic:
+        case RotationConvention::xyzIntrinsic: return rotationMatrix.eulerAngles(0, 1, 2);
+        case RotationConvention::xyzExtrinsic:
+        case RotationConvention::zyxIntrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
+        case RotationConvention::nofROT: break;
     }
 
     throw std::invalid_argument("Invalid rotation");
@@ -235,19 +244,19 @@ Eigen::Matrix3d rollPitchYawToRotationMatrix(const Eigen::Array3d &rollPitchYaw,
 {
     switch(rotation)
     {
-        case RotationConvention::XYZ_Intrinsic:
-        case RotationConvention::ZYX_Extrinsic:
+        case RotationConvention::xyzIntrinsic:
+        case RotationConvention::zyxExtrinsic:
             return (Eigen::AngleAxisd(rollPitchYaw[0], Eigen::Vector3d::UnitX())
                     * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
                     * Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ()))
                 .matrix();
-        case RotationConvention::ZYX_Intrinsic:
-        case RotationConvention::XYZ_Extrinsic:
+        case RotationConvention::zyxIntrinsic:
+        case RotationConvention::xyzExtrinsic:
             return (Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ())
                     * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
                     * Eigen::AngleAxisd(rollPitchYaw[0], Eigen::Vector3d::UnitX()))
                 .matrix();
-        case RotationConvention::NOF_ROT: break;
+        case RotationConvention::nofROT: break;
     }
 
     throw std::invalid_argument("Invalid orientation");

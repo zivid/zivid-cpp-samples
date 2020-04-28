@@ -9,8 +9,8 @@ coordinates from the camera frame to the robot base frame.
 #include <cmath>
 #include <iostream>
 
-Eigen::MatrixXd cvToEigen(const cv::Mat &);
-cv::Mat readTransform(const std::string &);
+Eigen::MatrixXd cvToEigen(const cv::Mat &cvMat);
+cv::Mat readTransform(const std::string &fileName);
 
 int main()
 {
@@ -31,10 +31,10 @@ int main()
         const auto transformBaseToEndEffector = cvToEigen(endEffectorPose);
 
         // Compute camera pose in robot base frame
-        const auto transform_base_to_camera = transformBaseToEndEffector * transformEndEffectorToCamera;
+        const auto transformBaseToCamera = transformBaseToEndEffector * transformEndEffectorToCamera;
 
         // compute (picking) point in robot base frame
-        const auto pointInBaseFrame = transform_base_to_camera * pointInCameraFrame;
+        const auto pointInBaseFrame = transformBaseToCamera * pointInCameraFrame;
         std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.segment(0, 3).transpose()
                   << std::endl;
     }
@@ -66,13 +66,13 @@ Eigen::MatrixXd cvToEigen(const cv::Mat &cvMat)
     return eigenMat;
 }
 
-cv::Mat readTransform(const std::string &file_name)
+cv::Mat readTransform(const std::string &fileName)
 {
     auto fileStorage = cv::FileStorage();
 
-    if(!fileStorage.open(file_name, cv::FileStorage::Mode::READ))
+    if(!fileStorage.open(fileName, cv::FileStorage::Mode::READ))
     {
-        throw std::invalid_argument("Could not open " + file_name);
+        throw std::invalid_argument("Could not open " + fileName);
     }
     try
     {
@@ -80,18 +80,18 @@ cv::Mat readTransform(const std::string &file_name)
 
         if(poseStateNode.empty())
         {
-            throw std::invalid_argument("PoseState not found in file " + file_name);
+            throw std::invalid_argument("PoseState not found in file " + fileName);
         }
 
         const auto rows = poseStateNode.mat().rows;
         const auto cols = poseStateNode.mat().cols;
         if(rows != 4 || cols != 4)
         {
-            throw std::invalid_argument("Expected 4x4 matrix in " + file_name + ", but got " + std::to_string(cols)
-                                        + "x" + std::to_string(rows));
+            throw std::invalid_argument("Expected 4x4 matrix in " + fileName + ", but got " + std::to_string(cols) + "x"
+                                        + std::to_string(rows));
         }
 
-        const auto poseState = poseStateNode.mat();
+        auto poseState = poseStateNode.mat();
         fileStorage.release();
         return poseState;
     }
