@@ -66,7 +66,7 @@ namespace
         settings.set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ 20000 } });
         settings.set(Zivid::Settings::Filters::Gaussian::Enabled::yes);
         camera.setSettings(settings);
-        const auto frame = camera.capture();
+        auto frame = camera.capture();
         std::cout << "OK" << std::endl;
 
         return frame;
