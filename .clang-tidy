@@ -5,6 +5,7 @@ Checks: >
   -cppcoreguidelines-macro-usage,
   -google-runtime-references,
   -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
   -cppcoreguidelines-avoid-magic-numbers,
   -readability-magic-numbers,
   -cppcoreguidelines-pro-type-union-access,
@@ -394,3 +395,5 @@ CheckOptions:
     value:           '0'
   - key:             readability-simplify-boolean-expr.ChainedConditionalReturn
     value:           '0'
+  - key:             misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables
+    value:           '1'

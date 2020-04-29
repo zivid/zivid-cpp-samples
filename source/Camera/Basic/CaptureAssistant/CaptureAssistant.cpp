@@ -14,7 +14,7 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera{ zivid.connectCamera() };
 
-        const auto resultFile{ "result.zdf" };
+        const auto *resultFile = "result.zdf";
         Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters(
             std::chrono::milliseconds{ 1200 }, Zivid::CaptureAssistant::AmbientLightFrequency::none);
 

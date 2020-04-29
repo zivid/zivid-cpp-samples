@@ -16,7 +16,7 @@ echo "Checking formatting"
 errorsFound=0
 for fileName in $cppFiles $hFiles; do
     echo $fileName
-    diff $fileName <(clang-format-8 $fileName)
+    diff $fileName <(clang-format-10 $fileName)
     if [ $? -ne 0 ]; then
         let "errorsFound=errorsFound+1"
     else
@@ -33,11 +33,10 @@ BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit $?
 cd "$BUILD_DIR" || exit $?
 cmake -GNinja \
-    -DUSE_EIGEN3=OFF \
-    -DUSE_OPENCV=OFF \
-    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-8" \
+    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
+    -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
     "$SOURCE_DIR" || exit $?
 cmake --build . || exit $?
 

@@ -100,33 +100,21 @@ namespace
                   << stringList.at(1) << stringList.at(2) << std::endl;
     }
 
-    void printHeaderLine(const size_t num, std::initializer_list<std::string> stringList)
+    void printHeaderLine(const std::string &firstString, size_t num, const std::string &secondString)
     {
         printPrimarySeparationLine();
-        std::string outputString;
-        for(auto iterator = stringList.begin(); iterator != stringList.end(); ++iterator)
-        {
-            if(std::distance(stringList.begin(), iterator) == 1)
-            {
-                outputString += std::to_string(num) + (*iterator);
-            }
-            else
-            {
-                outputString += (*iterator);
-            }
-        }
-        std::cout << outputString << std::endl;
+        std::cout << firstString << num << secondString << std::endl;
     }
 
     void printConnectHeader(const size_t numConnects)
     {
-        printHeaderLine(numConnects, { "Connecting and disconnecting ", " times each (be patient):" });
+        printHeaderLine("Connecting and disconnecting ", numConnects, " times each (be patient):");
     }
 
     void printCapture3DHeader(const size_t numFrames, const std::vector<Zivid::Settings> &settingsVector)
     {
         const auto filterList = makefilterList(settingsVector);
-        printHeaderLine(numFrames, { "Capturing ", " 3D frames:" });
+        printHeaderLine("Capturing ", numFrames, " 3D frames:");
         std::cout << "  exposure time = " << makeSettingList<Zivid::Settings::ExposureTime>(settingsVector)
                   << std::endl;
         std::cout << "  iris settings = " << makeSettingList<Zivid::Settings::Iris>(settingsVector) << std::endl;
@@ -138,18 +126,18 @@ namespace
 
     void printAssistedCapture3DHeader(const size_t numFrames)
     {
-        printHeaderLine(numFrames, { "Running assisted capture ", " times:" });
+        printHeaderLine("Running assisted capture ", numFrames, " times:");
     }
 
     void printCapture2DHeader(const size_t numFrames, const Zivid::Settings2D &settings)
     {
-        printHeaderLine(numFrames, { "Capturing ", " 2D frames:" });
+        printHeaderLine("Capturing ", numFrames, " 2D frames:");
         std::cout << "  exposure time = { " << settings.exposureTime().toString() << " }" << std::endl;
     }
 
     void printSaveHeader(const size_t numFrames)
     {
-        printHeaderLine(numFrames, { "Saving point cloud ", " times each (be patient):" });
+        printHeaderLine("Saving point cloud ", numFrames, " times each (be patient):");
     }
 
     void printResultLine(const std::string &name, const Duration &durationMedian, const Duration &durationMean)
