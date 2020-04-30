@@ -19,7 +19,7 @@ int main()
 
         auto intrinsics = camera.intrinsics();
 
-        std::string fileNameIntrinsics = "intrinsics.yml";
+        std::string fileNameIntrinsics = "Intrinsics.yml";
         std::cout << "Saving camera intrinsics to " << fileNameIntrinsics << std::endl;
         intrinsics.save(fileNameIntrinsics);
 

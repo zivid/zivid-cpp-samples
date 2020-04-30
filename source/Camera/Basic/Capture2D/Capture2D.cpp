@@ -29,7 +29,7 @@ int main()
         std::cout << "Pixel color: R=" << static_cast<int>(pixel.r) << ", G=" << static_cast<int>(pixel.g)
                   << ", B=" << static_cast<int>(pixel.b) << ", A=" << static_cast<int>(pixel.a) << std::endl;
 
-        const auto *resultFile = "result.png";
+        const auto *resultFile = "Image.png";
         std::cout << "Saving the image to " << resultFile << std::endl;
         image.save(resultFile);
     }

@@ -33,7 +33,7 @@ auto frame = camera.capture();
 
 We can now save our results. By default the 3D point cloud is saved in Zivid format `.zdf` ([go to source][save-url]).
 ```cpp
-auto resultFile = "result.zdf";
+auto resultFile = "Result.zdf";
 frame.save(resultFile);
 ```
 

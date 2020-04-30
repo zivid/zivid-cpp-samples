@@ -158,11 +158,11 @@ settings2D.set(Zivid::Settings2D::Brightness{ 1.0 });
 
 Zivid Studio can store the current settings to .yml files. These can be read and applied in the API. You may find it easier to modify the settings in these (human-readable) yaml-files in your preferred editor.
 ```cpp
-camera.setSettings(Zivid::Settings("frame_01.yml"));
+camera.setSettings(Zivid::Settings("Frame01.yml"));
 ```
 You may also apply settings from file while connecting to the camera.
 ```cpp
-auto camera = zivid.connectCamera(Zivid::Settings("frame_01.yml"));
+auto camera = zivid.connectCamera(Zivid::Settings("Frame01.yml"));
 ```
 
 ## Capture
@@ -191,7 +191,7 @@ auto frame2D = camera.capture2D(settings2D);
 
 We can now save our results ([go to source][save-url]).
 ```cpp
-frame.save("result.zdf");
+frame.save("Result.zdf");
 ```
 The API detects which format to use. See [Point Cloud][kb-point_cloud-url] for a list of supported formats.
 
@@ -199,7 +199,7 @@ The API detects which format to use. See [Point Cloud][kb-point_cloud-url] for a
 
 If we captured a 2D image, we can save it ([go to source][save2d-url]).
 ```cpp
-frame2D.save("result.png");
+frame2D.save("Result.png");
 ```
 
 ## Conclusion
