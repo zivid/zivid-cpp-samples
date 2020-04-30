@@ -92,15 +92,6 @@ add_custom_target(
             ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
 )
 
-if(WIN32)
-    add_custom_target(
-        CopyDlls
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                $ENV{ZIVID_INSTALL_FOLDER}/$<$<CONFIG:Debug>:bin_debug>$<$<CONFIG:Release>:bin>/plugins/
-                ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/plugins
-    )
-endif()
-
 message(STATUS "All samples: ${SAMPLES}")
 
 foreach(SAMPLE ${SAMPLES})
@@ -133,9 +124,6 @@ foreach(SAMPLE ${SAMPLES})
 
     add_dependencies(${SAMPLE_NAME} CopyZdf)
 
-    if(WIN32)
-        add_dependencies(${SAMPLE_NAME} CopyDlls)
-    endif()
 endforeach()
 
 # TODO: Generalize how input file dependencies are copied, see issue #46
