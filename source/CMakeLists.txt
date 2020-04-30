@@ -77,7 +77,7 @@ else()
 endif()
 
 if(USE_OPENCV)
-    find_package(OpenCV 4.0.1 COMPONENTS core highgui calib3d)
+    find_package(OpenCV 4.1.0 COMPONENTS core highgui calib3d)
     if(NOT OpenCV_FOUND)
         message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF.")
     endif()
