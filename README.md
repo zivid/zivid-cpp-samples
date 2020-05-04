@@ -44,10 +44,10 @@ There are two main categories of samples: **Camera** and **Applications**. The s
         - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use Zivid camera intrinsics to undistort an RGB image. This example will prompt the user for whether to capture a 2D or a 3D image. In both instances it will operate on a 2D image. However, in the 3D case it will extract 2D image from a ZDF point cloud. The 2D variant is faster.
       - **Dependencies:**
-        - [OpenCV](https://opencv.org/) version 4.0.1 or newer
+        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
     - [**CreateDepthMap**][CreateDepthMap-url] - Import a ZDF point cloud and convert it to OpenCV format, then extract and visualize depth map.
       - **Dependencies:**
-        - [OpenCV](https://opencv.org/) version 4.0.1 or newer
+        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
 
 ## Instructions
 
