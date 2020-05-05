@@ -36,9 +36,9 @@ set(SAMPLES
     Applications/Advanced/HandEyeCalibration/PoseConversions)
 
 set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
-set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D CaptureFromFileWritePCLVis3D ZDF2PCD)
-set(OpenCV_DEPENDING ZDF2OpenCV CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
-set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureFromFileWritePCLVis3D CaptureWritePCLVis3D ZDF2OpenCV CaptureUndistortRGB)
+set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions)
+set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB)
 set(Clipp_DEPENDING CameraUserData)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
