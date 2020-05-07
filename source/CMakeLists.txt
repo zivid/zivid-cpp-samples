@@ -34,7 +34,11 @@ set(SAMPLES
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
-    Applications/Advanced/CreateDepthMap)
+    Applications/Advanced/CreateDepthMap
+    Applications/Advanced/MultiCamera/MultiCameraCalibration
+    Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
+    Applications/Advanced/MultiCamera/StitchByTransformation
+    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF)
 
 set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING Downsample ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)

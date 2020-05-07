@@ -46,7 +46,13 @@ There are two main categories of samples: **Camera** and **Applications**. The s
           - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
           - [OpenCV](https://opencv.org/) version 4.1.0 or newer
       - [**PoseConversions**][PoseConversions-url] - Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector)
-    - [**Downsample**][Downsample-url]  - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
+        - **Dependencies:**
+          - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
+          - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+    - [**MultiCamera**][MultiCamera-url] ([tutorial][MultiCameraTutorial-url])
+      - [**MultiCameraCalibration**][MultiCameraCalibration-url] and [**MultiCameraCalibrationFromFile**][MultiCameraCalibrationFromZDF-url] - Use captures of a calibration object to generate transformation matrices to a single coordinate frame. First sample captures from connected cameras, the second loads existing captures from .ZDF files.
+      - [**StitchByTransformation**][StitchByTransformation-url] and [**StitchByTransformationFromFile**][StitchByTransformationFromZDF-url] - Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame. First sample uses connected cameras, the second loads existing captures from .ZDF files.
+    - [**Downsample**][Downsample-url] - This example shows how to import a Zivid point cloud from a .ZDF file and downsample it.
       - **Dependencies:**
         - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
         - [Point Cloud Library](https://pointcloudlibrary.github.io/) version 1.2 or newer
@@ -155,9 +161,16 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [ReadPCLVis3D-url]: source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp
 [ReadIterateZDF-url]: source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp
 [HandEyeCalibration-url]: source/Applications/Advanced/HandEyeCalibration
+[MultiCameraCalibration-url]: source/Applications/Advanced/MultiCameraCalibration
 [HandEyeCalibrationSample-url]: source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp
 [UtilizeEyeInHandCalibration-url]: source/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
 [PoseConversions-url]: source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
+[MultiCamera-url]: source/Applications/Advanced/MultiCamera
+[MultiCameraTutorial-url]: source/Applications/Advanced/MultiCamera/MultiCameraTutorial.md
+[MultiCameraCalibration-url]: source/Applications/Advanced/MultiCamera/MultiCameraCalibration/MultiCameraCalibration.cpp
+[MultiCameraCalibrationFromZDF-url]: source/Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF/MultiCameraCalibrationFromZDF.cpp
+[StitchByTransformation-url]: source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp
+[StitchByTransformationFromZDF-url]: source/Applications/Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp
 [Downsample-url]: source/Applications/Advanced/Downsample/Downsample.cpp
 [CaptureUndistortRGB-url]: source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp
