@@ -3,8 +3,10 @@ Utilize the result of eye-in-hand calibration to transform (picking) point
 coordinates from the camera frame to the robot base frame.
 */
 
-#include <Eigen/Core>
 #include <Zivid/Zivid.h>
+
+#include <Eigen/Core>
+
 #include <opencv2/core/core.hpp>
 
 #include <cmath>

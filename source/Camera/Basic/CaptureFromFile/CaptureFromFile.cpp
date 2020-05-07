@@ -2,6 +2,7 @@
 // Latest version of Zivid software (including samples) can be found at http://zivid.com/software/.
 
 #include <Zivid/Zivid.h>
+
 #include <iostream>
 
 int main()

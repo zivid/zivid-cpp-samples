@@ -1,5 +1,6 @@
 #include <Zivid/CloudVisualizer.h>
 #include <Zivid/Zivid.h>
+
 #include <iostream>
 
 int main()

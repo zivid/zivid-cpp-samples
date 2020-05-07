@@ -8,10 +8,11 @@ This example shows how to use Eigen to convert to and from:
  It provides convenience functions that can be reused in applicable applications.
 */
 
+#include <Zivid/Zivid.h>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <Zivid/Zivid.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/eigen.hpp>

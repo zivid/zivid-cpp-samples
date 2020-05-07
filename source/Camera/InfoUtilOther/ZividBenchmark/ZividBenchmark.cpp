@@ -1,4 +1,5 @@
 #include <Zivid/Zivid.h>
+
 #include <algorithm>
 #include <iostream>
 
