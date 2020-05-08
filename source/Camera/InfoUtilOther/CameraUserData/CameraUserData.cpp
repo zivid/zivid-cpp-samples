@@ -36,48 +36,48 @@ int main(int argc, char **argv)
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to camera" << std::endl;
-        auto camera = zivid.connectCamera();
-
-        const auto maxDataSize = camera.userDataMaxSizeBytes();
-        if(maxDataSize == 0)
-        {
-            throw std::runtime_error{ "This camera does not support user data" };
-        }
-
         std::string userData;
         Mode selected = Mode::read;
         auto readMode = (clipp::command("read").set(selected, Mode::read));
         auto clearMode = (clipp::command("clear").set(selected, Mode::clear));
-        auto writeMode = (clipp::command("write").set(selected, Mode::write), clipp::values("userData", userData));
+        auto writeMode = (clipp::command("write").set(selected, Mode::write), clipp::value("userData", userData));
 
-        auto cli = ((readMode | clearMode | writeMode));
+        auto cli = ((writeMode | readMode | clearMode));
 
-        if(parse(argc, argv, cli))
+        if(!parse(argc, argv, cli))
         {
-            switch(selected)
-            {
-                case Mode::read:
-                    std::cout << "Reading user data from camera" << std::endl;
-                    std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
-                    break;
-                case Mode::write:
-                {
-                    std::cout << "Writing '" << userData << "' to the camera" << std::endl;
-                    write(camera, userData);
-                    std::cout << "Done" << std::endl;
-                    break;
-                }
-                case Mode::clear:
-                    std::cout << "Clearing user data from camera" << std::endl;
-                    clear(camera);
-                    std::cout << "Done" << std::endl;
-                    break;
-            }
+            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
+            std::cout << clipp::usage_lines(cli, "CameraUserData", fmt) << std::endl;
+            throw std::runtime_error{ "Invalid usage" };
         }
-        else
+
+        std::cout << "Connecting to camera" << std::endl;
+        auto camera = zivid.connectCamera();
+
+        const auto maxDataSize = camera.info().userData().maxSizeBytes();
+        if(maxDataSize.value() == 0)
         {
-            std::cout << clipp::usage_lines(cli, *argv) << std::endl;
+            throw std::runtime_error{ "This camera does not support user data" };
+        }
+
+        switch(selected)
+        {
+            case Mode::read:
+                std::cout << "Reading user data from camera" << std::endl;
+                std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
+                break;
+            case Mode::write:
+            {
+                std::cout << "Writing '" << userData << "' to the camera" << std::endl;
+                write(camera, userData);
+                std::cout << "Done. Note! Camera must be rebooted to allow another write operation" << std::endl;
+                break;
+            }
+            case Mode::clear:
+                std::cout << "Clearing user data from camera" << std::endl;
+                clear(camera);
+                std::cout << "Done. Note! Camera must be rebooted to allow another clear operation" << std::endl;
+                break;
         }
     }
     catch(const std::exception &e)

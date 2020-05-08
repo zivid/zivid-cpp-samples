@@ -1,5 +1,5 @@
 /*
-This example shows how to import a Zivid point cloud from a .ZDF file, iterate through, and extract individual points.
+This example shows how to read point cloud data from a ZDF file, iterate through it, and extract individual points.
 */
 
 #include <Zivid/Zivid.h>
@@ -12,12 +12,14 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto filename = Zivid::Environment::dataPath() + "/Zivid3D.zdf";
-        std::cout << "Reading " << filename << " point cloud" << std::endl;
-        const Zivid::Frame frame = Zivid::Frame(filename);
+        const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Zivid3D.zdf";
+        std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
+        const Zivid::Frame frame = Zivid::Frame(dataFile);
 
         // Extracting point cloud from the frame
-        const auto pointCloud = frame.getPointCloud();
+        const auto pointCloud = frame.pointCloud();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto snr = pointCloud.copySNRs();
 
         std::cout << "Point cloud information:" << std::endl;
         std::cout << "Number of points: " << pointCloud.size() << "\n"
@@ -25,18 +27,25 @@ int main()
 
         // Iterating over the point cloud and displaying X, Y, Z, R, G, B, and Contrast for central 10 x 10 pixels
         const size_t pixelsToDisplay = 10;
-        for(size_t i = (pointCloud.height() - pixelsToDisplay) / 2; i < (pointCloud.height() + pixelsToDisplay) / 2;
-            i++)
+        std::cout << "Iterating over point cloud and extracting X, Y, Z, R, G, B, and Contrast for central "
+                  << pixelsToDisplay << " x " << pixelsToDisplay << " pixels " << std::endl;
+        const size_t iStart = (pointCloud.height() - pixelsToDisplay) / 2;
+        const size_t iEnd = (pointCloud.height() + pixelsToDisplay) / 2;
+        const size_t jStart = (pointCloud.width() - pixelsToDisplay) / 2;
+        const size_t jEnd = (pointCloud.width() + pixelsToDisplay) / 2;
+        for(size_t i = iStart; i < iEnd; i++)
         {
-            for(size_t j = (pointCloud.width() - pixelsToDisplay) / 2; j < (pointCloud.width() + pixelsToDisplay) / 2;
-                j++)
+            for(size_t j = jStart; j < jEnd; j++)
             {
-                const auto &point = pointCloud(i, j);
+                const auto &point = data(i, j);
+                const auto &pointSnr = snr(i, j);
 
-                std::cout << std::setprecision(1) << std::fixed << "Values at pixel (" << i << ", " << j << "):"
-                          << "    X:" << point.x << "  Y:" << point.y << "  Z:" << point.z
-                          << "    R:" << static_cast<int>(point.red()) << "  G:" << static_cast<int>(point.green())
-                          << "  B:" << static_cast<int>(point.blue()) << "    Contrast:" << point.contrast << std::endl;
+                std::cout << std::setprecision(1) << std::fixed << "Values at pixel (" << i << "," << j << "):   "
+                          << "X:" << std::left << std::setfill(' ') << std::setw(8) << point.point.x
+                          << "Y:" << std::setw(8) << point.point.y << "Z:" << std::setw(8) << point.point.z
+                          << "R:" << std::setw(8) << std::to_string(point.color.r) << "G:" << std::setw(8)
+                          << std::to_string(point.color.g) << "B:" << std::setw(8) << std::to_string(point.color.b)
+                          << "SNR:" << std::setw(8) << pointSnr.value << std::endl;
             }
         }
     }

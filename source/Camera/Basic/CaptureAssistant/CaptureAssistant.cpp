@@ -1,5 +1,7 @@
-#include <Zivid/CaptureAssistant.h>
-#include <Zivid/HDR.h>
+/*
+This example shows how to use Capture Assistant to capture point clouds, with color, from the Zivid camera.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <chrono>
@@ -12,26 +14,33 @@ int main()
         Zivid::Application zivid;
 
         std::cout << "Connecting to camera" << std::endl;
-        auto camera{ zivid.connectCamera() };
+        auto camera = zivid.connectCamera();
 
-        const auto *resultFile = "Result.zdf";
-        Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters(
-            std::chrono::milliseconds{ 1200 }, Zivid::CaptureAssistant::AmbientLightFrequency::none);
+        const auto *resultFile = "result.zdf";
+        const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
+        };
 
-        std::cout << "Running Capture Assistant with parameters: " << suggestSettingsParameters << std::endl;
-        const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+        std::cout << "Running Capture Assistant with parameters:\n" << suggestSettingsParameters << std::endl;
+        auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
 
-        std::cout << "Suggested settings are:" << std::endl;
-        for(const auto &setting : settingsVector)
-        {
-            std::cout << setting << std::endl;
-        }
+        std::cout << "Settings suggested by Capture Assistant:" << std::endl;
+        std::cout << settings.acquisitions() << std::endl;
 
-        std::cout << "Capture (and merge) frames using automatically suggested settings" << std::endl;
-        const auto hdrFrame{ Zivid::HDR::capture(camera, settingsVector) };
+        std::cout << "Manually configuring processing settings (Capture Assistant only suggests acquisition settings)"
+                  << std::endl;
+        const auto processing =
+            Zivid::Settings::Processing{ Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 } };
+        settings.set(processing);
+
+        std::cout << "Capturing frame" << std::endl;
+        const auto frame = camera.capture(settings);
 
         std::cout << "Saving frame to file: " << resultFile << std::endl;
-        hdrFrame.save(resultFile);
+        frame.save(resultFile);
     }
     catch(const std::exception &e)
     {

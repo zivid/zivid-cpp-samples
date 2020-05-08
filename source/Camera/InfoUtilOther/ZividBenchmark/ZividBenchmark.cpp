@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 
 namespace
 {
@@ -42,13 +43,13 @@ namespace
     }
 
     template<typename Target>
-    std::string makeSettingList(const std::vector<Zivid::Settings> &settingsVector)
+    std::string makeSettingList(const Zivid::Settings &settings)
     {
         std::string settingList = "{ ";
-        for(size_t i = 0; i < settingsVector.size(); i++)
+        for(size_t i = 0; i < settings.acquisitions().size(); i++)
         {
-            settingList += settingsVector.at(i).get<Target>().toString();
-            if(i + 1 != settingsVector.size())
+            settingList += settings.acquisitions().at(i).get<Target>().toString();
+            if(i + 1 != settings.acquisitions().size())
             {
                 settingList += ", ";
             }
@@ -57,19 +58,19 @@ namespace
         return settingList;
     }
 
-    std::string makefilterList(const std::vector<Zivid::Settings> &settingsVector)
+    std::string makefilterList(const Zivid::Settings &settings)
     {
-        if(settingsVector.at(0).filters().gaussian().isEnabled().value())
+        if(settings.processing().filters().smoothing().gaussian().isEnabled().value())
         {
-            if(settingsVector.at(0).filters().reflection().isEnabled().value())
+            if(settings.processing().filters().reflection().removal().isEnabled().value())
             {
-                return "{ gaussian, reflection }";
+                return "{ Gaussian, Reflection }";
             }
-            return "{ gaussian }";
+            return "{ Gaussian }";
         }
-        if(settingsVector.at(0).filters().reflection().isEnabled().value())
+        if(settings.processing().filters().reflection().removal().isEnabled().value())
         {
-            return "{ reflection }";
+            return "{ Reflection }";
         }
         return {};
     }
@@ -112,16 +113,16 @@ namespace
         printHeaderLine("Connecting and disconnecting ", numConnects, " times each (be patient):");
     }
 
-    void printCapture3DHeader(const size_t numFrames, const std::vector<Zivid::Settings> &settingsVector)
+    void printCapture3DHeader(const size_t numFrames, const Zivid::Settings &settings)
     {
-        const auto filterList = makefilterList(settingsVector);
+        const auto filterList = makefilterList(settings);
         printHeaderLine("Capturing ", numFrames, " 3D frames:");
-        std::cout << "  exposure time = " << makeSettingList<Zivid::Settings::ExposureTime>(settingsVector)
+        std::cout << "  Exposure Time = " << makeSettingList<Zivid::Settings::Acquisition::ExposureTime>(settings)
                   << std::endl;
-        std::cout << "  iris settings = " << makeSettingList<Zivid::Settings::Iris>(settingsVector) << std::endl;
+        std::cout << "  Aperture = " << makeSettingList<Zivid::Settings::Acquisition::Aperture>(settings) << std::endl;
         if(!filterList.empty())
         {
-            std::cout << "  filters = " << filterList << std::endl;
+            std::cout << "  Filters = " << filterList << std::endl;
         }
     }
 
@@ -133,7 +134,7 @@ namespace
     void printCapture2DHeader(const size_t numFrames, const Zivid::Settings2D &settings)
     {
         printHeaderLine("Capturing ", numFrames, " 2D frames:");
-        std::cout << "  exposure time = { " << settings.exposureTime().toString() << " }" << std::endl;
+        std::cout << "  exposure Time = { " << settings.acquisitions().at(0).exposureTime() << " }" << std::endl;
     }
 
     void printSaveHeader(const size_t numFrames)
@@ -175,9 +176,8 @@ namespace
     void printNegligableFilters()
     {
         const std::string negligable = "negligible";
-        printFormated({ "  Contrast", negligable, negligable });
+        printFormated({ "  Noise", negligable, negligable });
         printFormated({ "  Outlier", negligable, negligable });
-        printFormated({ "  Saturated", negligable, negligable });
     }
 
     void printFilterResults(const std::vector<Duration> &durations)
@@ -199,12 +199,12 @@ namespace
         printResults({ "  Save ZDF:", "  Save PLY:", "  Save PCD:", "  Save XYZ:" }, durations);
     }
 
-    void printZividInfo(Zivid::Camera camera)
+    void printZividInfo(const Zivid::Camera &camera, const Zivid::Application &zivid)
     {
-        std::cout << "API: " << Zivid::Version::libraryVersion() << std::endl;
+        std::cout << "API: " << Zivid::Version::coreLibraryVersion() << std::endl;
         std::cout << "OS: " << OS_NAME << std::endl;
         std::cout << "Camera: " << camera << std::endl;
-        std::cout << "Compute device: " << camera.computeDevice() << std::endl;
+        std::cout << "Compute device: " << zivid.computeDevice() << std::endl;
         printPrimarySeparationLine();
         printCentered("Starting Zivid Benchmark");
     }
@@ -216,43 +216,45 @@ namespace
         {
             throw std::runtime_error("At least one camera needs to be connected");
         }
-        printZividInfo(cameras.at(0));
+        printZividInfo(cameras.at(0), zivid);
         return cameras.at(0);
     }
 
-    size_t getMinExposureTime(const std::string &modelName)
+    std::chrono::microseconds getMinExposureTime(const std::string &modelName)
     {
         if(modelName.substr(0, 14) == "Zivid One Plus")
         {
-            return 6500; // Min for Zivid One Plus
+            return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
         }
-
-        return 8333; // Min for Zivid One
+        return std::chrono::microseconds{ 8333 }; // Min for Zivid One
     }
 
-    std::vector<Zivid::Settings> makeSettingsVector(const std::vector<unsigned int> &irises,
-                                                    const std::vector<size_t> &exposureTimes,
-                                                    const bool enableGaussian,
-                                                    const bool enableReflection)
+    Zivid::Settings makeSettings(const std::vector<double> &apertures,
+                                 const std::vector<std::chrono::microseconds> &exposureTimes,
+                                 const bool enableGaussian,
+                                 const bool enableReflection)
     {
-        std::vector<Zivid::Settings> settingsVector(irises.size());
-
-        Zivid::Settings::Filters filters;
-        filters.set(Zivid::Settings::Filters::Contrast::Enabled{ true });
-        filters.set(Zivid::Settings::Filters::Outlier::Enabled{ true });
-        filters.set(Zivid::Settings::Filters::Saturated::Enabled{ true });
-        filters.set(Zivid::Settings::Filters::Gaussian::Enabled{ enableGaussian });
-        filters.set(Zivid::Settings::Filters::Reflection::Enabled{ enableReflection });
-
-        Zivid::Settings settings;
-        for(size_t i = 0; i < irises.size(); ++i)
+        if(apertures.size() != exposureTimes.size())
         {
-            settings.set(Zivid::Settings::Iris{ irises.at(i) });
-            settings.set(Zivid::Settings::Filters{ filters });
-            settings.set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ exposureTimes.at(i) } });
-            settingsVector.at(i) = settings;
+            throw std::runtime_error("Unequal input vector size");
         }
-        return settingsVector;
+
+        Zivid::Settings settings{ Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled{ enableGaussian },
+                                  Zivid::Settings::Processing::Filters::Noise::Removal::Enabled{ true },
+                                  Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled{ true },
+                                  Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled{
+                                      enableReflection } };
+        for(size_t i = 0; i < apertures.size(); ++i)
+        {
+            const auto acquisitionSettings = Zivid::Settings::Acquisition{
+                Zivid::Settings::Acquisition::Aperture{ apertures.at(i) },
+                Zivid::Settings::Acquisition::ExposureTime{ exposureTimes.at(i) },
+                Zivid::Settings::Acquisition::Brightness{ 1.0 } // Using above 1.0 may cause thermal throttling
+            };
+            settings.acquisitions().emplaceBack(acquisitionSettings);
+        }
+
+        return settings;
     }
 
     void benchmarkConnect(Zivid::Camera &camera, const size_t numConnects)
@@ -284,15 +286,14 @@ namespace
     }
 
     std::vector<Duration> benchmarkCapture3D(Zivid::Camera &camera,
-                                             const std::vector<Zivid::Settings> &settingsVector,
+                                             const Zivid::Settings &settings,
                                              const size_t numFrames)
     {
-        printCapture3DHeader(numFrames, settingsVector);
+        printCapture3DHeader(numFrames, settings);
 
         for(size_t i = 0; i < 5; i++) // Warmup frames
         {
-            const auto frame = Zivid::HDR::capture(camera, settingsVector);
-            frame.getPointCloud();
+            const auto data = camera.capture(settings).pointCloud().copyData<Zivid::PointXYZColorRGBA>();
         }
 
         std::vector<Duration> captureDurations;
@@ -303,9 +304,10 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeCapture = HighResClock::now();
-            const auto frame = Zivid::HDR::capture(camera, settingsVector);
+            const auto frame = camera.capture(settings);
             const auto afterCapture = HighResClock::now();
-            frame.getPointCloud();
+            const auto pointCloud = frame.pointCloud();
+            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
             const auto afterProcess = HighResClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
@@ -329,12 +331,14 @@ namespace
     {
         printAssistedCapture3DHeader(numFrames);
 
-        Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters(
-            std::chrono::milliseconds{ 1200 }, Zivid::CaptureAssistant::AmbientLightFrequency::none);
+        const Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
+        };
 
         for(size_t i = 0; i < 5; i++) // Warmup
         {
-            const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+            const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
         }
 
         std::vector<Duration> suggestSettingsDurations;
@@ -342,7 +346,7 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeSuggestSettings = HighResClock::now();
-            const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+            const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
             const auto afterSuggestSettings = HighResClock::now();
 
             suggestSettingsDurations.push_back(afterSuggestSettings - beforeSuggestSettings);
@@ -363,22 +367,22 @@ namespace
     }
 
     void benchmarkCapture3DAndFilters(Zivid::Camera &camera,
-                                      const std::vector<unsigned int> &irises,
-                                      const std::vector<size_t> &exposureTimes,
+                                      const std::vector<double> &apertures,
+                                      const std::vector<std::chrono::microseconds> &exposureTimes,
                                       const size_t numFrames3D)
     {
         const std::vector<Duration> captureDurationWithoutFilter =
-            benchmarkCapture3D(camera, makeSettingsVector(irises, exposureTimes, false, false), numFrames3D);
+            benchmarkCapture3D(camera, makeSettings(apertures, exposureTimes, false, false), numFrames3D);
 
-        std::vector<bool> gaussian{ true, false, true };
-        std::vector<bool> reflection{ false, true, true };
+        const std::vector<bool> gaussian{ true, false, true };
+        const std::vector<bool> reflection{ false, true, true };
 
         std::vector<Duration> filterProcessingDurations;
         for(size_t i = 0; i < gaussian.size(); i++)
         {
             const std::vector<Duration> captureDurationWithFilter =
                 benchmarkCapture3D(camera,
-                                   makeSettingsVector(irises, exposureTimes, gaussian.at(i), reflection.at(i)),
+                                   makeSettings(apertures, exposureTimes, gaussian.at(i), reflection.at(i)),
                                    numFrames3D);
 
             const auto meanAndAverageFilterDurations =
@@ -390,10 +394,10 @@ namespace
         printFilterResults(filterProcessingDurations);
     }
 
-    Zivid::Settings2D makeSettings2D(const size_t exposureTime)
+    Zivid::Settings2D makeSettings2D(const std::chrono::microseconds exposureTime)
     {
-        Zivid::Settings2D settings;
-        settings.set(Zivid::Settings2D::ExposureTime(std::chrono::microseconds{ exposureTime }));
+        Zivid::Settings2D settings{ Zivid::Settings2D::Acquisitions{
+            Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } } };
         return settings;
     }
 
@@ -403,7 +407,7 @@ namespace
 
         for(size_t i = 0; i < 5; i++) // Warmup frames
         {
-            camera.capture2D(settings);
+            camera.capture(settings);
         }
 
         std::vector<Duration> captureDurations;
@@ -412,7 +416,7 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeCapture = HighResClock::now();
-            const auto frame2D = camera.capture2D(settings);
+            const auto frame2D = camera.capture(settings);
             const auto afterCapture = HighResClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
@@ -427,8 +431,9 @@ namespace
     {
         printSaveHeader(numFrames);
 
-        auto frame = camera.capture();
-        frame.getPointCloud();
+        const auto frame =
+            camera.capture(Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } });
+        frame.pointCloud();
 
         std::vector<Duration> allDurations;
         std::vector<std::string> fileNames{ "Zivid3D.zdf", "Zivid3D.ply", "Zivid3D.pcd", "Zivid3D.xyz" };
@@ -464,21 +469,21 @@ int main()
         const size_t numFrames2D = 50;
         const size_t numFramesSave = 10;
 
-        const size_t exposureTime = getMinExposureTime(camera.modelName());
-        const std::vector<size_t> exposureTimeOneFrame{ exposureTime };
-        const std::vector<size_t> exposureTimeTwoFrames{ exposureTime, exposureTime };
-        const std::vector<size_t> exposureTimeThreeFrames{ exposureTime, exposureTime, exposureTime };
+        const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
+        const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
+        const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
+        const std::vector<std::chrono::microseconds> threeExposureTimes{ exposureTime, exposureTime, exposureTime };
 
-        const std::vector<unsigned int> oneIris{ 21U };
-        const std::vector<unsigned int> twoIrises{ 17U, 27U };
-        const std::vector<unsigned int> threeIrises{ 14U, 21U, 35U };
+        const std::vector<double> oneAperture{ 5.66 };
+        const std::vector<double> twoApertures{ 8.0, 4.0 };
+        const std::vector<double> threeApertures{ 11.31, 5.66, 2.83 };
 
         benchmarkConnect(camera, numConnects);
         camera.connect();
         benchmarkAssistedCapture3D(camera, numFrames3D);
-        benchmarkCapture3DAndFilters(camera, oneIris, exposureTimeOneFrame, numFrames3D);
-        benchmarkCapture3D(camera, makeSettingsVector(twoIrises, exposureTimeTwoFrames, false, false), numFrames3D);
-        benchmarkCapture3DAndFilters(camera, threeIrises, exposureTimeThreeFrames, numFrames3D);
+        benchmarkCapture3DAndFilters(camera, oneAperture, oneExposureTime, numFrames3D);
+        benchmarkCapture3D(camera, makeSettings(twoApertures, twoExposureTimes, false, false), numFrames3D);
+        benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
         benchmarkCapture2D(camera, makeSettings2D(exposureTime), numFrames2D);
         benchmarkSave(camera, numFramesSave);
     }

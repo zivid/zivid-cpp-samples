@@ -23,9 +23,9 @@ int main()
         {
             if(!Zivid::Firmware::isUpToDate(camera))
             {
-                std::cout << "Updating firmware on camera " << camera.serialNumber()
-                          << ", model name: " << camera.modelName()
-                          << ", firmware version: " << camera.firmwareVersion() << std::endl;
+                std::cout << "Updating firmware on camera " << camera.info().serialNumber()
+                          << ", model name: " << camera.info().modelName()
+                          << ", firmware version: " << camera.info().firmwareVersion() << std::endl;
                 Zivid::Firmware::update(camera, [](double progressPercentage, const std::string &stageDescription) {
                     std::cout << std::round(progressPercentage) << " % : " << stageDescription
                               << (progressPercentage < 100 ? "..." : "") << std::endl;
@@ -33,9 +33,9 @@ int main()
             }
             else
             {
-                std::cout << "Skipping update of camera " << camera.serialNumber()
-                          << ", model name: " << camera.modelName()
-                          << ", firmware version: " << camera.firmwareVersion() << std::endl;
+                std::cout << "Skipping update of camera " << camera.info().serialNumber()
+                          << ", model name: " << camera.info().modelName()
+                          << ", firmware version: " << camera.info().firmwareVersion() << std::endl;
             }
         }
     }

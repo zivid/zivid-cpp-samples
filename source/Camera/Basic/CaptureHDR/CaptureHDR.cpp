@@ -1,3 +1,8 @@
+/*
+This example shows how to capture point clouds, with color, from the Zivid camera.
+For scenes with high dynamic range we combine multiple acquisitions to get an HDR point cloud.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <iostream>
@@ -11,22 +16,21 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Recording HDR source images" << std::endl;
-        std::vector<Zivid::Frame> frames;
-        for(const size_t iris : { 20U, 25U, 30U })
+        std::cout << "Creating settings" << std::endl;
+        Zivid::Settings settings;
+        for(const auto aperture : { 11.31, 5.66, 2.83 })
         {
-            std::cout << "Capture frame with iris = " << iris << std::endl;
-            camera << Zivid::Settings::Iris{ iris };
-            frames.emplace_back(camera.capture());
+            std::cout << "Adding acquisition with aperture= " << aperture << std::endl;
+            const auto acquisitionSettings = Zivid::Settings::Acquisition{
+                Zivid::Settings::Acquisition::Aperture{ aperture },
+            };
+            settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 
-        std::cout << "Creating HDR frame" << std::endl;
-        auto hdrFrame = Zivid::HDR::combineFrames(begin(frames), end(frames));
+        std::cout << "Capturing HDR frame" << std::endl;
+        const auto hdrFrame = camera.capture(settings);
 
-        std::cout << "Saving the frames" << std::endl;
-        frames[0].save("20.zdf");
-        frames[1].save("25.zdf");
-        frames[2].save("30.zdf");
+        std::cout << "Saving the HDR frame" << std::endl;
         hdrFrame.save("HDR.zdf");
     }
     catch(const std::exception &e)
