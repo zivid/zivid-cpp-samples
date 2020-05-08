@@ -9,7 +9,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto *resultFile = "result.zdf";
+        const auto *resultFile = "Result.zdf";
 
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();

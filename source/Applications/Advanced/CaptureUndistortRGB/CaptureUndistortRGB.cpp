@@ -58,17 +58,17 @@ int main()
         std::cout << "Displaying and saving the BGR image" << std::endl;
 
         displayBGR(bgr, "Distorted BGR image");
-        cv::imwrite("Distorted RGB image.jpg", bgr);
+        cv::imwrite("ImageDistorted.jpg", bgr);
 
         std::cout << "Displaying and saving the undistorted BGR image" << std::endl;
 
         displayBGR(bgrUndistorted, "Undistorted BGR image");
-        cv::imwrite("Undistorted RGB image.jpg", bgrUndistorted);
+        cv::imwrite("ImageUndistorted.jpg", bgrUndistorted);
 
         std::cout << "Displaying and saving the Undistorted BGR image - full" << std::endl;
 
         displayBGR(bgrUndistortedFull, "Undistorted BGR image - full");
-        cv::imwrite("Undistorted RGB image - full.jpg", bgrUndistorted);
+        cv::imwrite("ImageUndistortedFull.jpg", bgrUndistorted);
     }
     catch(const std::exception &e)
     {

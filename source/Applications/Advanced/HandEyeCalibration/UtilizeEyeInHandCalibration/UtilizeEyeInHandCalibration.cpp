@@ -3,7 +3,10 @@ Utilize the result of eye-in-hand calibration to transform (picking) point
 coordinates from the camera frame to the robot base frame.
 */
 
+#include <Zivid/Zivid.h>
+
 #include <Eigen/Core>
+
 #include <opencv2/core/core.hpp>
 
 #include <cmath>
@@ -21,10 +24,10 @@ int main()
         std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.segment(0, 3).transpose() << std::endl;
 
         // Read camera pose in end-effector frame (result of eye-in-hand calibration)
-        const auto eyeInHandTransformation = readTransform("handEyeTransform.yaml");
+        const auto eyeInHandTransformation = readTransform(Zivid::Environment::dataPath() + "/EyeInHandTransform.yaml");
 
         // Read end-effector pose in robot base frame
-        const auto endEffectorPose = readTransform("robotTransform.yaml");
+        const auto endEffectorPose = readTransform(Zivid::Environment::dataPath() + "/RobotTransform.yaml");
 
         // convert to Eigen matrices for easier computation
         const auto transformEndEffectorToCamera = cvToEigen(eyeInHandTransformation);

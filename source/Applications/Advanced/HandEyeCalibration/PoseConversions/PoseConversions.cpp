@@ -8,6 +8,8 @@ This example shows how to use Eigen to convert to and from:
  It provides convenience functions that can be reused in applicable applications.
 */
 
+#include <Zivid/Zivid.h>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -62,7 +64,8 @@ int main()
         Eigen::IOFormat vectorFormatRules(4, 0, ", ", "", "", "", "[", "]");
         printHeader("This example shows conversions to/from Transformation Matrix");
 
-        const auto transformationMatrix = getTransformationMatrixFromYAML("robotTransform.yaml");
+        const auto transformationMatrix =
+            getTransformationMatrixFromYAML(Zivid::Environment::dataPath() + "/RobotTransform.yaml");
         std::cout << transformationMatrix.matrix().format(matrixFormatRules) << std::endl;
 
         // Extract Rotation Matrix and Translation Vector from Transformation Matrix
@@ -101,7 +104,7 @@ int main()
         // Combine Rotation Matrix with Translation Vector to form Transformation Matrix
         Eigen::Affine3d transformationMatrixFromQuaternion(rotationMatrixFromQuaternion);
         transformationMatrixFromQuaternion.translation() = transformationMatrix.translation();
-        saveTransformationMatrixToYAML(transformationMatrixFromQuaternion, "robotTransformOut.yaml");
+        saveTransformationMatrixToYAML(transformationMatrixFromQuaternion, "RobotTransformOut.yaml");
     }
 
     catch(const std::exception &e)

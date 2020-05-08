@@ -85,13 +85,6 @@ else()
     disable_samples("OpenCV")
 endif()
 
-add_custom_target(
-    CopyZdf
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/Zivid3D.zdf
-            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-)
-
 message(STATUS "All samples: ${SAMPLES}")
 
 foreach(SAMPLE ${SAMPLES})
@@ -122,33 +115,6 @@ foreach(SAMPLE ${SAMPLES})
         target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
     endif()
 
-    add_dependencies(${SAMPLE_NAME} CopyZdf)
-
 endforeach()
-
-# TODO: Generalize how input file dependencies are copied, see issue #46
-add_custom_target(
-    CopyHandEyeFiles
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/Applications/Advanced/HandEyeCalibration/robotTransform.yaml
-            ${CMAKE_CURRENT_SOURCE_DIR}/Applications/Advanced/HandEyeCalibration/handEyeTransform.yaml
-            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-)
-if(TARGET UtilizeEyeInHandCalibration)
-    add_dependencies("UtilizeEyeInHandCalibration" CopyHandEyeFiles)
-endif()
-if(TARGET PoseConversions)
-    add_dependencies("PoseConversions" CopyHandEyeFiles)
-endif()
-
-add_custom_target(
-    CopyCameraSettings
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/Settings/
-            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/Settings
-)
-if(TARGET CaptureHDRLoop)
-    add_dependencies("CaptureHDRLoop" CopyCameraSettings)
-endif()
 
 target_compile_definitions(ZividBenchmark PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")

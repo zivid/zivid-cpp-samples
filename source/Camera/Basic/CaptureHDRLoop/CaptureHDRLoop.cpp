@@ -1,6 +1,5 @@
 /*
-This example shows how to acquire HDR images from the Zivid camera in a loop,
-with settings from .yml files.
+This example shows how to acquire HDR images from the Zivid camera in a loop, with settings from files.
 */
 
 #include <Zivid/Zivid.h>
@@ -26,7 +25,7 @@ int main()
             for(size_t frame = 1; frame <= framesPerCapture; frame++)
             {
                 std::stringstream settingsPath;
-                settingsPath << "Settings/set" << set << "/frame_0" << frame << ".yml";
+                settingsPath << Zivid::Environment::dataPath() + "/Settings/Set" << set << "/Frame0" << frame << ".yml";
                 std::cout << "Add settings from " << settingsPath.str() << ":" << std::endl;
                 const auto setting = Zivid::Settings(settingsPath.str());
                 std::cout << setting.toString() << std::endl;

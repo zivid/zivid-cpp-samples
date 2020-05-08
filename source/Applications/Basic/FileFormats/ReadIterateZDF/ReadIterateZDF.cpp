@@ -12,7 +12,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        const std::string filename = "Zivid3D.zdf";
+        const auto filename = Zivid::Environment::dataPath() + "/Zivid3D.zdf";
         std::cout << "Reading " << filename << " point cloud" << std::endl;
         const Zivid::Frame frame = Zivid::Frame(filename);
 
