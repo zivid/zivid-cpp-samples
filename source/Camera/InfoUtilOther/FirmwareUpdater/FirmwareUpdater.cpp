@@ -1,3 +1,7 @@
+/*
+This example shows how to update firmware on the Zivid camera.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <cmath>

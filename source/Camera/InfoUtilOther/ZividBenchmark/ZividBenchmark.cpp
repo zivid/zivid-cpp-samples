@@ -436,14 +436,14 @@ namespace
         frame.pointCloud();
 
         std::vector<Duration> allDurations;
-        std::vector<std::string> fileNames{ "Zivid3D.zdf", "Zivid3D.ply", "Zivid3D.pcd", "Zivid3D.xyz" };
-        for(const auto &fileName : fileNames)
+        std::vector<std::string> dataFiles{ "Zivid3D.zdf", "Zivid3D.ply", "Zivid3D.pcd", "Zivid3D.xyz" };
+        for(const auto &dataFile : dataFiles)
         {
             std::vector<Duration> durationsPerFormat;
             for(size_t j = 0; j < numFrames; j++)
             {
                 const auto beforeSave = HighResClock::now();
-                frame.save(fileName);
+                frame.save(dataFile);
                 const auto afterSave = HighResClock::now();
 
                 durationsPerFormat.push_back(afterSave - beforeSave);

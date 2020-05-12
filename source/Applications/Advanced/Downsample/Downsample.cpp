@@ -1,5 +1,5 @@
 /*
-Import a ZDF point cloud and downsample it.
+This example shows how to downsample point cloud from ZDF file.
 */
 
 #include <Zivid/Visualization/Visualizer.h>
@@ -61,15 +61,15 @@ namespace
     pcl::PointCloud<pcl::PointXYZRGB> downsample(const Zivid::PointCloud &pointCloud, int downsamplingFactor)
     {
         /*
-		Function for downsampling a Zivid point cloud. The downsampling factor represents the denominator
-		of a fraction that represents the size of the downsampled point cloud relative to the original
-		point cloud, e.g. 2 - one-half,  3 - one-third, 4 one-quarter, etc.
-		*/
+        Function for downsampling a Zivid point cloud. The downsampling factor represents the denominator
+        of a fraction that represents the size of the downsampled point cloud relative to the original
+        point cloud, e.g. 2 - one-half,  3 - one-third, 4 one-quarter, etc.
+        */
 
         if((pointCloud.height() % downsamplingFactor) != 0U || (pointCloud.width() % downsamplingFactor) != 0U)
         {
             throw std::invalid_argument("Downsampling factor (" + std::to_string(downsamplingFactor)
-                                        + ") has to a factor of the width (" + std::to_string(pointCloud.width())
+                                        + ") has to be a factor of the width (" + std::to_string(pointCloud.width())
                                         + ") and height (" + std::to_string(pointCloud.height())
                                         + ") of the input point cloud.");
         }
@@ -143,11 +143,11 @@ namespace
 
     void visualizePCLPointCloud(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloudPtr)
     {
-        std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
+        std::cout << "Running PCL visualizer. Blocking until window closes" << std::endl;
         pcl::visualization::CloudViewer viewer("PCL Cloud Viewer");
-        viewer.showCloud(cloudPTR);
+        viewer.showCloud(cloudPtr);
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer.wasStopped())
         {
         }
@@ -187,7 +187,7 @@ int main()
         std::cout << "Visualizing point cloud before downsampling" << std::endl;
         visualizePointCloud(pointCloud);
 
-        std::cout << "Visualize point cloud after downsampling" << std::endl;
+        std::cout << "Visualizing point cloud after downsampling" << std::endl;
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPtr(new pcl::PointCloud<pcl::PointXYZRGB>);
         *cloudPtr = pointCloudDownsampled;
         visualizePCLPointCloud(cloudPtr);

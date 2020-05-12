@@ -1,3 +1,7 @@
+/*
+This sample shows how to perform Multi-Camera calibration.
+*/
+
 #include <opencv2/core/core.hpp>
 
 #include <Zivid/Zivid.h>
@@ -40,7 +44,7 @@ int main()
 {
     try
     {
-        // Find and connect all cameras
+        std::cout << "Finding cameras" << std::endl;
         Zivid::Application zivid;
         auto cameras = zivid.cameras();
         if(cameras.size() < 2)
@@ -50,17 +54,16 @@ int main()
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
         for(auto &camera : cameras)
         {
-            std::cout << "Connecting camera: " << camera.info().serialNumber() << std::endl;
+            std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
             camera.connect();
         }
 
-        // Capture and detect checkerboard feature points
         auto detectionResults = std::vector<Zivid::Calibration::DetectionResult>();
         for(auto &camera : cameras)
         {
-            std::cout << "Imaging from camera: " << camera.info().serialNumber() << std::endl;
+            std::cout << "Capturing frame with camera: " << camera.info().serialNumber() << std::endl;
             const auto frame = assistedCapture(camera);
-            std::cout << "Detecting checkerboard in point cloud..." << std::endl;
+            std::cout << "Detecting checkerboard in point cloud" << std::endl;
             const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
             if(detectionResult)
             {
@@ -73,11 +76,11 @@ int main()
             }
         }
 
-        // Perform multi-camera calibration
+        std::cout << "Performing Multi-camera calibration" << std::endl;
         const auto results = Zivid::Calibration::calibrateMultiCamera(detectionResults);
         if(results)
         {
-            std::cout << "Multi-camera calibration OK." << std::endl;
+            std::cout << "Multi-camera calibration OK" << std::endl;
             const auto &transforms = results.transforms();
             const auto &residuals = results.residuals();
             for(size_t i = 0; i < transforms.size(); ++i)
@@ -89,7 +92,7 @@ int main()
         }
         else
         {
-            std::cout << "Multi-camera calibration FAILED." << std::endl;
+            std::cout << "Multi-camera calibration FAILED" << std::endl;
         }
     }
     catch(const std::exception &e)

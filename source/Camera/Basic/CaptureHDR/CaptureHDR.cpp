@@ -16,22 +16,23 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Creating settings" << std::endl;
+        std::cout << "Configuring settings" << std::endl;
         Zivid::Settings settings;
         for(const auto aperture : { 11.31, 5.66, 2.83 })
         {
-            std::cout << "Adding acquisition with aperture= " << aperture << std::endl;
+            std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
             const auto acquisitionSettings = Zivid::Settings::Acquisition{
                 Zivid::Settings::Acquisition::Aperture{ aperture },
             };
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 
-        std::cout << "Capturing HDR frame" << std::endl;
-        const auto hdrFrame = camera.capture(settings);
+        std::cout << "Capturing frame (HDR)" << std::endl;
+        const auto frame = camera.capture(settings);
 
-        std::cout << "Saving the HDR frame" << std::endl;
-        hdrFrame.save("HDR.zdf");
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {

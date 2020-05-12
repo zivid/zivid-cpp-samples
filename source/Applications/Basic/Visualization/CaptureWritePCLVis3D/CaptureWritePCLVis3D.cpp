@@ -16,12 +16,7 @@ int main()
 {
     try
     {
-        std::string filenamePCD = "Zivid3D.pcd";
-
         Zivid::Application zivid;
-
-        std::cout << "Setting up visualization" << std::endl;
-        Zivid::CloudVisualizer vis;
 
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
@@ -30,7 +25,7 @@ int main()
         const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{
             Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 } } } };
 
-        std::cout << "Capturing a frame" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
         std::cout << "Setting up visualization" << std::endl;
@@ -47,41 +42,42 @@ int main()
         const auto pointCloud = frame.pointCloud();
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
 
-        // Creating a PointCloud structure
-        pcl::PointCloud<pcl::PointXYZRGB> cloud;
+        std::cout << "Creating PCL point cloud structure" << std::endl;
+        pcl::PointCloud<pcl::PointXYZRGB> pointCloudPCL;
 
-        // Filling in the cloud data
-        cloud.width = pointCloud.width();
-        cloud.height = pointCloud.height();
-        cloud.is_dense = false;
-        cloud.points.resize(cloud.width * cloud.height);
+        std::cout << "Filling in point cloud data" << std::endl;
+        pointCloudPCL.width = pointCloud.width();
+        pointCloudPCL.height = pointCloud.height();
+        pointCloudPCL.is_dense = false;
+        pointCloudPCL.points.resize(pointCloudPCL.width * pointCloudPCL.height);
 
-        for(size_t i = 0; i < cloud.points.size(); ++i)
+        for(size_t i = 0; i < pointCloudPCL.points.size(); ++i)
         {
-            cloud.points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            cloud.points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            cloud.points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            cloud.points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            cloud.points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            cloud.points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloudPCL.points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
 
-        //Simple Cloud Visualization
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
-        *cloudPTR = cloud;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPtr(new pcl::PointCloud<pcl::PointXYZRGB>);
+        *cloudPtr = pointCloudPCL;
 
-        std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
-        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        viewer.showCloud(cloudPTR);
+        std::cout << "Visualizing point cloud" << std::endl;
+        pcl::visualization::CloudViewer cloudViewer("Simple Cloud Viewer");
+        std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+        cloudViewer.showCloud(cloudPtr);
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to me exit the viewer application" << std::endl;
-        while(!viewer.wasStopped())
+        while(!cloudViewer.wasStopped())
         {
         }
 
-        //Saving to a .PCD file format
-        std::cerr << "Saving " << cloud.points.size() << " data points to " + filenamePCD << std::endl;
-        pcl::io::savePCDFileBinary(filenamePCD, cloud);
+        std::string pointCloudFile = "Zivid3D.pcd";
+        std::cout << "Saving point cloud to file: " << pointCloudFile << std::endl;
+        pcl::io::savePCDFileBinary(pointCloudFile, pointCloudPCL);
+        std::cerr << "Saved " << pointCloudPCL.points.size() << " points" << std::endl;
     }
     catch(const std::exception &e)
     {

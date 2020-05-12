@@ -13,9 +13,6 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Setting up visualization" << std::endl;
-        Zivid::CloudVisualizer vis;
-
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
@@ -23,7 +20,7 @@ int main()
         const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{
             Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 } } } };
 
-        std::cout << "Capture a frame" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
         std::cout << "Setting up visualization" << std::endl;

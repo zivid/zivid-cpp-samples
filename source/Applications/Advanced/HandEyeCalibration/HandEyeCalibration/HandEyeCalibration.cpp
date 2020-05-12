@@ -1,3 +1,7 @@
+/*
+This example shows how to perform Hand-Eye calibration.
+*/
+
 #include <Zivid/Application.h>
 #include <Zivid/Calibration/Detector.h>
 #include <Zivid/Calibration/HandEye.h>
@@ -74,7 +78,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to camera..." << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera{ zivid.connectCamera() };
 
         size_t currPoseId{ 0 };
@@ -92,7 +96,7 @@ int main()
 
                         const auto frame = assistedCapture(camera);
 
-                        std::cout << "Detecting checkerboard square centers... " << std::endl;
+                        std::cout << "Detecting checkerboard in point cloud" << std::endl;
                         const auto result = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
                         if(result)
                         {
@@ -125,17 +129,17 @@ int main()
             }
         } while(!calibrate);
 
-        std::cout << "Performing hand-eye calibration ... " << std::endl;
+        std::cout << "Performing hand-eye calibration" << std::endl;
         const auto calibrationResult{ Zivid::Calibration::calibrateEyeToHand(input) };
         if(calibrationResult)
         {
-            std::cout << "OK\n"
+            std::cout << "Hand-eye calibration OK\n"
                       << "Result:\n"
                       << calibrationResult << std::endl;
         }
         else
         {
-            std::cerr << "\nFAILED" << std::endl;
+            std::cout << "Hand-eye calibration FAILED" << std::endl;
             return EXIT_FAILURE;
         }
     }

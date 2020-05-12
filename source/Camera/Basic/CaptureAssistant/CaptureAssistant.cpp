@@ -16,7 +16,6 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        const auto *resultFile = "result.zdf";
         const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
             Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
             Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
@@ -39,8 +38,9 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
-        std::cout << "Saving frame to file: " << resultFile << std::endl;
-        frame.save(resultFile);
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {

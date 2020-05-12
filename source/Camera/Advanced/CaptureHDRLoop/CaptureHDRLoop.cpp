@@ -14,7 +14,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to the camera" << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
         const size_t captures = 3;
@@ -26,13 +26,13 @@ int main()
             const auto settings = Zivid::Settings(settingsFile.str());
             std::cout << settings << std::endl;
 
-            std::cout << "Capturing HDR frame" << std::endl;
-            const auto hdrFrame = camera.capture(settings);
+            std::cout << "Capturing frame (HDR)" << std::endl;
+            const auto frame = camera.capture(settings);
 
-            std::stringstream hdrPath;
-            hdrPath << "HDR_" << i << ".zdf";
-            std::cout << "Saving the HDR to " << hdrPath.str() << std::endl;
-            hdrFrame.save(hdrPath.str());
+            std::stringstream dataFile;
+            dataFile << "Frame0" << i << ".zdf";
+            std::cout << "Saving frame to file: " << dataFile.str() << std::endl;
+            frame.save(dataFile.str());
         }
     }
     catch(const std::exception &e)

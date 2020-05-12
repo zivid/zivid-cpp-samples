@@ -16,10 +16,10 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to the camera" << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Creating settings same for all HDR acquisitions" << std::endl;
+        std::cout << "Configuring global processing settings:" << std::endl;
         Zivid::Settings settings{
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
@@ -38,7 +38,7 @@ int main()
         };
         std::cout << settings.processing() << std::endl;
 
-        std::cout << "Creating base acquisition with settings same for all HDR acquisitions" << std::endl;
+        std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
         const auto baseAcquisition =
             Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 },
                                           Zivid::Settings::Acquisition::Patterns::Sine::Bidirectional{ false } };
@@ -48,9 +48,12 @@ int main()
         const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
         const std::vector<double> gain{ 1.0, 1.0, 2.0 };
         const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
-        const std::vector<double> gain{ 1.0, 1.0, 2.0 };
         for(size_t i = 0; i < aperture.size(); ++i)
         {
+            std::cout << "Acquisition " << i + 1 << ":" << std::endl;
+            std::cout << "  Exposure Time: " << exposureTime.at(i) << std::endl;
+            std::cout << "  Aperture: " << aperture.at(i) << std::endl;
+            std::cout << "  Gain: " << gain.at(i) << std::endl;
             const auto acquisitionSettings =
                 baseAcquisition.copyWith(Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
                                          Zivid::Settings::Acquisition::Gain{ gain.at(i) },
@@ -59,14 +62,15 @@ int main()
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 
-        std::cout << "Capturing HDR frame" << std::endl;
-        const auto hdrFrame = camera.capture(settings);
+        std::cout << "Capturing frame (HDR)" << std::endl;
+        const auto frame = camera.capture(settings);
 
-        std::cout << "Used settings:" << std::endl;
-        std::cout << hdrFrame.settings() << std::endl;
+        std::cout << "Complete settings used:" << std::endl;
+        std::cout << frame.settings() << std::endl;
 
-        std::cout << "Saving the HDR frame" << std::endl;
-        hdrFrame.save("HDR.zdf");
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {

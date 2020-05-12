@@ -16,7 +16,7 @@ int main()
         std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
         const Zivid::Frame frame = Zivid::Frame(dataFile);
 
-        // Extracting point cloud from the frame
+        std::cout << "Getting point cloud from frame" << std::endl;
         const auto pointCloud = frame.pointCloud();
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
         const auto snr = pointCloud.copySNRs();
@@ -25,7 +25,6 @@ int main()
         std::cout << "Number of points: " << pointCloud.size() << "\n"
                   << "Height: " << pointCloud.height() << ", Width: " << pointCloud.width() << std::endl;
 
-        // Iterating over the point cloud and displaying X, Y, Z, R, G, B, and Contrast for central 10 x 10 pixels
         const size_t pixelsToDisplay = 10;
         std::cout << "Iterating over point cloud and extracting X, Y, Z, R, G, B, and Contrast for central "
                   << pixelsToDisplay << " x " << pixelsToDisplay << " pixels " << std::endl;

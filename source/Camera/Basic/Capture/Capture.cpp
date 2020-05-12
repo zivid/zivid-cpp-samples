@@ -13,8 +13,6 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto *resultFile = "Result.zdf";
-
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
@@ -26,11 +24,12 @@ int main()
                              Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
                              Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 } };
 
-        std::cout << "Capture a frame" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
-        std::cout << "Saving frame to file: " << resultFile << std::endl;
-        frame.save(resultFile);
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {

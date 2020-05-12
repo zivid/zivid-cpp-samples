@@ -59,16 +59,14 @@ namespace
 
     cv::Mat pointCloudToCvZ(const Zivid::PointCloud &pointCloud)
     {
-        // Creating OpenCV structure
         cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
-
         const auto points = pointCloud.copyPointsXYZ();
 
         // Getting min and max values for X, Y, Z images
         const auto *maxZ = std::max_element(points.data(), points.data() + pointCloud.size(), isLesserOrNan<Axis::z>);
         const auto *minZ = std::max_element(points.data(), points.data() + pointCloud.size(), isGreaterOrNaN<Axis::z>);
 
-        // Filling in OpenCV matrices with the cloud data
+        // Filling in OpenCV matrix with the cloud data
         for(size_t i = 0; i < pointCloud.height(); i++)
         {
             for(size_t j = 0; j < pointCloud.width(); j++)
@@ -89,7 +87,7 @@ namespace
         cv::Mat zJetColorMap;
         cv::applyColorMap(z, zJetColorMap, cv::COLORMAP_JET);
 
-        // Setting nans to black
+        // Setting invalid points (nan) to black
         for(size_t i = 0; i < pointCloud.height(); i++)
         {
             for(size_t j = 0; j < pointCloud.width(); j++)
@@ -135,24 +133,22 @@ int main()
         std::cout << "Converting to BGR image in OpenCV format" << std::endl;
         cv::Mat bgr = pointCloudToCvBGR(pointCloud);
 
-        // Displaying the RGB image
-        cv::namedWindow("RGB image", cv::WINDOW_AUTOSIZE);
-        cv::imshow("RGB image", bgr);
+        const auto *bgrImageFile = "Image.png";
+        std::cout << "Visualizing and saving BGR image to file: " << bgrImageFile << std::endl;
+        cv::namedWindow("BGR image", cv::WINDOW_AUTOSIZE);
+        cv::imshow("BGR image", bgr);
         cv::waitKey(0);
+        cv::imwrite(bgrImageFile, bgr);
 
-        // Saving the RGB image
-        cv::imwrite("RGB image.jpg", bgr);
-
-        std::cout << "Converting Zivid PointCloud to OpenCV format" << std::endl;
+        std::cout << "Converting to Depth map in OpenCV format" << std::endl;
         cv::Mat zJetColorMap = pointCloudToCvZ(pointCloud);
 
-        // Displaying the Depth image
+        const auto *depthMapFile = "DepthMap.png";
+        std::cout << "Visualizing and saving Depth map to file: " << depthMapFile << std::endl;
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zJetColorMap);
         cv::waitKey(0);
-
-        // Saving the Depth map
-        cv::imwrite("Depth map.jpg", zJetColorMap);
+        cv::imwrite(depthMapFile, zJetColorMap);
     }
     catch(const std::exception &e)
     {

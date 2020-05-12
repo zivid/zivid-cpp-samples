@@ -16,7 +16,7 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Setting the capture settings" << std::endl;
+        std::cout << "Configuring 2D settings" << std::endl;
         // Note: The Zivid SDK supports 2D captures with a single acquisition only
         const auto settings2D =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
@@ -28,23 +28,22 @@ int main()
                                Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
                                Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
 
-        std::cout << "Capturing a 2D frame" << std::endl;
-        const auto frame = camera.capture(settings2D);
+        std::cout << "Capturing 2D frame" << std::endl;
+        const auto frame2D = camera.capture(settings2D);
 
-        std::cout << "Get ColorRGBA image from Frame2D" << std::endl;
-        const auto image = frame.imageRGBA();
+        std::cout << "Getting RGBA image" << std::endl;
+        const auto image = frame2D.imageRGBA();
 
         const auto pixelRow = 100;
         const auto pixelCol = 50;
-        std::cout << "Get pixel color at row=" << pixelRow << ","
-                  << "column=" << pixelCol << std::endl;
         const auto pixel = image(pixelRow, pixelCol);
-        std::cout << "Pixel color: R=" << std::to_string(pixel.r) << ", G=" << std::to_string(pixel.g)
-                  << ", B=" << std::to_string(pixel.b) << ", A=" << std::to_string(pixel.a) << std::endl;
+        std::cout << "Color at pixel (" << pixelRow << "," << pixelCol << "):  R:" << std::to_string(pixel.r)
+                  << "  G:" << std::to_string(pixel.g) << "  B:" << std::to_string(pixel.b)
+                  << "  A:" << std::to_string(pixel.a) << std::endl;
 
-        const auto *resultFile = "Image.png";
-        std::cout << "Saving the image to " << resultFile << std::endl;
-        image.save(resultFile);
+        const auto *imageFile = "Image.png";
+        std::cout << "Saving image to file: " << imageFile << std::endl;
+        image.save(imageFile);
     }
     catch(const std::exception &e)
     {

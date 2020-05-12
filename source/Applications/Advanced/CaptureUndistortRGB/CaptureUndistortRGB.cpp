@@ -44,7 +44,7 @@ namespace
     {
         std::cout << "3D mode" << std::endl;
 
-        std::cout << "Creating settings" << std::endl;
+        std::cout << "Configuring settings" << std::endl;
         const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
             Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
             Zivid::Settings::Acquisition::Aperture{ 5.66 },
@@ -52,7 +52,7 @@ namespace
             Zivid::Settings::Acquisition::Brightness{ 1.0 },
         } } };
 
-        std::cout << "Capturing a 3D frame" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
         std::cout << "Setting up visualization" << std::endl;
@@ -66,7 +66,7 @@ namespace
         std::cout << "Running visualizer. Blocking until window closes" << std::endl;
         visualizer.run();
 
-        std::cout << "Converting ZDF point cloud to OpenCV format" << std::endl;
+        std::cout << "Converting to OpenCV BGR image" << std::endl;
         const auto image = frame.pointCloud().copyImageRGBA();
 
         return imageToBGR(image);
@@ -76,20 +76,20 @@ namespace
     {
         std::cout << "2D mode" << std::endl;
 
-        std::cout << "Configuring the camera settings" << std::endl;
+        std::cout << "Configuring 2D settings" << std::endl;
         const auto settings = Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
             Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
             Zivid::Settings2D::Acquisition::Aperture{ 5.66 },
             Zivid::Settings2D::Acquisition::Gain{ 1.0 },
             Zivid::Settings2D::Acquisition::Brightness{ 1.0 } } } };
 
-        std::cout << "Capturing a 2D frame" << std::endl;
-        const auto frame = camera.capture(settings);
+        std::cout << "Capturing 2D frame" << std::endl;
+        const auto frame2D = camera.capture(settings);
 
-        std::cout << "Getting RGBA8 image from 2D frame" << std::endl;
-        const auto image = frame.imageRGBA();
+        std::cout << "Getting RGBA image" << std::endl;
+        const auto image = frame2D.imageRGBA();
 
-        std::cout << "Converting RGBA8 image to OpenCV format" << std::endl;
+        std::cout << "Converting to OpenCV BGR image" << std::endl;
 
         return imageToBGR(image);
     }
@@ -139,7 +139,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to the camera" << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
         std::cout << R"(Enter "2d" or "3d" to select mode, then press Enter/Return to confirm)" << std::endl;
@@ -152,7 +152,7 @@ int main()
 
         const auto bgr = (use2D ? getImage2D(camera) : getImage3D(camera));
 
-        std::cout << "Undistorting the BGR image" << std::endl;
+        std::cout << "Undistorting BGR image" << std::endl;
 
         const auto cameraIntrinsticsCV = reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera));
         const auto distortionCoefficients = cameraIntrinsticsCV.distortionCoefficients;
@@ -168,20 +168,21 @@ int main()
         cv::undistort(bgr, bgrUndistorted, cameraMatrix, distortionCoefficients);
         cv::undistort(bgr, bgrUndistortedFull, cameraMatrix, distortionCoefficients, optimalCameraMatrix);
 
-        std::cout << "Displaying and saving the BGR image" << std::endl;
-
+        const auto *imageDistortedFile = "ImageDistorted.jpg";
         displayBGR(bgr, "Distorted BGR image");
-        cv::imwrite("ImageDistorted.jpg", bgr);
+        std::cout << "Visualizing and saving BGR image to file: " << imageDistortedFile << std::endl;
+        cv::imwrite(imageDistortedFile, bgr);
 
-        std::cout << "Displaying and saving the undistorted BGR image" << std::endl;
-
+        const auto *imageUndistorted = "ImageUnistorted.jpg";
         displayBGR(bgrUndistorted, "Undistorted BGR image");
-        cv::imwrite("ImageUndistorted.jpg", bgrUndistorted);
+        std::cout << "Visualizing and saving undistorted BGR image to file: " << imageUndistorted << std::endl;
+        cv::imwrite(imageUndistorted, bgrUndistorted);
 
-        std::cout << "Displaying and saving the Undistorted BGR image - full" << std::endl;
-
+        const auto *imageUndistortedFull = "ImageUnistortedFull.jpg";
         displayBGR(bgrUndistortedFull, "Undistorted BGR image - full");
-        cv::imwrite("ImageUndistortedFull.jpg", bgrUndistorted);
+        std::cout << "Visualizing and saving undistorted BGR image (full) to file: " << imageUndistortedFull
+                  << std::endl;
+        cv::imwrite(imageUndistortedFull, bgrUndistorted);
     }
     catch(const std::exception &e)
     {

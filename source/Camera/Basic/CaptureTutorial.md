@@ -5,7 +5,7 @@ This tutorial describes how to use Zivid SDK to capture point clouds and 2D imag
 1. [Initialize](#initialize)
 2. [Connect](#connect)
    1. [Specific Camera](#connect---specific-camera)
-   2. [Virtual Camera](#connect---virtual-camera)
+   2. [File Camera](#connect---file-camera)
 3. [Configure](#configure)
    1. [Capture Assistant](#capture-assistant)
    2. [Manual Configuration](#manual-configuration)
@@ -59,7 +59,7 @@ for(auto cam : cameras)
 }
 ```
 
-### Connect - Virtual Camera
+### Connect - File Camera
 
 You may want to experiment with the SDK, without access to a physical camera. Minor changes are required to keep the sample working ([go to source][filecamera-url]).
 ```cpp

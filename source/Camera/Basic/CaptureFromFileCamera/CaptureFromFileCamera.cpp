@@ -16,8 +16,8 @@ int main()
         // The fileCamera file is in Zivid Sample Data. See instructions in README.md
         const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividOne.zfc";
 
-        std::cout << "Initializing camera emulation using file: " << cameraFile << std::endl;
-        auto camera = zivid.createFileCamera(cameraFile);
+        std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
+        auto camera = zivid.createFileCamera(fileCamera);
 
         std::cout << "Configuring settings" << std::endl;
         const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
@@ -28,11 +28,12 @@ int main()
                                                Zivid::Settings::Processing::Color::Balance::Green{ 1 },
                                                Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
 
-        std::cout << "Capture a frame" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
-        std::cout << "Saving frame to file: " << resultFile << std::endl;
-        frame.save(resultFile);
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {
