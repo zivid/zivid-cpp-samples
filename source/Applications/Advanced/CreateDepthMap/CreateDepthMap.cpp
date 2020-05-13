@@ -15,28 +15,28 @@ Import a ZDF point cloud and convert it to OpenCV format.
 
 enum class Axis
 {
-    X,
-    Y,
-    Z
+    x,
+    y,
+    z
 };
 
 template<Axis axis>
 float getValue(const Zivid::Point &p);
 
 template<>
-float getValue<Axis::X>(const Zivid::Point &p)
+float getValue<Axis::x>(const Zivid::Point &p)
 {
     return p.x;
 }
 
 template<>
-float getValue<Axis::Y>(const Zivid::Point &p)
+float getValue<Axis::y>(const Zivid::Point &p)
 {
     return p.y;
 }
 
 template<>
-float getValue<Axis::Z>(const Zivid::Point &p)
+float getValue<Axis::z>(const Zivid::Point &p)
 {
     return p.z;
 }
@@ -59,9 +59,9 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::string Filename = "Zivid3D.zdf";
-        std::cout << "Reading " << Filename << " point cloud" << std::endl;
-        const auto frame = Zivid::Frame(Filename);
+        const auto fileName = Zivid::Environment::dataPath() + "/Zivid3D.zdf";
+        std::cout << "Reading " << fileName << " point cloud" << std::endl;
+        const auto frame = Zivid::Frame(fileName);
 
         std::cout << "Setting up visualization" << std::endl;
         Zivid::CloudVisualizer vis;
@@ -79,31 +79,39 @@ int main()
 
         // Creating OpenCV structure
         const auto pointCloud = frame.getPointCloud();
-        cv::Mat rgb((int)pointCloud.height(), (int)pointCloud.width(), CV_8UC3, cv::Scalar(0, 0, 0));
-        cv::Mat x((int)pointCloud.height(), (int)pointCloud.width(), CV_8UC1, cv::Scalar(0));
-        cv::Mat y((int)pointCloud.height(), (int)pointCloud.width(), CV_8UC1, cv::Scalar(0));
-        cv::Mat z((int)pointCloud.height(), (int)pointCloud.width(), CV_8UC1, cv::Scalar(0));
+        const auto height = static_cast<unsigned int>(pointCloud.height());
+        const auto width = static_cast<unsigned int>(pointCloud.width());
+        cv::Mat rgb(height, width, CV_8UC3, cv::Scalar(0, 0, 0)); // NOLINT(hicpp-signed-bitwise)
+        cv::Mat x(height, width, CV_8UC1, cv::Scalar(0));         // NOLINT(hicpp-signed-bitwise)
+        cv::Mat y(height, width, CV_8UC1, cv::Scalar(0));         // NOLINT(hicpp-signed-bitwise)
+        cv::Mat z(height, width, CV_8UC1, cv::Scalar(0));         // NOLINT(hicpp-signed-bitwise)
 
         // Getting min and max values for X, Y, Z images
-        auto maxX =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isLesserOrNan<Axis::X>);
-        auto minX =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isGreaterOrNaN<Axis::X>);
-        auto maxY =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isLesserOrNan<Axis::Y>);
-        auto minY =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isGreaterOrNaN<Axis::Y>);
-        auto maxZ =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isLesserOrNan<Axis::Z>);
-        auto minZ =
-            std::max_element(pointCloud.dataPtr(), pointCloud.dataPtr() + pointCloud.size(), isGreaterOrNaN<Axis::Z>);
+        const auto *maxX = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isLesserOrNan<Axis::x>);
+        const auto *minX = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isGreaterOrNaN<Axis::y>);
+        const auto *maxY = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isLesserOrNan<Axis::z>);
+        const auto *minY = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isGreaterOrNaN<Axis::y>);
+        const auto *maxZ = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isLesserOrNan<Axis::z>);
+        const auto *minZ = std::max_element(pointCloud.dataPtr(),
+                                            std::next(pointCloud.dataPtr(), pointCloud.size()),
+                                            isGreaterOrNaN<Axis::z>);
 
         // Filling in OpenCV matrices with the cloud data
         for(size_t i = 0; i < pointCloud.height(); i++)
         {
             for(size_t j = 0; j < pointCloud.width(); j++)
             {
-                cv::Vec3b &color = rgb.at<cv::Vec3b>(i, j);
+                auto &color = rgb.at<cv::Vec3b>(i, j);
                 color[0] = pointCloud(i, j).blue();
                 color[1] = pointCloud(i, j).green();
                 color[2] = pointCloud(i, j).red();
@@ -117,17 +125,19 @@ int main()
                 else
                 {
                     x.at<uchar>(i, j) =
-                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).x - minX->x) / (maxX->x - minX->x)));
+                        static_cast<unsigned char>((255.0F * (pointCloud(i, j).x - minX->x) / (maxX->x - minX->x)));
                     y.at<uchar>(i, j) =
-                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).y - minY->y) / (maxY->y - minY->y)));
+                        static_cast<unsigned char>((255.0F * (pointCloud(i, j).y - minY->y) / (maxY->y - minY->y)));
                     z.at<uchar>(i, j) =
-                        static_cast<unsigned char>((255.0f * (pointCloud(i, j).z - minZ->z) / (maxZ->z - minZ->z)));
+                        static_cast<unsigned char>((255.0F * (pointCloud(i, j).z - minZ->z) / (maxZ->z - minZ->z)));
                 }
             }
         }
 
         // Applying color map
-        cv::Mat xJetColorMap, yJetColorMap, zJetColorMap;
+        cv::Mat xJetColorMap;
+        cv::Mat yJetColorMap;
+        cv::Mat zJetColorMap;
         cv::applyColorMap(x, xJetColorMap, cv::COLORMAP_JET);
         cv::applyColorMap(y, yJetColorMap, cv::COLORMAP_JET);
         cv::applyColorMap(z, zJetColorMap, cv::COLORMAP_JET);
@@ -139,17 +149,17 @@ int main()
             {
                 if(std::isnan(pointCloud(i, j).z))
                 {
-                    cv::Vec3b &xRGB = xJetColorMap.at<cv::Vec3b>(i, j);
+                    auto &xRGB = xJetColorMap.at<cv::Vec3b>(i, j);
                     xRGB[0] = 0;
                     xRGB[1] = 0;
                     xRGB[2] = 0;
 
-                    cv::Vec3b &yRGB = yJetColorMap.at<cv::Vec3b>(i, j);
+                    auto &yRGB = yJetColorMap.at<cv::Vec3b>(i, j);
                     yRGB[0] = 0;
                     yRGB[1] = 0;
                     yRGB[2] = 0;
 
-                    cv::Vec3b &zRGB = zJetColorMap.at<cv::Vec3b>(i, j);
+                    auto &zRGB = zJetColorMap.at<cv::Vec3b>(i, j);
                     zRGB[0] = 0;
                     zRGB[1] = 0;
                     zRGB[2] = 0;
