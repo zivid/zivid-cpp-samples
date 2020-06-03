@@ -1,6 +1,6 @@
 # cpp-extra-samples
 
-This repository contains  **C++** code samples for **Zivid**.
+This repository contains  **C++** code samples for **Zivid**
 
 [![Build Status][ci-badge]][ci-url]
 
