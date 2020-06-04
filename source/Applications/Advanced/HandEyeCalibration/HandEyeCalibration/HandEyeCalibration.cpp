@@ -1,8 +1,13 @@
+/*
+This example shows how to perform Hand-Eye calibration.
+*/
+
 #include <Zivid/Application.h>
+#include <Zivid/Calibration/Detector.h>
+#include <Zivid/Calibration/HandEye.h>
+#include <Zivid/Calibration/Pose.h>
 #include <Zivid/Exception.h>
-#include <Zivid/HandEye/Calibrate.h>
-#include <Zivid/HandEye/Detector.h>
-#include <Zivid/HandEye/Pose.h>
+#include <Zivid/Zivid.h>
 
 #include <iostream>
 
@@ -38,38 +43,32 @@ namespace
         return CommandType::cmdUnknown;
     }
 
-    Zivid::HandEye::Pose enterRobotPose(size_t index)
+    Zivid::Calibration::Pose enterRobotPose(size_t index)
     {
         std::cout << "Enter pose with id (a line with 16 space separated values describing 4x4 row-major matrix) : "
                   << index << std::endl;
         std::stringstream input(getInput());
-        double element{ 0 };
-        std::vector<double> transformElements;
+        float element{ 0 };
+        std::vector<float> transformElements;
         for(size_t i = 0; i < 16 && input >> element; ++i)
         {
             transformElements.emplace_back(element);
         }
 
-        const auto robotPose{ Zivid::Matrix4d{ transformElements.cbegin(), transformElements.cend() } };
+        const auto robotPose{ Zivid::Matrix4x4{ transformElements.cbegin(), transformElements.cend() } };
         std::cout << "The following pose was entered: \n" << robotPose << std::endl;
 
         return robotPose;
     }
 
-    Zivid::Frame acquireCheckerboardFrame(Zivid::Camera &camera)
+    Zivid::Frame assistedCapture(Zivid::Camera &camera)
     {
-        std::cout << "Capturing checkerboard image... " << std::flush;
-        auto settings{ Zivid::Settings{} };
-        settings.set(Zivid::Settings::Iris{ 17 });
-        settings.set(Zivid::Settings::Gain{ 1.0 });
-        settings.set(Zivid::Settings::Brightness{ 1.0 });
-        settings.set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ 20000 } });
-        settings.set(Zivid::Settings::Filters::Gaussian::Enabled::yes);
-        camera.setSettings(settings);
-        auto frame = camera.capture();
-        std::cout << "OK" << std::endl;
-
-        return frame;
+        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+        };
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+        return camera.capture(settings);
     }
 } // namespace
 
@@ -79,12 +78,12 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to camera..." << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera{ zivid.connectCamera() };
 
         size_t currPoseId{ 0 };
         bool calibrate{ false };
-        std::vector<Zivid::HandEye::CalibrationInput> input;
+        std::vector<Zivid::Calibration::HandEyeInput> input;
         do
         {
             switch(enterCommand())
@@ -95,14 +94,14 @@ int main()
                     {
                         const auto robotPose = enterRobotPose(currPoseId);
 
-                        const auto frame = acquireCheckerboardFrame(camera);
+                        const auto frame = assistedCapture(camera);
 
-                        std::cout << "Detecting checkerboard square centers... " << std::flush;
-                        const auto result = Zivid::HandEye::detectFeaturePoints(frame.getPointCloud());
+                        std::cout << "Detecting checkerboard in point cloud" << std::endl;
+                        const auto result = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
                         if(result)
                         {
                             std::cout << "OK" << std::endl;
-                            input.emplace_back(Zivid::HandEye::CalibrationInput{ robotPose, result });
+                            input.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, result });
                             currPoseId++;
                         }
                         else
@@ -130,17 +129,17 @@ int main()
             }
         } while(!calibrate);
 
-        std::cout << "Performing hand-eye calibration ... " << std::flush;
-        const auto calibrationResult{ Zivid::HandEye::calibrateEyeToHand(input) };
+        std::cout << "Performing hand-eye calibration" << std::endl;
+        const auto calibrationResult{ Zivid::Calibration::calibrateEyeToHand(input) };
         if(calibrationResult)
         {
-            std::cout << "OK\n"
+            std::cout << "Hand-eye calibration OK\n"
                       << "Result:\n"
                       << calibrationResult << std::endl;
         }
         else
         {
-            std::cerr << "\nFAILED" << std::endl;
+            std::cout << "Hand-eye calibration FAILED" << std::endl;
             return EXIT_FAILURE;
         }
     }

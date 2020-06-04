@@ -5,7 +5,7 @@ project(CppExtraSamples)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CompilerOptions)
 
-set(ZIVID_VERSION 1.8.1)
+set(ZIVID_VERSION 2.0.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
@@ -15,16 +15,16 @@ set(SAMPLES
     Camera/Basic/Capture
     Camera/Basic/Capture2D
     Camera/Basic/CaptureAssistant
-    Camera/Basic/CaptureFromFile
+    Camera/Basic/CaptureFromFileCamera
+    Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
-    Camera/Basic/CaptureHDRLoop
+    Camera/Advanced/CaptureHDRLoop
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
     Camera/InfoUtilOther/ZividBenchmark
-    Applications/Basic/Visualization/CaptureFromFileVis3D
-    Applications/Basic/Visualization/CaptureLiveVis3D
+    Applications/Basic/Visualization/CaptureFromFileCameraVis3D
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/Visualization/CaptureWritePCLVis3D
@@ -34,13 +34,17 @@ set(SAMPLES
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
-    Applications/Advanced/CreateDepthMap)
+    Applications/Advanced/CreateDepthMap
+    Applications/Advanced/MultiCamera/MultiCameraCalibration
+    Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
+    Applications/Advanced/MultiCamera/StitchByTransformation
+    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF)
 
 set(Eigen3_DEPENDING Downsample UtilizeEyeInHandCalibration PoseConversions)
-set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap)
-set(Vis3D_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
-set(Clipp_DEPENDING CameraUserData)
+set(PCL_DEPENDING Downsample ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
+set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
+set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 
@@ -88,15 +92,26 @@ endif()
 
 message(STATUS "All samples: ${SAMPLES}")
 
+if(WIN32)
+    set(ZIVID_SAMPLE_DATA_DIR "$ENV{PROGRAMDATA}/Zivid")
+elseif(UNIX)
+    set(ZIVID_SAMPLE_DATA_DIR "/usr/share/Zivid/data")
+else()
+    message(FATAL_ERROR "Unsupported operating system")
+endif()
+file(TO_CMAKE_PATH "${ZIVID_SAMPLE_DATA_DIR}" ZIVID_SAMPLE_DATA_DIR)
+
 foreach(SAMPLE ${SAMPLES})
     get_filename_component(SAMPLE_NAME ${SAMPLE} NAME)
 
     add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
 
     target_link_libraries(${SAMPLE_NAME} Zivid::Core)
+    
+    target_compile_definitions(${SAMPLE_NAME} PRIVATE ZIVID_SAMPLE_DATA_DIR="${ZIVID_SAMPLE_DATA_DIR}")
 
-    if(${SAMPLE_NAME} IN_LIST Vis3D_DEPENDING)
-        target_link_libraries(${SAMPLE_NAME} Zivid::Vis3D)
+    if(${SAMPLE_NAME} IN_LIST Visualization_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} Zivid::Visualization)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Eigen3_DEPENDING)

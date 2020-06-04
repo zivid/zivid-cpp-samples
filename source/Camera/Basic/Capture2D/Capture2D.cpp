@@ -1,3 +1,7 @@
+/*
+This example shows how to capture 2D images from the Zivid camera.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <chrono>
@@ -12,26 +16,34 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Setting the capture settings" << std::endl;
-        auto settings = Zivid::Settings2D();
-        settings.set(Zivid::Settings2D::ExposureTime{ std::chrono::microseconds{ 10000 } });
-        settings.set(Zivid::Settings2D::Gain{ 1.0 });
-        settings.set(Zivid::Settings2D::Iris{ 35 });
+        std::cout << "Configuring 2D settings" << std::endl;
+        // Note: The Zivid SDK supports 2D captures with a single acquisition only
+        const auto settings2D =
+            Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 10000 } },
+                                   Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
+                                   Zivid::Settings2D::Acquisition::Brightness{ 1.0 },
+                                   Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                               Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
+                               Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
+                               Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
 
-        std::cout << "Capture a 2D frame" << std::endl;
-        auto frame = camera.capture2D(settings);
+        std::cout << "Capturing 2D frame" << std::endl;
+        const auto frame2D = camera.capture(settings2D);
 
-        std::cout << "Get RGBA8 image from Frame2D" << std::endl;
-        auto image = frame.image<Zivid::RGBA8>();
+        std::cout << "Getting RGBA image" << std::endl;
+        const auto image = frame2D.imageRGBA();
 
-        std::cout << "Get pixel color at row=100, column=50" << std::endl;
-        auto pixel = image(100, 50);
-        std::cout << "Pixel color: R=" << static_cast<int>(pixel.r) << ", G=" << static_cast<int>(pixel.g)
-                  << ", B=" << static_cast<int>(pixel.b) << ", A=" << static_cast<int>(pixel.a) << std::endl;
+        const auto pixelRow = 100;
+        const auto pixelCol = 50;
+        const auto pixel = image(pixelRow, pixelCol);
+        std::cout << "Color at pixel (" << pixelRow << "," << pixelCol << "):  R:" << std::to_string(pixel.r)
+                  << "  G:" << std::to_string(pixel.g) << "  B:" << std::to_string(pixel.b)
+                  << "  A:" << std::to_string(pixel.a) << std::endl;
 
-        const auto *resultFile = "Image.png";
-        std::cout << "Saving the image to " << resultFile << std::endl;
-        image.save(resultFile);
+        const auto *imageFile = "Image.png";
+        std::cout << "Saving image to file: " << imageFile << std::endl;
+        image.save(imageFile);
     }
     catch(const std::exception &e)
     {

@@ -5,7 +5,7 @@ This tutorial describes how to use Zivid SDK to capture point clouds and 2D imag
 1. [Initialize](#initialize)
 2. [Connect](#connect)
    1. [Specific Camera](#connect---specific-camera)
-   2. [Virtual Camera](#connect---virtual-camera)
+   2. [File Camera](#connect---file-camera)
 3. [Configure](#configure)
    1. [Capture Assistant](#capture-assistant)
    2. [Manual Configuration](#manual-configuration)
@@ -14,14 +14,13 @@ This tutorial describes how to use Zivid SDK to capture point clouds and 2D imag
       3. [2D](#2d-settings)
    3. [From File](#from-file)
 4. [Capture](#capture)
-    1. [HDR](#capture-hdr)
-    2. [2D](#capture-2d)
+    1. [2D](#capture-2d)
 5. [Save](#save)
     1. [2D](#save-2d)
 
 ### Prerequisites
 
-You should have installed Zivid SDK and C++ samples. For more details see [Instructions][installation-instructions-url].
+You should have installed Zivid SDK and cloned C++ samples. For more details see [Instructions][installation-instructions-url].
 
 ## Initialize
 
@@ -41,13 +40,13 @@ auto camera = zivid.connectCamera();
 
 Sometime multiple cameras are connected to the same computer. It might then be necessary to work with a specific camera in the code. This can be done by providing the serial number of the wanted camera.
 ```cpp
-auto camera = zivid.connectCamera(Zivid::SerialNumber{ "2020C0DE" });
+auto camera = zivid.connectCamera(Zivid::CameraInfo::SerialNumber("2020C0DE"));
 ```
 
 ---
 **Note** 
 
-The serial number of your camera is shown in the Zivid Studio.
+The serial number of your camera is shown in Zivid Studio.
 
 ---
 
@@ -56,22 +55,22 @@ You may also list all cameras connected to the computer, and view their serial n
 auto cameras = zivid.cameras();
 for(auto cam : cameras)
 {
-    std::cout << "Connecting camera: " << cam.serialNumber() << std::endl;
+    std::cout << "Connecting camera: " << cam.info().serialNumber() << std::endl;
 }
 ```
 
-### Connect - Virtual Camera
+### Connect - File Camera
 
 You may want to experiment with the SDK, without access to a physical camera. Minor changes are required to keep the sample working ([go to source][filecamera-url]).
 ```cpp
-auto zdfFile = Zivid::Environment::dataPath() + "/MiscObjects.zdf";
-auto camera = zivid.createFileCamera(zdfFile);
+const auto cameraFile = Zivid::Environment::dataPath() + "/FileCameraZividOne.zfc";
+auto camera = zivid.createFileCamera(cameraFile);
 ```
 
 ---
 **Note**
 
-The quality of the point cloud you get from *MiscObjects.zdf* is not representative of the Zivid One+.
+The quality of the point cloud you get from *FileCameraZividOne.zfc* is not representative of the Zivid One+.
 
 ---
 
@@ -83,142 +82,125 @@ As with all cameras there are settings that can be configured. These may be set 
 
 It can be difficult to know what settings to configure. Luckily we have the Capture Assistant. This is available in the Zivid SDK to help configure camera settings ([go to source][captureassistant-url]).
 ```cpp
-Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters(
-    std::chrono::milliseconds{ 1200 }, Zivid::CaptureAssistant::AmbientLightFrequency::none);
-
-std::cout << "Running Capture Assistant with parameters: " << suggestSettingsParameters << std::endl;
-const auto settingsVector{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
+const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
+        };        
+const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
 ```
 
-These settings can be used in an [HDR capture](#capture-hdr), which we will discuss later.
-
-As opposed to manual configuration of settings, there are only two parameters to consider with Capture Assistant.
+There are only two parameters to configure with Capture Assistant:
 
 1. **Maximum Capture Time** in number of milliseconds.
-    1. Minimum capture time is 200ms. This allows only one frame to be captured.
-    2. The algorithm will combine multiple frames if the budget allows.
+    1. Minimum capture time is 200 ms. This allows only one acquisition.
+    2. The algorithm will combine multiple acquisitions if the budget allows.
     3. The algorithm will attempt to cover as much of the dynamic range in the scene as possible.
     4. A maximum capture time of more than 1 second will get good coverage in most scenarios.
 2. **Ambient light compensation**
     1. May restrict capture assistant to exposure periods that are multiples of the ambient light period.
     2. 60Hz is found in (amongst others) Japan, Americas, Taiwan, South Korea and Philippines.
-    3. 50Hz is found in most rest of the world.
+    3. 50Hz is common in the rest of the world.
 
 ### Manual configuration
 
-We may choose to configure settings manually ([go to source][settings-url]). For more information about what each settings does, please see [Zivid One+ Camera Settings][kb-settings-url].
+We may choose to configure settings manually. For more information about what each settings does, please see [Zivid One Camera Settings][kb-camera_settings-url].
 
-#### Single Frame
+#### Single Acquisition
 
-We can configure settings for an individual frame directly to the camera ([go to source][settings-url]).
+We can create settings for a single capture ([go to source][settings-url]).
 ```cpp
-camera << Zivid::Settings::Iris{ 20 }
-       << Zivid::Settings::ExposureTime{ std::chrono::microseconds{ 8333 } }
-       << Zivid::Settings::Brightness{ 1 }
-       << Zivid::Settings::Gain{ 1 }
-       << Zivid::Settings::Bidirectional{ false }
-       << Zivid::Settings::Filters::Contrast::Enabled::yes
-       << Zivid::Settings::Filters::Contrast::Threshold{ 5 }
-       << Zivid::Settings::Filters::Gaussian::Enabled::yes
-       << Zivid::Settings::Filters::Gaussian::Sigma{ 1.5 }
-       << Zivid::Settings::Filters::Outlier::Enabled::yes
-       << Zivid::Settings::Filters::Outlier::Threshold{ 5 }
-       << Zivid::Settings::Filters::Reflection::Enabled::yes
-       << Zivid::Settings::Filters::Saturated::Enabled::yes
-       << Zivid::Settings::BlueBalance{ 1.081 }
-       << Zivid::Settings::RedBalance{ 1.709 };
+const auto settings = Zivid::Settings{
+    Zivid::Settings::Frames{
+        Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 },
+                                Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 8333 } },
+    Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
+    Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 }
+};
 ```
 
-#### HDR Frame
+#### Multi Acquisition HDR
 
-We may also set a list of settings to be used in an [HDR capture](#capture-hdr).
+We may also create settings to be used in an HDR capture ([go to source][settings-hdr-url]).
 ```cpp
-std::vector<Zivid::Settings> settingsVector;
-for(const size_t iris : { 14U, 21U, 35U })
+const auto settings = Zivid::Settings();
+for(const auto aperture : { 11.31, 5.66, 2.83 })
 {
-    std::cout << "Add settings for frame with iris = " << iris << std::endl;
-    auto settings = Zivid::Settings::Settings();
-    settings.set(Zivid::Settings::Iris{ iris });
-    settingsVector.emplace_back(settings);
+    const auto acquisitionSettings = Zivid::Settings::Acquisition{
+        Zivid::Settings::Acquisitions::Aperture{ aperture },
+    };
+    settings.acquisitions().emplaceBack(acquisitionSettings);
 }
 ```
 
 #### 2D Settings
 
-It is possible to only capture a 2D image. This is faster than a 3D capture, and can be used . 2D settings are configured as follows ([go to source][settings2d-url]).
+It is possible to only capture a 2D image. This is faster than a 3D capture. 2D settings are configured as follows ([go to source][settings2d-url]).
 ```cpp
-auto settings2D = Zivid::Settings2D();
-settings2D.set(Zivid::Settings2D::ExposureTime{ std::chrono::microseconds{ 10000 } });
-settings2D.set(Zivid::Settings2D::Gain{ 1.0 });
-settings2D.set(Zivid::Settings2D::Iris{ 35 });
-settings2D.set(Zivid::Settings2D::Brightness{ 1.0 });
+const auto settings2D =
+    Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                           Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 10000 } },
+                           Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
+                           Zivid::Settings2D::Acquisition::Gain{ 1.0 },
+                           Zivid::Settings2D::Acquisition::Brightness{ 1.0 } } },
+                       Zivid::Settings2D::Processing::Color::Balance::Red{ 1.0 },
+                       Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
+                       Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 } };
 ```
 
 ### From File
 
-Zivid Studio can store the current settings to .yml files. These can be read and applied in the API. You may find it easier to modify the settings in these (human-readable) yaml-files in your preferred editor.
+Zivid Studio can store the current settings to .yml files. These can be read and applied in the API. You may find it easier to modify the settings in these (human-readable) yaml-files in your preferred editor ([go to source][settingsFromFile-url]).
 ```cpp
-camera.setSettings(Zivid::Settings("Frame01.yml"));
-```
-You may also apply settings from file while connecting to the camera.
-```cpp
-auto camera = zivid.connectCamera(Zivid::Settings("Frame01.yml"));
+const auto settings = Zivid::Settings("Settings.yml");
 ```
 
 ## Capture
 
-Now we can capture a frame. The default capture is a single 3D point cloud ([go to source][capture-url]).
+Now we can capture a 3D image. Whether there is a single acquisition or multiple acquisitions (HDR) is given by the number of `acquisitions` in `settings` ([go to source][capture-url]).
 ```cpp
-auto frame = camera.capture();
+const auto frame = camera.capture(settings);
 ```
-
-### Capture HDR
-
-As was revealed in the [Capture Assistant](#capture-assistant) section, a capture may consist of multiple frames. In order to capture multiple frames, and combine them, we can do as follows ([go to source][captureHDR-url])
-```cpp
-const auto hdrFrame{ Zivid::HDR::capture(camera, settingsVector) };
-```
-It is possible to [manually create](#hdr-frame) the `settingsVector`, if not set via [Capture Assistant](#capture-assistant).
 
 ### Capture 2D
 
 If we only want to capture a 2D image, which is faster than 3D, we can do so via the 2D API ([go to source][capture2d-url]).
 ```cpp
-auto frame2D = camera.capture2D(settings2D);
+const auto frame2D = camera.capture(settings2D);
 ```
 
 ## Save
 
 We can now save our results ([go to source][save-url]).
 ```cpp
-frame.save("Result.zdf");
+frame.save("Frame.zdf");
 ```
 The API detects which format to use. See [Point Cloud][kb-point_cloud-url] for a list of supported formats.
 
-## Save 2D
+### Save 2D
 
 If we captured a 2D image, we can save it ([go to source][save2d-url]).
 ```cpp
-frame2D.save("Result.png");
+frame.imageRGBA().save("Image.png");
 ```
 
 ## Conclusion
 
-This tutorial shows how to use the Zivid SDK to connect to, configure and capture from the Zivid camera.
+This tutorial shows how to use the Zivid SDK to connect to, configure, capture, and save from the Zivid camera.
 
 [//]: ### "Recommended further reading"
 
 [installation-instructions-url]: ../../../README.md#instructions
-[start_app-url]: Capture/Capture.cpp#L10
-[connect-url]: Capture/Capture.cpp#L15
-[captureassistant-url]: CaptureAssistant/CaptureAssistant.cpp#L18-L22
-[settings-url]: Capture/Capture.cpp#L18-L19
-[kb-settings-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/99713044/Zivid+One+Camera+Settings
-[capture-url]: Capture/Capture.cpp#L22
-[capture2d-url]: Capture2D/Capture2D.cpp#L22
-[settings2d-url]: Capture2D/Capture2D.cpp#L16-L19
-[captureHDR-url]: CaptureAssistant/CaptureAssistant.cpp#L31
-[save-url]: Capture/Capture.cpp#L25
-[save2d-url]: Capture2D/Capture2D.cpp#L34
-[kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/427396/Point+Cloud
-[filecamera-url]: CaptureFromFile/CaptureFromFile.cpp#L13-L17
+[start_app-url]: Capture/Capture.cpp#L14
+[connect-url]: Capture/Capture.cpp#L17
+[captureassistant-url]: CaptureAssistant/CaptureAssistant.cpp#L19-L25
+[settings-url]: Capture/Capture.cpp#L20-L25
+[kb-camera_settings-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/450265335
+[capture-url]: Capture/Capture.cpp#L28
+[capture2d-url]: Capture2D/Capture2D.cpp#L32
+[settings2d-url]: Capture2D/Capture2D.cpp#L21-L29
+[settings-hdr-url]: CaptureHDR/CaptureHDR.cpp#L21-L28
+[save-url]: Capture/Capture.cpp#L30-L32
+[save2d-url]: Capture2D/Capture2D.cpp#L44-L46
+[kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/520061383
+[filecamera-url]: CaptureFromFileCamera/CaptureFromFileCamera.cpp#L16-L20
+[settingsFromFile-url]: CaptureHDRLoop/CaptureHDRLoop.cpp#L26

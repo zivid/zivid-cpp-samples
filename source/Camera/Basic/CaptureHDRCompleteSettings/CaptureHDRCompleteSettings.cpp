@@ -1,7 +1,8 @@
 /*
-This example shows how to acquire an HDR image from the Zivid camera with fully
-configured settings for each frame. In general, taking an HDR image is a lot
-simpler than this as the default settings work for most scenes. The purpose of
+This example shows how to capture point clouds, with color, from the Zivid camera.
+For scenes with high dynamic range we combine multiple acquisitions to get an HDR
+point cloud. This example shows how to fully configure settings for each acquisition.
+In general, capturing an HDR point cloud is a lot simpler than this. The purpose of
 this example is to demonstrate how to configure all the settings.
 */
 
@@ -15,43 +16,61 @@ int main()
     {
         Zivid::Application zivid;
 
-        std::cout << "Connecting to the camera" << std::endl;
+        std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring settings same for all HDR frames" << std::endl;
-        auto settingsDefault = Zivid::Settings();
-        settingsDefault.set(Zivid::Settings::Brightness{ 1 })
-            .set(Zivid::Settings::Bidirectional{ false })
-            .set(Zivid::Settings::Filters::Contrast::Enabled::yes)
-            .set(Zivid::Settings::Filters::Contrast::Threshold{ 5 })
-            .set(Zivid::Settings::Filters::Gaussian::Enabled::yes)
-            .set(Zivid::Settings::Filters::Gaussian::Sigma{ 1.5 })
-            .set(Zivid::Settings::Filters::Outlier::Enabled::yes)
-            .set(Zivid::Settings::Filters::Outlier::Threshold{ 5 })
-            .set(Zivid::Settings::Filters::Reflection::Enabled::yes)
-            .set(Zivid::Settings::Filters::Saturated::Enabled::yes)
-            .set(Zivid::Settings::BlueBalance{ 1.081 })
-            .set(Zivid::Settings::RedBalance{ 1.709 });
+        std::cout << "Configuring global processing settings:" << std::endl;
+        Zivid::Settings settings{
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+            Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 10.0 },
+            Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+            Zivid::Settings::Processing::Color::Balance::Red{ 1 },
+            Zivid::Settings::Processing::Color::Balance::Green{ 1 },
+            Zivid::Settings::Processing::Color::Balance::Blue{ 1 }
+        };
+        std::cout << settings.processing() << std::endl;
 
-        std::cout << "Configuring settings different for all HDR frames" << std::endl;
-        const std::vector<size_t> iris{ 17U, 27U, 27U };
-        const std::vector<int> exposureTime{ 10000, 10000, 40000 };
+        std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
+        const auto baseAcquisition =
+            Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 },
+                                          Zivid::Settings::Acquisition::Patterns::Sine::Bidirectional{ false } };
+        std::cout << baseAcquisition << std::endl;
+
+        std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
+        const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
         const std::vector<double> gain{ 1.0, 1.0, 2.0 };
-        std::vector<Zivid::Settings> settingsHDR;
-        for(size_t i = 0; i < iris.size(); ++i)
+        const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
+        for(size_t i = 0; i < aperture.size(); ++i)
         {
-            settingsHDR.push_back(
-                settingsDefault.set(Zivid::Settings::Iris{ iris.at(i) })
-                    .set(Zivid::Settings::ExposureTime{ std::chrono::microseconds{ exposureTime.at(i) } })
-                    .set(Zivid::Settings::Gain{ gain.at(i) }));
-            std::cout << "Frame " << i << " " << settingsHDR.at(i) << std::endl;
+            std::cout << "Acquisition " << i + 1 << ":" << std::endl;
+            std::cout << "  Exposure Time: " << exposureTime.at(i) << std::endl;
+            std::cout << "  Aperture: " << aperture.at(i) << std::endl;
+            std::cout << "  Gain: " << gain.at(i) << std::endl;
+            const auto acquisitionSettings =
+                baseAcquisition.copyWith(Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
+                                         Zivid::Settings::Acquisition::Gain{ gain.at(i) },
+                                         Zivid::Settings::Acquisition::ExposureTime{
+                                             std::chrono::microseconds{ exposureTime.at(i) } });
+            settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 
-        std::cout << "Capturing HDR frame" << std::endl;
-        const auto hdrFrame = Zivid::HDR::capture(camera, settingsHDR);
+        std::cout << "Capturing frame (HDR)" << std::endl;
+        const auto frame = camera.capture(settings);
 
-        std::cout << "Saving the frame" << std::endl;
-        hdrFrame.save("HDR.zdf");
+        std::cout << "Complete settings used:" << std::endl;
+        std::cout << frame.settings() << std::endl;
+
+        const auto *dataFile = "Frame.zdf";
+        std::cout << "Saving frame to file: " << dataFile << std::endl;
+        frame.save(dataFile);
     }
     catch(const std::exception &e)
     {
