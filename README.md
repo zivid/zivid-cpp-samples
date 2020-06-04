@@ -77,7 +77,7 @@ Launch the Command Prompt by pressing *Win + R* keys on the keyboard, then type 
 Navigate to a location where you want to clone the repository, then run to following command:
 
 ```bash
-git clone https://github.com/zivid/cpp-extra-samples
+git clone https://github.com/zivid/zivid-cpp-samples
 ```
 
 [comment]: <> (Choose a sample solution and configure it with CMake.)
@@ -92,8 +92,8 @@ Open the Terminal by pressing *Ctrl + Alt + T* keys on the keyboard.
 Navigate to a location where you want to clone the repository, then run to following commands:
 
 ```bash
-git clone https://github.com/zivid/cpp-extra-samples
-cd cpp-extra-samples
+git clone https://github.com/zivid/zivid-cpp-samples
+cd zivid-cpp-samples
 ```
 
 Build the project:
@@ -134,14 +134,14 @@ To run continuous integration locally, use [Docker](https://www.docker.com). Wit
 docker run -it -v <unixy-repo-path>:/host -w /host/continuous-integration/linux ubuntu:20.04
 ```
 
-Where `<unixy-repo-path>` is the unixy path to the repo on your computer. On Linux, use `$PWD` for this. On Windows you need to translate the windowsy path to a unixy one (e.g. `/c/Users/alice/Documents/cpp-extra-samples`).
+Where `<unixy-repo-path>` is the unixy path to the repo on your computer. On Linux, use `$PWD` for this. On Windows you need to translate the windowsy path to a unixy one (e.g. `/c/Users/alice/Documents/zivid-cpp-samples`).
 
 Now run `./setup.sh` to install dependencies. Once setup has completed, you can run `./lint.sh && ./build.sh` repeatedly to check your code.
 
 Tip: If your build hangs, try to increase the memory available to Docker.
 
-[ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/5e76c4a5-26ad-4cbb-8ab5-b9588e1ed2b2/4
-[ci-url]: https://dev.azure.com/zivid-devops/cpp-extra-samples/_build/latest?definitionId=4&branchName=master
+[ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/79b793a0-a49a-463b-9c76-39b1e4947800/8
+[ci-url]: https://dev.azure.com/zivid-devops/zivid-cpp-samples/_build/latest?definitionId=8&branchName=master
 [QuickCaptureTutorial-url]: source/Camera/Basic/QuickCaptureTutorial.md
 [CompleteCaptureTutorial-url]: source/Camera/Basic/CaptureTutorial.md
 [Capture-url]: source/Camera/Basic/Capture/Capture.cpp
