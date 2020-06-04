@@ -110,7 +110,7 @@ We may choose to configure settings manually. For more information about what ea
 We can create settings for a single capture ([go to source][settings-url]).
 ```cpp
 const auto settings = Zivid::Settings{
-    Zivid::Settings::Frames{
+    Zivid::Settings::Acquisitions{
         Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 },
                                 Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 8333 } },
     Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
@@ -122,7 +122,7 @@ const auto settings = Zivid::Settings{
 
 We may also create settings to be used in an HDR capture ([go to source][settings-hdr-url]).
 ```cpp
-const auto settings = Zivid::Settings();
+auto settings = Zivid::Settings();
 for(const auto aperture : { 11.31, 5.66, 2.83 })
 {
     const auto acquisitionSettings = Zivid::Settings::Acquisition{
@@ -198,9 +198,9 @@ This tutorial shows how to use the Zivid SDK to connect to, configure, capture, 
 [capture-url]: Capture/Capture.cpp#L28
 [capture2d-url]: Capture2D/Capture2D.cpp#L32
 [settings2d-url]: Capture2D/Capture2D.cpp#L21-L29
-[settings-hdr-url]: CaptureHDR/CaptureHDR.cpp#L21-L28
+[settings-hdr-url]: CaptureHDR/CaptureHDR.cpp#L20-L28
 [save-url]: Capture/Capture.cpp#L30-L32
 [save2d-url]: Capture2D/Capture2D.cpp#L44-L46
 [kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/520061383
-[filecamera-url]: CaptureFromFileCamera/CaptureFromFileCamera.cpp#L16-L20
-[settingsFromFile-url]: CaptureHDRLoop/CaptureHDRLoop.cpp#L26
+[filecamera-url]: CaptureFromFileCamera/CaptureFromFileCamera.cpp#L17-L20
+[settingsFromFile-url]: CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L20-L21
