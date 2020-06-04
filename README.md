@@ -148,6 +148,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [Capture2D-url]: source/Camera/Basic/Capture2D/Capture2D.cpp
 [CaptureAssistant-url]: source/Camera/Basic/CaptureAssistant/CaptureAssistant.cpp
 [CaptureFromFileCamera-url]: source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp
+[CaptureWithSettingsFromYML-url]: source/Camera/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
 [CaptureHDRLoop-url]: source/Camera/Basic/CaptureHDRLoop/CaptureHDRLoop.cpp
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
