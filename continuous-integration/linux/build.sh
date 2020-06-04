@@ -6,7 +6,6 @@ SOURCE_DIR="$ROOT_DIR/source"
 BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 
-#TODO 16.04 default pcl is too old. See issue #43
 source /etc/os-release || exit $?
 if [[ "$VERSION_ID" == "16.04" ]]; then
     OS_SPECIFIC_OPTIONS="-DUSE_PCL=OFF -DUSE_EIGEN3=OFF -DUSE_OPENCV=OFF"
