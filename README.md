@@ -83,7 +83,7 @@ git clone https://github.com/zivid/zivid-cpp-samples
 [comment]: <> (Choose a sample solution and configure it with CMake.)
 [comment]: <> (Launch Visual Studio, open, build, and run the sample solution.)
 
-Configure the sample solution with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our tutorial for configuring [**C++ Extra Samples**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/61472793/Configure+C+Extra+Samples+with+CMake+and+build+them+using+Visual+Studio+in+Windows) with CMake and building them using Visual Studio in Windows.
+Configure the sample solution with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our [**tutorials for configuring and building C++ Samples**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/427987).
 
 #### Ubuntu
 
