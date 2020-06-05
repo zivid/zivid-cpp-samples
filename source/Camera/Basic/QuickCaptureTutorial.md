@@ -27,7 +27,7 @@ auto camera = zivid.connectCamera();
 
 Then we have to create settings ([go to source][settings-url]).
 ```cpp
-const auto settings = Zivid::Settings{ Zivid::Settings::Frames{ Zivid::Settings::Frame{} } };
+const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
 ```
 
 ## Capture
