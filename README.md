@@ -148,9 +148,9 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [Capture2D-url]: source/Camera/Basic/Capture2D/Capture2D.cpp
 [CaptureAssistant-url]: source/Camera/Basic/CaptureAssistant/CaptureAssistant.cpp
 [CaptureFromFileCamera-url]: source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp
-[CaptureWithSettingsFromYML-url]: source/Camera/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp
+[CaptureWithSettingsFromYML-url]: source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
-[CaptureHDRLoop-url]: source/Camera/Basic/CaptureHDRLoop/CaptureHDRLoop.cpp
+[CaptureHDRLoop-url]: source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
@@ -162,7 +162,6 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [ReadPCLVis3D-url]: source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp
 [ReadIterateZDF-url]: source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp
 [HandEyeCalibration-url]: source/Applications/Advanced/HandEyeCalibration
-[MultiCameraCalibration-url]: source/Applications/Advanced/MultiCameraCalibration
 [HandEyeCalibrationSample-url]: source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp
 [UtilizeEyeInHandCalibration-url]: source/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
 [PoseConversions-url]: source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
