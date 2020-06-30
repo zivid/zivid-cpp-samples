@@ -39,9 +39,7 @@ int main()
         std::cout << settings.processing() << std::endl;
 
         std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
-        const auto baseAcquisition =
-            Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 },
-                                          Zivid::Settings::Acquisition::Patterns::Sine::Bidirectional{ false } };
+        const auto baseAcquisition = Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 } };
         std::cout << baseAcquisition << std::endl;
 
         std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
