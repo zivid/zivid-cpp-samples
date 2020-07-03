@@ -20,7 +20,7 @@ int main()
         const auto settings =
             Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
                                  Zivid::Settings::Acquisition::Aperture{ 5.66 },
-                                 Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 8333 } } } },
+                                 Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 6500 } } } },
                              Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
                              Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 } };
 
