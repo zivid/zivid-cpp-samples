@@ -15,32 +15,26 @@ This example shows how to convert point cloud from ZDF file to OpenCV format, th
 
 namespace
 {
-    enum class Axis
-    {
-        x,
-        y,
-        z
-    };
-
-    template<Axis axis>
-    float getValue(const Zivid::PointXYZ &p);
-
-    template<>
-    float getValue<Axis::z>(const Zivid::PointXYZ &p)
+    float getValueZ(const Zivid::PointZ &p)
     {
         return p.z;
     }
 
-    template<Axis axis>
-    bool isLesserOrNan(const Zivid::PointXYZ &a, const Zivid::PointXYZ &b)
+    bool isLesserOrNan(const Zivid::PointZ &a, const Zivid::PointZ &b)
     {
-        return getValue<axis>(a) < getValue<axis>(b) ? true : std::isnan(getValue<axis>(a));
+        if(std::isnan(getValueZ(a)) && std::isnan(getValueZ(b)))
+        {
+            return false;
+        }
+        return getValueZ(a) < getValueZ(b) ? true : std::isnan(getValueZ(a));
     }
-
-    template<Axis axis>
-    bool isGreaterOrNaN(const Zivid::PointXYZ &a, const Zivid::PointXYZ &b)
+    bool isGreaterOrNaN(const Zivid::PointZ &a, const Zivid::PointZ &b)
     {
-        return getValue<axis>(a) > getValue<axis>(b) ? true : std::isnan(getValue<axis>(a));
+        if(std::isnan(getValueZ(a)) && std::isnan(getValueZ(b)))
+        {
+            return false;
+        }
+        return getValueZ(a) > getValueZ(b) ? true : std::isnan(getValueZ(a));
     }
 
     void visualizePointCloud(const Zivid::PointCloud &pointCloud)
@@ -60,11 +54,11 @@ namespace
     cv::Mat pointCloudToCvZ(const Zivid::PointCloud &pointCloud)
     {
         cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
-        const auto points = pointCloud.copyPointsXYZ();
+        const auto points = pointCloud.copyPointsZ();
 
         // Getting min and max values for X, Y, Z images
-        const auto *maxZ = std::max_element(points.data(), points.data() + pointCloud.size(), isLesserOrNan<Axis::z>);
-        const auto *minZ = std::max_element(points.data(), points.data() + pointCloud.size(), isGreaterOrNaN<Axis::z>);
+        const auto *maxZ = std::max_element(points.data(), points.data() + pointCloud.size(), isLesserOrNan);
+        const auto *minZ = std::max_element(points.data(), points.data() + pointCloud.size(), isGreaterOrNaN);
 
         // Filling in OpenCV matrix with the cloud data
         for(size_t i = 0; i < pointCloud.height(); i++)
