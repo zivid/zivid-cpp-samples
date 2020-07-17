@@ -25,6 +25,36 @@ namespace
         cv::Mat cameraMatrix;
     };
 
+    Zivid::Settings makeSettings(const std::chrono::microseconds exposureTime,
+                                 const double aperture,
+                                 const double gain,
+                                 const double brightness)
+    {
+        Zivid::Settings settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
+            Zivid::Settings::Acquisition::ExposureTime{ exposureTime },
+            Zivid::Settings::Acquisition::Aperture{ aperture },
+            Zivid::Settings::Acquisition::Gain{ gain },
+            Zivid::Settings::Acquisition::Brightness{ brightness },
+        } } };
+        std::cout << settings << std::endl;
+        return settings;
+    }
+
+    Zivid::Settings2D makeSettings2D(const std::chrono::microseconds exposureTime,
+                                     const double aperture,
+                                     const double gain,
+                                     const double brightness)
+    {
+        Zivid::Settings2D settings2D =
+            Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                Zivid::Settings2D::Acquisition::ExposureTime{ exposureTime },
+                Zivid::Settings2D::Acquisition::Aperture{ aperture },
+                Zivid::Settings2D::Acquisition::Gain{ gain },
+                Zivid::Settings2D::Acquisition::Brightness{ brightness },
+            } } };
+        return settings2D;
+    }
+
     cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorRGBA> &image)
     {
         // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
@@ -40,17 +70,9 @@ namespace
         return bgr;
     }
 
-    cv::Mat getImage3D(Zivid::Camera &camera)
+    cv::Mat getImage3D(Zivid::Camera &camera, const Zivid::Settings &settings)
     {
         std::cout << "3D mode" << std::endl;
-
-        std::cout << "Configuring settings" << std::endl;
-        const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
-            Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-            Zivid::Settings::Acquisition::Aperture{ 5.66 },
-            Zivid::Settings::Acquisition::Gain{ 1.0 },
-            Zivid::Settings::Acquisition::Brightness{ 1.0 },
-        } } };
 
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
@@ -72,16 +94,9 @@ namespace
         return imageToBGR(image);
     }
 
-    cv::Mat getImage2D(Zivid::Camera &camera)
+    cv::Mat getImage2D(Zivid::Camera &camera, const Zivid::Settings2D &settings)
     {
         std::cout << "2D mode" << std::endl;
-
-        std::cout << "Configuring 2D settings" << std::endl;
-        const auto settings = Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-            Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-            Zivid::Settings2D::Acquisition::Aperture{ 5.66 },
-            Zivid::Settings2D::Acquisition::Gain{ 1.0 },
-            Zivid::Settings2D::Acquisition::Brightness{ 1.0 } } } };
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings);
@@ -150,7 +165,13 @@ int main()
             use2D = true;
         }
 
-        const auto bgr = (use2D ? getImage2D(camera) : getImage3D(camera));
+        const auto exposureTime = std::chrono::microseconds{ 20000 };
+        const auto aperture = 5.66;
+        const auto gain = 1.0;
+        const auto brightness = 1.0;
+
+        const auto bgr = use2D ? getImage2D(camera, makeSettings2D(exposureTime, aperture, gain, brightness))
+                               : getImage3D(camera, makeSettings(exposureTime, aperture, gain, brightness));
 
         std::cout << "Undistorting BGR image" << std::endl;
 
