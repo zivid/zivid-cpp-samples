@@ -253,6 +253,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }
