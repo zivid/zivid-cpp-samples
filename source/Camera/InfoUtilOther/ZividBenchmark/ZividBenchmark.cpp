@@ -1,3 +1,8 @@
+/*
+Zividbenchmarks is a sample that will test the average speed of different operations on your computer. It will provide
+the mean and median for connects, disconnects, single imaging, HDR and filtering.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <algorithm>

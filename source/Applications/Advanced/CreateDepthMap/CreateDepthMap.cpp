@@ -1,5 +1,6 @@
 /*
-This example shows how to convert point cloud from ZDF file to OpenCV format, then extract and visualize depth map.
+This example shows how to convert point cloud from ZDF file to OpenCV format, then extract and visualize depth map. The
+ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Visualization/Visualizer.h>

@@ -1,6 +1,7 @@
 /*
 This example shows how to utilize the result of Eye-in-Hand calibration to transform (picking) point
-coordinates from the camera frame to the robot base frame.
+coordinates from the camera frame to the robot base frame. The YAML files for this sample can be found under the main
+instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>

@@ -4,7 +4,8 @@ This example shows how to convert to/from transformation matrix (rotation matrix
 Zivid primarily operate with a (4x4) transformation matrix. This example shows how to use Eigen to
 convert to and from: AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
 
-The convenience functions from this example can be reused in applicable applications.
+The convenience functions from this example can be reused in applicable applications. The YAML files for this sample can
+be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>

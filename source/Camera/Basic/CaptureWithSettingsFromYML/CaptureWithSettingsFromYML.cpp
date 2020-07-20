@@ -1,6 +1,7 @@
 /*
 This example shows how to capture point clouds, with color, from the Zivid camera,
-with settings from YML file.
+with settings from YML file. The YML files for this sample can be found under the main instructions
+for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
