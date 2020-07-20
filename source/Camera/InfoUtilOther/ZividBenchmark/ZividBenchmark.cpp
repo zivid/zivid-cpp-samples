@@ -67,11 +67,15 @@ namespace
     {
         if(settings.processing().filters().smoothing().gaussian().isEnabled().value())
         {
+            std::string gaussianString;
+            gaussianString = std::string{ "Gaussian (Sigma = " }
+                             + settings.processing().filters().smoothing().gaussian().sigma().toString() + " )";
+
             if(settings.processing().filters().reflection().removal().isEnabled().value())
             {
-                return "{ Gaussian, Reflection }";
+                return "{ " + gaussianString + ", Reflection }";
             }
-            return "{ Gaussian }";
+            return "{ " + gaussianString + " }";
         }
         if(settings.processing().filters().reflection().removal().isEnabled().value())
         {
@@ -107,6 +111,14 @@ namespace
                   << stringList.at(1) << stringList.at(2) << std::endl;
     }
 
+    void printHeader(const std::string &firstString)
+    {
+        printPrimarySeparationLine();
+        std::cout << std::endl;
+        printPrimarySeparationLine();
+        std::cout << firstString << std::endl;
+    }
+
     void printHeaderLine(const std::string &firstString, size_t num, const std::string &secondString)
     {
         printPrimarySeparationLine();
@@ -116,6 +128,12 @@ namespace
     void printConnectHeader(const size_t numConnects)
     {
         printHeaderLine("Connecting and disconnecting ", numConnects, " times each (be patient):");
+    }
+
+    void printSubtestHeader(const std::string &subtest)
+    {
+        printPrimarySeparationLine();
+        std::cout << subtest << std::endl;
     }
 
     void printCapture3DHeader(const size_t numFrames, const Zivid::Settings &settings)
@@ -245,6 +263,7 @@ namespace
         }
 
         Zivid::Settings settings{ Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled{ enableGaussian },
+                                  Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
                                   Zivid::Settings::Processing::Filters::Noise::Removal::Enabled{ true },
                                   Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled{ true },
                                   Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled{
@@ -376,6 +395,12 @@ namespace
                                       const std::vector<std::chrono::microseconds> &exposureTimes,
                                       const size_t numFrames3D)
     {
+        std::vector<std::string> subtestName{
+            "Without filters", "With Gaussian filter", "With Reflection filter", "With Gaussian and Reflection filter"
+        };
+
+        printSubtestHeader(subtestName.at(0));
+
         const std::vector<Duration> captureDurationWithoutFilter =
             benchmarkCapture3D(camera, makeSettings(apertures, exposureTimes, false, false), numFrames3D);
 
@@ -385,6 +410,8 @@ namespace
         std::vector<Duration> filterProcessingDurations;
         for(size_t i = 0; i < gaussian.size(); i++)
         {
+            printSubtestHeader(subtestName.at(i + 1));
+
             const std::vector<Duration> captureDurationWithFilter =
                 benchmarkCapture3D(camera,
                                    makeSettings(apertures, exposureTimes, gaussian.at(i), reflection.at(i)),
@@ -483,13 +510,20 @@ int main()
         const std::vector<double> twoApertures{ 8.0, 4.0 };
         const std::vector<double> threeApertures{ 11.31, 5.66, 2.83 };
 
+        printHeader("TEST 1: Connect/Disconnect");
         benchmarkConnect(camera, numConnects);
         camera.connect();
+        printHeader("TEST 2: Assisted Capture");
         benchmarkAssistedCapture3D(camera, numFrames3D);
+        printHeader("TEST 3: One Acquisition Capture");
         benchmarkCapture3DAndFilters(camera, oneAperture, oneExposureTime, numFrames3D);
+        printHeader("TEST 4: Two Acquisitions (HDR) Capture");
         benchmarkCapture3D(camera, makeSettings(twoApertures, twoExposureTimes, false, false), numFrames3D);
+        printHeader("TEST 5: Three Acquisitions (HDR) Capture");
         benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
+        printHeader("TEST 6: 2D Capture");
         benchmarkCapture2D(camera, makeSettings2D(exposureTime), numFrames2D);
+        printHeader("TEST 7: Save");
         benchmarkSave(camera, numFramesSave);
     }
     catch(const std::exception &e)
