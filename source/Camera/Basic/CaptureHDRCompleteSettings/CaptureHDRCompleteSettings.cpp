@@ -24,13 +24,13 @@ int main()
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
             Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 10.0 },
+            Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
             Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
-            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
             Zivid::Settings::Processing::Color::Balance::Red{ 1 },
             Zivid::Settings::Processing::Color::Balance::Green{ 1 },
@@ -73,6 +73,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

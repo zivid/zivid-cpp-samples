@@ -1,5 +1,6 @@
 /*
-This example shows how to read point cloud data from a ZDF file, iterate through it, and extract individual points.
+This example shows how to read point cloud data from a ZDF file, iterate through it, and extract individual points. The
+ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
@@ -51,6 +52,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

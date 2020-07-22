@@ -1,6 +1,7 @@
 /*
 This example shows how to capture point clouds, with color, from the Zivid file camera.
-This example can be used without access to a physical camera.
+This example can be used without access to a physical camera. The ZFC files for this sample can be found under the main
+instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
@@ -38,6 +39,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

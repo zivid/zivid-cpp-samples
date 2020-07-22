@@ -20,10 +20,10 @@ int main()
         // Note: The Zivid SDK supports 2D captures with a single acquisition only
         const auto settings2D =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 10000 } },
-                                   Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
-                                   Zivid::Settings2D::Acquisition::Brightness{ 1.0 },
-                                   Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 30000 } },
+                                   Zivid::Settings2D::Acquisition::Aperture{ 11.31 },
+                                   Zivid::Settings2D::Acquisition::Brightness{ 1.80 },
+                                   Zivid::Settings2D::Acquisition::Gain{ 2.0 } } },
                                Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
                                Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
                                Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
@@ -48,6 +48,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

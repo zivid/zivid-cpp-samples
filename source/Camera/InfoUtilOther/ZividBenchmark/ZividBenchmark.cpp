@@ -1,3 +1,8 @@
+/*
+Zividbenchmarks is a sample that will test the average speed of different operations on your computer. It will provide
+the mean and median for connects, disconnects, single imaging, HDR and filtering.
+*/
+
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
@@ -490,6 +495,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

@@ -1,5 +1,6 @@
 /*
-This example shows how to downsample point cloud from ZDF file.
+This example shows how to downsample point cloud from ZDF file. The ZDF file for this sample can be found under the
+main instructions for Zivid samples.
 */
 
 #include <Zivid/Visualization/Visualizer.h>
@@ -196,6 +197,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 }

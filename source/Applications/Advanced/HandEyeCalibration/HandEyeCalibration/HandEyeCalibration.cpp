@@ -146,7 +146,11 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "\nError: " << Zivid::toString(e) << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Press enter to exit." << std::endl;
+        if(std::cin.get() == '\n')
+        {
+            return EXIT_FAILURE;
+        }
     }
 
     return EXIT_SUCCESS;
