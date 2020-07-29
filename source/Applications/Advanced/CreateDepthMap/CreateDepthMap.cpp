@@ -79,8 +79,8 @@ namespace
         }
 
         // Applying color map
-        cv::Mat zJetColorMap;
-        cv::applyColorMap(z, zJetColorMap, cv::COLORMAP_JET);
+        cv::Mat zColorMap;
+        cv::applyColorMap(z, zColorMap, cv::COLORMAP_VIRIDIS);
 
         // Setting invalid points (nan) to black
         for(size_t i = 0; i < pointCloud.height(); i++)
@@ -89,7 +89,7 @@ namespace
             {
                 if(std::isnan(points(i, j).z))
                 {
-                    auto &zRGB = zJetColorMap.at<cv::Vec3b>(i, j);
+                    auto &zRGB = zColorMap.at<cv::Vec3b>(i, j);
                     zRGB[0] = 0;
                     zRGB[1] = 0;
                     zRGB[2] = 0;
@@ -97,7 +97,7 @@ namespace
             }
         }
 
-        return zJetColorMap;
+        return zColorMap;
     }
 
     cv::Mat pointCloudToCvBGR(const Zivid::PointCloud &pointCloud)
@@ -136,14 +136,14 @@ int main()
         cv::imwrite(bgrImageFile, bgr);
 
         std::cout << "Converting to Depth map in OpenCV format" << std::endl;
-        cv::Mat zJetColorMap = pointCloudToCvZ(pointCloud);
+        cv::Mat zColorMap = pointCloudToCvZ(pointCloud);
 
         const auto *depthMapFile = "DepthMap.png";
         std::cout << "Visualizing and saving Depth map to file: " << depthMapFile << std::endl;
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
-        cv::imshow("Depth map", zJetColorMap);
+        cv::imshow("Depth map", zColorMap);
         cv::waitKey(0);
-        cv::imwrite(depthMapFile, zJetColorMap);
+        cv::imwrite(depthMapFile, zColorMap);
     }
     catch(const std::exception &e)
     {
