@@ -41,7 +41,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
   - **Advanced**
     - [**HandEyeCalibration**][HandEyeCalibration-url]
       - [**HandEyeCalibration**][HandEyeCalibrationSample-url] - Perform Hand-Eye calibration
-      - [**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url] - Transform point from camera frame to robot base frame using Eye-in-Hand calibration matrix.
+      - [**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url] - Transform single data point or entire point cloud from camera frame to robot base frame using Eye-in-Hand calibration matrix.
         - **Dependencies:**
           - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
           - [OpenCV](https://opencv.org/) version 4.1.0 or newer
