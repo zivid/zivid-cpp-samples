@@ -1,13 +1,12 @@
 /*
-This example shows how to utilize the result of Eye-in-Hand calibration to transform (picking) point
-coordinates from the camera frame to the robot base frame. The YAML files for this sample can be found under the main
-instructions for Zivid samples.
+This example shows how to utilize the result of Eye-in-Hand calibration to transform either a (picking) point
+coordinates or the entire point cloud from the camera frame to the robot base frame. The YAML files for this sample can
+be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
 
 #include <Eigen/Core>
-
 #include <opencv2/core/core.hpp>
 
 #include <cmath>
@@ -15,6 +14,36 @@ instructions for Zivid samples.
 
 namespace
 {
+    enum class CommandType
+    {
+        cmdTransformSinglePoint,
+        cmdTransformPointCloud,
+        cmdUnknown
+    };
+
+    std::string getInput()
+    {
+        std::string command;
+        std::getline(std::cin, command);
+        return command;
+    }
+
+    CommandType enterCommand()
+    {
+        std::cout << "Enter command, s (to transform single point) or p (to transform point cloud): ";
+        const auto command = getInput();
+
+        if(command == "S" || command == "s")
+        {
+            return CommandType::cmdTransformSinglePoint;
+        }
+        if(command == "P" || command == "p")
+        {
+            return CommandType::cmdTransformPointCloud;
+        }
+        return CommandType::cmdUnknown;
+    }
+
     Eigen::MatrixXf cvToEigen(const cv::Mat &cvMat)
     {
         if(cvMat.dims > 2)
@@ -23,7 +52,6 @@ namespace
         }
 
         Eigen::MatrixXf eigenMat(cvMat.rows, cvMat.cols);
-
         for(int i = 0; i < cvMat.rows; i++)
         {
             for(int j = 0; j < cvMat.cols; j++)
@@ -31,8 +59,13 @@ namespace
                 eigenMat(i, j) = cvMat.at<float>(i, j);
             }
         }
-
         return eigenMat;
+    }
+
+    Zivid::Matrix4x4 cvToZivid(const cv::Mat &cvMat)
+    {
+        const auto zividMat = Zivid::Matrix4x4(cvMat.ptr<float>(0), cvMat.ptr<float>(0) + 16);
+        return zividMat;
     }
 
     cv::Mat readTransform(const std::string &transformFile)
@@ -78,11 +111,6 @@ int main()
     {
         Zivid::Application zivid;
 
-        // define (picking) point in camera frame
-        const Eigen::Vector4f pointInCameraFrame(81.2F, 18.0F, 594.6F, 1.0F);
-        std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.x() << " " << pointInCameraFrame.y()
-                  << " " << pointInCameraFrame.z() << std::endl;
-
         std::cout << "Reading camera pose in end-effector frame (result of eye-in-hand calibration)" << std::endl;
         const cv::Mat eyeInHandTransformation =
             readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + "/EyeInHandTransform.yaml");
@@ -90,17 +118,61 @@ int main()
         std::cout << "Reading end-effector pose in robot base frame" << std::endl;
         const cv::Mat endEffectorPose = readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + "/RobotTransform.yaml");
 
-        std::cout << "Converting to Eigen matrices for easier computation" << std::endl;
-        const Eigen::MatrixXf transformEndEffectorToCamera = cvToEigen(eyeInHandTransformation);
-        const Eigen::MatrixXf transformBaseToEndEffector = cvToEigen(endEffectorPose);
+        const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividGem.zdf";
+        std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
+        const Zivid::Frame frame = Zivid::Frame(dataFile);
+        auto pointCloud = frame.pointCloud();
 
         std::cout << "Computing camera pose in robot base frame" << std::endl;
-        const Eigen::MatrixXf transformBaseToCamera = transformBaseToEndEffector * transformEndEffectorToCamera;
+        const cv::Mat transformBaseToCameraCV = endEffectorPose * eyeInHandTransformation;
 
-        std::cout << "Computing (picking) point in robot base frame" << std::endl;
-        const Eigen::Vector4f pointInBaseFrame = transformBaseToCamera * pointInCameraFrame;
-        std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.x() << " " << pointInBaseFrame.y()
-                  << " " << pointInBaseFrame.z() << std::endl;
+        switch(enterCommand())
+        {
+            case CommandType::cmdTransformSinglePoint:
+            {
+                std::cout << "Transforming single point" << std::endl;
+
+                // The (picking) point is defined as image coordinates in camera frame. It is hard-coded for the
+                // ZividGem.zdf
+                const size_t imageCoordinateX = 1357;
+                const size_t imageCoordinateY = 666;
+                const auto xyz = pointCloud.copyPointsXYZW();
+
+                const Eigen::Vector4f pointInCameraFrame(xyz(imageCoordinateY, imageCoordinateX).x,
+                                                         xyz(imageCoordinateY, imageCoordinateX).y,
+                                                         xyz(imageCoordinateY, imageCoordinateX).z,
+                                                         xyz(imageCoordinateY, imageCoordinateX).w);
+
+                std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.x() << " "
+                          << pointInCameraFrame.y() << " " << pointInCameraFrame.z() << std::endl;
+
+                // Converting to Eigen matrix for easier computation
+                const Eigen::MatrixXf transformBaseToCamera = cvToEigen(transformBaseToCameraCV);
+
+                std::cout << "Transforming (picking) point from camera to robot base frame" << std::endl;
+                const Eigen::Vector4f pointInBaseFrame = transformBaseToCamera * pointInCameraFrame;
+
+                std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.x() << " "
+                          << pointInBaseFrame.y() << " " << pointInBaseFrame.z() << std::endl;
+                break;
+            }
+            case CommandType::cmdTransformPointCloud:
+            {
+                std::cout << "Transforming point cloud" << std::endl;
+                const auto transformationMatrix = cvToZivid(transformBaseToCameraCV);
+                pointCloud.transform(transformationMatrix);
+
+                const auto *saveFile = "ZividGemTransformed.zdf";
+                std::cout << "Saving frame to file: " << saveFile << std::endl;
+                frame.save(saveFile);
+                break;
+            }
+            case CommandType::cmdUnknown:
+            {
+                std::cout << "Error: Unknown command" << std::endl;
+                break;
+            }
+        }
     }
 
     catch(const std::exception &e)
