@@ -1,10 +1,10 @@
 # Hand Eye Calibration
 
-To fully understand Hand-Eye Calibration, please see the [tutorial](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/72450049) in our Knowledge Base.
+To fully understand Hand-Eye Calibration, please see the [tutorial][Tutorial-url] in our Knowledge Base.
 
 -----------------
 
-[SampleHandEyeCalibration]([SampleHandEyeCalibration-url]):
+[HandEyeCalibration][HandEyeCalibration-url]:
 
 * Application which walks through the collection of calibration poses
    1. Provide robot pose to application (manual entry)
@@ -13,14 +13,14 @@ To fully understand Hand-Eye Calibration, please see the [tutorial](https://zivi
    4. Repeat 1.-3. until 10-20 pose pairs are collected
    5. Enter command to perform calibration and return a **Transformation Matrix**
 
-[ZividHandEyeCalibration](C:\Program Files\Zivid\bin\ZividHandEyeCalibration.exe): (no source)
+[ZividHandEyeCalibration][ZividHandEyeCalibration-url]
 
-* Application which takes a collection of pose pairs (e.g. output of steps 1.-3. in [SampleHandEyeCalibration]([SampleHandEyeCalibration-url])) and returns a **Transformation Matrix**
+* CLI application which takes a collection of pose pairs (e.g. output of steps 1.-3. in [HandEyeCalibration][HandEyeCalibration-url]) and returns a **Transformation Matrix**
 
 -----------------
 The following applications assume that a **Transformation Matrix** has been found
 
-[**UtilizeEyeInHandCalibration**]([UtilizeEyeInHandCalibration-url]):
+[**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url]:
 
 * Shows how to transform position and rotation (pose) in Camera co-ordinate system to Robot co-ordinate system.
 * Example use case - "Bin Picking":
@@ -28,11 +28,13 @@ The following applications assume that a **Transformation Matrix** has been foun
    2. Find optimal picking pose for object and **transform to robot co-ordinate system**
    3. Use transformed pose to calculate robot path and execute pick
 
-[**PoseConversions**]([PoseConversions-url]):
+[**PoseConversions**][PoseConversions-url]:
 
 * Zivid primarily operate with a (4x4) Transformation Matrix (Rotation Matrix + Translation Vector). This example shows how to use Eigen to convert to and from:
   * AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
 
-[SampleHandEyeCalibration-url]: https://www.zivid.com/hubfs/softwarefiles/releases/1.6.0+7a245bbe-26/doc/cpp/zivid_sample_code.html#autotoc_md10
-[UtilizeEyeInHandCalibration-url]: https://github.com/zivid/zivid-cpp-samples/blob/master/Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
-[PoseConversions-url]: https://github.com/zivid/zivid-cpp-samples/blob/master/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
+[HandEyeCalibration-url]: HandEyeCalibration/HandEyeCalibration.cpp
+[UtilizeEyeInHandCalibration-url]: UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
+[ZividHandEyeCalibration-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/96469274
+[Tutorial-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/72450049
+[PoseConversions-url]: PoseConversions/PoseConversions.cpp
