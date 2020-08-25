@@ -62,6 +62,10 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CreateDepthMap**][CreateDepthMap-url] - Convert point cloud from ZDF file to OpenCV format, extract depth map and visualize it.
       - **Dependencies:**
         - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+    - [**MaskPointCloud**][MaskPointCloud-url] - Mask point cloud from ZDF file and convert to PCL format, extract depth map and visualize it.
+      - **Dependencies:**
+        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+        - [Point Cloud Library](https://pointcloudlibrary.github.io/) version 1.2 or newer
 
 ## Instructions
 
@@ -176,3 +180,4 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [Downsample-url]: source/Applications/Advanced/Downsample/Downsample.cpp
 [CaptureUndistortRGB-url]: source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp
+[MaskPointCloud-url]: source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp
