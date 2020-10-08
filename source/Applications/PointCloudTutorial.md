@@ -11,6 +11,7 @@ This tutorial describes how to use Zivid SDK to work with [Point Cloud][kb-point
     1. [Get handle](#get-handle)
     2. [Copy](#copy)
     3.  [Transform](#transform)
+    4. [Downsample](#downsample)
 
 ### Prerequisites
 
@@ -114,6 +115,21 @@ You may want to change the point cloud's origin from the camera to the robot bas
 pointCloud.transform(transformationMatrix);
 ```
 
+## Downsample
+
+Sometimes you might not need as dense point cloud as given from the camera and you want to downsample the point cloud. Downsampling can be done in-place by using ```Zivid::PointCloud::downsample(Zivid::PointCloud::Downsampling)``` ([go to source][downsample]).
+
+```cpp
+pointCloud.downsample(Zivid::PointCloud::Downsampling::by2x2);
+```
+Another way to downsample a point cloud is by using ```Zivid::PointCloud::downsampled(Zivid::PointCloud::Downsampling)```. This does not modify the current point cloud but returns the downsampled point cloud as a new point cloud instance. 
+
+```cpp
+downsampledPointCloud = pointCloud.downsampled(Zivid::PointCloud::Downsampling::by2x2);
+```
+
+Supported downsampling rates are: by2x2, by3x3 and by4x4.
+
 ## Conclusion
 
 This tutorial shows how to use the Zivid SDK to extract the point cloud, manipulate it, transform it, and visualize it.
@@ -126,5 +142,7 @@ This tutorial shows how to use the Zivid SDK to extract the point cloud, manipul
 [capture-tutorial]:../Camera/Basic/CaptureTutorial.md#L158
 [point-cloud]:Advanced/Downsample/Downsample.cpp#L181
 [transform]:Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L148
+[downsample]:Advanced/Downsample/Downsample.cpp#L45
 [visualize-point-cloud]:Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp#L26-L35
 [kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/520061383
+
