@@ -53,9 +53,6 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**MultiCameraCalibration**][MultiCameraCalibration-url] and [**MultiCameraCalibrationFromFile**][MultiCameraCalibrationFromZDF-url] - Use captures of a calibration object to generate transformation matrices to a single coordinate frame. First sample captures from connected cameras, the second loads existing captures from .ZDF files.
       - [**StitchByTransformation**][StitchByTransformation-url] and [**StitchByTransformationFromFile**][StitchByTransformationFromZDF-url] - Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame. First sample uses connected cameras, the second loads existing captures from .ZDF files.
     - [**Downsample**][Downsample-url] - Downsample point cloud from ZDF file.
-      - **Dependencies:**
-        - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
-        - [Point Cloud Library](https://pointcloudlibrary.github.io/) version 1.2 or newer
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use camera intrinsics to undistort RGB image.
       - **Dependencies:**
         - [OpenCV](https://opencv.org/) version 4.1.0 or newer
@@ -66,7 +63,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
 ## Instructions
 
 1. [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
-Note: The version tested with Zivid cameras is 2.0.0.
+Note: The version tested with Zivid cameras is 2.1.0.
 
 2. [**Download Zivid Sample Data**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/450363393/Sample+Data).
 
