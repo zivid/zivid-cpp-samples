@@ -27,7 +27,7 @@ int main()
                   << "Height: " << pointCloud.height() << ", Width: " << pointCloud.width() << std::endl;
 
         const size_t pixelsToDisplay = 10;
-        std::cout << "Iterating over point cloud and extracting X, Y, Z, R, G, B, and Contrast for central "
+        std::cout << "Iterating over point cloud and extracting X, Y, Z, R, G, B, and SNR for central "
                   << pixelsToDisplay << " x " << pixelsToDisplay << " pixels " << std::endl;
         const size_t iStart = (pointCloud.height() - pixelsToDisplay) / 2;
         const size_t iEnd = (pointCloud.height() + pixelsToDisplay) / 2;
