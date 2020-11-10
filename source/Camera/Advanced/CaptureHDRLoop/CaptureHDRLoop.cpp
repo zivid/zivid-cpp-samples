@@ -18,11 +18,13 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
+        const auto cameraModel = camera.info().modelName().toString().substr(0, 9);
         const size_t captures = 3;
         for(size_t i = 1; i <= captures; i++)
         {
             std::stringstream settingsFile;
-            settingsFile << std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/Settings0" << i << ".yml";
+            settingsFile << std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" << cameraModel << "/Settings0" << i
+                         << ".yml";
             std::cout << "Configuring settings from file: " << settingsFile.str() << ":" << std::endl;
             const auto settings = Zivid::Settings(settingsFile.str());
             std::cout << settings << std::endl;
