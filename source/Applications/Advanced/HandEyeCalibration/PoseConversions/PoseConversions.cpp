@@ -255,9 +255,7 @@ int main()
     {
         std::cerr << "Error: " << e.what() << std::endl;
         std::cout << "Press enter to exit." << std::endl;
-        if(std::cin.get() == '\n')
-        {
-            return EXIT_FAILURE;
-        }
+        std::cin.get();
+        return EXIT_FAILURE;
     }
 }
