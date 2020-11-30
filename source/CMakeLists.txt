@@ -24,6 +24,8 @@ set(SAMPLES
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
     Camera/InfoUtilOther/ZividBenchmark
+    Camera/Maintenance/VerifyCameraInField
+    Camera/Maintenance/CorrectCameraInField
     Applications/Basic/Visualization/CaptureFromFileCameraVis3D
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D

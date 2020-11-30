@@ -24,6 +24,9 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - Read intrinsic parameters from the Zivid camera.
     - [**FirmwareUpdater**][FirmwareUpdater-url] - Update firmware on the Zivid camera.
     - [**ZividBenchmark**][ZividBenchmark-url] - Benchmark the Zivid camera.
+  - **Maintenance**
+    - [**VerifyCameraInField**][VerifyCameraInField-url] - Check the dimension trueness of a Zivid camera.
+    - [**CorrectCameraInField**][CorrectCameraInField-url] - Correct the dimension trueness of a Zivid camera.
 
 - **Applications**
   - **Basic**
@@ -153,6 +156,8 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
 [FirmwareUpdater-url]: source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
 [ZividBenchmark-url]: source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp
+[VerifyCameraInField-url]: source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp
+[CorrectCameraInField-url]: source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp
 [CaptureFromFileCameraVis3D-url]: source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp
 [CaptureVis3D-url]: source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp
 [CaptureWritePCLVis3D-url]: source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp
