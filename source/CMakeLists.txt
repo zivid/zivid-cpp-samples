@@ -5,7 +5,7 @@ project(ZividCppSamples)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CompilerOptions)
 
-set(ZIVID_VERSION 2.1.0)
+set(ZIVID_VERSION 2.2.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
