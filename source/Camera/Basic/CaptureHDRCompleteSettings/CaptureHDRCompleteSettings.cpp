@@ -21,6 +21,7 @@ int main()
 
         std::cout << "Configuring global processing settings:" << std::endl;
         Zivid::Settings settings{
+            Zivid::Settings::Experimental::Engine::phase,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
             Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,

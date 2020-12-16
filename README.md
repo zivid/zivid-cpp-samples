@@ -66,7 +66,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
 ## Instructions
 
 1. [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
-Note: The samples require Zivid SDK v2 (minor version 2.1 or newer).
+Note: The samples require Zivid SDK v2 (minor version 2.2 or newer).
 
 2. [**Download Zivid Sample Data**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/450363393/Sample+Data).
 
