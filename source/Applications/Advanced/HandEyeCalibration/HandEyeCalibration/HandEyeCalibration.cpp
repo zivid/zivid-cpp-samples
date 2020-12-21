@@ -70,6 +70,26 @@ namespace
         const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
         return camera.capture(settings);
     }
+
+    Zivid::Calibration::HandEyeOutput performCalibration(const std::vector<Zivid::Calibration::HandEyeInput> &input)
+    {
+        while(true)
+        {
+            std::cout << "Enter type of calibration, eth (for eye-to-hand) or eih (for eye-in-hand): ";
+            const auto calibrationType = getInput();
+            if(calibrationType == "eth" || calibrationType == "ETH")
+            {
+                std::cout << "Performing eye-to-hand calibration" << std::endl;
+                return Zivid::Calibration::calibrateEyeToHand(input);
+            }
+            if(calibrationType == "eih" || calibrationType == "EIH")
+            {
+                std::cout << "Performing eye-in-hand calibration" << std::endl;
+                return Zivid::Calibration::calibrateEyeInHand(input);
+            }
+            std::cout << "Entered uknown method" << std::endl;
+        }
+    }
 } // namespace
 
 int main()
@@ -129,9 +149,9 @@ int main()
             }
         } while(!calibrate);
 
-        std::cout << "Performing hand-eye calibration" << std::endl;
-        const auto calibrationResult{ Zivid::Calibration::calibrateEyeToHand(input) };
-        if(calibrationResult)
+        const auto calibrationResult{ performCalibration(input) };
+
+        if(calibrationResult.valid())
         {
             std::cout << "Hand-eye calibration OK\n"
                       << "Result:\n"
