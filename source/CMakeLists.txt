@@ -33,6 +33,7 @@ set(SAMPLES
     Applications/Basic/FileFormats/ReadIterateZDF
     Applications/Advanced/CaptureUndistortRGB
     Applications/Advanced/Downsample
+    Applications/Advanced/MaskPointCloud
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
@@ -43,8 +44,8 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
-set(PCL_DEPENDING ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
+set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 
