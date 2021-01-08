@@ -44,14 +44,16 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/MultiCameraCalibration
     Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
     Applications/Advanced/MultiCamera/StitchByTransformation
-    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF)
+    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
+    Applications/Advanced/TransformViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
-set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformViaArucoMarker)
+set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap TransformViaArucoMarker)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
+set(Aruco_DEPENDING TransformViaArucoMarker)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
@@ -141,6 +143,8 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Threads::Threads)
+    if(${SAMPLE_NAME} IN_LIST Aruco_DEPENDING)
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/aruconano/include)
     endif()
 
 endforeach()
