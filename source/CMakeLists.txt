@@ -45,15 +45,14 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
-    Applications/Advanced/TransformViaArucoMarker)
+    Applications/Advanced/TransformPointCloudViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformViaArucoMarker)
-set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap TransformViaArucoMarker)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker)
+set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
-set(Aruco_DEPENDING TransformViaArucoMarker)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
@@ -92,7 +91,7 @@ else()
 endif()
 
 if(USE_OPENCV)
-    find_package(OpenCV 4.1.0 COMPONENTS core highgui calib3d)
+    find_package(OpenCV 4.1.0 COMPONENTS core highgui calib3d aruco)
     if(NOT OpenCV_FOUND)
         message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF.")
     endif()
@@ -143,8 +142,6 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Threads::Threads)
-    if(${SAMPLE_NAME} IN_LIST Aruco_DEPENDING)
-        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/aruconano/include)
     endif()
 
 endforeach()

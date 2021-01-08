@@ -1,9 +1,9 @@
 /*
-This example shows how to transform a point cloud from camera to ArUco frame using the marker's pose.
+This example shows how to transform a point cloud from camera to ArUco Marker coordinate frame
+by estimating the marker's pose from the point cloud.
 */
 
 #include <Zivid/Experimental/Calibration.h>
-#include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
@@ -11,7 +11,8 @@ This example shows how to transform a point cloud from camera to ArUco frame usi
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <aruco_nano.h>
+#include <opencv2/aruco.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -36,32 +37,13 @@ namespace
         return { slope, intercept };
     };
 
-    cv::Mat pointCloudToCvBGR(const Zivid::PointCloud &pointCloud)
+    cv::Point2f estimate2DMarkerCenter(const int &markerId,
+                                                     std::vector<cv::Point2f> &markerCorners)
     {
-        auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
-        pointCloud.copyData(
-            reinterpret_cast<Zivid::ColorRGBA *>(rgb.data)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
-        cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
-
-        return bgr;
-    }
-
-    std::vector<cv::Point2f> estimate2DMarkerCenters(const aruconano::Marker &marker)
-    {
-        if(marker.empty())
-        {
-            std::cout << "No markers detected";
-            return {};
-        }
-
-        std::vector<cv::Point2f> markerCenters2D;
-        markerCenters2D.reserve(marker.size());
-
-        const auto markerCorner0 = marker[0];
-        const auto markerCorner1 = marker[1];
-        const auto markerCorner2 = marker[2];
-        const auto markerCorner3 = marker[3];
+        const auto markerCorner0 = markerCorners[0];
+        const auto markerCorner1 = markerCorners[1];
+        const auto markerCorner2 = markerCorners[2];
+        const auto markerCorner3 = markerCorners[3];
 
         // Fitting line between two diagonal marker corners
         const auto backDiagonal{ fitLine(markerCorner2, markerCorner0) };
@@ -74,28 +56,8 @@ namespace
         const auto xCoordinate =
             (forwardDiagonal.intercept - backDiagonal.intercept) / (backDiagonal.slope - forwardDiagonal.slope);
         const auto yCoordinate = backDiagonal.slope * xCoordinate + backDiagonal.intercept;
-        markerCenters2D.emplace_back(cv::Point2f(xCoordinate, yCoordinate));
 
-        return markerCenters2D;
-    }
-
-    std::vector<cv::Point2f> get2DMarkerCorners(const aruconano::Marker &marker)
-    {
-        if(marker.empty())
-        {
-            std::cout << "No markers detected";
-            return {};
-        }
-
-        std::vector<cv::Point2f> markerCorners2D;
-        markerCorners2D.reserve(marker.size() * 4);
-
-        markerCorners2D.emplace_back(marker[0]);
-        markerCorners2D.emplace_back(marker[1]);
-        markerCorners2D.emplace_back(marker[2]);
-        markerCorners2D.emplace_back(marker[3]);
-
-        return markerCorners2D;
+        return cv::Point2f(xCoordinate, yCoordinate);
     }
 
     std::vector<cv::Point3d> estimate3DMarkerPoints(const Zivid::PointCloud &pointCloud,
@@ -112,6 +74,7 @@ namespace
 
         std::vector<cv::Point3d> markerPoints3D;
         markerPoints3D.reserve(markerPoints2D.size());
+
         for(const auto &point2D : markerPoints2D)
         {
             // Estimating the 3D center/corners of the marker using bilinear interpolation
@@ -179,33 +142,17 @@ namespace
         return transformMatrix;
     }
 
-    void displayArUcoMarkerPose(const Zivid::PointCloud &pointCloud,
-                           const std::vector<cv::Point2f> &corners2D,
-                           const std::vector<cv::Point2f> &center2D)
-    {
-        const auto bgr = pointCloudToCvBGR(pointCloud);
-
-        auto poseCenter = center2D[0];
-        auto xAxisPoint = cv::Point2f(((corners2D[3].x + corners2D[0].x) / 2), ((corners2D[3].y + corners2D[0].y) / 2));
-        auto yAxisPoint = cv::Point2f(((corners2D[2].x + corners2D[3].x) / 2), ((corners2D[2].y + corners2D[3].y) / 2));
-
-        cv::circle(bgr, poseCenter, 2, cv::Scalar(255, 0, 0), 2);
-        cv::arrowedLine(bgr, poseCenter, xAxisPoint, cv::Scalar(0, 0, 255), 2);
-        cv::arrowedLine(bgr, poseCenter, yAxisPoint, cv::Scalar(0, 255, 0), 2);
-
-        cv::imshow("Pose of ArUco marker", bgr);
-        cv::waitKey(0);
-    }
-
-    Zivid::Matrix4x4 getAndDisplayArUcoMarkerPose(const Zivid::PointCloud &pointCloud, const aruconano::Marker &marker)
+    Zivid::Matrix4x4 estimateArUcoMarkerPose(const Zivid::PointCloud &pointCloud,
+                                                  const int &markerId,
+                                                  std::vector<cv::Point2f> &markerCorners)
     {
         // Extracting 2D corners and estimateing 2D center
-        const auto corners2D = get2DMarkerCorners(marker);
-        const auto center2D = estimate2DMarkerCenters(marker);
+
+        const auto center2D = estimate2DMarkerCenter(markerId, markerCorners);
 
         // Estimating 3D corners and center from 2D data
-        const auto corners3D = estimate3DMarkerPoints(pointCloud, corners2D);
-        const auto center3D = estimate3DMarkerPoints(pointCloud, center2D);
+        const auto corners3D = estimate3DMarkerPoints(pointCloud, markerCorners);
+        const auto center3D = estimate3DMarkerPoints(pointCloud, std::vector<cv::Point2f>(1, center2D));
 
         // Extracting origin and calcualting normal vectors for x-, y- and z-axis
         auto origin = cv::Vec3d{ center3D[0].x, center3D[0].y, center3D[0].z };
@@ -230,9 +177,6 @@ namespace
             rotationMatrix.at<double>(i, 1) = v[i];
             rotationMatrix.at<double>(i, 2) = unitNormal[i];
         }
-
-        std::cout << "Displaying ArUco marker's pose" << std::endl;
-        displayArUcoMarkerPose(pointCloud, corners2D, center2D);
 
         return transformationMatrix(rotationMatrix, origin);
     }
@@ -277,13 +221,28 @@ namespace
         return invertedTransform;
     }
 
-    void displayDetectedArUcoMarker(cv::Mat bgr, const std::vector<aruconano::Marker> markers)
+	cv::Mat pointCloudToColorBGR(const Zivid::PointCloud &pointCloud)
     {
-        for(const auto &marker : markers)
-        {
-            marker.draw(bgr);
-        }
-        cv::imshow("Detected ArUco marker", bgr);
+        auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
+        pointCloud.copyData(
+            reinterpret_cast<Zivid::ColorRGBA *>(rgb.data)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
+        cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
+
+        return bgr;
+    }
+
+	cv::Mat colorBGRToGray(const cv::Mat &bgr)
+	{
+        cv::Mat gray;
+        cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
+        return gray;
+	}    
+
+	void displayBGR(const cv::Mat &bgr, const std::string &bgrName)
+    {
+        cv::namedWindow(bgrName, cv::WINDOW_AUTOSIZE);
+        cv::imshow(bgrName, bgr);
         cv::waitKey(0);
     }
 
@@ -295,32 +254,56 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ArucoSample.zdf";
-        std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
-        const Zivid::Frame frame = Zivid::Frame(dataFile);
+        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ArucoMarkerInCameraOrigin.zdf";
+        std::cout << "Reading ZDF frame from file: " << arucoMarkerFile << std::endl;
+        const auto frame = Zivid::Frame(arucoMarkerFile);
         auto pointCloud = frame.pointCloud();
+		
+		std::cout << "Converting to OpenCV image format" << std::endl;
+        const auto bgrImage = pointCloudToColorBGR(pointCloud);
+        const auto grayImage = colorBGRToGray(bgrImage);
+        
+        std::cout << "Configuring ArUco marker" << std::endl;
+        const auto markerDictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
+        std::vector<int> markerIds;
+        std::vector<std::vector<cv::Point2f>> markerCorners;
+        cv::Ptr<cv::aruco::DetectorParameters> detectorParameters = cv::aruco::DetectorParameters::create();
+        detectorParameters->cornerRefinementMethod = cv::aruco::CORNER_REFINE_SUBPIX;
 
-        std::cout << "Converting to OpenCV BGR image format" << std::endl;
-        cv::Mat bgr = pointCloudToCvBGR(pointCloud);
+        std::cout << "Detecting ArUco Marker" << std::endl;
+        cv::aruco::detectMarkers(grayImage, markerDictionary, markerCorners, markerIds, detectorParameters);
 
-        std::cout << "Detecting ArUco marker in 2D image" << std::endl;
-        auto markers = aruconano::MarkerDetector::detect(bgr);
+		if(markerIds.empty())
+        {
+            std::cout << "No ArUco markers detected";
+            exit(EXIT_SUCCESS);
+        }
 
-        std::cout << "Displaying detected ArUco marker in 2D image" << std::endl;
-        displayDetectedArUcoMarker(bgr, markers);
+		std::cout << "Displaying detected ArUco marker" << std::endl;
+        cv::aruco::drawDetectedMarkers(bgrImage, markerCorners);
+        displayBGR(bgrImage, "ArucoMarkerDetected");
 
-        std::cout << "Estimating and displaying detected ArUco marker's pose" << std::endl;
-        const auto transformMarkerToCamera = getAndDisplayArUcoMarkerPose(pointCloud, markers[0]);
+		const auto *bgrImageFile = "ArucoMarkerDetected.png";
+        std::cout << "Saving image with detected ArUco marker to file: " << bgrImageFile << std::endl;
+        cv::imwrite(bgrImageFile, bgrImage);
 
-        std::cout << "ArUco marker pose in camera frame" << std::endl;
+		std::cout << "Estimating pose of detected ArUco marker" << std::endl;
+        const auto transformMarkerToCamera = estimateArUcoMarkerPose(pointCloud, markerIds[0], markerCorners[0]);
+
+		std::cout << "ArUco marker pose in camera frame:" << std::endl;
         std::cout << transformMarkerToCamera << std::endl;
 
         auto transformCameraToMarker = invertAffineTransformation(transformMarkerToCamera);
 
-        const auto *saveFile = "transformedArucoSample.zdf";
-        std::cout << "Saving transformed point cloud to file " << saveFile << std::endl;
-        pointCloud.transform(transformCameraToMarker);
-        frame.save(saveFile);
+		std::cout << "Camera pose in ArUco marker frame:" << std::endl;
+        std::cout << transformCameraToMarker << std::endl;
+
+		std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
+		pointCloud.transform(transformCameraToMarker);
+
+        const auto *arucoMarkerTransformedFile = "ArucoMarkerInMarkerOrigin.zdf";
+        std::cout << "Saving transformed point cloud to file: " << arucoMarkerTransformedFile << std::endl;
+        frame.save(arucoMarkerTransformedFile);
     }
     catch(const std::exception &e)
     {
