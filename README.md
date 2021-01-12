@@ -3,6 +3,7 @@
 This repository contains  **C++** code samples for **Zivid**.
 
 [![Build Status][ci-badge]][ci-url]
+![Zivid Image][header-image]
 
 ## Samples list
 
@@ -146,6 +147,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 
 [ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/79b793a0-a49a-463b-9c76-39b1e4947800/8
 [ci-url]: https://dev.azure.com/zivid-devops/zivid-cpp-samples/_build/latest?definitionId=8&branchName=master
+[header-image]: https://www.zivid.com/hubfs/softwarefiles/images/zivid-generic-github-header.png
 [QuickCaptureTutorial-url]: source/Camera/Basic/QuickCaptureTutorial.md
 [CompleteCaptureTutorial-url]: source/Camera/Basic/CaptureTutorial.md
 [Capture-url]: source/Camera/Basic/Capture/Capture.cpp
