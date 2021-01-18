@@ -25,7 +25,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**Capture**][Capture-url] - Capture point clouds, with color, from the Zivid camera.
     - [**Capture2D**][Capture2D-url] - Capture 2D images from the Zivid camera.
     - [**CaptureAssistant**][CaptureAssistant-url] - Use Capture Assistant to capture point clouds, with color, from the Zivid camera.
-    - [**CaptureFromFileCamera**][CaptureFromFileCamera-url] - Capture point clouds, with color, from the Zivid file camera.
+    - [**CaptureFromFileCamera**][CaptureFromFileCamera-url] - Capture point clouds, with color, from the Zivid file camera. Currently supported by Zivid One.
     - [**CaptureWithSettingsFromYML**][CaptureWithSettingsFromYML-url] - Capture point clouds, with color, from the Zivid camera, with settings from YML file.
     - [**CaptureHDR**][CaptureHDR-url] - Capture HDR point clouds, with color, from the Zivid camera.
     - [**CaptureHDRCompleteSettings**][CaptureHDRCompleteSettings-url] - Capture point clouds, with color, from the Zivid camera with fully configured settings.
@@ -43,7 +43,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
 - **Applications**
   - **Basic**
     - **Visualization**
-      - [**CaptureFromFileCameraVis3D**][CaptureFromFileCameraVis3D-url] - Capture point clouds, with color, from the virtual Zivid camera, and visualize it.
+      - [**CaptureFromFileCameraVis3D**][CaptureFromFileCameraVis3D-url] - Capture point clouds, with color, from the virtual Zivid camera, and visualize it. Currently supported by Zivid One.
       - [**CaptureVis3D**][CaptureVis3D-url] - Capture point clouds, with color, from the Zivid camera, and visualize it.
       - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - Capture point clouds, with color, from the Zivid camera, save it to PCD file format, and visualize it.
         - **Dependencies:**
