@@ -249,7 +249,7 @@ namespace
         {
             return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
         }
-        return std::chrono::microseconds{ 8333 }; // Min for Zivid One
+        return std::chrono::microseconds{ 1677 }; // Min for Zivid Two
     }
 
     Zivid::Settings makeSettings(const std::vector<double> &apertures,

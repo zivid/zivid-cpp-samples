@@ -47,10 +47,10 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**CaptureVis3D**][CaptureVis3D-url] - Capture point clouds, with color, from the Zivid camera, and visualize it.
       - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - Capture point clouds, with color, from the Zivid camera, save it to PCD file format, and visualize it.
         - **Dependencies:**
-          - [Point Cloud Library](https://pointcloudlibrary.github.io) version 1.2 or newer
+          - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
       - [**ReadPCLVis3D**][ReadPCLVis3D-url] - Read point cloud from PCL file and visualize it.
         - **Dependencies:**
-          - [Point Cloud Library](https://pointcloudlibrary.github.io) version 1.2 or newer
+          - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
     - **FileFormats**
       - [**ReadIterateZDF**][ReadIterateZDF-url] - Read point cloud data from a ZDF file, iterate through it, and extract individual points.
   - **Advanced**
@@ -58,33 +58,33 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**HandEyeCalibration**][HandEyeCalibrationSample-url] - Perform Hand-Eye calibration
       - [**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url] - Transform single data point or entire point cloud from camera frame to robot base frame using Eye-in-Hand calibration matrix.
         - **Dependencies:**
-          - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
-          - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+          - [Eigen][eigen-url] version 3.3.7 or newer
+          - [OpenCV][openCV-url] version 4.1.0 or newer
       - [**PoseConversions**][PoseConversions-url] - Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector)
         - **Dependencies:**
-          - [Eigen](http://eigen.tuxfamily.org/) version 3.3.7 or newer
-          - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+          - [Eigen][eigen-url] version 3.3.7 or newer
+          - [OpenCV][openCV-url] version 4.1.0 or newer
     - [**MultiCamera**][MultiCamera-url] ([tutorial][MultiCameraTutorial-url])
       - [**MultiCameraCalibration**][MultiCameraCalibration-url] and [**MultiCameraCalibrationFromFile**][MultiCameraCalibrationFromZDF-url] - Use captures of a calibration object to generate transformation matrices to a single coordinate frame. First sample captures from connected cameras, the second loads existing captures from .ZDF files.
       - [**StitchByTransformation**][StitchByTransformation-url] and [**StitchByTransformationFromFile**][StitchByTransformationFromZDF-url] - Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame. First sample uses connected cameras, the second loads existing captures from .ZDF files.
     - [**Downsample**][Downsample-url] - Downsample point cloud from ZDF file.
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use camera intrinsics to undistort RGB image.
       - **Dependencies:**
-        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+        - [OpenCV][openCV-url] version 4.1.0 or newer
     - [**CreateDepthMap**][CreateDepthMap-url] - Convert point cloud from ZDF file to OpenCV format, extract depth map and visualize it.
       - **Dependencies:**
-        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+        - [OpenCV][openCV-url] version 4.1.0 or newer
     - [**MaskPointCloud**][MaskPointCloud-url] - Mask point cloud from ZDF file and convert to PCL format, extract depth map and visualize it.
       - **Dependencies:**
-        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
-        - [Point Cloud Library](https://pointcloudlibrary.github.io/) version 1.2 or newer
+        - [OpenCV][openCV-url] version 4.1.0 or newer
+        - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
 
 ## Instructions
 
-1. [**Install Zivid Software**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/59080712/Zivid+Software+Installation).
+1. [**Install Zivid Software**][zivid-software-installation-url].
 Note: The samples require Zivid SDK v2 (minor version 2.2 or newer).
 
-2. [**Download Zivid Sample Data**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/450363393/Sample+Data).
+2. [**Download Zivid Sample Data**][zivid-sample-data-url].
 
 ### Windows
 
@@ -99,7 +99,7 @@ git clone https://github.com/zivid/zivid-cpp-samples
 [comment]: <> (Choose a sample solution and configure it with CMake.)
 [comment]: <> (Launch Visual Studio, open, build, and run the sample solution.)
 
-Configure the sample solution with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our [**tutorials for configuring and building C++ Samples**](https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/427987).
+Configure the sample solution with CMake, open it in Visual Studio, build it, run it. If you are uncertain about doing this, check out our [**Samples Tutorials**][samples-tutorials-url].
 
 #### Ubuntu
 
@@ -136,7 +136,7 @@ The samples can now be run from the `build` directory, for instance like this:
 
 ## Support
 
-If you need assistance with using Zivid cameras, visit our [**Knowledge Base**](https://help.zivid.com/) or contact us at [customersuccess@zivid.com](mailto:customersuccess@zivid.com).
+If you need assistance with using Zivid cameras, visit our [**Knowledge Base**][knowladge-base-url]: or contact us at [customersuccess@zivid.com](mailto:customersuccess@zivid.com).
 
 ## Licence
 
@@ -144,7 +144,7 @@ Zivid Samples are distributed under the [BSD license](LICENSE).
 
 ## Development
 
-To run continuous integration locally, use [Docker](https://www.docker.com). With Docker installed, run this command:
+To run continuous integration locally, use [Docker][docker-url]. With Docker installed, run this command:
 
 ```bash
 docker run -it -v <unixy-repo-path>:/host -w /host/continuous-integration/linux ubuntu:20.04
@@ -159,6 +159,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/79b793a0-a49a-463b-9c76-39b1e4947800/8
 [ci-url]: https://dev.azure.com/zivid-devops/zivid-cpp-samples/_build/latest?definitionId=8&branchName=master
 [header-image]: https://www.zivid.com/hubfs/softwarefiles/images/zivid-generic-github-header.png
+
 [QuickCaptureTutorial-url]: source/Camera/Basic/QuickCaptureTutorial.md
 [CompleteCaptureTutorial-url]: source/Camera/Basic/CaptureTutorial.md
 [Capture-url]: source/Camera/Basic/Capture/Capture.cpp
@@ -167,14 +168,15 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureFromFileCamera-url]: source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp
 [CaptureWithSettingsFromYML-url]: source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
-[CaptureHDRLoop-url]: source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
+[CaptureHDRLoop-url]: source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
 [FirmwareUpdater-url]: source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
 [ZividBenchmark-url]: source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp
 [VerifyCameraInField-url]: source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp
 [CorrectCameraInField-url]: source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp
+
 [CaptureFromFileCameraVis3D-url]: source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp
 [CaptureVis3D-url]: source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp
 [CaptureWritePCLVis3D-url]: source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp
@@ -194,3 +196,14 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureUndistortRGB-url]: source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp
 [MaskPointCloud-url]: source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp
+
+[point-cloud-library-url]: https://pointcloudlibrary.github.io
+[eigen-url]: http://eigen.tuxfamily.org/
+[openCV-url]: https://opencv.org/
+[docker-url]: https://www.docker.com
+
+[knowladge-base-url]: https://support.zivid.com/
+[zivid-software-installation-url]: https://support.zivid.com/latest/academy/getting-started/zivid-software-installation.html
+[zivid-sample-data-url]: https://support.zivid.com/latest/academy/samples/sample-data.html
+
+[samples-tutorials-url]: https://support.zivid.com/latest/academy/samples.html

@@ -1,6 +1,6 @@
 # Multi Camera
 
-To fully understand Multi Camera Calibration, please see the [(to be created) tutorial](https://zivid.atlassian.net/wiki/spaces/ZividKB) in our Knowledge Base. There is also a [programming tutorial][MultiCameraTutorial-url] that walks through the samples in detail.
+To fully understand Multi Camera Calibration, please see the [tutorial](https://support.zivid.com/latest/academy/applications/multi-camera-calibration.html) in our Knowledge Base. There is also a [programming tutorial][MultiCameraTutorial-url] that walks through the samples in detail.
 
 -----------------
 

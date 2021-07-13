@@ -338,7 +338,7 @@ This tutorial shows how to use the Zivid SDK to calibrate multiple cameras, and 
 [capture_tutorial-url]: ../../../../Camera/Basic/CaptureTutorial.md
 [multi_camera_calibration_sample-url]: MultiCameraCalibration/MultiCameraCalibration.cpp
 [multi_camera_calibration_sample_from_files-url]: MultiCameraCalibration/MultiCameraCalibrationFromZDF.cpp
-[calibration_object-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/72483130/4.+Calibration+object
+[calibration_object-url]: https://support.zivid.com/latest/academy/applications/hand-eye/calibration-object.html
 [connect_all_cameras-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L50
 [capture_tutorial_capture_assistant-url]: ../../../../Camera/Basic/CaptureTutorial.md#capture-assistant
 [detect_feature_points-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L65
@@ -361,7 +361,7 @@ This tutorial shows how to use the Zivid SDK to calibrate multiple cameras, and 
 [stitch_by_transformation_from_files_count-url]: StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L139-L144
 [stitch_by_transform_transformation-url]: StitchByTransformation/StitchByTransformation.cpp#L169
 [stitch_by_transform_transformation_from_files-url]: StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L159
-[kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/427396/Point+Cloud
+[kb-point_cloud-url]: https://support.zivid.com/latest/reference-articles/zivid-3d-camera-technology/point-cloud-structure-and-output-formats.html
 [filecamera-url]: CaptureFromFile/CaptureFromFile.cpp#L13-L17
 [stitch_by_transform_copy_from_gpu-url]: StitchByTransformation/StitchByTransformation.cpp#L172-L173
 [stitch_by_transform_stitch_and_color-url]: StitchByTransformation/StitchByTransformation.cpp#L174-L193

@@ -144,5 +144,5 @@ This tutorial shows how to use the Zivid SDK to extract the point cloud, manipul
 [transform]:Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L148
 [downsample]:Advanced/Downsample/Downsample.cpp#L45
 [visualize-point-cloud]:Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp#L26-L35
-[kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/520061383
+[kb-point_cloud-url]: https://support.zivid.com/latest/reference-articles/zivid-3d-camera-technology/point-cloud-structure-and-output-formats.html
 
