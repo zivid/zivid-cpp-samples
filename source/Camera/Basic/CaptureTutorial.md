@@ -194,13 +194,13 @@ This tutorial shows how to use the Zivid SDK to connect to, configure, capture, 
 [connect-url]: Capture/Capture.cpp#L17
 [captureassistant-url]: CaptureAssistant/CaptureAssistant.cpp#L19-L25
 [settings-url]: Capture/Capture.cpp#L20-L25
-[kb-camera_settings-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/450265335
+[kb-camera_settings-url]: https://support.zivid.com/latest/academy/camera/settings.html
 [capture-url]: Capture/Capture.cpp#L28
 [capture2d-url]: Capture2D/Capture2D.cpp#L32
 [settings2d-url]: Capture2D/Capture2D.cpp#L21-L29
 [settings-hdr-url]: CaptureHDR/CaptureHDR.cpp#L20-L28
 [save-url]: Capture/Capture.cpp#L30-L32
 [save2d-url]: Capture2D/Capture2D.cpp#L44-L46
-[kb-point_cloud-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/520061383
+[kb-point_cloud-url]: https://support.zivid.com/latest/reference-articles/zivid-3d-camera-technology/point-cloud-structure-and-output-formats.html
 [filecamera-url]: CaptureFromFileCamera/CaptureFromFileCamera.cpp#L17-L20
 [settingsFromFile-url]: CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L20-L21

@@ -15,7 +15,7 @@ To fully understand Hand-Eye Calibration, please see the [tutorial][Tutorial-url
 
 [ZividHandEyeCalibration][ZividHandEyeCalibration-url]
 
-* CLI application which takes a collection of pose pairs (e.g. output of steps 1.-3. in [HandEyeCalibration][HandEyeCalibration-url]) and returns a **Transformation Matrix**
+* [CLI application][CLI application-url] which takes a collection of pose pairs (e.g. output of steps 1.-3. in [HandEyeCalibration][HandEyeCalibration-url]) and returns a **Transformation Matrix**
 
 -----------------
 The following applications assume that a **Transformation Matrix** has been found
@@ -35,6 +35,7 @@ The following applications assume that a **Transformation Matrix** has been foun
 
 [HandEyeCalibration-url]: HandEyeCalibration/HandEyeCalibration.cpp
 [UtilizeEyeInHandCalibration-url]: UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
-[ZividHandEyeCalibration-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/96469274
-[Tutorial-url]: https://zivid.atlassian.net/wiki/spaces/ZividKB/pages/72450049
+[ZividHandEyeCalibration-url]: https://support.zivid.com/latest/academy/applications/hand-eye/hand-eye-calibration-process.html
+[Tutorial-url]: https://support.zivid.com/latest/academy/applications/hand-eye.html
 [PoseConversions-url]: PoseConversions/PoseConversions.cpp
+CLI application-url: https://support.zivid.com/latest/academy/applications/hand-eye/zivid_CLI_tool_for_hand_eye_calibration.html
