@@ -21,6 +21,7 @@ set(SAMPLES
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Advanced/CaptureHDRLoop
     Camera/Advanced/MultiCameraCaptureSequentially
+    Camera/Advanced/MultiCameraCaptureInParallel
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
@@ -50,8 +51,10 @@ set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTrans
 set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
+set(Thread_DEPENDING MultiCameraCaptureInParallel)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
+find_package(Threads REQUIRED)
 
 macro(disable_samples DEPENDENCY_NAME)
     message("${DEPENDENCY_NAME} samples have been disabled:")
@@ -134,6 +137,10 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)
         target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} Threads::Threads)
     endif()
 
 endforeach()
