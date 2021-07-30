@@ -1,5 +1,9 @@
 # Multi Camera
 
+To use multiple Zivid Two cameras, set [custom IP configuration](https://support.zivid.com/latest/academy/getting-started/zivid-software-installation/zivid-two-network-configuration.html#custom-ip-configuration). 
+
+## Multi Camera Calibration
+
 To fully understand Multi Camera Calibration, please see the [tutorial](https://support.zivid.com/latest/academy/applications/multi-camera-calibration.html) in our Knowledge Base. There is also a [programming tutorial][MultiCameraTutorial-url] that walks through the samples in detail.
 
 -----------------
