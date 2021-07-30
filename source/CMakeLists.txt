@@ -20,6 +20,7 @@ set(SAMPLES
     Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Advanced/CaptureHDRLoop
+    Camera/Advanced/MultiCameraCaptureSequentially
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
