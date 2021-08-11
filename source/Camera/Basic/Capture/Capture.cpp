@@ -18,7 +18,8 @@ int main()
 
         std::cout << "Creating settings" << std::endl;
         const auto settings =
-            Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
+            Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
+                             Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
                                  Zivid::Settings::Acquisition::Aperture{ 5.66 },
                                  Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 6500 } } } },
                              Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
