@@ -26,9 +26,9 @@ int main()
                                                Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
                                                Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
                                                Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-                                               Zivid::Settings::Processing::Color::Balance::Red{ 1 },
-                                               Zivid::Settings::Processing::Color::Balance::Green{ 1 },
-                                               Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
+                                               Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
+                                               Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
+                                               Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 } };
 
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
