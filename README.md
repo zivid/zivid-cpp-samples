@@ -31,6 +31,8 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CaptureHDRCompleteSettings**][CaptureHDRCompleteSettings-url] - Capture point clouds, with color, from the Zivid camera with fully configured settings.
   - **Advanced**
     - [**CaptureHDRLoop**][CaptureHDRLoop-url] - Cover the same dynamic range in a scene with different acquisition settings to optimize for quality, speed, or to find a compromise.
+    - [**MultiCameraCaptureSequentially**][MultiCameraCaptureSequentially-url] - Capture point clouds sequentially with multiple cameras. 
+    - [**MultiCameraCaptureInParallel**][MultiCameraCaptureInParallel-url] - Capture point clouds in parallel with multiple cameras. 
   - **InfoUtilOther**
     - [**CameraUserData**][CameraUserData-url] - Store user data on the Zivid camera.
     - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - Read intrinsic parameters from the Zivid camera.
@@ -171,6 +173,8 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
 [CaptureHDRLoop-url]: source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp
+[MultiCameraCaptureSequentially-url]: source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp
+[MultiCameraCaptureInParallel-url]: source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
 [FirmwareUpdater-url]: source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
