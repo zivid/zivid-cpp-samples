@@ -58,7 +58,8 @@ int main()
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
             Zivid::Settings::Processing::Color::Balance::Red{ 1 },
             Zivid::Settings::Processing::Color::Balance::Green{ 1 },
-            Zivid::Settings::Processing::Color::Balance::Blue{ 1 }
+            Zivid::Settings::Processing::Color::Balance::Blue{ 1 },
+            Zivid::Settings::Processing::Color::Experimental::ToneMapping::Enabled::hdrOnly
         };
         std::cout << settings.processing() << std::endl;
 
