@@ -1,6 +1,7 @@
 /*
 This example shows how to transform a point cloud from camera to ArUco Marker coordinate frame
-by estimating the marker's pose from the point cloud.
+by estimating the marker's pose from the point cloud. The ZDF file for this sample can be found
+under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Experimental/Calibration.h>
