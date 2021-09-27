@@ -37,6 +37,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CameraUserData**][CameraUserData-url] - Store user data on the Zivid camera.
     - [**GetCameraIntrinsics**][GetCameraIntrinsics-url] - Read intrinsic parameters from the Zivid camera.
     - [**FirmwareUpdater**][FirmwareUpdater-url] - Update firmware on the Zivid camera.
+    - [**PrintVersionInfo**][PrintVersionInfo-url] - List connected cameras and print version information.
     - [**ZividBenchmark**][ZividBenchmark-url] - Benchmark the Zivid camera.
     - [**WarmUp**][WarmUpSample-url] - Short example of a basic way to warm up the camera with specified time and capture cycle.
   - **Maintenance**
@@ -182,6 +183,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CameraUserData-url]: source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
 [GetCameraIntrinsics-url]: source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp
 [FirmwareUpdater-url]: source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
+[PrintVersionInfo-url]: source/Camera/InfoUtilOther/PrintVersionInfo/PrintVersionInfo.cpp
 [ZividBenchmark-url]: source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp
 [WarmUpSample-url]: source/Camera/InfoUtilOther/WarmUp/WarmUp.cpp
 [VerifyCameraInField-url]: source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp
