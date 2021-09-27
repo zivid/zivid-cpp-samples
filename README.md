@@ -70,6 +70,10 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**MultiCamera**][MultiCamera-url] ([tutorial][MultiCameraTutorial-url])
       - [**MultiCameraCalibration**][MultiCameraCalibration-url] and [**MultiCameraCalibrationFromFile**][MultiCameraCalibrationFromZDF-url] - Use captures of a calibration object to generate transformation matrices to a single coordinate frame. First sample captures from connected cameras, the second loads existing captures from .ZDF files.
       - [**StitchByTransformation**][StitchByTransformation-url] and [**StitchByTransformationFromFile**][StitchByTransformationFromZDF-url] - Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame. First sample uses connected cameras, the second loads existing captures from .ZDF files.
+    - [**TransformPointCloudViaArucoMarker**][TransformPointCloudViaArucoMarker-url] - Transform a point cloud from camera to ArUco Marker coordinate frame using the estimated marker's pose.
+      - **Dependecies:**
+        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+        - [Aruco Nano](https://www.uco.es/investiga/grupos/ava/node/26) version 3.1.12 or newer. A header file is included in the sample folder.
     - [**Downsample**][Downsample-url] - Downsample point cloud from ZDF file.
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use camera intrinsics to undistort RGB image.
       - **Dependencies:**
@@ -198,6 +202,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [MultiCameraCalibrationFromZDF-url]: source/Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF/MultiCameraCalibrationFromZDF.cpp
 [StitchByTransformation-url]: source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp
 [StitchByTransformationFromZDF-url]: source/Applications/Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp
+[TransformPointCloudViaArucoMarker-url]: source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp
 [Downsample-url]: source/Applications/Advanced/Downsample/Downsample.cpp
 [CaptureUndistortRGB-url]: source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp

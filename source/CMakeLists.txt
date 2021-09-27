@@ -44,11 +44,12 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/MultiCameraCalibration
     Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
     Applications/Advanced/MultiCamera/StitchByTransformation
-    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF)
+    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
+    Applications/Advanced/TransformPointCloudViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker)
 set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
@@ -90,7 +91,7 @@ else()
 endif()
 
 if(USE_OPENCV)
-    find_package(OpenCV 4.1.0 COMPONENTS core highgui calib3d)
+    find_package(OpenCV 4.1.0 COMPONENTS core highgui calib3d aruco)
     if(NOT OpenCV_FOUND)
         message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF.")
     endif()
