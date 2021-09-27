@@ -25,6 +25,7 @@ set(SAMPLES
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
+    Camera/InfoUtilOther/PrintVersionInfo
     Camera/InfoUtilOther/ZividBenchmark
     Camera/InfoUtilOther/Warmup
     Camera/Maintenance/VerifyCameraInField
