@@ -74,7 +74,7 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**TransformPointCloudViaArucoMarker**][TransformPointCloudViaArucoMarker-url] - Transform a point cloud from camera to ArUco Marker coordinate frame using the estimated marker's pose.
       - **Dependecies:**
         - [OpenCV](https://opencv.org/) version 4.1.0 or newer
-        - [Aruco Nano](https://www.uco.es/investiga/grupos/ava/node/26) version 3.1.12 or newer. A header file is included in the sample folder.
+        - [OpenCV - ArUco](https://github.com/opencv/opencv_contrib) version 4.1.0 or newer
     - [**Downsample**][Downsample-url] - Downsample point cloud from ZDF file.
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use camera intrinsics to undistort RGB image.
       - **Dependencies:**

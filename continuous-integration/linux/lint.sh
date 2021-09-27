@@ -36,6 +36,10 @@ cmake -GNinja \
     -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
+    -DUSE_PCL=ON \
+    -DUSE_EIGEN3=ON \
+    -DUSE_OPENCV=ON \
+    -DUSE_ARUCO=ON \
     -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
     "$SOURCE_DIR" || exit $?
 cmake --build . || exit $?
