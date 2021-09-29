@@ -46,6 +46,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
     endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     if(WARNINGS)
         if(WARNINGS_AS_ERRORS)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
@@ -65,6 +66,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
             4242 # Narrowing conversions: Too strict and noisy for this code base
             4820 # The type and order of elements caused the compiler to add padding to the end of a struct
             4868 # compiler may not enforce left-to-right evaluation order in braced initializer list
+            4355 # 'this' : used in base member initializer list
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
