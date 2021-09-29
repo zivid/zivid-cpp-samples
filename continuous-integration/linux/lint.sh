@@ -12,7 +12,9 @@ if [ -z "$cppFiles" ]; then
     exit 1
 fi
 
-echo "Checking formatting"
+echo "-----------------------------------------------"
+echo "             Running clang-format              "
+echo "-----------------------------------------------"
 errorsFound=0
 for fileName in $cppFiles $hFiles; do
     echo $fileName
@@ -29,6 +31,9 @@ if [ $errorsFound -ne 0 ]; then
     exit 1
 fi
 
+echo "-----------------------------------------------"
+echo "             Running clang-tidy                "
+echo "-----------------------------------------------"
 BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit $?
 cd "$BUILD_DIR" || exit $?
