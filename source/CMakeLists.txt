@@ -38,6 +38,7 @@ set(SAMPLES
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/Visualization/CaptureWritePCLVis3D
+    Applications/Basic/Visualization/CaptureHDRVisNormals
     Applications/Basic/FileFormats/ReadIterateZDF
     Applications/Advanced/CaptureUndistortRGB
     Applications/Advanced/Downsample
@@ -53,7 +54,7 @@ set(SAMPLES
     Applications/Advanced/TransformPointCloudViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
-set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D StitchByTransformation StitchByTransformationFromZDF)
+set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals StitchByTransformation StitchByTransformationFromZDF)
 set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker AllocateMemoryForPointCloudData)
 set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
@@ -162,3 +163,4 @@ foreach(SAMPLE ${SAMPLES})
 endforeach()
 
 target_compile_definitions(ZividBenchmark PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")
+set_target_properties(CaptureHDRVisNormals PROPERTIES CXX_CLANG_TIDY "")

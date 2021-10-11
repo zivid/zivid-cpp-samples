@@ -57,6 +57,9 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - Capture point clouds, with color, from the Zivid camera, save it to PCD file format, and visualize it.
         - **Dependencies:**
           - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
+      - [**CaptureHDRVisNormals**][CaptureHDRVisNormals-url] - Capture Zivid point clouds, with color and normals, and visualize it in 3D and as a normal map.
+        - **Dependencies:**
+          - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
       - [**ReadPCLVis3D**][ReadPCLVis3D-url] - Read point cloud from PCL file and visualize it.
         - **Dependencies:**
           - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
@@ -200,6 +203,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureFromFileCameraVis3D-url]: source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp
 [CaptureVis3D-url]: source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp
 [CaptureWritePCLVis3D-url]: source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp
+[CaptureHDRVisNormals-url]: source/Applications/Basic/Visualization/CaptureHDRVisNormals/CaptureHDRVisNormals.cpp
 [ReadPCLVis3D-url]: source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp
 [ReadIterateZDF-url]: source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp
 [HandEyeCalibration-url]: source/Applications/Advanced/HandEyeCalibration
