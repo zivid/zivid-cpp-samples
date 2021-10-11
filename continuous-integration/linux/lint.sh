@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR=$(realpath "$SCRIPT_DIR/../..")
 SOURCE_DIR="$ROOT_DIR/source"
 
@@ -12,15 +12,12 @@ if [ -z "$cppFiles" ]; then
     exit 1
 fi
 
-echo "-----------------------------------------------"
-echo "             Running clang-format              "
-echo "-----------------------------------------------"
+echo "Checking formatting"
 errorsFound=0
 for fileName in $cppFiles $hFiles; do
     echo $fileName
-    diff $fileName <(clang-format-10 $fileName)
-    if [ $? -ne 0 ]; then
-        let "errorsFound=errorsFound+1"
+    if diff $fileName <(clang-format-10 $fileName); then
+        ((errorsFound = errorsFound + 1))
     else
         echo "ok"
     fi
@@ -31,9 +28,6 @@ if [ $errorsFound -ne 0 ]; then
     exit 1
 fi
 
-echo "-----------------------------------------------"
-echo "             Running clang-tidy                "
-echo "-----------------------------------------------"
 BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit $?
 cd "$BUILD_DIR" || exit $?
@@ -41,10 +35,6 @@ cmake -GNinja \
     -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
-    -DUSE_PCL=ON \
-    -DUSE_EIGEN3=ON \
-    -DUSE_OPENCV=ON \
-    -DUSE_ARUCO=ON \
     -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
     "$SOURCE_DIR" || exit $?
 cmake --build . || exit $?

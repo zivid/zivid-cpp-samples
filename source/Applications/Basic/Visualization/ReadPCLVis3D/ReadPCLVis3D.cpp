@@ -1,6 +1,6 @@
 /*
 This example shows how to read point cloud from PCL file and visualize it.
-The PCD file for this sample can be found under the main instructions for Zivid samples.
+To get a Zivid point cloud in PCD file format, run CaptureWritePCLVis3D sample.
 */
 
 #include <Zivid/Zivid.h>
@@ -29,8 +29,7 @@ int main()
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to me exit the viewer application" << std::endl;
         while(!cloudViewer.wasStopped())
-        {
-        }
+        {}
 
         return 0;
     }

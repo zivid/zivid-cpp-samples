@@ -191,8 +191,7 @@ int main(int argc, char **argv)
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to me exit the viewer application" << std::endl;
         while(!viewer.wasStopped())
-        {
-        }
+        {}
         if(saveStitched)
         {
             std::cerr << "Saving " << stitchedPointCloud.points.size()

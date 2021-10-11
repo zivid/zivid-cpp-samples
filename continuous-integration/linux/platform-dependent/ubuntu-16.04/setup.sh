@@ -20,8 +20,8 @@ apt-yes install \
     wget \
     ninja-build \
     libx11-dev \
-    libgl1-mesa-glx \
-    || exit $?
+    libgl1-mesa-glx ||
+    exit $?
 
 function install_www_deb {
     TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit $?
@@ -35,4 +35,3 @@ function install_www_deb {
 
 install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.4.0+a330c1a6-1/u16/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit $?
 install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.4.0+a330c1a6-1/u16/zivid_2.4.0+a330c1a6-1_amd64.deb || exit $?
-

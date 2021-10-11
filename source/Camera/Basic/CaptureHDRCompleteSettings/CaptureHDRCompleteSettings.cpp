@@ -10,29 +10,6 @@ this example is to demonstrate how to configure all the settings.
 
 #include <iostream>
 
-namespace
-{
-    std::tuple<std::vector<double>, std::vector<double>, std::vector<size_t>> getExposureValues(
-        const Zivid::Camera &camera)
-    {
-        if(camera.info().modelName().toString().substr(0, 9) == "Zivid One")
-        {
-            const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
-            const std::vector<double> gain{ 1.0, 1.0, 2.0 };
-            const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
-            return std::make_tuple(aperture, gain, exposureTime);
-        }
-        if(camera.info().modelName().toString().substr(0, 9) == "Zivid Two")
-        {
-            const std::vector<double> aperture{ 5.66, 2.38, 1.8 };
-            const std::vector<double> gain{ 1.0, 1.0, 1.0 };
-            const std::vector<size_t> exposureTime{ 1677, 5000, 100000 };
-            return std::make_tuple(aperture, gain, exposureTime);
-        }
-        throw std::invalid_argument("Unknown camera model");
-    }
-} // namespace
-
 int main()
 {
     try
@@ -56,11 +33,9 @@ int main()
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
-            Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
-            Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
-            Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
-            Zivid::Settings::Processing::Color::Gamma{ 1.0 },
-            Zivid::Settings::Processing::Color::Experimental::ToneMapping::Enabled::hdrOnly
+            Zivid::Settings::Processing::Color::Balance::Red{ 1 },
+            Zivid::Settings::Processing::Color::Balance::Green{ 1 },
+            Zivid::Settings::Processing::Color::Balance::Blue{ 1 }
         };
         std::cout << settings.processing() << std::endl;
 
@@ -69,10 +44,9 @@ int main()
         std::cout << baseAcquisition << std::endl;
 
         std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
-        auto exposureValues = getExposureValues(camera);
-        const std::vector<double> aperture = std::get<0>(exposureValues);
-        const std::vector<double> gain = std::get<1>(exposureValues);
-        const std::vector<size_t> exposureTime = std::get<2>(exposureValues);
+        const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
+        const std::vector<double> gain{ 1.0, 1.0, 2.0 };
+        const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
         for(size_t i = 0; i < aperture.size(); ++i)
         {
             std::cout << "Acquisition " << i + 1 << ":" << std::endl;

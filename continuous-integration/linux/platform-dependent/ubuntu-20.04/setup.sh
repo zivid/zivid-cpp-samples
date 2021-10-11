@@ -18,8 +18,8 @@ apt-yes install \
     libeigen3-dev \
     libopencv-dev \
     wget \
-    ninja-build \
-    || exit $?
+    ninja-build ||
+    exit $?
 
 function install_www_deb {
     TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit $?
