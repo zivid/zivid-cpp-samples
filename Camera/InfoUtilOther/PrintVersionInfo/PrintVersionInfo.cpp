@@ -4,15 +4,13 @@ This example shows how to read information from each connected camera.
 
 #include <Zivid/Zivid.h>
 
-#include <iostream>
-
 int main()
 {
     try
     {
         std::cout << "Finding cameras" << std::endl;
         Zivid::Application zivid;
-        std::cout << "Zivid SDK: " << Zivid::Version::coreLibraryVersion() << std::endl;
+        std::cout << "Zivid SDK: " << Zivid::Version::libraryVersion() << std::endl;
         auto cameras = zivid.cameras();
         std::cout << "Found " << cameras.size() << " cameras" << std::endl;
         for(auto &camera : cameras)

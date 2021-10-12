@@ -18,8 +18,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Creating settings from file" << std::endl;
-        std::string cameraModel = camera.info().modelName().toString().substr(0, 9);
-        const auto settingsFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + cameraModel + "/Settings01.yml";
+        const auto settingsFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/Zivid One/Settings01.yml";
         const auto settings = Zivid::Settings(settingsFile);
 
         std::cout << "Capturing frame" << std::endl;

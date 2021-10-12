@@ -243,15 +243,6 @@ namespace
         return cameras.at(0);
     }
 
-    std::chrono::microseconds getMinExposureTime(const std::string &modelName)
-    {
-        if(modelName.substr(0, 14) == "Zivid One Plus")
-        {
-            return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
-        }
-        return std::chrono::microseconds{ 1677 }; // Min for Zivid Two
-    }
-
     Zivid::Settings makeSettings(const std::vector<double> &apertures,
                                  const std::vector<std::chrono::microseconds> &exposureTimes,
                                  const bool enableGaussian,
@@ -501,7 +492,7 @@ int main()
         const size_t numFrames2D = 50;
         const size_t numFramesSave = 10;
 
-        const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
+        const std::chrono::microseconds exposureTime = std::chrono::microseconds{ 6500 };
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
         const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
         const std::vector<std::chrono::microseconds> threeExposureTimes{ exposureTime, exposureTime, exposureTime };
