@@ -57,7 +57,7 @@ int main()
             const auto remainingTimeSeconds =
                 std::chrono::duration_cast<std::chrono::seconds>(remainingTime - remainingTimeMinutes);
             std::cout << "Remaining time: " << remainingTimeMinutes.count() << " minutes, "
-                      << remainingTimeSeconds.count() << " seconds" << std::endl;
+                      << remainingTimeSeconds.count() << " seconds." << std::endl;
         }
         std::cout << "Warm up completed" << std::endl;
     }
