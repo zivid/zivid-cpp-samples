@@ -15,14 +15,16 @@ namespace
     std::tuple<std::vector<double>, std::vector<double>, std::vector<size_t>> getExposureValues(
         const Zivid::Camera &camera)
     {
-        if(camera.info().modelName().toString().substr(0, 9) == "Zivid One")
+        if(camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusSmall
+           || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusMedium
+           || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusLarge)
         {
             const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
             const std::vector<double> gain{ 1.0, 1.0, 2.0 };
             const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
             return std::make_tuple(aperture, gain, exposureTime);
         }
-        if(camera.info().modelName().toString().substr(0, 9) == "Zivid Two")
+        if(camera.info().model() == Zivid::CameraInfo::Model::zividTwo)
         {
             const std::vector<double> aperture{ 5.66, 2.38, 1.8 };
             const std::vector<double> gain{ 1.0, 1.0, 1.0 };
