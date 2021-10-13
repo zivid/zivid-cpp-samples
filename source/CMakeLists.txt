@@ -21,6 +21,7 @@ set(SAMPLES
     Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Advanced/CaptureHDRLoop
+    Camera/Advanced/CaptureHDRPrintNormals
     Camera/Advanced/MultiCameraCaptureSequentially
     Camera/Advanced/MultiCameraCaptureInParallel
     Camera/Advanced/AllocateMemoryForPointCloudData

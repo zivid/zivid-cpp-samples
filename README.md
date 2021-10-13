@@ -31,10 +31,11 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - [**CaptureHDRCompleteSettings**][CaptureHDRCompleteSettings-url] - Capture point clouds, with color, from the Zivid camera with fully configured settings.
   - **Advanced**
     - [**CaptureHDRLoop**][CaptureHDRLoop-url] - Cover the same dynamic range in a scene with different acquisition settings to optimize for quality, speed, or to find a compromise.
-    - [**MultiCameraCaptureSequentially**][MultiCameraCaptureSequentially-url] - Capture point clouds sequentially with multiple cameras. 
+    - [**CaptureHDRPrintNormals**][CaptureHDRPrintNormals-url] - Capture Zivid point clouds, compute normals and print a subset.
+    - [**MultiCameraCaptureSequentially**][MultiCameraCaptureSequentially-url] - Capture point clouds sequentially with multiple cameras.
     - [**MultiCameraCaptureInParallel**][MultiCameraCaptureInParallel-url] - Capture point clouds in parallel with multiple cameras.
     - [**AllocateMemoryForPointCloudData**][AllocateMemoryForPointCloudData-url] - Copy point cloud data from GPU memory to CPU memory using two different methods for memory allocation.
-	  - **Dependencies:**
+	    - **Dependencies:**
         - [OpenCV][openCV-url] version 4.1.0 or newer
   - **InfoUtilOther**
     - [**CameraUserData**][CameraUserData-url] - Store user data on the Zivid camera.
@@ -181,6 +182,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [CaptureHDR-url]: source/Camera/Basic/CaptureHDR/CaptureHDR.cpp
 [CaptureHDRCompleteSettings-url]: source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
 [CaptureHDRLoop-url]: source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp
+[CaptureHDRPrintNormals-url]: source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp
 [MultiCameraCaptureSequentially-url]: source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp
 [MultiCameraCaptureInParallel-url]: source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp
 [AllocateMemoryForPointCloudData-url]: source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp
