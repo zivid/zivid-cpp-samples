@@ -158,7 +158,6 @@ namespace
 
     cv::Mat eigenToCv(const Eigen::MatrixXd &eigenMat)
     {
-        // NOLINTNEXTLINE(hicpp-signed-bitwise)
         cv::Mat cvMat(static_cast<int>(eigenMat.rows()), static_cast<int>(eigenMat.cols()), CV_64FC1, cv::Scalar(0));
 
         cv::eigen2cv(eigenMat, cvMat);

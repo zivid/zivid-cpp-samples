@@ -54,7 +54,7 @@ namespace
 
     cv::Mat pointCloudToCvZ(const Zivid::PointCloud &pointCloud)
     {
-        cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
+        cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0));
         const auto points = pointCloud.copyPointsZ();
 
         // Getting min and max values for X, Y, Z images
@@ -102,10 +102,9 @@ namespace
 
     cv::Mat pointCloudToCvBGR(const Zivid::PointCloud &pointCloud)
     {
-        auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
-        pointCloud.copyData(
-            reinterpret_cast<Zivid::ColorRGBA *>(rgb.data)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
+        auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgb.data));
+        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
         cv::cvtColor(rgb, bgr, cv::COLOR_BGR2RGB);
 
         return bgr;

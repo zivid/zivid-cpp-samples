@@ -43,7 +43,7 @@ namespace
         }
 
         // Filling in OpenCV matrix with the cloud data
-        cv::Mat z(pointCloud.height, pointCloud.width, CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
+        cv::Mat z(pointCloud.height, pointCloud.width, CV_8UC1, cv::Scalar(0));
         for(size_t i = 0; i < pointCloud.height; i++)
         {
             for(size_t j = 0; j < pointCloud.width; j++)
