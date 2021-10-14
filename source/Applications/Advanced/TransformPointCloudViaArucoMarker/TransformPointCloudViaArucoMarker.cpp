@@ -225,8 +225,7 @@ namespace
     cv::Mat pointCloudToColorBGR(const Zivid::PointCloud &pointCloud)
     {
         const auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
-        pointCloud.copyData(
-            reinterpret_cast<Zivid::ColorRGBA *>(rgb.data)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgb.data));
         auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4); // NOLINT(hicpp-signed-bitwise)
         cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
 
