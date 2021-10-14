@@ -10,6 +10,7 @@ Checks: >
   -readability-magic-numbers,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -llvmlibc-*,
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
