@@ -7,15 +7,13 @@ BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 
 source /etc/os-release || exit $?
-if [[ "$VERSION_ID" == "16.04" ]]; then
-    OS_SPECIFIC_OPTIONS="-DUSE_PCL=OFF -DUSE_EIGEN3=OFF -DUSE_OPENCV=OFF -DUSE_ARUCO=OFF"
-elif [[ "$VERSION_ID" == "18.04" ]]; then
+if [[ "$VERSION_ID" == "18.04" ]]; then
     OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=OFF -DUSE_OPENCV=OFF -DUSE_ARUCO=OFF"
 elif [[ "$VERSION_ID" == "20.04" ]]; then
     OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=ON -DUSE_OPENCV=ON -DUSE_ARUCO=ON"
     EIGEN3_INCLUDE_DIR="/usr/include/eigen3"
 else
-    echo "ERROR: found $VERSION_ID. Expected 16.04, 18.04 or 20.04"
+    echo "ERROR: found $VERSION_ID. Expected 18.04 or 20.04"
     exit 1
 fi
 
