@@ -1,0 +1,42 @@
+name: Main CI workflow
+# Note: If the workflow name is changed, the CI badge URL in the README must also be updated
+
+on:
+  push:       # Push trigger runs on any pushed branch.
+  schedule:   # Scheduled trigger runs on the latest commit on the default branch.
+    - cron:  '20 22 * * *'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          lfs: false
+      - name: Lint with Ubuntu 20.04
+        run: |
+          docker run \
+              --volume $PWD:/host \
+              --workdir /host/continuous-integration/linux \
+              ubuntu:20.04 \
+              bash -c "./setup.sh && ./lint.sh"
+  ubuntu:
+    name: Ubuntu build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: ["18.04", "20.04"]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          lfs: false
+      - name: Build
+        run: |
+          docker run \
+              --volume $PWD:/host \
+              --workdir /host/continuous-integration/linux \
+              ubuntu:${{ matrix.ubuntu-version }} \
+              bash -c "./setup.sh && ./build.sh"

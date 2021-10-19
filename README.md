@@ -172,8 +172,8 @@ Now run `./setup.sh` to install dependencies. Once setup has completed, you can 
 
 Tip: If your build hangs, try to increase the memory available to Docker.
 
-[ci-badge]: https://img.shields.io/azure-devops/build/zivid-devops/79b793a0-a49a-463b-9c76-39b1e4947800/8
-[ci-url]: https://dev.azure.com/zivid-devops/zivid-cpp-samples/_build/latest?definitionId=8&branchName=master
+[ci-badge]: https://img.shields.io/github/workflow/status/zivid/zivid-cpp-samples/Main%20CI%20workflow/master
+[ci-url]: https://github.com/zivid/zivid-cpp-samples/actions?query=workflow%3A%22Main+CI+workflow%22+branch%3Amaster
 [header-image]: https://www.zivid.com/hubfs/softwarefiles/images/zivid-generic-github-header.png
 
 [QuickCaptureTutorial-url]: source/Camera/Basic/QuickCaptureTutorial.md
