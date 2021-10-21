@@ -83,6 +83,11 @@ There are two main categories of samples: **Camera** and **Applications**. The s
       - **Dependecies:**
         - [OpenCV](https://opencv.org/) version 4.1.0 or newer
         - [OpenCV - ArUco](https://github.com/opencv/opencv_contrib) version 4.1.0 or newer
+    - [**ROIBoxViaArucoMarker**][ROIBoxViaArucoMarker-url] - Filter the point cloud based on a ROI box given relative to the ArUco marker.
+      - **Dependecies:**
+        - [OpenCV](https://opencv.org/) version 4.1.0 or newer
+        - [OpenCV - ArUco](https://github.com/opencv/opencv_contrib) version 4.1.0 or newer
+          - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
     - [**Downsample**][Downsample-url] - Downsample point cloud from ZDF file.
     - [**CaptureUndistortRGB**][CaptureUndistortRGB-url] - Use camera intrinsics to undistort RGB image.
       - **Dependencies:**
@@ -137,12 +142,14 @@ cmake <options, see below> ../source
 make -j
 ```
 
-Some of the samples depend on external libraries, in particular Eigen 3, OpenCV or PCL. If you don't want to install those, you can disable the samples depending on them by passing the following options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`, `-DUSE_PCL=OFF`.
+Some of the samples depend on external libraries, in particular Eigen 3, PCL or OpenCV. If you don't want to install those, you can disable the samples depending on them by passing the following options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_PCL=OFF`, `-DUSE_OPENCV=OFF`.
 
 If you do want to use them:
 
 - **Eigen 3**: Set `-DEIGEN3_INCLUDE_DIR=<path>` where `<path>` is the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.)
 - **PCL** and **OpenCV**: If a recent enough version is installed on your system, these should just work. If not, set `-DPCL_DIR=<path>` / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
+
+Some of the samples depend on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib) and these are dissabled by default. Enable them by passing the following option to `cmake`: `-DUSE_ARUCO=ON`.
 
 The samples can now be run from the `build` directory, for instance like this:
 
@@ -217,6 +224,7 @@ Tip: If your build hangs, try to increase the memory available to Docker.
 [StitchByTransformation-url]: source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp
 [StitchByTransformationFromZDF-url]: source/Applications/Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp
 [TransformPointCloudViaArucoMarker-url]: source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp
+[ROIBoxViaArucoMarker-url]: source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp
 [Downsample-url]: source/Applications/Advanced/Downsample/Downsample.cpp
 [CaptureUndistortRGB-url]: source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp
 [CreateDepthMap-url]: source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp

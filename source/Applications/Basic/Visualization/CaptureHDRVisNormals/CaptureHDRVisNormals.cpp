@@ -23,7 +23,7 @@ namespace
         int viewRgb(0);
         viewer->createViewPort(0.0, 0.0, 0.5, 1.0, viewRgb);
         viewer->addText("Cloud RGB", 0, 0, "RGBText", viewRgb);
-        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloudPCL, "cloud", viewRgb); // NOLINT
+        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloudPCL, "cloud", viewRgb);
 
         const int normalsSkipped = 10;
         std::cout << "Note! 1 out of " << normalsSkipped << " normals are visualized" << std::endl;
@@ -31,7 +31,7 @@ namespace
         int viewNormals(0);
         viewer->createViewPort(0.5, 0.0, 1.0, 1.0, viewNormals);
         viewer->addText("Cloud Normals", 0, 0, "NormalsText", viewNormals);
-        viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloudWithNormalsPCL, "cloudNormals", viewNormals); // NOLINT
+        viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloudWithNormalsPCL, "cloudNormals", viewNormals);
         viewer->addPointCloudNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal>(pointCloudWithNormalsPCL,
                                                                                      pointCloudWithNormalsPCL,
                                                                                      normalsSkipped,
@@ -133,7 +133,7 @@ int main()
         const auto pointCloudWithNormalsPCL = zividToPclVisualizationNormals(data, normals);
 
         std::cout << "Visualizing normals" << std::endl;
-        visualizePointCloudAndNormalsPCL(pointCloudPCL, pointCloudWithNormalsPCL); // NOLINT
+        visualizePointCloudAndNormalsPCL(pointCloudPCL, pointCloudWithNormalsPCL);
     }
     catch(const std::exception &e)
     {

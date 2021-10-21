@@ -13,6 +13,7 @@ Checks: >
   -llvmlibc-*,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -hicpp-signed-bitwise,
+  -clang-analyzer-optin.cplusplus.VirtualCall,
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
