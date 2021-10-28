@@ -8,23 +8,28 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 
 #include <opencv2/opencv.hpp>
 
-#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/pcl_visualizer.h>
 
 #include <iostream>
+#include <thread>
 
 namespace
 {
-    void visualizePointCloud(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
+    void visualizePointCloud(const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
     {
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
-        *cloudPTR = pointCloud;
-        std::cout << "Running PCL visualizer. Block until window closes" << std::endl;
-        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        viewer.showCloud(cloudPTR);
+        auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
+
+        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloud);
+
+        viewer->setCameraPosition(0, 0, 100, 0, -1, 0);
+
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
-        while(!viewer.wasStopped())
+        while(!viewer->wasStopped())
         {
+            viewer->spinOnce(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 
@@ -82,7 +87,8 @@ namespace
         return zColorMap;
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB> maskPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &mask)
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> maskPointCloud(const Zivid::PointCloud &pointCloud,
+                                                                        const cv::Mat &mask)
     {
         const auto data = pointCloud.copyPointsXYZColorsRGBA();
         const int height = data.height();
@@ -119,7 +125,7 @@ namespace
             }
         }
 
-        return maskedPointCloud;
+        return boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>(maskedPointCloud);
     }
 
     void visualizeDepthMap(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
@@ -132,7 +138,7 @@ namespace
         cv::waitKey(0);
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
     {
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
 
@@ -153,7 +159,7 @@ namespace
             pointCloudPCL.points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
             pointCloudPCL.points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
-        return pointCloudPCL;
+        return boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>(pointCloudPCL);
     }
 
 } // namespace
@@ -194,16 +200,17 @@ int main()
         visualizePointCloud(pointCloudPCL);
 
         std::cout << "Displaying depth map before masking" << std::endl;
-        visualizeDepthMap(pointCloudPCL);
+        visualizeDepthMap(*pointCloudPCL);
 
         std::cout << "Masking point cloud" << std::endl;
-        const pcl::PointCloud<pcl::PointXYZRGB> maskedPointCloudPCL = maskPointCloud(pointCloud, mask);
+        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> maskedPointCloudPCL =
+            maskPointCloud(pointCloud, mask);
 
         std::cout << "Displaying point cloud after masking" << std::endl;
         visualizePointCloud(maskedPointCloudPCL);
 
         std::cout << "Displaying depth map after masking" << std::endl;
-        visualizeDepthMap(maskedPointCloudPCL);
+        visualizeDepthMap(*maskedPointCloudPCL);
     }
 
     catch(const std::exception &e)

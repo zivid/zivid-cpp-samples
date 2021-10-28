@@ -14,7 +14,7 @@ The PCD file for this sample can be found under the main instructions for Zivid 
 
 namespace
 {
-	void addPointCloudToViewer(boost::shared_ptr<pcl::visualization::PCLVisualizer> &viewer,
+    void addPointCloudToViewer(boost::shared_ptr<pcl::visualization::PCLVisualizer> &viewer,
                                const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> &pointCloud)
     {
         viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloud);
@@ -35,7 +35,7 @@ namespace
     }
 
     template<typename T>
-	void visualizePointCloudPCL(const boost::shared_ptr<pcl::PointCloud<T>> &pointCloud)
+    void visualizePointCloudPCL(const boost::shared_ptr<pcl::PointCloud<T>> &pointCloud)
     {
         auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
 
@@ -44,7 +44,7 @@ namespace
         viewer->setCameraPosition(0, 0, -100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer->wasStopped())
         {
             viewer->spinOnce(100);

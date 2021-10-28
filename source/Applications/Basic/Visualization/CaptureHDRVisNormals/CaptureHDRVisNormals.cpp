@@ -15,15 +15,15 @@ map. For scenes with high dynamic range we combine multiple acquisitions to get 
 namespace
 {
     void visualizePointCloudAndNormalsPCL(
-        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloudPCL,
-        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> &pointCloudWithNormalsPCL)
+        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud,
+        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> &pointCloudWithNormals)
     {
         auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
 
         int viewRgb(0);
         viewer->createViewPort(0.0, 0.0, 0.5, 1.0, viewRgb);
         viewer->addText("Cloud RGB", 0, 0, "RGBText", viewRgb);
-        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloudPCL, "cloud", viewRgb);
+        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloud, "cloud", viewRgb);
 
         const int normalsSkipped = 10;
         std::cout << "Note! 1 out of " << normalsSkipped << " normals are visualized" << std::endl;
@@ -31,9 +31,9 @@ namespace
         int viewNormals(0);
         viewer->createViewPort(0.5, 0.0, 1.0, 1.0, viewNormals);
         viewer->addText("Cloud Normals", 0, 0, "NormalsText", viewNormals);
-        viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloudWithNormalsPCL, "cloudNormals", viewNormals);
-        viewer->addPointCloudNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal>(pointCloudWithNormalsPCL,
-                                                                                     pointCloudWithNormalsPCL,
+        viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloudWithNormals, "cloudNormals", viewNormals);
+        viewer->addPointCloudNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal>(pointCloudWithNormals,
+                                                                                     pointCloudWithNormals,
                                                                                      normalsSkipped,
                                                                                      1,
                                                                                      "normals",
@@ -42,7 +42,7 @@ namespace
         viewer->setCameraPosition(0, 0, -100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer->wasStopped())
         {
             viewer->spinOnce(100);
@@ -50,26 +50,27 @@ namespace
         }
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr zividToPclPoints(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> convertToPCLPointCloud(
+        const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
     {
-        auto pointCloudPCL = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
-        pointCloudPCL->width = data.width();
-        pointCloudPCL->height = data.height();
-        pointCloudPCL->is_dense = false;
-        pointCloudPCL->points.resize(data.size());
+        auto pointCloud = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
+        pointCloud->width = data.width();
+        pointCloud->height = data.height();
+        pointCloud->is_dense = false;
+        pointCloud->points.resize(data.size());
         for(size_t i = 0; i < data.size(); ++i)
         {
-            pointCloudPCL->points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloudPCL->points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloudPCL->points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloudPCL->points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloudPCL->points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloudPCL->points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud->points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
-        return pointCloudPCL;
+        return pointCloud;
     }
 
-    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr zividToPclVisualizationNormals(
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> convertToPCLVisualizationNormals(
         const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data,
         const Zivid::Array2D<Zivid::NormalXYZ> &normals)
     {
@@ -124,13 +125,13 @@ int main()
 
         std::cout << "Creating PCL point cloud structure" << std::endl;
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
-        const auto pointCloudPCL = zividToPclPoints(data);
+        const auto pointCloudPCL = convertToPCLPointCloud(data);
 
         std::cout << "Computing point cloud normals" << std::endl;
         const auto normals = pointCloud.copyData<Zivid::NormalXYZ>();
 
         std::cout << "Creating PCL normals structure suited for visualization" << std::endl;
-        const auto pointCloudWithNormalsPCL = zividToPclVisualizationNormals(data, normals);
+        const auto pointCloudWithNormalsPCL = convertToPCLVisualizationNormals(data, normals);
 
         std::cout << "Visualizing normals" << std::endl;
         visualizePointCloudAndNormalsPCL(pointCloudPCL, pointCloudWithNormalsPCL);

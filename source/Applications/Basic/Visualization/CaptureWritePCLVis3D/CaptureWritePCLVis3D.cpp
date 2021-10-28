@@ -35,12 +35,13 @@ namespace
         return pointCloud;
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> convertToPCLPointCloud(
+        const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
     {
         return addDataToPCLPointCloud<pcl::PointXYZRGB>(data);
     }
 
-    pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr convertToPCLPointCloud(
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> convertToPCLPointCloud(
         const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data,
         const Zivid::Array2D<Zivid::NormalXYZ> &normals)
     {
@@ -61,7 +62,7 @@ namespace
     {
         viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloud);
 
-		const int normalsSkipped = 10;
+        const int normalsSkipped = 10;
         std::cout << "Note! 1 out of " << normalsSkipped << " normals are visualized" << std::endl;
         viewer->addPointCloudNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal>(pointCloud,
                                                                                      pointCloud,
@@ -86,7 +87,7 @@ namespace
         viewer->setCameraPosition(0, 0, -100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer->wasStopped())
         {
             viewer->spinOnce(100);
