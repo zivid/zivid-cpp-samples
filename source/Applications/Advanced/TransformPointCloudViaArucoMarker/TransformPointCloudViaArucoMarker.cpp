@@ -23,8 +23,8 @@ namespace
 {
     struct Line2d
     {
-        double slope;
-        double intercept;
+        float slope;
+        float intercept;
     };
 
     float clamp(const float n, const float lower, const float upper)
@@ -32,7 +32,7 @@ namespace
         return std::max(lower, std::min(n, upper));
     }
 
-    Line2d fitLine(const cv::Point2d &point1, const cv::Point2d &point2)
+    Line2d fitLine(const cv::Point2f &point1, const cv::Point2f &point2)
     {
         // Fitting a line y=a*x + b to 2 points
         const auto slope{ (point2.y - point1.y) / (point2.x - point1.x) };
@@ -58,12 +58,12 @@ namespace
         const auto xCoordinate =
             (forwardDiagonal.intercept - backDiagonal.intercept) / (backDiagonal.slope - forwardDiagonal.slope);
         const auto yCoordinate = backDiagonal.slope * xCoordinate + backDiagonal.intercept;
-        auto markerCenter = cv::Point2f(xCoordinate, yCoordinate);
+        const auto markerCenter = cv::Point2f(xCoordinate, yCoordinate);
 
         return markerCenter;
     }
 
-    std::vector<cv::Point3d> estimate3DMarkerPoints(const Zivid::PointCloud &pointCloud,
+    std::vector<cv::Point3f> estimate3DMarkerPoints(const Zivid::PointCloud &pointCloud,
                                                     const std::vector<cv::Point2f> &markerPoints2D)
     {
         if(markerPoints2D.empty())
@@ -75,7 +75,7 @@ namespace
         const float height = pointCloud.height();
         const auto points = pointCloud.copyPointsXYZ();
 
-        std::vector<cv::Point3d> markerPoints3D;
+        std::vector<cv::Point3f> markerPoints3D;
         markerPoints3D.reserve(markerPoints2D.size());
 
         for(const auto &point2D : markerPoints2D)
@@ -126,7 +126,7 @@ namespace
         return markerPoints3D;
     }
 
-    Zivid::Matrix4x4 transformationMatrix(const cv::Matx33d &rotationMatrix, const cv::Vec3d &translationVector)
+    Zivid::Matrix4x4 transformationMatrix(const cv::Matx33f &rotationMatrix, const cv::Vec3f &translationVector)
     {
         auto transformMatrix = Zivid::Matrix4x4{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 
@@ -156,13 +156,13 @@ namespace
         const auto center3D = estimate3DMarkerPoints(pointCloud, { center2D })[0];
 
         // Extracting origin and calculating normal vectors for x-, y- and z-axis
-        const auto origin = cv::Vec3d(center3D.x, center3D.y, center3D.z);
+        const auto origin = cv::Vec3f(center3D.x, center3D.y, center3D.z);
 
-        const auto xAxis = cv::Vec3d(corners3D[2].x - corners3D[1].x,
+        const auto xAxis = cv::Vec3f(corners3D[2].x - corners3D[1].x,
                                      corners3D[2].y - corners3D[1].y,
                                      corners3D[2].z - corners3D[1].z);
 
-        const auto yAxis = cv::Vec3d(corners3D[0].x - corners3D[1].x,
+        const auto yAxis = cv::Vec3f(corners3D[0].x - corners3D[1].x,
                                      corners3D[0].y - corners3D[1].y,
                                      corners3D[0].z - corners3D[1].z);
 
@@ -171,12 +171,12 @@ namespace
         const auto normal = u.cross(v);
         const auto unitNormal = normal / cv::norm(normal, cv::NORM_L2);
 
-        auto rotationMatrix = cv::Mat(3, 3, CV_64F);
+        auto rotationMatrix = cv::Mat(3, 3, CV_32F);
         for(int i = 0; i < 3; ++i)
         {
-            rotationMatrix.at<double>(i, 0) = u[i];
-            rotationMatrix.at<double>(i, 1) = v[i];
-            rotationMatrix.at<double>(i, 2) = unitNormal[i];
+            rotationMatrix.at<float>(i, 0) = u[i];
+            rotationMatrix.at<float>(i, 1) = v[i];
+            rotationMatrix.at<float>(i, 2) = unitNormal[i];
         }
 
         return transformationMatrix(rotationMatrix, origin);
