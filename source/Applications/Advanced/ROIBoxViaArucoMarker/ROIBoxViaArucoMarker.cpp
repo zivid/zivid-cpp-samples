@@ -341,10 +341,10 @@ namespace
         return zColorMap;
     }
 
-    void visualizeDepthMap(const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
+    void visualizeDepthMap(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
     {
         // Converting to Depth map in OpenCV format
-        cv::Mat zColorMap = pointCloudToCvZ(*pointCloud);
+        cv::Mat zColorMap = pointCloudToCvZ(pointCloud);
         // Visualizing Depth map
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zColorMap);
@@ -454,7 +454,7 @@ int main()
         visualizePointCloud(roiPointCloudPCL);
 
         std::cout << "Displaying depth map of the transformed point cloud after ROI Box filtering" << std::endl;
-        visualizeDepthMap(roiPointCloudPCL);
+        visualizeDepthMap(*roiPointCloudPCL);
     }
     catch(const std::exception &e)
     {
