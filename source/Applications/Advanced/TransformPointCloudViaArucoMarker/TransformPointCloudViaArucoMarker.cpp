@@ -58,7 +58,7 @@ namespace
         const auto xCoordinate =
             (forwardDiagonal.intercept - backDiagonal.intercept) / (backDiagonal.slope - forwardDiagonal.slope);
         const auto yCoordinate = backDiagonal.slope * xCoordinate + backDiagonal.intercept;
-        const auto markerCenter = cv::Point2f(xCoordinate, yCoordinate);
+        auto markerCenter = cv::Point2f(xCoordinate, yCoordinate);
 
         return markerCenter;
     }
