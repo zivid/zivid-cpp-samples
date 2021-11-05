@@ -309,14 +309,14 @@ stitchedPointCloud.points.resize(k);
 
 ```cpp
 //Simple Cloud Visualization
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
+boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
 *cloudPTR = stitchedPointCloud;
 
 std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
 pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
 viewer.showCloud(cloudPTR);
 std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-std::cout << "Press q to me exit the viewer application" << std::endl;
+std::cout << "Press q to exit the viewer application" << std::endl;
 while(!viewer.wasStopped())
 {
 }

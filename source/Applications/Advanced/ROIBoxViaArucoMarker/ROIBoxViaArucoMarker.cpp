@@ -16,7 +16,7 @@ This sample depends on ArUco libraries in OpenCV with extra modules (https://git
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
 
 #include <opencv2/aruco.hpp>
 
@@ -237,13 +237,13 @@ namespace
         return gray;
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr roiBoxPointCloud(const Zivid::PointCloud &pointCloud,
-                                                            const float roiBoxBottomLeftCornerX,
-                                                            const float roiBoxBottomLeftCornerY,
-                                                            const float roiBoxBottomLeftCornerZ,
-                                                            const float roiBoxLength,
-                                                            const float roiBoxWidth,
-                                                            const float roiBoxHeight)
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> roiBoxPointCloud(const Zivid::PointCloud &pointCloud,
+                                                                          const float roiBoxBottomLeftCornerX,
+                                                                          const float roiBoxBottomLeftCornerY,
+                                                                          const float roiBoxBottomLeftCornerZ,
+                                                                          const float roiBoxLength,
+                                                                          const float roiBoxWidth,
+                                                                          const float roiBoxHeight)
     {
         const auto data = pointCloud.copyPointsXYZColorsRGBA();
         const int height = data.height();
@@ -341,10 +341,10 @@ namespace
         return zColorMap;
     }
 
-    void visualizeDepthMap(const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
+    void visualizeDepthMap(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
     {
         // Converting to Depth map in OpenCV format
-        cv::Mat zColorMap = pointCloudToCvZ(*pointCloud);
+        cv::Mat zColorMap = pointCloudToCvZ(pointCloud);
         // Visualizing Depth map
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zColorMap);
@@ -361,7 +361,7 @@ namespace
         viewer->setCameraPosition(0, 0, -100, -1, 0, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
         while(!viewer->wasStopped())
         {
             viewer->spinOnce(100);
@@ -442,19 +442,20 @@ int main()
                   << "Height: " << roiBoxHeight << std::endl;
 
         std::cout << "Filtering the point cloud beased on ROI Box" << std::endl;
-        const pcl::PointCloud<pcl::PointXYZRGB>::Ptr roiPointCloudPCL = roiBoxPointCloud(pointCloud,
-                                                                                         roiBoxBottomLeftCornerX,
-                                                                                         roiBoxBottomLeftCornerY,
-                                                                                         roiBoxBottomLeftCornerZ,
-                                                                                         roiBoxLength,
-                                                                                         roiBoxWidth,
-                                                                                         roiBoxHeight);
+        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> roiPointCloudPCL =
+            roiBoxPointCloud(pointCloud,
+                             roiBoxBottomLeftCornerX,
+                             roiBoxBottomLeftCornerY,
+                             roiBoxBottomLeftCornerZ,
+                             roiBoxLength,
+                             roiBoxWidth,
+                             roiBoxHeight);
 
         std::cout << "Displaying transformed point cloud after ROI Box filtering" << std::endl;
         visualizePointCloud(roiPointCloudPCL);
 
         std::cout << "Displaying depth map of the transformed point cloud after ROI Box filtering" << std::endl;
-        visualizeDepthMap(roiPointCloudPCL);
+        visualizeDepthMap(*roiPointCloudPCL);
     }
     catch(const std::exception &e)
     {

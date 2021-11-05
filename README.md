@@ -54,13 +54,14 @@ There are two main categories of samples: **Camera** and **Applications**. The s
     - **Visualization**
       - [**CaptureFromFileCameraVis3D**][CaptureFromFileCameraVis3D-url] - Capture point clouds, with color, from the virtual Zivid camera, and visualize it. Currently supported by Zivid One.
       - [**CaptureVis3D**][CaptureVis3D-url] - Capture point clouds, with color, from the Zivid camera, and visualize it.
-      - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - Capture point clouds, with color, from the Zivid camera, save it to PCD file format, and visualize it.
+      - [**CaptureWritePCLVis3D**][CaptureWritePCLVis3D-url] - Capture point clouds, with color and with/without normals, from the Zivid camera, convert it to
+      PCL format, save it to PCD file, and visualize it.
         - **Dependencies:**
           - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
       - [**CaptureHDRVisNormals**][CaptureHDRVisNormals-url] - Capture Zivid point clouds, with color and normals, and visualize it in 3D and as a normal map.
         - **Dependencies:**
           - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
-      - [**ReadPCLVis3D**][ReadPCLVis3D-url] - Read point cloud from PCL file and visualize it.
+      - [**ReadPCLVis3D**][ReadPCLVis3D-url] - Read point cloud, with color and with/without normals from PCD file and visualize it.
         - **Dependencies:**
           - [Point Cloud Library][point-cloud-library-url] version 1.2 or newer
     - **FileFormats**
