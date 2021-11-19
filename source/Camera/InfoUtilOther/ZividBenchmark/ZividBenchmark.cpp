@@ -510,6 +510,8 @@ int main()
         const std::vector<double> twoApertures{ 8.0, 4.0 };
         const std::vector<double> threeApertures{ 11.31, 5.66, 2.83 };
 
+        int test = 1;
+
         printHeader("TEST 1: Connect/Disconnect");
         benchmarkConnect(camera, numConnects);
         camera.connect();
