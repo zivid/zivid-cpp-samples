@@ -405,7 +405,7 @@ namespace
         printcopyDataResults(copyDataDurations);
     }
     
-    void benchmarkCopyDataTime(Zivid::Camera &camera, const size_t numFrames)
+    void benchmarkCopyDataTime(Zivid::Camera &camera)
     {
         const Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters{
             Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
@@ -586,7 +586,7 @@ int main()
         printHeader("TEST 7: Save");
         benchmarkSave(camera, numFramesSave);
         printHeader("TEST 8: CopyData");
-        benchmarkCopyDataTime(camera, numFrames3D);
+        benchmarkCopyDataTime(camera);
     }
     catch(const std::exception &e)
     {
