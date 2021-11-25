@@ -391,7 +391,7 @@ namespace
 
     
     template<typename DataType>
-    void benchmarkCopyData(Zivid::PointCloud pointCloud, DataType copyname)
+    void CopyDataTime(Zivid::PointCloud pointCloud, DataType copyname)
     {
         std::vector<Duration> copyDataDurations;
 
@@ -405,7 +405,7 @@ namespace
         printcopyDataResults(copyDataDurations);
     }
     
-    void benchmarkAssistedCapture3Dcopy(Zivid::Camera &camera, const size_t numFrames)
+    void benchmarkCopyDataTime(Zivid::Camera &camera, const size_t numFrames)
     {
         const Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters{
             Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
@@ -417,30 +417,30 @@ namespace
         auto pointCloud = frame.pointCloud();
 
         printSubtestHeader(" PointCloud.copyData<PointXYZ> ");
-        benchmarkCopyData(pointCloud, Zivid::PointXYZ());
+        CopyDataTime(pointCloud, Zivid::PointXYZ());
 
         printSubtestHeader(" PointCloud.copyData<PointXYZW> ");
-        benchmarkCopyData(pointCloud, Zivid::PointXYZW());
+        CopyDataTime(pointCloud, Zivid::PointXYZW());
 
         printSubtestHeader(" PointCloud.copyData<PointZ> ");
-        benchmarkCopyData(pointCloud, Zivid::PointZ());
+        CopyDataTime(pointCloud, Zivid::PointZ());
 
         printSubtestHeader(" PointCloud.copyData<ColorRGBA> ");
-        benchmarkCopyData(pointCloud, Zivid::ColorRGBA());
+        CopyDataTime(pointCloud, Zivid::ColorRGBA());
 
         printSubtestHeader(" PointCloud.copyData<SNR> ");
-        benchmarkCopyData(pointCloud, Zivid::SNR());
+        CopyDataTime(pointCloud, Zivid::SNR());
 
         printSubtestHeader(" PointCloud.copyData<PointsXYZColorsRGBA> ");
-        benchmarkCopyData(pointCloud, Zivid::PointXYZColorRGBA());
+        CopyDataTime(pointCloud, Zivid::PointXYZColorRGBA());
 
         printSubtestHeader(" PointCloud.copyData<PointsXYZColorsBGRA> ");
-        benchmarkCopyData(pointCloud, Zivid::PointXYZColorBGRA());
+        CopyDataTime(pointCloud, Zivid::PointXYZColorBGRA());
 
         // Image format was diffferent.pointCloud.copyImageRGBA();
 
         printSubtestHeader(" PointCloud.copyData<NormalXYZ> ");
-        benchmarkCopyData(pointCloud, Zivid::NormalXYZ());
+        CopyDataTime(pointCloud, Zivid::NormalXYZ());
     }
 
     std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
@@ -586,7 +586,7 @@ int main()
         printHeader("TEST 7: Save");
         benchmarkSave(camera, numFramesSave);
         printHeader("TEST 8: CopyData");
-        benchmarkAssistedCapture3Dcopy(camera, numFrames3D);
+        benchmarkCopyDataTime(camera, numFrames3D);
     }
     catch(const std::exception &e)
     {
