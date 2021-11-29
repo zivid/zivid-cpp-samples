@@ -196,7 +196,7 @@ namespace
         printResults({ "  Suggest settings time:" }, durations);
     }
 
-    void printcopyDataResults(const std::vector<Duration> &durations)
+    void printCopydataResults(const std::vector<Duration> &durations)
     {
         printSecondarySeparationLine();
         std::cout << "  copyData time : \t " << formatDuration(durations.at(0)) << std::endl << std::endl;
@@ -388,61 +388,7 @@ namespace
 
         printAssistedCapture3DResults(allDurations);
     }
-
     
-    template<typename DataType>
-    void CopyDataTime(Zivid::PointCloud pointCloud, DataType copyname)
-    {
-        std::vector<Duration> copyDataDurations;
-
-        const auto beforecopyData = HighResClock::now();
-        const auto tempcopy = pointCloud.copyData<decltype(copyname)>();
-        const auto aftercopyData = HighResClock::now();
-
-        copyDataDurations.push_back(aftercopyData - beforecopyData);
-        
-        std::cout << copyname << std::endl;
-        printcopyDataResults(copyDataDurations);
-    }
-    
-    void benchmarkCopyDataTime(Zivid::Camera &camera)
-    {
-        const Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
-        };
-        
-        const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
-        auto frame = camera.capture(settings);
-        auto pointCloud = frame.pointCloud();
-
-        printSubtestHeader(" PointCloud.copyData<PointXYZ> ");
-        CopyDataTime(pointCloud, Zivid::PointXYZ());
-
-        printSubtestHeader(" PointCloud.copyData<PointXYZW> ");
-        CopyDataTime(pointCloud, Zivid::PointXYZW());
-
-        printSubtestHeader(" PointCloud.copyData<PointZ> ");
-        CopyDataTime(pointCloud, Zivid::PointZ());
-
-        printSubtestHeader(" PointCloud.copyData<ColorRGBA> ");
-        CopyDataTime(pointCloud, Zivid::ColorRGBA());
-
-        printSubtestHeader(" PointCloud.copyData<SNR> ");
-        CopyDataTime(pointCloud, Zivid::SNR());
-
-        printSubtestHeader(" PointCloud.copyData<PointsXYZColorsRGBA> ");
-        CopyDataTime(pointCloud, Zivid::PointXYZColorRGBA());
-
-        printSubtestHeader(" PointCloud.copyData<PointsXYZColorsBGRA> ");
-        CopyDataTime(pointCloud, Zivid::PointXYZColorBGRA());
-
-        // Image format was diffferent.pointCloud.copyImageRGBA();
-
-        printSubtestHeader(" PointCloud.copyData<NormalXYZ> ");
-        CopyDataTime(pointCloud, Zivid::NormalXYZ());
-    }
-
     std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
                                                              const std::vector<Duration> &captureDurationFilter)
     {
@@ -519,6 +465,68 @@ namespace
         printCapture2DResults(allDurations);
     }
 
+    Zivid::Frame assistedCapture(Zivid::Camera &camera)
+    {
+        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+        };
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+        return camera.capture(settings);
+    }
+
+    template<typename DataType>
+    void CopyDataTime(Zivid::Frame frame, DataType copyName)
+    {
+        std::vector<Duration> copyDataDurations;
+
+        auto pointCloud = frame.pointCloud();
+        const auto beforeCopyData = HighResClock::now();        
+        const auto tempCopy = pointCloud.copyData<decltype(copyName)>();
+        const auto afterCopyData = HighResClock::now();
+
+        copyDataDurations.push_back(afterCopyData - beforeCopyData);
+        printCopydataResults(copyDataDurations);
+    }
+
+    void CopyDataTime_image(Zivid::Frame2D frame2D)
+    {
+        std::vector<Duration> copyDataDurations;
+
+        const auto beforeCopyData = HighResClock::now();    
+        const auto image = frame2D.imageRGBA();
+        const auto afterCopyData = HighResClock::now();
+
+        copyDataDurations.push_back(afterCopyData - beforeCopyData);
+        printCopydataResults(copyDataDurations);
+    }
+
+    void benchmarkCopyData(Zivid::Camera &camera, const std::chrono::microseconds exposureTime, const size_t numFrames)
+    {
+        auto frame2D = camera.capture(makeSettings2D(exposureTime));
+        auto frame = assistedCapture(camera);
+
+        printSubtestHeader(" PointCloud.copyData<PointXYZ> ");
+        CopyDataTime(frame, Zivid::PointXYZ());
+        printSubtestHeader(" PointCloud.copyData<PointXYZW> ");
+        CopyDataTime(frame, Zivid::PointXYZW());
+        printSubtestHeader(" PointCloud.copyData<PointZ> ");
+        CopyDataTime(frame, Zivid::PointZ());
+        printSubtestHeader(" PointCloud.copyData<ColorRGBA> ");
+        CopyDataTime(frame, Zivid::ColorRGBA());
+        printSubtestHeader(" PointCloud.copyData<SNR> ");
+        CopyDataTime(frame, Zivid::SNR());
+        printSubtestHeader(" PointCloud.copyData<PointsXYZColorsRGBA> ");
+        CopyDataTime(frame, Zivid::PointXYZColorRGBA());
+        printSubtestHeader(" PointCloud.copyData<PointsXYZColorsBGRA> ");
+        CopyDataTime(frame, Zivid::PointXYZColorBGRA());
+        printSubtestHeader(" PointCloud.copyImageRGBA() ");
+        CopyDataTime_image(frame2D);
+        printSubtestHeader(" PointCloud.copyData<NormalXYZ> ");
+        CopyDataTime(frame, Zivid::NormalXYZ());        
+    }
+
+
     void benchmarkSave(Zivid::Camera &camera, const size_t numFrames)
     {
         printSaveHeader(numFrames);
@@ -583,10 +591,10 @@ int main()
         benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
         printHeader("TEST 6: 2D Capture");
         benchmarkCapture2D(camera, makeSettings2D(exposureTime), numFrames2D);
-        printHeader("TEST 7: Save");
+        printHeader("TEST 7: CopyData");
+        benchmarkCopyData(camera, exposureTime, numFramesSave);
+        printHeader("TEST 8: Save");
         benchmarkSave(camera, numFramesSave);
-        printHeader("TEST 8: CopyData");
-        benchmarkCopyDataTime(camera);
     }
     catch(const std::exception &e)
     {
