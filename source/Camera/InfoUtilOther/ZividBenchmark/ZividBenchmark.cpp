@@ -512,7 +512,7 @@ namespace
         std::vector<Duration> copyDataDurations[numData];
         std::vector<Duration> allDurations[numData];
 
-        auto frame = assistedCapture(camera); // Warmup frame
+        auto frame = assistedCapture(camera); // Warmup
         auto setting2D = makeSettings2D(exposureTime);
         auto frame2D = camera.capture(setting2D);
 
