@@ -217,17 +217,23 @@ namespace
         printResults({ "  Total 2D capture time:" }, durations);
     }
 
-    void printCopyDataResults(const std::vector<Duration> durations[])
+    void printCopyHeader(const size_t numCopies)
     {
-        printResults({ "   copyData<PointXYZ> : " }, durations[0]);
-        printResults({ "  copyData<PointXYZW> : " }, durations[1]);
-        printResults({ "     copyData<PointZ> : " }, durations[2]);
-        printResults({ "  copyData<ColorRGBA> : " }, durations[3]);
-        printResults({ "        copyData<SNR> : " }, durations[4]);
-        printResults({ "  copyData<ColorRGBA> : " }, durations[5]);
-        printResults({ "  copyData<ColorBGRA> : " }, durations[6]);
-        printResults({ "      copyImageRGBA() : " }, durations[7]);
-        printResults({ "  copyData<NormalXYZ> : " }, durations[8]);
+        printHeaderLine("Copying various data ", numCopies, " times each (be patient):");
+    }
+
+    void printCopyDataResults(const std::vector<Duration> durations[], const size_t numCopies)
+    {
+        printCopyHeader(numCopies);
+        printResults({ "   copyData<PointXYZ>: " }, durations[0]);
+        printResults({ "  copyData<PointXYZW>: " }, durations[1]);
+        printResults({ "     copyData<PointZ>: " }, durations[2]);
+        printResults({ "  copyData<ColorRGBA>: " }, durations[3]);
+        printResults({ "        copyData<SNR>: " }, durations[4]);
+        printResults({ "  copyData<ColorRGBA>: " }, durations[5]);
+        printResults({ "  copyData<ColorBGRA>: " }, durations[6]);
+        printResults({ "      copyImageRGBA(): " }, durations[7]);
+        printResults({ "  copyData<NormalXYZ>: " }, durations[8]);
     }
 
     void printSaveResults(const std::vector<Duration> &durations)
@@ -483,67 +489,66 @@ namespace
     }
 
     template<typename DataType>
-    Duration copyDataTime(Zivid::Frame frame, DataType copyName)
+    Duration copyDataTime(Zivid::Frame frame)
     {
-        std::vector<Duration> copyDataDurations;
-
         auto pointCloud = frame.pointCloud();
         const auto beforeCopyData = HighResClock::now();        
-        const auto tempCopy = pointCloud.copyData<decltype(copyName)>();
+        pointCloud.copyData<DataType>();
         const auto afterCopyData = HighResClock::now();
 
         return afterCopyData - beforeCopyData;
     }
 
-    Duration copyDataTime(Zivid::Camera &camera, Zivid::Settings2D settings2D)
+    Duration copyDataTime(Zivid::Frame2D frame2D)
     {
-        std::vector<Duration> copyDataDurations;
-
         const auto beforeCopyData = HighResClock::now();
-        const auto frame2D = camera.capture(settings2D);
-        const auto image = frame2D.imageRGBA();
+        frame2D.imageRGBA();
         const auto afterCopyData = HighResClock::now();
 
         return afterCopyData - beforeCopyData;
     }
 
-    void benchmarkCopyData(Zivid::Camera &camera, const std::chrono::microseconds exposureTime, const size_t numFrames)
+    void benchmarkCopyData(Zivid::Camera &camera, const std::chrono::microseconds exposureTime, const size_t numCopies)
     {
-        std::vector<Duration> copyDataDurations[9];
-        std::vector<Duration> allDurations[9];
+        const int numData = 9;
+        std::vector<Duration> copyDataDurations[numData];
+        std::vector<Duration> allDurations[numData];
 
         auto frame = assistedCapture(camera); // Warmup frame
-        copyDataTime(frame, Zivid::PointXYZ());
-        copyDataTime(frame, Zivid::PointXYZW());
-        copyDataTime(frame, Zivid::PointZ());
-        copyDataTime(frame, Zivid::ColorRGBA());
-        copyDataTime(frame, Zivid::SNR());
-        copyDataTime(frame, Zivid::PointXYZColorRGBA());
-        copyDataTime(frame, Zivid::PointXYZColorBGRA());
-        copyDataTime(camera, makeSettings2D(exposureTime));
-        copyDataTime(frame, Zivid::NormalXYZ());
+        auto setting2D = makeSettings2D(exposureTime);
+        auto frame2D = camera.capture(setting2D);
+        copyDataTime<Zivid::PointXYZ>(frame);
+        copyDataTime<Zivid::PointXYZW>(frame);
+        copyDataTime<Zivid::PointZ>(frame);
+        copyDataTime<Zivid::ColorRGBA>(frame);
+        copyDataTime<Zivid::SNR>(frame);
+        copyDataTime<Zivid::PointXYZColorRGBA>(frame);
+        copyDataTime<Zivid::PointXYZColorBGRA>(frame);
+        copyDataTime(frame2D);
+        copyDataTime<Zivid::NormalXYZ>(frame);
 
-        for(size_t i = 0; i < numFrames; i++)
+        for(size_t i = 0; i < numCopies; i++)
         {
             auto frame = assistedCapture(camera);
+            auto frame2D = camera.capture(setting2D);
 
-            copyDataDurations[0].push_back(copyDataTime(frame, Zivid::PointXYZ()));
-            copyDataDurations[1].push_back(copyDataTime(frame, Zivid::PointXYZW()));
-            copyDataDurations[2].push_back(copyDataTime(frame, Zivid::PointZ()));
-            copyDataDurations[3].push_back(copyDataTime(frame, Zivid::ColorRGBA()));
-            copyDataDurations[4].push_back(copyDataTime(frame, Zivid::SNR()));
-            copyDataDurations[5].push_back(copyDataTime(frame, Zivid::PointXYZColorRGBA()));
-            copyDataDurations[6].push_back(copyDataTime(frame, Zivid::PointXYZColorBGRA()));
-            copyDataDurations[7].push_back(copyDataTime(camera, makeSettings2D(exposureTime)));
-            copyDataDurations[8].push_back(copyDataTime(frame, Zivid::NormalXYZ()));
+            copyDataDurations[0].push_back(copyDataTime<Zivid::PointXYZ>(frame));
+            copyDataDurations[1].push_back(copyDataTime<Zivid::PointXYZW>(frame));
+            copyDataDurations[2].push_back(copyDataTime<Zivid::PointZ>(frame));
+            copyDataDurations[3].push_back(copyDataTime<Zivid::ColorRGBA>(frame));
+            copyDataDurations[4].push_back(copyDataTime<Zivid::SNR>(frame));
+            copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA>(frame));
+            copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA>(frame));
+            copyDataDurations[7].push_back(copyDataTime(frame2D));
+            copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
         }
-        for(size_t i = 0; i < 9; i++)
+        for(size_t i = 0; i < numData; i++)
         {
             allDurations[i].push_back(computeMedianDuration(copyDataDurations[i]));
             allDurations[i].push_back(computeAverageDuration(copyDataDurations[i]));
         }
         
-        printCopyDataResults(allDurations);
+        printCopyDataResults(allDurations, numCopies);
         
     }
 
@@ -589,6 +594,7 @@ int main()
         const size_t numFrames3D = 20;
         const size_t numFrames2D = 50;
         const size_t numFramesSave = 10;
+        const size_t numCopies = 10;
 
         const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
@@ -612,8 +618,8 @@ int main()
         benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
         printHeader("TEST 6: 2D Capture");
         benchmarkCapture2D(camera, makeSettings2D(exposureTime), numFrames2D);
-        printHeader("TEST 7: CopyData");
-        benchmarkCopyData(camera, exposureTime, numFramesSave);
+        printHeader("TEST 7: Copy Data");
+        benchmarkCopyData(camera, exposureTime, numCopies);
         printHeader("TEST 8: Save");
         benchmarkSave(camera, numFramesSave);
     }
