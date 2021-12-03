@@ -495,7 +495,6 @@ namespace
         const auto beforeCopyData = HighResClock::now();        
         pointCloud.copyData<DataType>();
         const auto afterCopyData = HighResClock::now();
-
         return afterCopyData - beforeCopyData;
     }
 
@@ -504,7 +503,6 @@ namespace
         const auto beforeCopyData = HighResClock::now();
         frame2D.imageRGBA();
         const auto afterCopyData = HighResClock::now();
-
         return afterCopyData - beforeCopyData;
     }
 
@@ -517,6 +515,7 @@ namespace
         auto frame = assistedCapture(camera); // Warmup frame
         auto setting2D = makeSettings2D(exposureTime);
         auto frame2D = camera.capture(setting2D);
+
         copyDataTime<Zivid::PointXYZ>(frame);
         copyDataTime<Zivid::PointXYZW>(frame);
         copyDataTime<Zivid::PointZ>(frame);
@@ -542,6 +541,7 @@ namespace
             copyDataDurations[7].push_back(copyDataTime(frame2D));
             copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
         }
+
         for(size_t i = 0; i < numData; i++)
         {
             allDurations[i].push_back(computeMedianDuration(copyDataDurations[i]));
@@ -549,7 +549,6 @@ namespace
         }
         
         printCopyDataResults(allDurations, numCopies);
-        
     }
 
 
