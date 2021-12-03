@@ -160,6 +160,11 @@ namespace
         std::cout << "  exposure Time = { " << settings.acquisitions().at(0).exposureTime() << " }" << std::endl;
     }
 
+    void printCopyHeader(const size_t numCopies)
+    {
+        printHeaderLine("Copying various data ", numCopies, " times each (be patient):");
+    }
+
     void printSaveHeader(const size_t numFrames)
     {
         printHeaderLine("Saving point cloud ", numFrames, " times each (be patient):");
@@ -215,11 +220,6 @@ namespace
     void printCapture2DResults(const std::vector<Duration> &durations)
     {
         printResults({ "  Total 2D capture time:" }, durations);
-    }
-
-    void printCopyHeader(const size_t numCopies)
-    {
-        printHeaderLine("Copying various data ", numCopies, " times each (be patient):");
     }
 
     void printCopyDataResults(const std::vector<Duration> durations[], const size_t numCopies)
