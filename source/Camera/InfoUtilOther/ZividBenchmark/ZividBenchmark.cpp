@@ -554,7 +554,6 @@ namespace
         printCopyDataResults(allDurations, numCopies);
     }
 
-
     void benchmarkSave(Zivid::Camera &camera, const size_t numFrames)
     {
         printSaveHeader(numFrames);
