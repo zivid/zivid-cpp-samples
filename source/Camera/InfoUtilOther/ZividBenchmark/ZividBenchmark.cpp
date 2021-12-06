@@ -451,7 +451,7 @@ namespace
             Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } } };
         return settings;
     }
-
+    
     void benchmarkCapture2D(Zivid::Camera &camera, const Zivid::Settings2D &settings, const size_t numFrames)
     {
         printCapture2DHeader(numFrames, settings);
@@ -467,6 +467,8 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeCapture = HighResClock::now();
+            // The 2D capture API returns after the 2D image is available in CPU memory.
+            // All the acquisition, processing, and copying happen inside this function call.
             const auto frame2D = camera.capture(settings);
             const auto afterCapture = HighResClock::now();
 
@@ -489,7 +491,7 @@ namespace
     }
 
     template<typename DataType>
-    Duration copyDataTime(Zivid::Frame frame)
+    Duration copyDataTime(Zivid::Frame &frame)
     {
         auto pointCloud = frame.pointCloud();
         const auto beforeCopyData = HighResClock::now();        
@@ -498,7 +500,7 @@ namespace
         return afterCopyData - beforeCopyData;
     }
 
-    Duration copyDataTime(Zivid::Frame2D frame2D)
+    Duration copyDataTime(Zivid::Frame2D &frame2D)
     {
         const auto beforeCopyData = HighResClock::now();
         frame2D.imageRGBA();
@@ -511,6 +513,7 @@ namespace
         const int numData = 9;
         std::vector<Duration> copyDataDurations[numData];
         std::vector<Duration> allDurations[numData];
+        std::vector<Duration> test;
 
         auto frame = assistedCapture(camera); // Warmup
         auto setting2D = makeSettings2D(exposureTime);
@@ -538,6 +541,8 @@ namespace
             copyDataDurations[4].push_back(copyDataTime<Zivid::SNR>(frame));
             copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA>(frame));
             copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA>(frame));
+            // The method to get the image from the Frame2D object returns the image right away.
+            // The image object holds a handle to the image data in CPU memory.
             copyDataDurations[7].push_back(copyDataTime(frame2D));
             copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
         }
