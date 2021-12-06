@@ -401,7 +401,6 @@ namespace
 
         printAssistedCapture3DResults(allDurations);
     }
-    
     std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
                                                              const std::vector<Duration> &captureDurationFilter)
     {
