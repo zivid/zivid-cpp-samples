@@ -222,7 +222,7 @@ namespace
         printResults({ "  Total 2D capture time:" }, durations);
     }
 
-    void printCopyDataResults(const std::vector<Duration> durations[], const size_t numCopies)
+    void printCopyDataResults(std::array<std::vector<Duration>, 9> &durations, const size_t numCopies)
     {
         printCopyHeader(numCopies);
         printResults({ "   copyData<PointXYZ>: " }, durations[0]);
@@ -514,7 +514,7 @@ namespace
     {
         const int numData = 9;
         std::vector<Duration> copyDataDurations[numData];
-        std::vector<Duration> allDurations[numData];
+        std::array<std::vector<Duration>, numData> allDurations;
         std::vector<Duration> test;
 
         auto frame = assistedCapture(camera); // Warmup
