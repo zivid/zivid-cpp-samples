@@ -401,7 +401,7 @@ namespace
 
         printAssistedCapture3DResults(allDurations);
     }
-    
+
     std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
                                                              const std::vector<Duration> &captureDurationFilter)
     {
@@ -451,7 +451,7 @@ namespace
             Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } } };
         return settings;
     }
-    
+
     void benchmarkCapture2D(Zivid::Camera &camera, const Zivid::Settings2D &settings, const size_t numFrames)
     {
         printCapture2DHeader(numFrames, settings);
@@ -555,7 +555,6 @@ namespace
         
         printCopyDataResults(allDurations, numCopies);
     }
-
 
     void benchmarkSave(Zivid::Camera &camera, const size_t numFrames)
     {
