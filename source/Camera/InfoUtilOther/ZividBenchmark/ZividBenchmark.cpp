@@ -451,6 +451,7 @@ namespace
             Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } } };
         return settings;
     }
+
     void benchmarkCapture2D(Zivid::Camera &camera, const Zivid::Settings2D &settings, const size_t numFrames)
     {
         printCapture2DHeader(numFrames, settings);
