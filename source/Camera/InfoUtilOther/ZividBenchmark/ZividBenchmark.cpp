@@ -503,6 +503,8 @@ namespace
     Duration copyDataTime(Zivid::Frame2D &frame2D)
     {
         const auto beforeCopyData = HighResClock::now();
+        // The method to get the image from the Frame2D object returns the image right away.
+        // The image object holds a handle to the image data in CPU memory.
         frame2D.imageRGBA();
         const auto afterCopyData = HighResClock::now();
         return afterCopyData - beforeCopyData;
@@ -541,8 +543,6 @@ namespace
             copyDataDurations[4].push_back(copyDataTime<Zivid::SNR>(frame));
             copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA>(frame));
             copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA>(frame));
-            // The method to get the image from the Frame2D object returns the image right away.
-            // The image object holds a handle to the image data in CPU memory.
             copyDataDurations[7].push_back(copyDataTime(frame2D));
             copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
         }
