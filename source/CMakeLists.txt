@@ -29,6 +29,7 @@ set(SAMPLES
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
     Camera/InfoUtilOther/PrintVersionInfo
+    Camera/InfoUtilOther/Project3dTo2d
     Camera/InfoUtilOther/SettingsInfo
     Camera/InfoUtilOther/ZividBenchmark
     Camera/InfoUtilOther/Warmup
@@ -55,7 +56,7 @@ set(SAMPLES
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
 set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals StitchByTransformation StitchByTransformationFromZDF)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker AllocateMemoryForPointCloudData)
+set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker AllocateMemoryForPointCloudData Project3dTo2d)
 set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
