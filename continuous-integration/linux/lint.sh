@@ -13,25 +13,6 @@ if [ -z "$cppFiles" ]; then
 fi
 
 echo "-----------------------------------------------"
-echo "             Running clang-format              "
-echo "-----------------------------------------------"
-errorsFound=0
-for fileName in $cppFiles $hFiles; do
-    echo $fileName
-    diff $fileName <(clang-format-10 $fileName)
-    if [ $? -ne 0 ]; then
-        let "errorsFound=errorsFound+1"
-    else
-        echo "ok"
-    fi
-done
-echo
-if [ $errorsFound -ne 0 ]; then
-    echo "ERROR: $errorsFound formatting error(s) found! See the diffs for each file printed above."
-    exit 1
-fi
-
-echo "-----------------------------------------------"
 echo "             Running clang-tidy                "
 echo "-----------------------------------------------"
 BUILD_DIR="$ROOT_DIR/build/ci/tidy"
