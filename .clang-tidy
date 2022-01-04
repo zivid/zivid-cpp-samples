@@ -250,7 +250,7 @@ CheckOptions:
   - key:             readability-identifier-naming.LocalVariableSuffix
     value:           ''
   - key:             readability-identifier-naming.MacroDefinitionCase
-    value:           ''
+    value:           'UPPER_CASE'
   - key:             readability-identifier-naming.MacroDefinitionPrefix
     value:           ''
   - key:             readability-identifier-naming.MacroDefinitionSuffix
