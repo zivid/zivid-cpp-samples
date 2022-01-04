@@ -10,10 +10,8 @@ For scenes with high dynamic range we combine multiple acquisitions to get an HD
 
 namespace
 {
-    void printNormals(int radius,
-                      const Zivid::Array2D<Zivid::NormalXYZ> &normals,
-                      const int numOfRows,
-                      const int numOfCols)
+    void
+    printNormals(int radius, const Zivid::Array2D<Zivid::NormalXYZ> &normals, const int numOfRows, const int numOfCols)
     {
         const auto lineSeparator = std::string(50, '-');
         std::cout << lineSeparator << std::endl;

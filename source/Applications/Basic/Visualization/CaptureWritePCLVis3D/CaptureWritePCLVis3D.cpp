@@ -1,13 +1,14 @@
 /*
-This example shows how capture point clouds, with color and with/without normals, from the Zivid camera,
-convert it to PCL format, save it to PCD file, and visualize it.
+Capture point clouds, with color, from the Zivid camera, save it to PCD file format, and visualize it.
 */
 
+#include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <pcl/io/pcd_io.h>
+#include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/cloud_viewer.h>
 
 #include <iostream>
 #include <thread>
@@ -15,33 +16,32 @@ convert it to PCL format, save it to PCD file, and visualize it.
 namespace
 {
     template<typename T>
-    boost::shared_ptr<pcl::PointCloud<T>> addDataToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    pcl::PointCloud<T> addDataToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
     {
-        auto pointCloud = boost::make_shared<pcl::PointCloud<T>>();
+        auto pointCloud = pcl::PointCloud<T>();
 
-        pointCloud->width = data.width();
-        pointCloud->height = data.height();
-        pointCloud->is_dense = false;
-        pointCloud->points.resize(data.size());
+        pointCloud.width = data.width();
+        pointCloud.height = data.height();
+        pointCloud.is_dense = false;
+        pointCloud.points.resize(data.size());
         for(size_t i = 0; i < data.size(); ++i)
         {
-            pointCloud->points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].x = data(i).point.x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].y = data(i).point.y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].z = data(i).point.z; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].r = data(i).color.r; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
         return pointCloud;
     }
 
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> convertToPCLPointCloud(
-        const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
     {
         return addDataToPCLPointCloud<pcl::PointXYZRGB>(data);
     }
 
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> convertToPCLPointCloud(
+    pcl::PointCloud<pcl::PointXYZRGBNormal> convertToPCLPointCloud(
         const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data,
         const Zivid::Array2D<Zivid::NormalXYZ> &normals)
     {
@@ -49,62 +49,60 @@ namespace
 
         for(size_t i = 0; i < data.size(); ++i)
         {
-            pointCloud->points[i].normal_x = normals(i).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].normal_y = normals(i).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pointCloud->points[i].normal_z = normals(i).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].normal_x = normals(i).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].normal_y = normals(i).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pointCloud.points[i].normal_z = normals(i).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
 
         return pointCloud;
     }
 
-    void addPointCloudToViewer(boost::shared_ptr<pcl::visualization::PCLVisualizer> &viewer,
-                               const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> &pointCloud)
+    void addPointCloudToViewer(
+        pcl::visualization::PCLVisualizer &viewer,
+        const pcl::PointCloud<pcl::PointXYZRGBNormal>::ConstPtr &pointCloud)
     {
-        viewer->addPointCloud<pcl::PointXYZRGBNormal>(pointCloud);
+        viewer.addPointCloud<pcl::PointXYZRGBNormal>(pointCloud);
 
         const int normalsSkipped = 10;
         std::cout << "Note! 1 out of " << normalsSkipped << " normals are visualized" << std::endl;
-        viewer->addPointCloudNormals<pcl::PointXYZRGBNormal, pcl::PointXYZRGBNormal>(pointCloud,
-                                                                                     pointCloud,
-                                                                                     normalsSkipped,
-                                                                                     1,
-                                                                                     "normals");
+        viewer.addPointCloudNormals<pcl::PointXYZRGBNormal>(pointCloud, normalsSkipped, 1, "normals");
     }
 
-    void addPointCloudToViewer(boost::shared_ptr<pcl::visualization::PCLVisualizer> &viewer,
-                               const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
+    void addPointCloudToViewer(
+        pcl::visualization::PCLVisualizer &viewer,
+        const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr &pointCloud)
     {
-        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloud);
+        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloud);
     }
 
     template<typename T>
-    void visualizePointCloudPCL(const boost::shared_ptr<pcl::PointCloud<T>> &pointCloud)
+    void visualizePointCloudPCL(const pcl::PointCloud<T> &pointCloud)
     {
-        auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
+        auto viewer = pcl::visualization::PCLVisualizer("Viewer");
 
-        addPointCloudToViewer(viewer, pointCloud);
+        addPointCloudToViewer(viewer, pointCloud.makeShared());
 
-        viewer->setCameraPosition(0, 0, -100, 0, -1, 0);
+        viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
-        while(!viewer->wasStopped())
+        while(!viewer.wasStopped())
         {
-            viewer->spinOnce(100);
+            viewer.spinOnce(100);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 
     template<typename T>
-    void visualizeAndSavePointCloudPCL(const boost::shared_ptr<pcl::PointCloud<T>> &pointCloud)
+    void visualizeAndSavePointCloudPCL(const pcl::PointCloud<T> &pointCloud)
     {
         std::cout << "Visualizing PCL point cloud" << std::endl;
         visualizePointCloudPCL(pointCloud);
 
         std::string pointCloudFile = "Zivid3D.pcd";
         std::cout << "Saving point cloud to file: " << pointCloudFile << std::endl;
-        pcl::io::savePCDFileBinary(pointCloudFile, *pointCloud);
-        std::cerr << "Saved " << pointCloud->points.size() << " points" << std::endl;
+        pcl::io::savePCDFileBinary(pointCloudFile, pointCloud);
+        std::cerr << "Saved " << pointCloud.points.size() << " points" << std::endl;
     }
 
 } // namespace

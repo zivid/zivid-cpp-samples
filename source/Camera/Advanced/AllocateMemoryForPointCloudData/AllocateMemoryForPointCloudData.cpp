@@ -1,8 +1,7 @@
 /*
-This example shows two methods to copy point cloud data from GPU memory to CPU memory, to be consumed by OpenCV.
+Two methods to copy point cloud data from GPU memory to CPU memory, to be consumed by OpenCV.
 With the first method, the memory is allocated by user (OpenCV) based on the camera resolution before any capture
-occurs. With the second method, the memory is allocated by Zivid SDK based on the point cloud resolution, so
-post-capture.
+occurs. With the second method, the memory is allocated post-capture by Zivid SDK based on the point cloud resolution.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without
 notice.

@@ -1,9 +1,11 @@
 /*
-This example shows how to use camera intrinsics to undistort an RGB image.
+Use camera intrinsics to undistort an RGB image.
 
 The example will prompt the user for whether to capture an image (2D) or a point cloud (3D).
 In both instances it will operate on an RGB image. However, in the 3D case it will extract
 the RGB image from the point cloud. The 2D variant is faster.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Experimental/Calibration.h>
@@ -25,10 +27,11 @@ namespace
         cv::Mat cameraMatrix;
     };
 
-    Zivid::Settings makeSettings(const std::chrono::microseconds exposureTime,
-                                 const double aperture,
-                                 const double gain,
-                                 const double brightness)
+    Zivid::Settings makeSettings(
+        const std::chrono::microseconds exposureTime,
+        const double aperture,
+        const double gain,
+        const double brightness)
     {
         Zivid::Settings settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
             Zivid::Settings::Acquisition::ExposureTime{ exposureTime },
@@ -40,10 +43,11 @@ namespace
         return settings;
     }
 
-    Zivid::Settings2D makeSettings2D(const std::chrono::microseconds exposureTime,
-                                     const double aperture,
-                                     const double gain,
-                                     const double brightness)
+    Zivid::Settings2D makeSettings2D(
+        const std::chrono::microseconds exposureTime,
+        const double aperture,
+        const double gain,
+        const double brightness)
     {
         Zivid::Settings2D settings2D =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
@@ -60,10 +64,11 @@ namespace
         // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
         // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
         // our own instance with const.
-        const cv::Mat rgbaMat(image.height(),
-                              image.width(),
-                              CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-                              const_cast<void *>(static_cast<const void *>(image.data())));
+        const cv::Mat rgbaMat(
+            image.height(),
+            image.width(),
+            CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+            const_cast<void *>(static_cast<const void *>(image.data())));
         cv::Mat bgr;
         cv::cvtColor(rgbaMat, bgr, cv::COLOR_RGBA2BGR);
 
@@ -118,8 +123,8 @@ namespace
 
     CameraIntrinsicsCV reformatCameraIntrinsics(const Zivid::CameraIntrinsics &cameraIntrinsics)
     {
-        cv::Mat distortionCoefficients(1, 5, CV_64FC1, cv::Scalar(0));
-        cv::Mat cameraMatrix(3, 3, CV_64FC1, cv::Scalar(0));
+        cv::Mat distortionCoefficients(1, 5, CV_64FC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
+        cv::Mat cameraMatrix(3, 3, CV_64FC1, cv::Scalar(0));           // NOLINT(hicpp-signed-bitwise)
 
         distortionCoefficients.at<double>(0, 0) = cameraIntrinsics.distortion().k1().value();
         distortionCoefficients.at<double>(0, 1) = cameraIntrinsics.distortion().k2().value();

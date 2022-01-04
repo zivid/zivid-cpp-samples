@@ -1,5 +1,5 @@
 /*
-This example shows how to convert to/from transformation matrix (rotation matrix + translation vector).
+Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector) 
 
 Zivid primarily operate with a (4x4) transformation matrix. This example shows how to use Eigen to
 convert to and from: AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
@@ -98,8 +98,9 @@ namespace
     // Pitch is a rotation about y-axis and Yaw is a rotation about z-axis.
     // Whether the axes are moving (intrinsic) or fixed (extrinsic) is defined by the rotation convention.
     // The array is ordered by Roll, Pitch and then Yaw.
-    Eigen::Array3d rotationMatrixToRollPitchYaw(const Eigen::Matrix3d &rotationMatrix,
-                                                const RotationConvention &convention)
+    Eigen::Array3d rotationMatrixToRollPitchYaw(
+        const Eigen::Matrix3d &rotationMatrix,
+        const RotationConvention &convention)
     {
         switch(convention)
         {

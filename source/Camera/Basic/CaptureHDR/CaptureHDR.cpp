@@ -1,5 +1,6 @@
 /*
-This example shows how to capture point clouds, with color, from the Zivid camera.
+Capture HDR point clouds, with color, from the Zivid camera.
+
 For scenes with high dynamic range we combine multiple acquisitions to get an HDR point cloud.
 */
 
@@ -18,7 +19,7 @@ int main()
 
         std::cout << "Configuring settings" << std::endl;
         Zivid::Settings settings;
-        for(const auto aperture : { 9.57, 4.76, 2.59 })
+        for(const auto aperture : { 11.31, 5.66, 2.83 })
         {
             std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
             const auto acquisitionSettings = Zivid::Settings::Acquisition{
