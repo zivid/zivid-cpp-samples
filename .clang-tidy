@@ -10,6 +10,7 @@ Checks: >
   -readability-magic-numbers,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
   -llvmlibc-*,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -hicpp-signed-bitwise,
