@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains  **C++** code samples for **Zivid**.
+This repository contains  **C++** code samples for **Zivid** version 2.5. For tested compatibility with earlier SDK versions, please check out [appropiate release](releases).
 
 [![Build Status][ci-badge]][ci-url]
 ![Zivid Image][header-image]
@@ -212,6 +212,8 @@ If you do want to use them:
     your system, these should just work. If not, set `-DPCL_DIR=<path>`
     / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing
     `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
+
+Some of the samples depend on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib) and these are dissabled by default. Enable them by passing the following option to cmake: -DUSE_ARUCO=ON.
 
 The samples can now be run from the build directory, for instance like
 this:
