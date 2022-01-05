@@ -1,5 +1,5 @@
 /*
-This sample shows how to perform Multi-Camera calibration.
+Use captures of a calibration object to generate transformation matrices to a single coordinate frame, from connected cameras.
 */
 
 #include <opencv2/core/core.hpp>
@@ -20,9 +20,10 @@ namespace
         return camera.capture(settings);
     }
 
-    void saveTransformationMatricesToYAML(const std::vector<Zivid::Matrix4x4> &transforms,
-                                          const std::vector<Zivid::Camera> &cameras,
-                                          const std::string &path)
+    void saveTransformationMatricesToYAML(
+        const std::vector<Zivid::Matrix4x4> &transforms,
+        const std::vector<Zivid::Camera> &cameras,
+        const std::string &path)
     {
         // Save Transformation Matrices to .YAML file
         cv::FileStorage fileStorageOut;
@@ -32,8 +33,8 @@ namespace
         }
         for(size_t i = 0; i < transforms.size(); ++i)
         {
-            fileStorageOut.write("TransformationMatrix_" + std::to_string(i),
-                                 cv::Mat(cv::Matx44f(transforms.at(i).data())));
+            fileStorageOut
+                .write("TransformationMatrix_" + std::to_string(i), cv::Mat(cv::Matx44f(transforms.at(i).data())));
             fileStorageOut.write("SerialNumber_" + std::to_string(i), cameras.at(i).info().serialNumber().toString());
         }
         fileStorageOut.release();

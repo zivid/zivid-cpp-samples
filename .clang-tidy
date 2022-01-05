@@ -9,6 +9,7 @@ Checks: >
   -cppcoreguidelines-avoid-magic-numbers,
   -readability-magic-numbers,
   -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -llvmlibc-*,
   -cppcoreguidelines-pro-type-reinterpret-cast,
@@ -247,8 +248,6 @@ CheckOptions:
   - key:             readability-identifier-naming.LocalVariablePrefix
     value:           ''
   - key:             readability-identifier-naming.LocalVariableSuffix
-    value:           ''
-  - key:             readability-identifier-naming.MacroDefinitionCase
     value:           ''
   - key:             readability-identifier-naming.MacroDefinitionPrefix
     value:           ''

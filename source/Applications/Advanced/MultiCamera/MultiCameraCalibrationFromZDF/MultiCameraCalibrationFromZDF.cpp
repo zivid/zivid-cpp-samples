@@ -1,3 +1,7 @@
+/*
+Use captures of a calibration object to generate transformation matrices to a single coordinate frame, from ZDF files.
+*/
+
 #include <opencv2/core/core.hpp>
 
 #include <clipp.h>
@@ -9,9 +13,10 @@
 
 namespace
 {
-    void saveTransformationMatricesToYAML(const std::vector<Zivid::Matrix4x4> &transforms,
-                                          const std::vector<std::string> &fileList,
-                                          const std::string &path)
+    void saveTransformationMatricesToYAML(
+        const std::vector<Zivid::Matrix4x4> &transforms,
+        const std::vector<std::string> &fileList,
+        const std::string &path)
     {
         // Save Transformation Matrices to .YAML file
         cv::FileStorage fileStorageOut;
@@ -21,23 +26,23 @@ namespace
         }
         for(size_t i = 0; i < transforms.size(); ++i)
         {
-            fileStorageOut.write("TransformationMatrix_" + std::to_string(i),
-                                 cv::Mat(cv::Matx44f(transforms.at(i).data())));
+            fileStorageOut
+                .write("TransformationMatrix_" + std::to_string(i), cv::Mat(cv::Matx44f(transforms.at(i).data())));
             std::string serialNumberToWrite = fileList.at(i);
             // Exclude non-alphanumeric prefix from file name
-            size_t firstIndex =
-                std::distance(serialNumberToWrite.begin(),
-                              std::find_if(serialNumberToWrite.begin(), serialNumberToWrite.end(), [](unsigned char c) {
-                                  return std::isalnum(c);
-                              }));
+            size_t firstIndex = std::distance(
+                serialNumberToWrite.begin(),
+                std::find_if(serialNumberToWrite.begin(), serialNumberToWrite.end(), [](unsigned char c) {
+                    return std::isalnum(c);
+                }));
             size_t lastIndex = serialNumberToWrite.length();
             // Exclude extension from file name
             if(serialNumberToWrite.find_last_of('.') != std::string::npos)
             {
                 lastIndex = serialNumberToWrite.find_last_of('.');
             }
-            fileStorageOut.write("SerialNumber_" + std::to_string(i),
-                                 serialNumberToWrite.substr(firstIndex, lastIndex - firstIndex));
+            fileStorageOut.write(
+                "SerialNumber_" + std::to_string(i), serialNumberToWrite.substr(firstIndex, lastIndex - firstIndex));
         }
         fileStorageOut.release();
     }
@@ -47,7 +52,6 @@ int main(int argc, char **argv)
 {
     try
     {
-        // Initialize Zivid
         Zivid::Application zivid;
 
         auto transformationMatricesFileName = std::string("MultiCameraCalibrationResults.yaml");

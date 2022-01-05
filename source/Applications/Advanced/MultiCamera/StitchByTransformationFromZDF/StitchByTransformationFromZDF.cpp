@@ -1,3 +1,7 @@
+/*
+Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from ZDF files.
+*/
+
 #include <opencv2/core/core.hpp>
 
 #include <clipp.h>
@@ -33,8 +37,8 @@ namespace
         cv::FileStorage fileStorageIn;
         if(!fileStorageIn.open(yamlPath, cv::FileStorage::Mode::READ))
         {
-            throw std::runtime_error("Could not open " + yamlPath
-                                     + ". Please run this sample from the build directory");
+            throw std::runtime_error(
+                "Could not open " + yamlPath + ". Please run this sample from the build directory");
         }
         auto transformsMappedToFrames = std::vector<TransformationMatrixAndFrameMap>{};
         size_t i = -1;
@@ -61,8 +65,9 @@ namespace
         if(transformsMappedToFrames.size() < 2)
         {
             fileStorageIn.release();
-            throw std::runtime_error("Require minimum two matching transformation and frames, got "
-                                     + std::to_string(transformsMappedToFrames.size()));
+            throw std::runtime_error(
+                "Require minimum two matching transformation and frames, got "
+                + std::to_string(transformsMappedToFrames.size()));
         }
 
         fileStorageIn.release();
@@ -94,7 +99,6 @@ int main(int argc, char **argv)
 {
     try
     {
-        // Find and connect all cameras
         Zivid::Application zivid;
 
         std::string transformationMatricesFileName;
@@ -182,17 +186,16 @@ int main(int argc, char **argv)
         std::cout << "Got " << validPoints << " out of " << maxNumberOfPoints << " points" << std::endl;
 
         // Simple Cloud Visualization
-        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
         *cloudPTR = stitchedPointCloud;
 
         std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
         pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
         viewer.showCloud(cloudPTR);
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
+        std::cout << "Press q to me exit the viewer application" << std::endl;
         while(!viewer.wasStopped())
-        {
-        }
+        {}
         if(saveStitched)
         {
             std::cerr << "Saving " << stitchedPointCloud.points.size()

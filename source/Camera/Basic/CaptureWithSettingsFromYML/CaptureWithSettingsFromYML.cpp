@@ -1,7 +1,7 @@
 /*
-This example shows how to capture point clouds, with color, from the Zivid camera,
-with settings from YML file. The YML files for this sample can be found under the main instructions
-for Zivid samples.
+Capture point clouds, with color, from the Zivid camera, with settings from YML file.
+
+The YML files for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
@@ -18,7 +18,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Creating settings from file" << std::endl;
-        std::string cameraModel = camera.info().modelName().toString().substr(0, 9);
+        std::string cameraModel = camera.info().model().toString().substr(0, 8);
         const auto settingsFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + cameraModel + "/Settings01.yml";
         const auto settings = Zivid::Settings(settingsFile);
 

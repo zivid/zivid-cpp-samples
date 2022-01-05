@@ -1,5 +1,5 @@
 /*
-This example shows how to capture point clouds with multiple cameras sequentially.
+Capture point clouds with multiple cameras sequentially.
 */
 
 #include <Zivid/Zivid.h>

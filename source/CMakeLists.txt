@@ -10,7 +10,8 @@ set(ZIVID_VERSION 2.5.0)
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
-option(USE_ARUCO "Enable samples which depend on ArUco (OpenCV with extra modules)" OFF)
+option(USE_ARUCO
+       "Enable samples which depend on ArUco (OpenCV with extra modules)" OFF)
 
 set(SAMPLES
     Camera/Basic/Capture
@@ -55,14 +56,45 @@ set(SAMPLES
     Applications/Advanced/ROIBoxViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
-set(PCL_DEPENDING MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals StitchByTransformation StitchByTransformationFromZDF ROIBoxViaArucoMarker)
-set(OpenCV_DEPENDING CaptureUndistortRGB UtilizeEyeInHandCalibration PoseConversions CreateDepthMap MaskPointCloud MultiCameraCalibration MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF TransformPointCloudViaArucoMarker AllocateMemoryForPointCloudData ROIBoxViaArucoMarker)
-set(Visualization_DEPENDING CaptureVis3D CaptureLiveVis3D CaptureFromFileCameraVis3D Downsample CaptureWritePCLVis3D CaptureUndistortRGB CreateDepthMap ROIBoxViaArucoMarker)
-set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation StitchByTransformationFromZDF)
+set(PCL_DEPENDING
+    MaskPointCloud
+    ReadPCLVis3D
+    CaptureWritePCLVis3D
+    CaptureHDRVisNormals
+    StitchByTransformation
+    StitchByTransformationFromZDF
+    ROIBoxViaArucoMarker)
+set(OpenCV_DEPENDING
+    CaptureUndistortRGB
+    UtilizeEyeInHandCalibration
+    PoseConversions
+    CreateDepthMap
+    MaskPointCloud
+    MultiCameraCalibration
+    MultiCameraCalibrationFromZDF
+    StitchByTransformation
+    StitchByTransformationFromZDF
+    TransformPointCloudViaArucoMarker
+    AllocateMemoryForPointCloudData
+    ROIBoxViaArucoMarker)
+set(Visualization_DEPENDING
+    CaptureVis3D
+    CaptureLiveVis3D
+    CaptureFromFileCameraVis3D
+    Downsample
+    CaptureWritePCLVis3D
+    CaptureUndistortRGB
+    CreateDepthMap
+    ROIBoxViaArucoMarker)
+set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF
+                    StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
 
-find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
+find_package(
+    Zivid ${ZIVID_VERSION}
+    COMPONENTS Core
+    REQUIRED)
 find_package(Threads REQUIRED)
 
 macro(disable_samples DEPENDENCY_NAME)
@@ -79,10 +111,16 @@ endmacro()
 
 if(USE_EIGEN3)
     if(NOT DEFINED EIGEN3_INCLUDE_DIR)
-        message(FATAL_ERROR "Please point EIGEN3_INCLUDE_DIR to the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.), or disable the Eigen samples (-DUSE_EIGEN3=OFF).")
+        message(
+            FATAL_ERROR
+                "Please point EIGEN3_INCLUDE_DIR to the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.), or disable the Eigen samples (-DUSE_EIGEN3=OFF)."
+        )
     else()
         if(NOT IS_DIRECTORY "${EIGEN3_INCLUDE_DIR}/Eigen")
-            message(FATAL_ERROR "EIGEN3_INCLUDE_DIR was set to ${EIGEN3_INCLUDE_DIR}, which is not a valid Eigen 3 directory. Please correct this, or disable the Eigen samples (-DUSE_EIGEN3=OFF).")
+            message(
+                FATAL_ERROR
+                    "EIGEN3_INCLUDE_DIR was set to ${EIGEN3_INCLUDE_DIR}, which is not a valid Eigen 3 directory. Please correct this, or disable the Eigen samples (-DUSE_EIGEN3=OFF)."
+            )
         endif()
     endif()
 else()
@@ -92,26 +130,35 @@ endif()
 if(USE_PCL)
     find_package(PCL 1.2)
     if(NOT PCL_FOUND)
-        message(FATAL_ERROR "Point Cloud Library (PCL) not found. Please point PCL_DIR to the directory of your PCL installation (containing the file PCLConfig.cmake), or disable the PCL samples with -DUSE_PCL=OFF.")
+        message(
+            FATAL_ERROR
+                "Point Cloud Library (PCL) not found. Please point PCL_DIR to the directory of your PCL installation (containing the file PCLConfig.cmake), or disable the PCL samples with -DUSE_PCL=OFF."
+        )
     endif()
 else()
     disable_samples("PCL")
 endif()
 
 if(USE_OPENCV)
-	set(OPENCV_COMMON_MODULES core highgui calib3d)
-	if(USE_ARUCO)
-		find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES} aruco)
-		if(NOT OpenCV_FOUND)
-			message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake). If you don't have OpenCV with extra modules (OpenCV_Contrib), disable the ArUco samples with -DUSE_ARUCO=OFF.")
-		endif()
-	else()
-	    disable_samples("ArUco")
-	    find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES})
-		if(NOT OpenCV_FOUND)
-			message(FATAL_ERROR "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF.")
-		endif()
-	endif()
+    set(OPENCV_COMMON_MODULES core highgui calib3d)
+    if(USE_ARUCO)
+        find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES} aruco)
+        if(NOT OpenCV_FOUND)
+            message(
+                FATAL_ERROR
+                    "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake). If you don't have OpenCV with extra modules (OpenCV_Contrib), disable the ArUco samples with -DUSE_ARUCO=OFF."
+            )
+        endif()
+    else()
+        disable_samples("ArUco")
+        find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES})
+        if(NOT OpenCV_FOUND)
+            message(
+                FATAL_ERROR
+                    "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF."
+            )
+        endif()
+    endif()
 else()
     disable_samples("OpenCV")
 endif()
@@ -127,26 +174,33 @@ else()
 endif()
 file(TO_CMAKE_PATH "${ZIVID_SAMPLE_DATA_DIR}" ZIVID_SAMPLE_DATA_DIR)
 
+set(SAMPLE_NAMES_LIST_FILE "${CMAKE_BINARY_DIR}/SampleNames.txt")
+file(REMOVE ${SAMPLE_NAMES_LIST_FILE})
 foreach(SAMPLE ${SAMPLES})
     get_filename_component(SAMPLE_NAME ${SAMPLE} NAME)
+
+    file(APPEND "${SAMPLE_NAMES_LIST_FILE}" ${SAMPLE}\n)
 
     add_executable(${SAMPLE_NAME} ${SAMPLE}/${SAMPLE_NAME}.cpp)
 
     target_link_libraries(${SAMPLE_NAME} Zivid::Core)
-    
-    target_compile_definitions(${SAMPLE_NAME} PRIVATE ZIVID_SAMPLE_DATA_DIR="${ZIVID_SAMPLE_DATA_DIR}")
+
+    target_compile_definitions(
+        ${SAMPLE_NAME} PRIVATE ZIVID_SAMPLE_DATA_DIR="${ZIVID_SAMPLE_DATA_DIR}")
 
     if(${SAMPLE_NAME} IN_LIST Visualization_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Zivid::Visualization)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Eigen3_DEPENDING)
-        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${EIGEN3_INCLUDE_DIR})
+        target_include_directories(${SAMPLE_NAME} SYSTEM
+                                   PRIVATE ${EIGEN3_INCLUDE_DIR})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST PCL_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} ${PCL_LIBRARIES})
-        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})
+        target_include_directories(${SAMPLE_NAME} SYSTEM
+                                   PRIVATE ${PCL_INCLUDE_DIRS})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
@@ -154,7 +208,9 @@ foreach(SAMPLE ${SAMPLES})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)
-        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
+        target_include_directories(
+            ${SAMPLE_NAME} SYSTEM
+            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
@@ -163,5 +219,5 @@ foreach(SAMPLE ${SAMPLES})
 
 endforeach()
 
-target_compile_definitions(ZividBenchmark PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")
-set_target_properties(CaptureHDRVisNormals PROPERTIES CXX_CLANG_TIDY "")
+target_compile_definitions(ZividBenchmark
+                           PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")

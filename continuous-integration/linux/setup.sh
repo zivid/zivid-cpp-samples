@@ -3,7 +3,7 @@
 # This script uses info in /etc/os-release to dispatch setup to a
 # platform specific implementation
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Elevate permissions
 if [ $EUID != 0 ]; then
