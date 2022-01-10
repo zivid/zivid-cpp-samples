@@ -1,5 +1,5 @@
 /*
-This example shows how to warm up the camera.
+Short example of a basic way to warm up the camera with specified time and capture cycle.
 */
 
 #include <Zivid/Zivid.h>

@@ -1,5 +1,5 @@
 /*
-This example shows how to read information from each connected camera.
+List connected cameras and print version information.
 */
 
 #include <Zivid/Zivid.h>

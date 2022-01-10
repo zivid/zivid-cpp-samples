@@ -1,4 +1,6 @@
 /*
+Convert point cloud from ZDF file to OpenCV format, extract depth map and visualize it. 
+
 This example shows how to convert point cloud from ZDF file to OpenCV format, then extract and visualize depth map. The
 ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
@@ -54,7 +56,7 @@ namespace
 
     cv::Mat pointCloudToCvZ(const Zivid::PointCloud &pointCloud)
     {
-        cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0));
+        cv::Mat z(pointCloud.height(), pointCloud.width(), CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
         const auto points = pointCloud.copyPointsZ();
 
         // Getting min and max values for X, Y, Z images

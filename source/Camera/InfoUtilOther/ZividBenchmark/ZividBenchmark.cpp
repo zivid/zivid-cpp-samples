@@ -160,6 +160,11 @@ namespace
         std::cout << "  exposure Time = { " << settings.acquisitions().at(0).exposureTime() << " }" << std::endl;
     }
 
+    void printCopyHeader(const size_t numCopies)
+    {
+        printHeaderLine("Copying various data ", numCopies, " times each (be patient):");
+    }
+
     void printSaveHeader(const size_t numFrames)
     {
         printHeaderLine("Saving point cloud ", numFrames, " times each (be patient):");
@@ -187,8 +192,9 @@ namespace
 
     void printCapture3DResults(const std::vector<Duration> &durations)
     {
-        printResults({ "  3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
-                     durations);
+        printResults(
+            { "  3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
+            durations);
     }
 
     void printAssistedCapture3DResults(const std::vector<Duration> &durations)
@@ -215,6 +221,20 @@ namespace
     void printCapture2DResults(const std::vector<Duration> &durations)
     {
         printResults({ "  Total 2D capture time:" }, durations);
+    }
+
+    void printCopyDataResults(std::array<std::vector<Duration>, 9> &durations, const size_t numCopies)
+    {
+        printCopyHeader(numCopies);
+        printResults({ "   copyData<PointXYZ>: " }, durations[0]);
+        printResults({ "  copyData<PointXYZW>: " }, durations[1]);
+        printResults({ "     copyData<PointZ>: " }, durations[2]);
+        printResults({ "  copyData<ColorRGBA>: " }, durations[3]);
+        printResults({ "        copyData<SNR>: " }, durations[4]);
+        printResults({ "  copyData<ColorRGBA>: " }, durations[5]);
+        printResults({ "  copyData<ColorBGRA>: " }, durations[6]);
+        printResults({ "      copyImageRGBA(): " }, durations[7]);
+        printResults({ "  copyData<NormalXYZ>: " }, durations[8]);
     }
 
     void printSaveResults(const std::vector<Duration> &durations)
@@ -252,10 +272,11 @@ namespace
         return std::chrono::microseconds{ 1677 }; // Min for Zivid Two
     }
 
-    Zivid::Settings makeSettings(const std::vector<double> &apertures,
-                                 const std::vector<std::chrono::microseconds> &exposureTimes,
-                                 const bool enableGaussian,
-                                 const bool enableReflection)
+    Zivid::Settings makeSettings(
+        const std::vector<double> &apertures,
+        const std::vector<std::chrono::microseconds> &exposureTimes,
+        const bool enableGaussian,
+        const bool enableReflection)
     {
         if(apertures.size() != exposureTimes.size())
         {
@@ -309,9 +330,8 @@ namespace
         printConnectResults(allDurations);
     }
 
-    std::vector<Duration> benchmarkCapture3D(Zivid::Camera &camera,
-                                             const Zivid::Settings &settings,
-                                             const size_t numFrames)
+    std::vector<Duration>
+    benchmarkCapture3D(Zivid::Camera &camera, const Zivid::Settings &settings, const size_t numFrames)
     {
         printCapture3DHeader(numFrames, settings);
 
@@ -383,17 +403,20 @@ namespace
         printAssistedCapture3DResults(allDurations);
     }
 
-    std::tuple<Duration, Duration> benchmarkFilterProcessing(const std::vector<Duration> &captureDuration,
-                                                             const std::vector<Duration> &captureDurationFilter)
+    std::tuple<Duration, Duration> benchmarkFilterProcessing(
+        const std::vector<Duration> &captureDuration,
+        const std::vector<Duration> &captureDurationFilter)
     {
-        return std::make_tuple((computeMedianDuration(captureDurationFilter) - computeMedianDuration(captureDuration)),
-                               computeAverageDuration(captureDurationFilter) - computeAverageDuration(captureDuration));
+        return std::make_tuple(
+            (computeMedianDuration(captureDurationFilter) - computeMedianDuration(captureDuration)),
+            computeAverageDuration(captureDurationFilter) - computeAverageDuration(captureDuration));
     }
 
-    void benchmarkCapture3DAndFilters(Zivid::Camera &camera,
-                                      const std::vector<double> &apertures,
-                                      const std::vector<std::chrono::microseconds> &exposureTimes,
-                                      const size_t numFrames3D)
+    void benchmarkCapture3DAndFilters(
+        Zivid::Camera &camera,
+        const std::vector<double> &apertures,
+        const std::vector<std::chrono::microseconds> &exposureTimes,
+        const size_t numFrames3D)
     {
         std::vector<std::string> subtestName{
             "Without filters", "With Gaussian filter", "With Reflection filter", "With Gaussian and Reflection filter"
@@ -412,10 +435,8 @@ namespace
         {
             printSubtestHeader(subtestName.at(i + 1));
 
-            const std::vector<Duration> captureDurationWithFilter =
-                benchmarkCapture3D(camera,
-                                   makeSettings(apertures, exposureTimes, gaussian.at(i), reflection.at(i)),
-                                   numFrames3D);
+            const std::vector<Duration> captureDurationWithFilter = benchmarkCapture3D(
+                camera, makeSettings(apertures, exposureTimes, gaussian.at(i), reflection.at(i)), numFrames3D);
 
             const auto meanAndAverageFilterDurations =
                 benchmarkFilterProcessing(captureDurationWithoutFilter, captureDurationWithFilter);
@@ -448,6 +469,8 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeCapture = HighResClock::now();
+            // The 2D capture API returns after the 2D image is available in CPU memory.
+            // All the acquisition, processing, and copying happen inside this function call.
             const auto frame2D = camera.capture(settings);
             const auto afterCapture = HighResClock::now();
 
@@ -457,6 +480,81 @@ namespace
         allDurations.push_back(computeAverageDuration(captureDurations));
 
         printCapture2DResults(allDurations);
+    }
+
+    Zivid::Frame assistedCapture(Zivid::Camera &camera)
+    {
+        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+        };
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+        return camera.capture(settings);
+    }
+
+    template<typename DataType>
+    Duration copyDataTime(Zivid::Frame &frame)
+    {
+        auto pointCloud = frame.pointCloud();
+        const auto beforeCopyData = HighResClock::now();
+        pointCloud.copyData<DataType>();
+        const auto afterCopyData = HighResClock::now();
+        return afterCopyData - beforeCopyData;
+    }
+
+    Duration copyDataTime(Zivid::Frame2D &frame2D)
+    {
+        const auto beforeCopyData = HighResClock::now();
+        // The method to get the image from the Frame2D object returns the image right away.
+        // The image object holds a handle to the image data in CPU memory.
+        frame2D.imageRGBA();
+        const auto afterCopyData = HighResClock::now();
+        return afterCopyData - beforeCopyData;
+    }
+
+    void benchmarkCopyData(Zivid::Camera &camera, const std::chrono::microseconds exposureTime, const size_t numCopies)
+    {
+        constexpr int numData = 9;
+        std::array<std::vector<Duration>, numData> copyDataDurations;
+        std::array<std::vector<Duration>, numData> allDurations;
+
+        auto warmupFrame = assistedCapture(camera);
+        const auto setting2D = makeSettings2D(exposureTime);
+        auto warmupFrame2D = camera.capture(setting2D);
+
+        copyDataTime<Zivid::PointXYZ>(warmupFrame);
+        copyDataTime<Zivid::PointXYZW>(warmupFrame);
+        copyDataTime<Zivid::PointZ>(warmupFrame);
+        copyDataTime<Zivid::ColorRGBA>(warmupFrame);
+        copyDataTime<Zivid::SNR>(warmupFrame);
+        copyDataTime<Zivid::PointXYZColorRGBA>(warmupFrame);
+        copyDataTime<Zivid::PointXYZColorBGRA>(warmupFrame);
+        copyDataTime(warmupFrame2D);
+        copyDataTime<Zivid::NormalXYZ>(warmupFrame);
+
+        for(size_t i = 0; i < numCopies; i++)
+        {
+            auto frame = assistedCapture(camera);
+            auto frame2D = camera.capture(setting2D);
+
+            copyDataDurations[0].push_back(copyDataTime<Zivid::PointXYZ>(frame));
+            copyDataDurations[1].push_back(copyDataTime<Zivid::PointXYZW>(frame));
+            copyDataDurations[2].push_back(copyDataTime<Zivid::PointZ>(frame));
+            copyDataDurations[3].push_back(copyDataTime<Zivid::ColorRGBA>(frame));
+            copyDataDurations[4].push_back(copyDataTime<Zivid::SNR>(frame));
+            copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA>(frame));
+            copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA>(frame));
+            copyDataDurations[7].push_back(copyDataTime(frame2D));
+            copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
+        }
+
+        for(size_t i = 0; i < numData; i++)
+        {
+            allDurations[i].push_back(computeMedianDuration(copyDataDurations[i]));
+            allDurations[i].push_back(computeAverageDuration(copyDataDurations[i]));
+        }
+
+        printCopyDataResults(allDurations, numCopies);
     }
 
     void benchmarkSave(Zivid::Camera &camera, const size_t numFrames)
@@ -500,6 +598,7 @@ int main()
         const size_t numFrames3D = 20;
         const size_t numFrames2D = 50;
         const size_t numFramesSave = 10;
+        const size_t numCopies = 10;
 
         const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
@@ -523,7 +622,9 @@ int main()
         benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
         printHeader("TEST 6: 2D Capture");
         benchmarkCapture2D(camera, makeSettings2D(exposureTime), numFrames2D);
-        printHeader("TEST 7: Save");
+        printHeader("TEST 7: Copy Data");
+        benchmarkCopyData(camera, exposureTime, numCopies);
+        printHeader("TEST 8: Save");
         benchmarkSave(camera, numFramesSave);
     }
     catch(const std::exception &e)

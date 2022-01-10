@@ -1,5 +1,7 @@
 /*
-This example shows how to read settings info from the Zivid camera.
+Read settings info from the Zivid camera.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Experimental/SettingsInfo.h>
@@ -29,7 +31,7 @@ int main()
             Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings::Acquisition::Aperture>(cameraInfo);
         std::cout << defaultSettingValue << std::endl;
 
-        std::cout << "Valid camera (e.g., Aperture) setting range (for settings of type double and duration):"
+        std::cout << "Valid camera (e.g., Aperture) setting range (for settings of types double and duration):"
                   << std::endl;
         const auto validSettingRange =
             Zivid::Experimental::SettingsInfo::validRange<Zivid::Settings::Acquisition::Aperture>(cameraInfo);
