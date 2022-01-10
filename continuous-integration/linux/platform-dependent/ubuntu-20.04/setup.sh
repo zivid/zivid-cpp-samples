@@ -18,8 +18,8 @@ apt-yes install \
     libeigen3-dev \
     libopencv-dev \
     wget \
-    ninja-build \
-    || exit $?
+    ninja-build ||
+    exit $?
 
 function install_www_deb {
     TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit $?
@@ -31,5 +31,5 @@ function install_www_deb {
     rm -r $TMP_DIR || exit $?
 }
 
-install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.5.0+19fa6891-1/u18/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit $?
-install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.5.0+19fa6891-1/u18/zivid_2.5.0+19fa6891-1_amd64.deb || exit $?
+install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.6.0+fa0036c5-1/u20/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit $?
+install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.6.0+fa0036c5-1/u20/zivid_2.6.0+fa0036c5-1_amd64.deb || exit $?

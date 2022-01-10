@@ -1,5 +1,5 @@
 /*
-This example shows how to capture 2D images from the Zivid camera.
+Capture 2D images from the Zivid camera.
 */
 
 #include <Zivid/Zivid.h>
@@ -24,9 +24,9 @@ int main()
                                    Zivid::Settings2D::Acquisition::Aperture{ 11.31 },
                                    Zivid::Settings2D::Acquisition::Brightness{ 1.80 },
                                    Zivid::Settings2D::Acquisition::Gain{ 2.0 } } },
-                               Zivid::Settings2D::Processing::Color::Balance::Red{ 1.0 },
-                               Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
-                               Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 } };
+                               Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
+                               Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
+                               Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings2D);

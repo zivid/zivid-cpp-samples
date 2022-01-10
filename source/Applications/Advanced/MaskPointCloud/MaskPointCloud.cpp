@@ -1,6 +1,7 @@
 /*
-This example shows how to mask a point cloud from ZDF file
-and store the resulting point cloud in PCL format.
+Mask point cloud from ZDF file and convert to PCL format, extract depth map and visualize it.
+
+This example shows how to mask a point cloud from ZDF file and store the resulting point cloud in PCL format.
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
@@ -8,27 +9,28 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 
 #include <opencv2/opencv.hpp>
 
+#include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/cloud_viewer.h>
 
 #include <iostream>
 #include <thread>
 
 namespace
 {
-    void visualizePointCloud(const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
+    void visualizePointCloud(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr &pointCloud)
     {
-        auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
+        auto viewer = pcl::visualization::PCLVisualizer("Viewer");
 
-        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloud);
+        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloud);
 
-        viewer->setCameraPosition(0, 0, 100, 0, -1, 0);
+        viewer.setCameraPosition(0, 0, 100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
-        while(!viewer->wasStopped())
+        while(!viewer.wasStopped())
         {
-            viewer->spinOnce(100);
+            viewer.spinOnce(100);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
@@ -48,7 +50,7 @@ namespace
         }
 
         // Filling in OpenCV matrix with the cloud data
-        cv::Mat z(pointCloud.height, pointCloud.width, CV_8UC1, cv::Scalar(0));
+        cv::Mat z(pointCloud.height, pointCloud.width, CV_8UC1, cv::Scalar(0)); // NOLINT(hicpp-signed-bitwise)
         for(size_t i = 0; i < pointCloud.height; i++)
         {
             for(size_t j = 0; j < pointCloud.width; j++)
@@ -87,8 +89,7 @@ namespace
         return zColorMap;
     }
 
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> maskPointCloud(const Zivid::PointCloud &pointCloud,
-                                                                        const cv::Mat &mask)
+    pcl::PointCloud<pcl::PointXYZRGB> maskPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &mask)
     {
         const auto data = pointCloud.copyPointsXYZColorsRGBA();
         const int height = data.height();
@@ -125,7 +126,7 @@ namespace
             }
         }
 
-        return boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>(maskedPointCloud);
+        return maskedPointCloud;
     }
 
     void visualizeDepthMap(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
@@ -138,7 +139,7 @@ namespace
         cv::waitKey(0);
     }
 
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
+    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
     {
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
 
@@ -159,7 +160,7 @@ namespace
             pointCloudPCL.points[i].g = data(i).color.g; // NOLINT(cppcoreguidelines-pro-type-union-access)
             pointCloudPCL.points[i].b = data(i).color.b; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
-        return boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>(pointCloudPCL);
+        return pointCloudPCL;
     }
 
 } // namespace
@@ -187,30 +188,30 @@ int main()
         const int widthMin = (width - pixelsToDisplay) / 2;
         const int widthMax = (width + pixelsToDisplay) / 2;
         cv::Mat mask = cv::Mat::zeros(height, width, CV_8U);
-        cv::rectangle(mask,
-                      cv::Point(widthMin, heightMin),
-                      cv::Point(widthMax, heightMax),
-                      cv::Scalar(255, 255, 255),
-                      cv::FILLED);
+        cv::rectangle(
+            mask,
+            cv::Point(widthMin, heightMin),
+            cv::Point(widthMax, heightMax),
+            cv::Scalar(255, 255, 255),
+            cv::FILLED);
 
         std::cout << "Converting to PCL point cloud" << std::endl;
         const auto pointCloudPCL = convertToPCLPointCloud(pointCloud);
 
         std::cout << "Displaying point cloud before masking" << std::endl;
-        visualizePointCloud(pointCloudPCL);
+        visualizePointCloud(pointCloudPCL.makeShared());
 
         std::cout << "Displaying depth map before masking" << std::endl;
-        visualizeDepthMap(*pointCloudPCL);
+        visualizeDepthMap(pointCloudPCL);
 
         std::cout << "Masking point cloud" << std::endl;
-        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> maskedPointCloudPCL =
-            maskPointCloud(pointCloud, mask);
+        const pcl::PointCloud<pcl::PointXYZRGB> maskedPointCloudPCL = maskPointCloud(pointCloud, mask);
 
         std::cout << "Displaying point cloud after masking" << std::endl;
-        visualizePointCloud(maskedPointCloudPCL);
+        visualizePointCloud(maskedPointCloudPCL.makeShared());
 
         std::cout << "Displaying depth map after masking" << std::endl;
-        visualizeDepthMap(*maskedPointCloudPCL);
+        visualizeDepthMap(maskedPointCloudPCL);
     }
 
     catch(const std::exception &e)

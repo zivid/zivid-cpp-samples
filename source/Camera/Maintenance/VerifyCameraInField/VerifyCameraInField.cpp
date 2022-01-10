@@ -1,9 +1,14 @@
 /*
+Check the dimension trueness of a Zivid camera.
+
 This example shows how to verify the local dimension trueness of a camera.
 If the trueness is much worse than expected, the camera may have been damaged by
 shock in shipping in handling. If so, look at the CorrectCameraInField sample.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <iomanip>
@@ -39,8 +44,8 @@ int main()
         const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
         if(!input.valid())
         {
-            throw std::runtime_error("Capture not valid for in-field verification! Feedback: "
-                                     + input.statusDescription());
+            throw std::runtime_error(
+                "Capture not valid for in-field verification! Feedback: " + input.statusDescription());
         }
 
         // Show results

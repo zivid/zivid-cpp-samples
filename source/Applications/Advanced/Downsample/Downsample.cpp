@@ -1,6 +1,5 @@
 /*
-This example shows how to downsample point cloud from ZDF file. The ZDF file for this sample can be found under the
-main instructions for Zivid samples.
+Downsample point cloud from ZDF file.
 */
 
 #include <Zivid/Visualization/Visualizer.h>

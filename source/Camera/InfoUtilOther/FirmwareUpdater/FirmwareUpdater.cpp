@@ -1,5 +1,5 @@
 /*
-This example shows how to update firmware on the Zivid camera.
+Update firmware on the Zivid camera.
 */
 
 #include <Zivid/Zivid.h>
@@ -15,18 +15,17 @@ int main()
         Zivid::Application zivid;
 
         auto cameras = zivid.cameras();
-
         if(cameras.empty())
         {
             std::cout << "No camera found." << std::endl;
             return EXIT_FAILURE;
         }
         std::cout << "Found " << cameras.size() << " camera(s)." << std::endl;
-
         for(auto &camera : cameras)
         {
             if(!Zivid::Firmware::isUpToDate(camera))
             {
+                std::cout << "Firmware update required" << std::endl;
                 std::cout << "Updating firmware on camera " << camera.info().serialNumber()
                           << ", model name: " << camera.info().modelName()
                           << ", firmware version: " << camera.info().firmwareVersion() << std::endl;
