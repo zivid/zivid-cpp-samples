@@ -1,3 +1,7 @@
+/*
+Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from connected cameras.
+*/
+
 #include <opencv2/core/core.hpp>
 
 #include <pcl/io/pcd_io.h>
@@ -35,8 +39,9 @@ namespace
         Zivid::Camera &mCamera;
     };
 
-    Zivid::Camera &getCameraBySerialNumber(std::vector<Zivid::Camera> &cameras,
-                                           const Zivid::CameraInfo::SerialNumber &serialNumber)
+    Zivid::Camera &getCameraBySerialNumber(
+        std::vector<Zivid::Camera> &cameras,
+        const Zivid::CameraInfo::SerialNumber &serialNumber)
     {
         auto cameraIterator = std::find_if(cameras.begin(), cameras.end(), [&](Zivid::Camera &camera) {
             return (camera.info().serialNumber() == serialNumber);
@@ -48,8 +53,9 @@ namespace
         return *cameraIterator;
     }
 
-    std::vector<TransformationMatrixAndCameraMap> getTransformationMatricesFromYAML(const std::string &path,
-                                                                                    std::vector<Zivid::Camera> &cameras)
+    std::vector<TransformationMatrixAndCameraMap> getTransformationMatricesFromYAML(
+        const std::string &path,
+        std::vector<Zivid::Camera> &cameras)
     {
         cv::FileStorage fileStorageIn;
         if(!fileStorageIn.open(path, cv::FileStorage::Mode::READ))
@@ -65,8 +71,8 @@ namespace
             const auto transformNode = fileStorageIn["TransformationMatrix_" + std::to_string(i)];
             const auto &cvMat = transformNode.mat();
             const auto transformationMatrix = Zivid::Matrix4x4(cvMat.ptr<float>(0), cvMat.ptr<float>(0) + 16);
-            transformsMappedToCameras.emplace_back(transformationMatrix,
-                                                   getCameraBySerialNumber(cameras, serialNumber));
+            transformsMappedToCameras
+                .emplace_back(transformationMatrix, getCameraBySerialNumber(cameras, serialNumber));
             std::cout << "TransformationMatrix_" << i << ":" << std::endl;
             std::cout << transformationMatrix << std::endl;
         }
@@ -100,7 +106,6 @@ int main(int argc, char **argv)
 {
     try
     {
-        // Find and connect all cameras
         Zivid::Application zivid;
 
         std::string transformationMatricesFileName;
@@ -197,17 +202,16 @@ int main(int argc, char **argv)
         std::cout << "Got " << validPoints << " out of " << maxNumberOfPoints << " points" << std::endl;
 
         // Simple Cloud Visualization
-        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
         *cloudPTR = stitchedPointCloud;
 
         std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
         pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
         viewer.showCloud(cloudPTR);
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
+        std::cout << "Press q to me exit the viewer application" << std::endl;
         while(!viewer.wasStopped())
-        {
-        }
+        {}
         if(saveStitched)
         {
             std::cerr << "Saving " << stitchedPointCloud.points.size()

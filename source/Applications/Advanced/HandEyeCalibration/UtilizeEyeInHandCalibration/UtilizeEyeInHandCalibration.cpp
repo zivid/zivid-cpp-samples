@@ -1,4 +1,6 @@
 /*
+Transform single data point or entire point cloud from camera frame to robot base frame using Eye-in-Hand calibration matrix. 
+
 This example shows how to utilize the result of Eye-in-Hand calibration to transform either a (picking) point
 coordinates or the entire point cloud from the camera frame to the robot base frame. The YAML files for this sample can
 be found under the main instructions for Zivid samples.
@@ -89,8 +91,9 @@ namespace
             const auto cols = poseStateNode.mat().cols;
             if(rows != 4 || cols != 4)
             {
-                throw std::invalid_argument("Expected 4x4 matrix in " + transformFile + ", but got "
-                                            + std::to_string(cols) + "x" + std::to_string(rows));
+                throw std::invalid_argument(
+                    "Expected 4x4 matrix in " + transformFile + ", but got " + std::to_string(cols) + "x"
+                    + std::to_string(rows));
             }
 
             auto poseState = poseStateNode.mat();
@@ -138,10 +141,11 @@ int main()
                 const size_t imageCoordinateY = 666;
                 const auto xyz = pointCloud.copyPointsXYZW();
 
-                const Eigen::Vector4f pointInCameraFrame(xyz(imageCoordinateY, imageCoordinateX).x,
-                                                         xyz(imageCoordinateY, imageCoordinateX).y,
-                                                         xyz(imageCoordinateY, imageCoordinateX).z,
-                                                         xyz(imageCoordinateY, imageCoordinateX).w);
+                const Eigen::Vector4f pointInCameraFrame(
+                    xyz(imageCoordinateY, imageCoordinateX).x,
+                    xyz(imageCoordinateY, imageCoordinateX).y,
+                    xyz(imageCoordinateY, imageCoordinateX).z,
+                    xyz(imageCoordinateY, imageCoordinateX).w);
 
                 std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.x() << " "
                           << pointInCameraFrame.y() << " " << pointInCameraFrame.z() << std::endl;

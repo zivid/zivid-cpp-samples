@@ -1,5 +1,5 @@
 /*
-This example shows how to store user data on the Zivid camera.
+Store user data on the Zivid camera.
 */
 
 #include <Zivid/Zivid.h>

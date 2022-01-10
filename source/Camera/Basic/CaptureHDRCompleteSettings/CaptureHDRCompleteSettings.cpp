@@ -1,9 +1,12 @@
 /*
-This example shows how to capture point clouds, with color, from the Zivid camera.
+Capture point clouds, with color, from the Zivid camera with fully configured settings.
+
 For scenes with high dynamic range we combine multiple acquisitions to get an HDR
 point cloud. This example shows how to fully configure settings for each acquisition.
 In general, capturing an HDR point cloud is a lot simpler than this. The purpose of
 this example is to demonstrate how to configure all the settings.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Zivid.h>
@@ -19,17 +22,17 @@ namespace
            || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusMedium
            || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusLarge)
         {
-            const std::vector<double> aperture{ 8.0, 4.0, 4.0 };
-            const std::vector<double> gain{ 1.0, 1.0, 2.0 };
-            const std::vector<size_t> exposureTime{ 10000, 10000, 40000 };
-            return std::make_tuple(aperture, gain, exposureTime);
+            const std::vector<double> apertures{ 8.0, 4.0, 4.0 };
+            const std::vector<double> gains{ 1.0, 1.0, 2.0 };
+            const std::vector<size_t> exposureTimes{ 10000, 10000, 40000 };
+            return { apertures, gains, exposureTimes };
         }
         if(camera.info().model() == Zivid::CameraInfo::Model::zividTwo)
         {
-            const std::vector<double> aperture{ 5.66, 2.38, 1.8 };
-            const std::vector<double> gain{ 1.0, 1.0, 1.0 };
-            const std::vector<size_t> exposureTime{ 1677, 5000, 100000 };
-            return std::make_tuple(aperture, gain, exposureTime);
+            const std::vector<double> apertures{ 5.66, 2.38, 1.8 };
+            const std::vector<double> gains{ 1.0, 1.0, 1.0 };
+            const std::vector<size_t> exposureTimes{ 1677, 5000, 100000 };
+            return { apertures, gains, exposureTimes };
         }
         throw std::invalid_argument("Unknown camera model");
     }
@@ -81,11 +84,10 @@ int main()
             std::cout << "  Exposure Time: " << exposureTime.at(i) << std::endl;
             std::cout << "  Aperture: " << aperture.at(i) << std::endl;
             std::cout << "  Gain: " << gain.at(i) << std::endl;
-            const auto acquisitionSettings =
-                baseAcquisition.copyWith(Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
-                                         Zivid::Settings::Acquisition::Gain{ gain.at(i) },
-                                         Zivid::Settings::Acquisition::ExposureTime{
-                                             std::chrono::microseconds{ exposureTime.at(i) } });
+            const auto acquisitionSettings = baseAcquisition.copyWith(
+                Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
+                Zivid::Settings::Acquisition::Gain{ gain.at(i) },
+                Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ exposureTime.at(i) } });
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 

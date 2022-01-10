@@ -1,7 +1,6 @@
 /*
-This example shows how to transform a point cloud from camera to ArUco Marker coordinate frame
-by estimating the marker's pose from the point cloud. The ZDF file for this sample can be found
-under the main instructions for Zivid samples.
+Transform a point cloud from camera to ArUco Marker coordinate frame by estimating the marker's pose from the
+point cloud. The ZDF file for this sample can be found under the main instructions for Zivid samples.
 
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
@@ -63,8 +62,9 @@ namespace
         return markerCenter;
     }
 
-    std::vector<cv::Point3f> estimate3DMarkerPoints(const Zivid::PointCloud &pointCloud,
-                                                    const std::vector<cv::Point2f> &markerPoints2D)
+    std::vector<cv::Point3f> estimate3DMarkerPoints(
+        const Zivid::PointCloud &pointCloud,
+        const std::vector<cv::Point2f> &markerPoints2D)
     {
         if(markerPoints2D.empty())
         {
@@ -145,8 +145,9 @@ namespace
         return transformMatrix;
     }
 
-    Zivid::Matrix4x4 estimateArUcoMarkerPose(const Zivid::PointCloud &pointCloud,
-                                             const std::vector<cv::Point2f> &markerCorners)
+    Zivid::Matrix4x4 estimateArUcoMarkerPose(
+        const Zivid::PointCloud &pointCloud,
+        const std::vector<cv::Point2f> &markerCorners)
     {
         // Extracting 2D corners and estimateing 2D center
         const auto center2D = estimate2DMarkerCenter(markerCorners);
@@ -158,13 +159,11 @@ namespace
         // Extracting origin and calculating normal vectors for x-, y- and z-axis
         const auto origin = cv::Vec3f(center3D.x, center3D.y, center3D.z);
 
-        const auto xAxis = cv::Vec3f(corners3D[2].x - corners3D[1].x,
-                                     corners3D[2].y - corners3D[1].y,
-                                     corners3D[2].z - corners3D[1].z);
+        const auto xAxis = cv::Vec3f(
+            corners3D[2].x - corners3D[1].x, corners3D[2].y - corners3D[1].y, corners3D[2].z - corners3D[1].z);
 
-        const auto yAxis = cv::Vec3f(corners3D[0].x - corners3D[1].x,
-                                     corners3D[0].y - corners3D[1].y,
-                                     corners3D[0].z - corners3D[1].z);
+        const auto yAxis = cv::Vec3f(
+            corners3D[0].x - corners3D[1].x, corners3D[0].y - corners3D[1].y, corners3D[0].z - corners3D[1].z);
 
         const auto u = xAxis / cv::norm(xAxis, cv::NORM_L2);
         const auto v = yAxis / cv::norm(yAxis, cv::NORM_L2);

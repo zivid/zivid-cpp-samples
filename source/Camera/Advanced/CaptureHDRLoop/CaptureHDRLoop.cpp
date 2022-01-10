@@ -1,8 +1,8 @@
 /*
-This example shows how to cover the same dynamic range in a scene with different acquisition settings.
-This possibility allows to optimize settings for quality, speed, or to find a compromise. The camera
-captures multi acquisition HDR point clouds in a loop, with settings from YML files. The YML files for this sample can
-be found under the main instructions for Zivid samples.
+Cover the same dynamic range in a scene with different acquisition settings to optimize for quality, speed, or to find a compromise.
+
+The camera captures multi acquisition HDR point clouds in a loop, with settings from YML files.
+The YML files for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>
@@ -18,7 +18,7 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        const auto cameraModel = camera.info().modelName().toString().substr(0, 9);
+        const auto cameraModel = camera.info().model().toString().substr(0, 8);
         const size_t captures = 3;
         for(size_t i = 1; i <= captures; i++)
         {

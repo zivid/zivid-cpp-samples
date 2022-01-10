@@ -1,5 +1,5 @@
 /*
-This example shows how to read intrinsic parameters from the Zivid camera (OpenCV model).
+Read intrinsic parameters from the Zivid camera (OpenCV model).
 */
 
 #include <Zivid/Experimental/Calibration.h>

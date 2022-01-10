@@ -1,6 +1,7 @@
 /*
-This example shows how to read point cloud data from a ZDF file, iterate through it, and extract individual points. The
-ZDF file for this sample can be found under the main instructions for Zivid samples.
+Read point cloud data from a ZDF file, iterate through it, and extract individual points.
+
+The ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Zivid.h>

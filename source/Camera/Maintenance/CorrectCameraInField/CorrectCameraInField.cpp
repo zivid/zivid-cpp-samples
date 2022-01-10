@@ -1,4 +1,6 @@
 /*
+Correct the dimension trueness of a Zivid camera.
+
 This example shows how to perform In-field correction. This involves gathering data from
 a compatible calibration board at several distances, calculating an updated camera
 correction, and optionally saving that new correction to the camera.
@@ -6,8 +8,11 @@ correction, and optionally saving that new correction to the camera.
 The correction will persist on the camera even though the camera is power-cycled or
 connected to a different PC. After saving a correction, it will automatically be used any
 time that camera captures a new point cloud.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
@@ -83,6 +88,7 @@ int main()
     try
     {
         Zivid::Application zivid;
+
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
@@ -91,7 +97,7 @@ int main()
 
         // Calculate in-field correction
         std::cout << "Collected " << dataset.size() << " valid measurements." << std::endl;
-        std::cout << "Calculating new camera correction..." << std::endl;
+        std::cout << "Computing new camera correction..." << std::endl;
         const auto correction = Zivid::Experimental::Calibration::computeCameraCorrection(dataset);
         const auto accuracyEstimate = correction.accuracyEstimate();
         std::cout

@@ -1,5 +1,5 @@
 /*
-This example shows how to capture point clouds, with color, from the Zivid camera, and visualize it.
+Capture point clouds, with color, from the Zivid camera, and visualize it.
 */
 
 #include <Zivid/Visualization/Visualizer.h>
