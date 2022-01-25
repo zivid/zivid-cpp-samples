@@ -249,8 +249,6 @@ CheckOptions:
     value:           ''
   - key:             readability-identifier-naming.LocalVariableSuffix
     value:           ''
-  - key:             readability-identifier-naming.MacroDefinitionCase
-    value:           ''
   - key:             readability-identifier-naming.MacroDefinitionPrefix
     value:           ''
   - key:             readability-identifier-naming.MacroDefinitionSuffix

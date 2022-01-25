@@ -16,7 +16,7 @@ int main()
 
         const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Zivid3D.zdf";
         std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
-        const Zivid::Frame frame = Zivid::Frame(dataFile);
+        const auto frame = Zivid::Frame(dataFile);
 
         std::cout << "Getting point cloud from frame" << std::endl;
         const auto pointCloud = frame.pointCloud();

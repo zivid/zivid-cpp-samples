@@ -20,7 +20,7 @@ To fully understand Hand-Eye Calibration, please see the [tutorial][Tutorial-url
 -----------------
 The following applications assume that a **Transformation Matrix** has been found
 
-[**UtilizeEyeInHandCalibration**][UtilizeEyeInHandCalibration-url]:
+[**UtilizeHandEyeCalibration**][UtilizeHandEyeCalibration-url]:
 
 * Shows how to transform position and rotation (pose) in Camera co-ordinate system to Robot co-ordinate system.
 * Example use case - "Bin Picking":
@@ -34,7 +34,7 @@ The following applications assume that a **Transformation Matrix** has been foun
   * AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
 
 [HandEyeCalibration-url]: HandEyeCalibration/HandEyeCalibration.cpp
-[UtilizeEyeInHandCalibration-url]: UtilizeEyeInHandCalibration/UtilizeEyeInHandCalibration.cpp
+[UtilizeHandEyeCalibration-url]: UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp
 [ZividHandEyeCalibration-url]: https://support.zivid.com/latest/academy/applications/hand-eye/hand-eye-calibration-process.html
 [Tutorial-url]: https://support.zivid.com/latest/academy/applications/hand-eye.html
 [PoseConversions-url]: PoseConversions/PoseConversions.cpp

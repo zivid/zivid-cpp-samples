@@ -47,7 +47,7 @@ set(SAMPLES
     Applications/Advanced/Downsample
     Applications/Advanced/MaskPointCloud
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
-    Applications/Advanced/HandEyeCalibration/UtilizeEyeInHandCalibration
+    Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
     Applications/Advanced/CreateDepthMap
     Applications/Advanced/MultiCamera/MultiCameraCalibration
@@ -55,9 +55,10 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
     Applications/Advanced/TransformPointCloudViaArucoMarker
+    Applications/Advanced/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/ROIBoxViaArucoMarker)
 
-set(Eigen3_DEPENDING UtilizeEyeInHandCalibration PoseConversions)
+set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions)
 set(PCL_DEPENDING
     MaskPointCloud
     ReadPCLVis3D
@@ -68,7 +69,7 @@ set(PCL_DEPENDING
     ROIBoxViaArucoMarker)
 set(OpenCV_DEPENDING
     CaptureUndistortRGB
-    UtilizeEyeInHandCalibration
+    UtilizeHandEyeCalibration
     PoseConversions
     CreateDepthMap
     MaskPointCloud

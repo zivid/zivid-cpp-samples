@@ -5,8 +5,8 @@
 ---
 
 *Contents:*
-1. [Introduction](#Introduction) |
-2. [Initialize](#Initialize) |
+1. [Introduction](#Introduction)
+2. [Initialize](#Initialize)
 3. [Connect](#connect)
 4. [Configure](#configure)
 5. [Capture](#capture)

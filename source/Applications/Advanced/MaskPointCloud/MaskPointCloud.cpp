@@ -1,7 +1,7 @@
 /*
-Mask point cloud from ZDF file and convert to PCL format, extract depth map and visualize it.
+Mask point cloud from a ZDF file and convert to PCL format, extract depth map and visualize it.
 
-This example shows how to mask a point cloud from ZDF file and store the resulting point cloud in PCL format.
+This example shows how to mask a point cloud from a ZDF file and store the resulting point cloud in PCL format.
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 

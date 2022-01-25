@@ -42,7 +42,7 @@ int main()
                   << "  A:" << std::to_string(pixel.a) << std::endl;
 
         const auto *imageFile = "Image.png";
-        std::cout << "Saving image to file: " << imageFile << std::endl;
+        std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
         image.save(imageFile);
     }
     catch(const std::exception &e)

@@ -96,6 +96,10 @@ namespace
         std::cout << "Converting to OpenCV BGR image" << std::endl;
         const auto image = frame.pointCloud().copyImageRGBA();
 
+        const auto *imageFile = "Image.png";
+        std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
+        image.save(imageFile);
+
         return imageToBGR(image);
     }
 
@@ -110,6 +114,10 @@ namespace
         const auto image = frame2D.imageRGBA();
 
         std::cout << "Converting to OpenCV BGR image" << std::endl;
+
+        const auto *imageFile = "Image.png";
+        std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
+        image.save(imageFile);
 
         return imageToBGR(image);
     }

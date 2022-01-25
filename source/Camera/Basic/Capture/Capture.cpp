@@ -31,6 +31,10 @@ int main()
         const auto *dataFile = "Frame.zdf";
         std::cout << "Saving frame to file: " << dataFile << std::endl;
         frame.save(dataFile);
+
+        const auto *dataFilePLY = "PointCloud.ply";
+        std::cout << "Exporting point cloud to file: " << dataFilePLY << std::endl;
+        frame.save(dataFilePLY);
     }
     catch(const std::exception &e)
     {

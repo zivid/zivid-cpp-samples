@@ -2,7 +2,7 @@
 Cover the same dynamic range in a scene with different acquisition settings to optimize for quality, speed, or to find a compromise.
 
 The camera captures multi acquisition HDR point clouds in a loop, with settings from YML files.
-The YML files for this sample can be found under the main instructions for Zivid samples.
+The YML files for this sample can be found under the main Zivid sample instructions.
 */
 
 #include <Zivid/Zivid.h>
@@ -25,7 +25,7 @@ int main()
             std::stringstream settingsFile;
             settingsFile << std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" << cameraModel << "/Settings0" << i
                          << ".yml";
-            std::cout << "Configuring settings from file: " << settingsFile.str() << ":" << std::endl;
+            std::cout << "Loading settings from file: " << settingsFile.str() << ":" << std::endl;
             const auto settings = Zivid::Settings(settingsFile.str());
             std::cout << settings << std::endl;
 
