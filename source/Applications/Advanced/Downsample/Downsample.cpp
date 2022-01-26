@@ -1,5 +1,7 @@
 /*
-Downsample point cloud from ZDF file.
+Downsample point cloud from a ZDF file.
+
+The ZDF files for this sample can be found under the main instructions for Zivid samples.
 */
 
 #include <Zivid/Visualization/Visualizer.h>
@@ -13,6 +15,7 @@ namespace
     {
         std::cout << "Setting up visualization" << std::endl;
         Zivid::Visualization::Visualizer visualizer;
+
         std::cout << "Visualizing point cloud" << std::endl;
         visualizer.showMaximized();
         visualizer.show(pointCloud);
@@ -34,15 +37,26 @@ int main()
         std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
         const auto frame = Zivid::Frame(dataFile);
 
+        std::cout << "Getting point cloud from frame" << std::endl;
         auto pointCloud = frame.pointCloud();
-        std::cout << "Before downsampling: " << pointCloud.size() << " data points" << std::endl;
+
+        std::cout << "Size of point cloud before downsampling: " << pointCloud.size() << " data points" << std::endl;
 
         visualizePointCloud(pointCloud);
 
         std::cout << "Downsampling point cloud" << std::endl;
+        std::cout << "This does not modify the current point cloud but returns" << std::endl;
+        std::cout << "the downsampled point cloud as a new point cloud instance." << std::endl;
+        auto downsampledPointCloud = pointCloud.downsampled(Zivid::PointCloud::Downsampling::by2x2);
+
+        std::cout << "Size of point cloud after downsampling: " << downsampledPointCloud.size() << " data points"
+                  << std::endl;
+
+        std::cout << "Downsampling point cloud (in-place)" << std::endl;
+        std::cout << "This modifies the current point cloud." << std::endl;
         pointCloud.downsample(Zivid::PointCloud::Downsampling::by2x2);
 
-        std::cout << "After downsampling: " << pointCloud.size() << " data points" << std::endl;
+        std::cout << "Size of point cloud after downsampling: " << pointCloud.size() << " data points" << std::endl;
 
         visualizePointCloud(pointCloud);
     }

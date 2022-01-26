@@ -6,6 +6,8 @@ point cloud. This example shows how to fully configure settings for each acquisi
 In general, capturing an HDR point cloud is a lot simpler than this. The purpose of
 this example is to demonstrate how to configure all the settings.
 
+This sample also demonstrates how to save and load settings from file.
+
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
@@ -47,7 +49,7 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring global processing settings:" << std::endl;
+        std::cout << "Configuring processing settings for capture:" << std::endl;
         Zivid::Settings settings{
             Zivid::Settings::Experimental::Engine::phase,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
@@ -100,6 +102,14 @@ int main()
         const auto *dataFile = "Frame.zdf";
         std::cout << "Saving frame to file: " << dataFile << std::endl;
         frame.save(dataFile);
+
+        const auto *settingsFile = "Settings.yml";
+        std::cout << "Saving settings to file: " << settingsFile << std::endl;
+        settings.save(settingsFile);
+
+        std::cout << "Loading settings from file: " << settingsFile << std::endl;
+        const auto settingsFromFile = Zivid::Settings(settingsFile);
+        std::cout << settingsFromFile << std::endl;
     }
     catch(const std::exception &e)
     {

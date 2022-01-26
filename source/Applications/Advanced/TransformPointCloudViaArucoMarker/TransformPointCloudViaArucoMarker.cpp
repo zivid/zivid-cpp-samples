@@ -283,7 +283,7 @@ int main()
         }
 
         const auto *bgrImageFile = "ArucoMarkerDetected.png";
-        std::cout << "Saving image with detected ArUco marker to file: " << bgrImageFile << std::endl;
+        std::cout << "Saving 2D color image with detected ArUco marker to file: " << bgrImageFile << std::endl;
         cv::imwrite(bgrImageFile, bgrImage);
 
         std::cout << "Estimating pose of detected ArUco marker" << std::endl;

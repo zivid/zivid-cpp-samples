@@ -1,5 +1,5 @@
 /*
-Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from ZDF files.
+Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from a ZDF files.
 */
 
 #include <opencv2/core/core.hpp>

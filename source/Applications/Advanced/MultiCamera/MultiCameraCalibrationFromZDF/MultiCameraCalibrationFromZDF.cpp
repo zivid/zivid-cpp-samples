@@ -1,5 +1,5 @@
 /*
-Use captures of a calibration object to generate transformation matrices to a single coordinate frame, from ZDF files.
+Use captures of a calibration object to generate transformation matrices to a single coordinate frame, from a ZDF files.
 */
 
 #include <opencv2/core/core.hpp>

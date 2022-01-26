@@ -1,7 +1,7 @@
 /*
-Convert point cloud from ZDF file to OpenCV format, extract depth map and visualize it. 
+Convert point cloud from a ZDF file to OpenCV format, extract depth map and visualize it. 
 
-This example shows how to convert point cloud from ZDF file to OpenCV format, then extract and visualize depth map. The
+This example shows how to convert point cloud from a ZDF file to OpenCV format, then extract and visualize depth map. The
 ZDF file for this sample can be found under the main instructions for Zivid samples.
 */
 
