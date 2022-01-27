@@ -129,7 +129,7 @@ int main()
         std::cout << "Converting to BGR image in OpenCV format" << std::endl;
         cv::Mat bgr = pointCloudToCvBGR(pointCloud);
 
-        const auto *bgrImageFile = "Image.png";
+        const auto bgrImageFile = "Image.png";
         std::cout << "Visualizing and saving BGR image to file: " << bgrImageFile << std::endl;
         cv::namedWindow("BGR image", cv::WINDOW_AUTOSIZE);
         cv::imshow("BGR image", bgr);
@@ -139,7 +139,7 @@ int main()
         std::cout << "Converting to Depth map in OpenCV format" << std::endl;
         cv::Mat zColorMap = pointCloudToCvZ(pointCloud);
 
-        const auto *depthMapFile = "DepthMap.png";
+        const auto depthMapFile = "DepthMap.png";
         std::cout << "Visualizing and saving Depth map to file: " << depthMapFile << std::endl;
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zColorMap);

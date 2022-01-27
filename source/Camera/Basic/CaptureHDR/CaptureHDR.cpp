@@ -31,7 +31,7 @@ int main()
         std::cout << "Capturing frame (HDR)" << std::endl;
         const auto frame = camera.capture(settings);
 
-        const auto *dataFile = "Frame.zdf";
+        const auto dataFile = "Frame.zdf";
         std::cout << "Saving frame to file: " << dataFile << std::endl;
         frame.save(dataFile);
     }
