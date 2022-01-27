@@ -99,11 +99,11 @@ int main()
         std::cout << "Complete settings used:" << std::endl;
         std::cout << frame.settings() << std::endl;
 
-        const auto *dataFile = "Frame.zdf";
+        const auto dataFile = "Frame.zdf";
         std::cout << "Saving frame to file: " << dataFile << std::endl;
         frame.save(dataFile);
 
-        const auto *settingsFile = "Settings.yml";
+        const auto settingsFile = "Settings.yml";
         std::cout << "Saving settings to file: " << settingsFile << std::endl;
         settings.save(settingsFile);
 

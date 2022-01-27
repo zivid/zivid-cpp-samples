@@ -41,7 +41,7 @@ int main()
                   << "  G:" << std::to_string(pixel.g) << "  B:" << std::to_string(pixel.b)
                   << "  A:" << std::to_string(pixel.a) << std::endl;
 
-        const auto *imageFile = "Image.png";
+        const auto imageFile = "Image.png";
         std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
         image.save(imageFile);
     }

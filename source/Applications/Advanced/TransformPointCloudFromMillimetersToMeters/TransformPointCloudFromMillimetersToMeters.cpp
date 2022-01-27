@@ -26,7 +26,7 @@ int main()
         std::cout << "Transforming point cloud from mm to m" << std::endl;
         pointCloud.transform(transformMillimetersToMeters);
 
-        const auto *transformedFile = "FrameInMeters.zdf";
+        const auto transformedFile = "FrameInMeters.zdf";
         std::cout << "Saving transformed point cloud to file: " << transformedFile << std::endl;
         frame.save(transformedFile);
     }

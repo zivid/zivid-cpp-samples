@@ -282,7 +282,7 @@ int main()
             return EXIT_SUCCESS;
         }
 
-        const auto *bgrImageFile = "ArucoMarkerDetected.png";
+        const auto bgrImageFile = "ArucoMarkerDetected.png";
         std::cout << "Saving 2D color image with detected ArUco marker to file: " << bgrImageFile << std::endl;
         cv::imwrite(bgrImageFile, bgrImage);
 
@@ -300,7 +300,7 @@ int main()
         std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
         pointCloud.transform(transformCameraToMarker);
 
-        const auto *arucoMarkerTransformedFile = "ArucoMarkerInMarkerOrigin.zdf";
+        const auto arucoMarkerTransformedFile = "ArucoMarkerInMarkerOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << arucoMarkerTransformedFile << std::endl;
         frame.save(arucoMarkerTransformedFile);
     }

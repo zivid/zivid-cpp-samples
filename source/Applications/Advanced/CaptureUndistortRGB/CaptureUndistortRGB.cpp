@@ -96,7 +96,7 @@ namespace
         std::cout << "Converting to OpenCV BGR image" << std::endl;
         const auto image = frame.pointCloud().copyImageRGBA();
 
-        const auto *imageFile = "Image.png";
+        const auto imageFile = "Image.png";
         std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
         image.save(imageFile);
 
@@ -115,7 +115,7 @@ namespace
 
         std::cout << "Converting to OpenCV BGR image" << std::endl;
 
-        const auto *imageFile = "Image.png";
+        const auto imageFile = "Image.png";
         std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
         image.save(imageFile);
 
@@ -202,17 +202,17 @@ int main()
         cv::undistort(bgr, bgrUndistorted, cameraMatrix, distortionCoefficients);
         cv::undistort(bgr, bgrUndistortedFull, cameraMatrix, distortionCoefficients, optimalCameraMatrix);
 
-        const auto *imageDistortedFile = "ImageDistorted.jpg";
+        const auto imageDistortedFile = "ImageDistorted.jpg";
         displayBGR(bgr, "Distorted BGR image");
         std::cout << "Visualizing and saving BGR image to file: " << imageDistortedFile << std::endl;
         cv::imwrite(imageDistortedFile, bgr);
 
-        const auto *imageUndistorted = "ImageUnistorted.jpg";
+        const auto imageUndistorted = "ImageUnistorted.jpg";
         displayBGR(bgrUndistorted, "Undistorted BGR image");
         std::cout << "Visualizing and saving undistorted BGR image to file: " << imageUndistorted << std::endl;
         cv::imwrite(imageUndistorted, bgrUndistorted);
 
-        const auto *imageUndistortedFull = "ImageUnistortedFull.jpg";
+        const auto imageUndistortedFull = "ImageUnistortedFull.jpg";
         displayBGR(bgrUndistortedFull, "Undistorted BGR image - full");
         std::cout << "Visualizing and saving undistorted BGR image (full) to file: " << imageUndistortedFull
                   << std::endl;

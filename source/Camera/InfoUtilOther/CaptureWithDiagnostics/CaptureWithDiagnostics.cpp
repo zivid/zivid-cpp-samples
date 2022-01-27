@@ -32,7 +32,7 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
 
-        const auto *dataFile = "FrameWithDiagnostics.zdf";
+        const auto dataFile = "FrameWithDiagnostics.zdf";
         std::cout << "Saving frame with diagnostic data to file: " << dataFile << std::endl;
         frame.save(dataFile);
     }

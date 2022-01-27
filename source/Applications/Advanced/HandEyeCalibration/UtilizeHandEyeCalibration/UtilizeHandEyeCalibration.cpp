@@ -176,7 +176,7 @@ int main()
                     imageCoordinateX = 1035;
                     imageCoordinateY = 255;
 
-                    const auto *eyeToHandTransformFile = "/EyeToHandTransform.yaml";
+                    const auto eyeToHandTransformFile = "/EyeToHandTransform.yaml";
 
                     std::cout << "Reading camera pose in robot base frame (result of eye-to-hand calibration"
                               << std::endl;
@@ -195,8 +195,8 @@ int main()
                     imageCoordinateX = 1357;
                     imageCoordinateY = 666;
 
-                    const auto *eyeInHandTransformFile = "/EyeInHandTransform.yaml";
-                    const auto *robotTransformFile = "/RobotTransform.yaml";
+                    const auto eyeInHandTransformFile = "/EyeInHandTransform.yaml";
+                    const auto robotTransformFile = "/RobotTransform.yaml";
 
                     std::cout << "Reading camera pose in end-effector frame (result of eye-in-hand calibration)"
                               << std::endl;
@@ -265,7 +265,7 @@ int main()
                     const auto transformBaseToCamera = cvToZivid(transformBaseToCameraCV);
                     pointCloud.transform(transformBaseToCamera);
 
-                    const auto *saveFile = "ZividGemTransformed.zdf";
+                    const auto saveFile = "ZividGemTransformed.zdf";
                     std::cout << "Saving frame to file: " << saveFile << std::endl;
                     frame.save(saveFile);
 
