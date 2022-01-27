@@ -36,14 +36,14 @@ The YAML files for this sample can be found under the main instructions for Zivi
 
 namespace
 {
-    enum class Command
+    enum class command
     {
         cmdTransformSinglePoint,
         cmdTransformPointCloud,
         cmdUnknown
     };
 
-    enum class RobotCameraConfiguration
+    enum class robotCameraConfiguration
     {
         eyeToHand,
         eyeInHand,
@@ -57,36 +57,36 @@ namespace
         return command;
     }
 
-    Command enterCommand()
+    command enterCommand()
     {
         std::cout << "Enter command, s (to transform single point) or p (to transform point cloud): ";
         const auto command = getInput();
 
         if(command == "S" || command == "s")
         {
-            return Command::cmdTransformSinglePoint;
+            return command::cmdTransformSinglePoint;
         }
         if(command == "P" || command == "p")
         {
-            return Command::cmdTransformPointCloud;
+            return command::cmdTransformPointCloud;
         }
-        return Command::cmdUnknown;
+        return command::cmdUnknown;
     }
 
-    RobotCameraConfiguration enterRobotCameraConfiguration()
+    robotCameraConfiguration enterRobotCameraConfiguration()
     {
         std::cout << "Enter type of calibration, eth (for eye-to-hand) or eih (for eye-in-hand): ";
         const auto command = getInput();
 
         if(command == "eth" || command == "ETH")
         {
-            return RobotCameraConfiguration::eyeToHand;
+            return robotCameraConfiguration::eyeToHand;
         }
         if(command == "eih" || command == "EIH")
         {
-            return RobotCameraConfiguration::eyeInHand;
+            return robotCameraConfiguration::eyeInHand;
         }
-        return RobotCameraConfiguration::unknown;
+        return robotCameraConfiguration::unknown;
     }
 
     Eigen::MatrixXf cvToEigen(const cv::Mat &cvMat)
@@ -167,7 +167,7 @@ int main()
         {
             switch(enterRobotCameraConfiguration())
             {
-                case RobotCameraConfiguration::eyeToHand:
+                case robotCameraConfiguration::eyeToHand:
                 {
                     fileName = "/ZividGemEyeToHand.zdf";
 
@@ -186,7 +186,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case RobotCameraConfiguration::eyeInHand:
+                case robotCameraConfiguration::eyeInHand:
                 {
                     fileName = "/ZividGemEyeInHand.zdf";
 
@@ -213,7 +213,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case RobotCameraConfiguration::unknown:
+                case robotCameraConfiguration::unknown:
                 {
                     std::cout << "Entered unknown Hand-Eye calibration type" << std::endl;
                     break;
@@ -231,7 +231,7 @@ int main()
         {
             switch(enterCommand())
             {
-                case Command::cmdTransformSinglePoint:
+                case command::cmdTransformSinglePoint:
                 {
                     std::cout << "Transforming single point" << std::endl;
 
@@ -258,12 +258,14 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdTransformPointCloud:
+                case command::cmdTransformPointCloud:
                 {
                     std::cout << "Transforming point cloud" << std::endl;
 
                     const auto transformBaseToCamera = cvToZivid(transformBaseToCameraCV);
+                    // DOCTAG-START-TRANSFORM
                     pointCloud.transform(transformBaseToCamera);
+                    // DOCTAG-END-TRANSFORM
 
                     const auto *saveFile = "ZividGemTransformed.zdf";
                     std::cout << "Saving frame to file: " << saveFile << std::endl;
@@ -272,7 +274,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdUnknown:
+                case command::cmdUnknown:
                 {
                     std::cout << "Entered unknown command" << std::endl;
                     break;
