@@ -20,10 +20,10 @@
    4. [Save](#Save-Settings)
 5. [Capture](#capture)
     1. [Load](#Load)
-	2. [2D](#capture-2d)
+    2. [2D](#capture-2d)
 6. [Save](#Save)
     1. [Export](#Export)
-	2. [2D](#save-2d)
+    2. [2D](#save-2d)
 7. [Conclusion](#Conclusion)
 
 ---
@@ -307,7 +307,7 @@ You can also save settings to .yml file.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L109-L112))
 
 ``` sourceCode cpp
-const auto *settingsFile = "Settings.yml";
+const auto settingsFile = "Settings.yml";
 std::cout << "Saving settings to file: " << settingsFile << std::endl;
 settings.save(settingsFile);
 ```
@@ -378,7 +378,7 @@ We can now save our results.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L38))
 
 ``` sourceCode cpp
-const auto *dataFile = "Frame.zdf";
+const auto dataFile = "Frame.zdf";
 frame.save(dataFile);
 ```
 
@@ -400,7 +400,7 @@ cloud to .ply format.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L41-L44))
 
 ``` sourceCode cpp
-const auto *dataFilePLY = "PointCloud.ply";
+const auto dataFilePLY = "PointCloud.ply";
 frame.save(dataFilePLY);
 ```
 
@@ -430,7 +430,7 @@ Then, we can save the 2D image.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L47-L49))
 
 ``` sourceCode cpp
-const auto *imageFile = "Image.png";
+const auto imageFile = "Image.png";
 std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
 image.save(imageFile);
 ```

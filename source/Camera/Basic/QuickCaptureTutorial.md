@@ -78,7 +78,7 @@ const auto frame = camera.capture(settings);
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L38))
 
 ``` sourceCode cpp
-const auto *dataFile = "Frame.zdf";
+const auto dataFile = "Frame.zdf";
 frame.save(dataFile);
 ```
 
