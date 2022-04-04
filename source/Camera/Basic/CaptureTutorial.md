@@ -5,28 +5,36 @@
 ---
 
 *Contents:*
-1. [Introduction](#Introduction)
-2. [Initialize](#initialize)
-3. [Connect](#Connect)
-   1. [Specific Camera](#Specific-Camera)
-   2. [File Camera](#File-Camera)
-3. [Configure](#Configure)
-   1. [Capture Assistant](#Capture-Assistant)
-   2. [Manual configuration](#Manual-configuration)
-      1. [Single](#Single-Acquisition)
-      2. [HDR](#Multi-Acquisition-HDR)
-      3. [2D](#2d-Settings)
-   3. [Load](#Load-Settings)
-   4. [Save](#Save-Settings)
-5. [Capture](#capture)
-    1. [Load](#Load)
-    2. [2D](#capture-2d)
-6. [Save](#Save)
-    1. [Export](#Export)
-    2. [2D](#save-2d)
-7. [Conclusion](#Conclusion)
+[**Introduction**](#Introduction) |
+[**Initialize**](#Initialize) |
+[**Connect**](#Connect) |
+[**Specific**](#Specific-Camera) |
+[**File**](#File-Camera) |
+[**Configure**](#Configure) |
+[**Capture**](#Capture-Assistant) |
+[**Manual**](#Manual-configuration) |
+[**Single**](#Single-Acquisition) |
+[**Multi**](#Multi-Acquisition-HDR) |
+[**2D**](#2D-Settings) |
+[**Load**](#Load) |
+[**Save**](#Save) |
+[**Capture**](#Capture) |
+[**Load**](#Load) |
+[**Capture**](#Capture-2D) |
+[**Save**](#Save) |
+[**Export**](#Export) |
+[**Save**](#Save-2D) |
+[**Conclusion**](#Conclusion)
 
 ---
+
+
+
+  - local
+
+  - depth  
+    2
+
 ## Introduction
 
 This tutorial describes how to use the Zivid SDK to capture point clouds
@@ -284,7 +292,7 @@ const auto settings2D =
 					Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
 ```
 
-### Load Settings
+### Load
 
 Zivid Studio can store the current settings to .yml files. These can be
 read and applied in the API. You may find it easier to modify the
@@ -299,7 +307,7 @@ std::cout << "Loading settings from file: " << settingsFile << std::endl;
 const auto settingsFromFile = Zivid::Settings(settingsFile);
 ```
 
-### Save Settings
+### Save
 
 You can also save settings to .yml file.
 
