@@ -55,7 +55,6 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
     Applications/Advanced/TransformPointCloudViaArucoMarker
-    Applications/Advanced/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/ROIBoxViaArucoMarker)
 
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions)
