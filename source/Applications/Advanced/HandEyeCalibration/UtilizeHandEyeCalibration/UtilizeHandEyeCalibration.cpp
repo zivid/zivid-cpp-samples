@@ -5,23 +5,22 @@ matrix.
 This example shows how to utilize the result of Hand-Eye calibration to transform either (picking) point coordinates
 or the entire point cloud from the camera frame to the robot base frame.
 
-For both Eye-To-Hand and Eye-In-Hand, there is a Zivid gem placed approx. 500 mm away from the robot base (see below).
-The (picking) point is the Zivid gem centroid, defined as image coordinates in the camera frame and hard-coded
-in this code example. Open the ZDF files in Zivid Studio to inspect the gem's 2D and corresponding 3D coordinates.
+For both Eye-To-Hand and Eye-In-Hand, there is a Zivid gem placed approx. 500 mm away from the robot base in the y-axis.
+The (picking) point is the Zivid gem centroid, defined as image coordinates in the camera frame and hard-coded in this
+code example. Open the ZDF files in Zivid Studio to inspect the gem's 2D and corresponding 3D coordinates.
 
 Eye-To-Hand
 - ZDF file: ZividGemEyeToHand.zdf
 - 2D image coordinates: (1035,255)
-- Corresponding 3D coordinates: (37.77 -145.92 1227.1)
-- Corresponding 3D coordinates (robot base frame): (-12.4  514.37 -21.79)
+- Corresponding 3D coordinates: (37.8, -145.9, 1227.1)
 
 Eye-In-Hand:
 - ZDF file: ZividGemEyeInHand.zdf
-- 2D image coordinates: (1460,755)
-- Corresponding 3D coordinates (camera frame): (83.95  28.84 305.7)
-- Corresponding 3D coordinates (robot base frame): (531.03  -5.44 164.6)
+- 2D image coordinates: (1357,666)
+- Corresponding 3D coordinates: (82.4, 18.0, 595.9)
 
-For verification, check that the Zivid gem centroid 3D coordinates are the same as above after the transformation.
+For verification, check that after the transformation, the Zivid gem centroid 3D coordinates are near 0 in x and z,
+and approx. 500 mm in y.
 
 The YAML files for this sample can be found under the main instructions for Zivid samples.
 */
@@ -36,14 +35,14 @@ The YAML files for this sample can be found under the main instructions for Zivi
 
 namespace
 {
-    enum class Command
+    enum class command
     {
         cmdTransformSinglePoint,
         cmdTransformPointCloud,
         cmdUnknown
     };
 
-    enum class RobotCameraConfiguration
+    enum class robotCameraConfiguration
     {
         eyeToHand,
         eyeInHand,
@@ -57,36 +56,36 @@ namespace
         return command;
     }
 
-    Command enterCommand()
+    command enterCommand()
     {
         std::cout << "Enter command, s (to transform single point) or p (to transform point cloud): ";
         const auto command = getInput();
 
         if(command == "S" || command == "s")
         {
-            return Command::cmdTransformSinglePoint;
+            return command::cmdTransformSinglePoint;
         }
         if(command == "P" || command == "p")
         {
-            return Command::cmdTransformPointCloud;
+            return command::cmdTransformPointCloud;
         }
-        return Command::cmdUnknown;
+        return command::cmdUnknown;
     }
 
-    RobotCameraConfiguration enterRobotCameraConfiguration()
+    robotCameraConfiguration enterRobotCameraConfiguration()
     {
         std::cout << "Enter type of calibration, eth (for eye-to-hand) or eih (for eye-in-hand): ";
         const auto command = getInput();
 
         if(command == "eth" || command == "ETH")
         {
-            return RobotCameraConfiguration::eyeToHand;
+            return robotCameraConfiguration::eyeToHand;
         }
         if(command == "eih" || command == "EIH")
         {
-            return RobotCameraConfiguration::eyeInHand;
+            return robotCameraConfiguration::eyeInHand;
         }
-        return RobotCameraConfiguration::unknown;
+        return robotCameraConfiguration::unknown;
     }
 
     Eigen::MatrixXf cvToEigen(const cv::Mat &cvMat)
@@ -167,31 +166,30 @@ int main()
         {
             switch(enterRobotCameraConfiguration())
             {
-                case RobotCameraConfiguration::eyeToHand:
+                case robotCameraConfiguration::eyeToHand:
                 {
                     fileName = "/ZividGemEyeToHand.zdf";
 
                     // The (picking) point is defined as image coordinates in camera frame. It is hard-coded for the
-                    // ZividGemEyeToHand.zdf (1035,255) X: 37.77 Y: -145.92 Z: 1227.1
+                    // ZividGemEyeToHand.zdf (1035,255) X: 37.8 Y: -145.9 Z: 1227.1
                     imageCoordinateX = 1035;
                     imageCoordinateY = 255;
 
-                    const auto eyeToHandTransformFile = "/EyeToHandTransform.yaml";
+                    const auto eyeToHandTransformFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/EyeToHandTransform.yaml";
 
                     std::cout << "Reading camera pose in robot base frame (result of eye-to-hand calibration"
                               << std::endl;
-                    transformBaseToCameraCV =
-                        readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
+                    transformBaseToCameraCV = readTransform(eyeToHandTransformFile);
 
                     loopContinue = false;
                     break;
                 }
-                case RobotCameraConfiguration::eyeInHand:
+                case robotCameraConfiguration::eyeInHand:
                 {
                     fileName = "/ZividGemEyeInHand.zdf";
 
                     // The (picking) point is defined as image coordinates in camera frame. It is hard-coded for the
-                    // ZividGemEyeInHand.zdf (1460,755) X: 83.95 Y: 28.84 Z: 305.7
+                    // ZividGemEyeInHand.zdf (1357,666) X: 82.4 Y: 18.0 Z: 595.9,
                     imageCoordinateX = 1357;
                     imageCoordinateY = 666;
 
@@ -204,8 +202,7 @@ int main()
                         readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeInHandTransformFile);
 
                     std::cout << "Reading end-effector pose in robot base frame" << std::endl;
-                    const cv::Mat transformBaseToEndEffector =
-                        readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + robotTransformFile);
+                    const cv::Mat transformBaseToEndEffector = readTransform(robotTransformFile);
 
                     std::cout << "Computing camera pose in robot base frame" << std::endl;
                     transformBaseToCameraCV = transformBaseToEndEffector * transformEndEffectorToCamera;
@@ -213,7 +210,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case RobotCameraConfiguration::unknown:
+                case robotCameraConfiguration::unknown:
                 {
                     std::cout << "Entered unknown Hand-Eye calibration type" << std::endl;
                     break;
@@ -231,7 +228,7 @@ int main()
         {
             switch(enterCommand())
             {
-                case Command::cmdTransformSinglePoint:
+                case command::cmdTransformSinglePoint:
                 {
                     std::cout << "Transforming single point" << std::endl;
 
@@ -258,7 +255,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdTransformPointCloud:
+                case command::cmdTransformPointCloud:
                 {
                     std::cout << "Transforming point cloud" << std::endl;
 
@@ -272,7 +269,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdUnknown:
+                case command::cmdUnknown:
                 {
                     std::cout << "Entered unknown command" << std::endl;
                     break;
