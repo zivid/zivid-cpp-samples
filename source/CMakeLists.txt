@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
 project(ZividCppSamples)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake
+                      ${CMAKE_CURRENT_SOURCE_DIR}/cmake/3rd-party)
 include(CompilerOptions)
 
 set(ZIVID_VERSION 2.5.0)
@@ -12,6 +13,7 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_ARUCO
        "Enable samples which depend on ArUco (OpenCV with extra modules)" OFF)
+option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
 set(SAMPLES
     Camera/Basic/Capture
@@ -26,6 +28,8 @@ set(SAMPLES
     Camera/Advanced/MultiCameraCaptureSequentially
     Camera/Advanced/MultiCameraCaptureInParallel
     Camera/Advanced/AllocateMemoryForPointCloudData
+    Camera/Advanced/CaptureHalconViaGenICam
+    Camera/Advanced/CaptureHalconViaZivid
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/CaptureWithDiagnostics
     Camera/InfoUtilOther/GetCameraIntrinsics
@@ -93,6 +97,7 @@ set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF
                     StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
+set(Halcon_DEPENDING CaptureHalconViaGenICam CaptureHalconViaZivid)
 
 find_package(
     Zivid ${ZIVID_VERSION}
@@ -166,6 +171,17 @@ else()
     disable_samples("OpenCV")
 endif()
 
+if(USE_HALCON)
+    if(DEFINED ENV{HALCONROOT} AND NOT $ENV{HALCONROOT} STREQUAL "")
+        message("Using HALCONROOT " $ENV{HALCONROOT})
+        string(REGEX REPLACE "\\\\" "/" HALCONROOT $ENV{HALCONROOT})
+    endif()
+    find_package(Halcon REQUIRED)
+    find_package(HDevEngine REQUIRED)
+else()
+    disable_samples("Halcon")
+endif()
+
 message(STATUS "All samples: ${SAMPLES}")
 
 if(WIN32)
@@ -218,6 +234,13 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Threads::Threads)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST Halcon_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} ${HALCON_LIBS} ${HDEVENGINE_LIBS})
+        target_include_directories(
+            ${SAMPLE_NAME} PUBLIC ${HALCON_INC_DIRS} ${HDEVENGINE_INC_DIRS}
+                                  include)
     endif()
 
 endforeach()

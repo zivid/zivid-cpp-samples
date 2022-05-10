@@ -1,18 +1,25 @@
 # Quick Capture Tutorial
 
+Note\! This tutorial has been generated for use on Github. For original
+tutorial see:
+[QuickCaptureTutorial](https://support.zivid.com/latest/rst/getting-started/quick-capture-tutorial.html)
+
 
 
 ---
 
 *Contents:*
-1. [Introduction](#Introduction)
-2. [Initialize](#Initialize)
-3. [Connect](#connect)
-4. [Configure](#configure)
-5. [Capture](#capture)
-6. [Save](#save)
+[**Introduction**](#Introduction) |
+[**Initialize**](#Initialize) |
+[**Connect**](#Connect) |
+[**Configure**](#Configure) |
+[**Capture**](#Capture) |
+[**Save**](#Save)
 
 ---
+
+
+
 ## Introduction
 
 This tutorial describes the most basic way to use the Zivid SDK to
@@ -92,11 +99,10 @@ Tip:
 
 You can open and view `Frame.zdf` file in [Zivid
 Studio](https://support.zivid.com/latest//getting-started/studio-guide.html).
-
-**Conclusion**
+.. rubric:: Conclusion
 
 This tutorial shows the most basic way to use the Zivid SDK to connect
 to, capture, and save from the Zivid camera.
 
 For a more in-depth tutorial check out the complete
-[CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Camera/Basic/CaptureTutorial).
+[CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureTutorial.md).
