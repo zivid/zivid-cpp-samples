@@ -32,19 +32,26 @@ namespace
         const auto data = camera.userData();
         return std::string{ begin(data), end(data) };
     }
+
+    void checkUserDataSupport(const Zivid::Camera &camera)
+    {
+        const auto maxDataSize = camera.info().userData().maxSizeBytes();
+        if(maxDataSize.value() == 0)
+        {
+            throw std::runtime_error{ "This camera does not support user data" };
+        }
+    }
 } // namespace
 
 int main(int argc, char **argv)
 {
     try
     {
-        Zivid::Application zivid;
-
         std::string userData;
-        Mode selected = Mode::read;
-        auto readMode = (clipp::command("read").set(selected, Mode::read));
-        auto clearMode = (clipp::command("clear").set(selected, Mode::clear));
-        auto writeMode = (clipp::command("write").set(selected, Mode::write), clipp::value("userData", userData));
+        Mode mode = Mode::read;
+        auto readMode = (clipp::command("read").set(mode, Mode::read));
+        auto clearMode = (clipp::command("clear").set(mode, Mode::clear));
+        auto writeMode = (clipp::command("write").set(mode, Mode::write), clipp::value("userData", userData));
 
         auto cli = ((writeMode | readMode | clearMode));
 
@@ -55,16 +62,13 @@ int main(int argc, char **argv)
             throw std::runtime_error{ "Invalid usage" };
         }
 
+        Zivid::Application zivid;
+
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
+        checkUserDataSupport(camera);
 
-        const auto maxDataSize = camera.info().userData().maxSizeBytes();
-        if(maxDataSize.value() == 0)
-        {
-            throw std::runtime_error{ "This camera does not support user data" };
-        }
-
-        switch(selected)
+        switch(mode)
         {
             case Mode::read:
                 std::cout << "Reading user data from camera" << std::endl;
@@ -91,4 +95,6 @@ int main(int argc, char **argv)
         std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

@@ -33,6 +33,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
+        std::cout << "Press enter to exit." << std::endl;
+        std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

@@ -5,7 +5,6 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
 
-#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
@@ -461,6 +460,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
+        std::cout << "Press enter to exit." << std::endl;
+        std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
