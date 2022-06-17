@@ -15,9 +15,9 @@ namespace
 {
     enum class CommandType
     {
-        cmdAddPose,
-        cmdCalibrate,
-        cmdUnknown
+        AddPose,
+        Calibrate,
+        Unknown
     };
 
     std::string getInput()
@@ -29,18 +29,18 @@ namespace
 
     CommandType enterCommand()
     {
-        std::cout << "Enter command, p (to add robot pose) or c (to perform calibration): ";
+        std::cout << "Enter command, p (to add robot pose) or c (to perform calibration):";
         const auto command = getInput();
 
         if(command == "P" || command == "p")
         {
-            return CommandType::cmdAddPose;
+            return CommandType::AddPose;
         }
         if(command == "C" || command == "c")
         {
-            return CommandType::cmdCalibrate;
+            return CommandType::Calibrate;
         }
-        return CommandType::cmdUnknown;
+        return CommandType::Unknown;
     }
 
     Zivid::Calibration::Pose enterRobotPose(size_t index)
@@ -63,15 +63,16 @@ namespace
 
     Zivid::Frame assistedCapture(Zivid::Camera &camera)
     {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+        const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
             Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
             Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
         };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
         return camera.capture(settings);
     }
 
-    Zivid::Calibration::HandEyeOutput performCalibration(const std::vector<Zivid::Calibration::HandEyeInput> &input)
+    Zivid::Calibration::HandEyeOutput performCalibration(
+        const std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput)
     {
         while(true)
         {
@@ -80,12 +81,12 @@ namespace
             if(calibrationType == "eth" || calibrationType == "ETH")
             {
                 std::cout << "Performing eye-to-hand calibration" << std::endl;
-                return Zivid::Calibration::calibrateEyeToHand(input);
+                return Zivid::Calibration::calibrateEyeToHand(handEyeInput);
             }
             if(calibrationType == "eih" || calibrationType == "EIH")
             {
                 std::cout << "Performing eye-in-hand calibration" << std::endl;
-                return Zivid::Calibration::calibrateEyeInHand(input);
+                return Zivid::Calibration::calibrateEyeInHand(handEyeInput);
             }
             std::cout << "Entered uknown method" << std::endl;
         }
@@ -101,28 +102,28 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera{ zivid.connectCamera() };
 
-        size_t currPoseId{ 0 };
+        size_t currentPoseId{ 0 };
         bool calibrate{ false };
-        std::vector<Zivid::Calibration::HandEyeInput> input;
+        std::vector<Zivid::Calibration::HandEyeInput> handEyeInput;
         do
         {
             switch(enterCommand())
             {
-                case CommandType::cmdAddPose:
+                case CommandType::AddPose:
                 {
                     try
                     {
-                        const auto robotPose = enterRobotPose(currPoseId);
+                        const auto robotPose = enterRobotPose(currentPoseId);
 
                         const auto frame = assistedCapture(camera);
 
                         std::cout << "Detecting checkerboard in point cloud" << std::endl;
-                        const auto result = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
-                        if(result)
+                        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+                        if(detectionResult)
                         {
                             std::cout << "OK" << std::endl;
-                            input.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, result });
-                            currPoseId++;
+                            handEyeInput.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, detectionResult });
+                            currentPoseId++;
                         }
                         else
                         {
@@ -136,12 +137,12 @@ int main()
                     }
                     break;
                 }
-                case CommandType::cmdCalibrate:
+                case CommandType::Calibrate:
                 {
                     calibrate = true;
                     break;
                 }
-                case CommandType::cmdUnknown:
+                case CommandType::Unknown:
                 {
                     std::cout << "Error: Unknown command" << std::endl;
                     break;
@@ -149,17 +150,17 @@ int main()
             }
         } while(!calibrate);
 
-        const auto calibrationResult{ performCalibration(input) };
+        const auto calibrationResult{ performCalibration(handEyeInput) };
 
         if(calibrationResult.valid())
         {
-            std::cout << "Hand-eye calibration OK\n"
+            std::cout << "Hand-Eye calibration OK\n"
                       << "Result:\n"
                       << calibrationResult << std::endl;
         }
         else
         {
-            std::cout << "Hand-eye calibration FAILED" << std::endl;
+            std::cout << "Hand-Eye calibration FAILED" << std::endl;
             return EXIT_FAILURE;
         }
     }

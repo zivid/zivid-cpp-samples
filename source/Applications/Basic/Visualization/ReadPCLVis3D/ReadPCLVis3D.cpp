@@ -81,8 +81,6 @@ int main(int argc, char **argv)
 
             visualizePointCloud(pointCloudPCL);
         }
-
-        return 0;
     }
     catch(const std::exception &e)
     {
@@ -91,4 +89,6 @@ int main(int argc, char **argv)
         std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
