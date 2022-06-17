@@ -38,9 +38,9 @@ namespace
 {
     enum class Command
     {
-        cmdTransformSinglePoint,
-        cmdTransformPointCloud,
-        cmdUnknown
+        transformSinglePoint,
+        transformPointCloud,
+        unknown
     };
 
     enum class RobotCameraConfiguration
@@ -64,13 +64,13 @@ namespace
 
         if(command == "S" || command == "s")
         {
-            return Command::cmdTransformSinglePoint;
+            return Command::transformSinglePoint;
         }
         if(command == "P" || command == "p")
         {
-            return Command::cmdTransformPointCloud;
+            return Command::transformPointCloud;
         }
-        return Command::cmdUnknown;
+        return Command::unknown;
     }
 
     RobotCameraConfiguration enterRobotCameraConfiguration()
@@ -231,7 +231,7 @@ int main()
         {
             switch(enterCommand())
             {
-                case Command::cmdTransformSinglePoint:
+                case Command::transformSinglePoint:
                 {
                     std::cout << "Transforming single point" << std::endl;
 
@@ -258,7 +258,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdTransformPointCloud:
+                case Command::transformPointCloud:
                 {
                     std::cout << "Transforming point cloud" << std::endl;
 
@@ -272,7 +272,7 @@ int main()
                     loopContinue = false;
                     break;
                 }
-                case Command::cmdUnknown:
+                case Command::unknown:
                 {
                     std::cout << "Entered unknown command" << std::endl;
                     break;
@@ -287,4 +287,6 @@ int main()
         std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

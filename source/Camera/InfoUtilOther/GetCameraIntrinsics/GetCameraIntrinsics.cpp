@@ -1,5 +1,7 @@
 /*
 Read intrinsic parameters from the Zivid camera (OpenCV model).
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Experimental/Calibration.h>
@@ -64,4 +66,6 @@ int main()
         std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

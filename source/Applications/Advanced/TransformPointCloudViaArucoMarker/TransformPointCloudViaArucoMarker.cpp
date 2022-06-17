@@ -5,7 +5,6 @@ point cloud. The ZDF file for this sample can be found under the main instructio
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
 
-#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
@@ -307,6 +306,10 @@ int main()
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
+        std::cout << "Press enter to exit." << std::endl;
+        std::cin.get();
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
