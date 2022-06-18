@@ -12,12 +12,9 @@ Checks: >
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -llvmlibc-*,
-  -llvm-qualified-auto,
-  -readability-qualified-auto,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -hicpp-signed-bitwise,
   -clang-analyzer-optin.cplusplus.VirtualCall,
-  -readability-identifier-naming
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false

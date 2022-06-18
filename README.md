@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains C++ code samples for Zivid SDK v2.6.1. For
+This repository contains cpp code samples for Zivid SDK v2.7.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -12,6 +12,7 @@ releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases)
 ---
 
 *Contents:*
+[**Tutorials**](#Tutorials-list) |
 [**Samples**](#Samples-list) |
 [**Installation**](#Installation) |
 [**Support**](#Support) |
@@ -21,6 +22,12 @@ releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases)
 ---
 
 
+
+## Tutorials list
+
+  - [QuickCaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Camera/Basic/QuickCaptureTutorial.md)
+  - [CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Camera/Basic/CaptureTutorial.md)
+  - [PointCloudTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Applications/PointCloudTutorial.md)
 
 ## Samples list
 
@@ -48,16 +55,16 @@ from the camera can be used.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
-          - [CaptureHDRLoop](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp) - Cover the same dynamic range in a scene with different
-            acquisition settings to optimize for quality, speed, or to
-            find a compromise.
-          - [CaptureHDRPrintNormals](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp) - Capture Zivid point clouds, compute normals and print a
-            subset.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
           - [CaptureHalconViaZivid](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHalconViaZivid/CaptureHalconViaZivid.cpp) - Capture a point cloud, with colors, using Zivid SDK,
             transform it to a Halcon point cloud and save it using
             Halcon C++ SDK.
+          - [CaptureHDRLoop](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp) - Cover the same dynamic range in a scene with different
+            acquisition settings to optimize for quality, speed, or to
+            find a compromise.
+          - [CaptureHDRPrintNormals](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp) - Capture Zivid point clouds, compute normals and print a
+            subset.
           - [MultiCameraCaptureInParallel](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp) - Capture point clouds with multiple cameras in parallel.
           - [MultiCameraCaptureSequentially](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp) - Capture point clouds with multiple cameras sequentially.
       - **InfoUtilOther**
@@ -105,9 +112,14 @@ from the camera can be used.
             format, extract depth map and visualize it.
           - [ROIBoxViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp) - Filter the point cloud based on a ROI box given relative
             to the ArUco marker.
+          - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
+            to the Zivid Calibration Board.
           - [TransformPointCloudFromMillimetersToMeters](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp) - Transform point cloud data from millimeters to meters.
           - [TransformPointCloudViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp) - Transform a point cloud from camera to ArUco Marker
             coordinate frame by estimating the marker's pose from the
+          - [TransformPointCloudViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/TransformPointCloudViaCheckerboard/TransformPointCloudViaCheckerboard.cpp) - Transform a point cloud from camera to checkerboard (Zivid
+            Calibration Board) coordinate frame by getting checkerboard
+            pose from the API.
           - **HandEyeCalibration**
               - [PoseConversions](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp) - Convert to/from Transformation Matrix (Rotation Matrix
                 + Translation Vector)
@@ -203,8 +215,15 @@ this:
 If you want to use Zivid in HALCON, we provide a GenICam GenTL producer
 that comes with the [Zivid Software](http://www.zivid.com/downloads).
 
-Zivid and HALCON are compatible with Windows 10 and Ubuntu 16.04, 18.04,
-20.04.
+Zivid and HALCON are compatible with Windows 10 and Ubuntu 18.04, 20.04.
+
+-----
+
+Note:
+
+> Support for Ubuntu 16.04 is removed from SDK 2.7.
+
+-----
 
 To setup and use Zivid in one of these operating systems, please follow
 their respective instructions in the following pages:

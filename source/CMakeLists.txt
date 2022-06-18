@@ -59,8 +59,10 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
     Applications/Advanced/TransformPointCloudViaArucoMarker
+    Applications/Advanced/TransformPointCloudViaCheckerboard
     Applications/Advanced/TransformPointCloudFromMillimetersToMeters
-    Applications/Advanced/ROIBoxViaArucoMarker)
+    Applications/Advanced/ROIBoxViaArucoMarker
+    Applications/Advanced/ROIBoxViaCheckerboard)
 
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions)
 set(PCL_DEPENDING
@@ -70,7 +72,8 @@ set(PCL_DEPENDING
     CaptureHDRVisNormals
     StitchByTransformation
     StitchByTransformationFromZDF
-    ROIBoxViaArucoMarker)
+    ROIBoxViaArucoMarker
+    ROIBoxViaCheckerboard)
 set(OpenCV_DEPENDING
     CaptureUndistortRGB
     UtilizeHandEyeCalibration
@@ -82,8 +85,10 @@ set(OpenCV_DEPENDING
     StitchByTransformation
     StitchByTransformationFromZDF
     TransformPointCloudViaArucoMarker
+    TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
-    ROIBoxViaArucoMarker)
+    ROIBoxViaArucoMarker
+    ROIBoxViaCheckerboard)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D
@@ -92,7 +97,8 @@ set(Visualization_DEPENDING
     CaptureWritePCLVis3D
     CaptureUndistortRGB
     CreateDepthMap
-    ROIBoxViaArucoMarker)
+    ROIBoxViaArucoMarker
+    ROIBoxViaCheckerboard)
 set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF
                     StitchByTransformation StitchByTransformationFromZDF)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
