@@ -59,6 +59,7 @@ int main()
             Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
@@ -67,7 +68,7 @@ int main()
             Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
             Zivid::Settings::Processing::Color::Gamma{ 1.0 },
-            Zivid::Settings::Processing::Color::Experimental::ToneMapping::Enabled::hdrOnly
+            Zivid::Settings::Processing::Color::Experimental::Mode::automatic
         };
         std::cout << settings.processing() << std::endl;
 

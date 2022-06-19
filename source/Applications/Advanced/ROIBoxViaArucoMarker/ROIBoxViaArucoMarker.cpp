@@ -5,6 +5,7 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
 
+#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
@@ -184,46 +185,6 @@ namespace
         }
 
         return transformationMatrix(rotationMatrix, origin);
-    }
-
-    Zivid::Matrix4x4 invertAffineTransformation(const Zivid::Matrix4x4 &transform)
-    {
-        auto rotation = cv::Mat(3, 3, CV_32F);
-        for(int i = 0; i < 3; ++i)
-        {
-            for(int j = 0; j < 3; ++j)
-            {
-                rotation.at<float>(i, j) = transform(i, j);
-            }
-        }
-
-        auto translation = cv::Mat(3, 1, CV_32F);
-        for(int i = 0; i < 3; ++i)
-        {
-            translation.at<float>(i, 0) = transform(i, 3);
-        }
-
-        const cv::Mat newRotation = rotation.inv();
-        const cv::Mat newTranslation = -newRotation * translation;
-
-        auto cvInverted = cv::Mat(4, 4, CV_32F, 0.0);
-        for(int i = 0; i < 3; ++i)
-        {
-            for(int j = 0; j < 3; ++j)
-            {
-                cvInverted.at<float>(i, j) = newRotation.at<float>(i, j);
-            }
-        }
-        for(int i = 0; i < 3; ++i)
-        {
-            cvInverted.at<float>(i, 3) = newTranslation.at<float>(i, 0);
-        }
-        cvInverted.at<float>(3, 3) = 1.0;
-
-        auto *ptr = &cvInverted.at<float>(0, 0);
-        auto invertedTransform = Zivid::Matrix4x4(ptr, ptr + 16);
-
-        return invertedTransform;
     }
 
     cv::Mat pointCloudToGray(const Zivid::PointCloud &pointCloud)
@@ -420,7 +381,7 @@ int main()
 
         std::cout << "Estimating pose of detected ArUco marker" << std::endl;
         const auto transformMarkerToCamera = estimateArUcoMarkerPose(pointCloud, markerCorners[0]);
-        const auto transformCameraToMarker = invertAffineTransformation(transformMarkerToCamera);
+        const auto transformCameraToMarker = transformMarkerToCamera.inverse();
 
         std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
         pointCloud.transform(transformCameraToMarker);
