@@ -140,7 +140,7 @@ int main()
 
             for(auto &camera : cameras)
             {
-                std::cout << "Starting task with camera: " << camera.info().serialNumber().value() << std::endl;
+                //std::cout << "Starting task with camera: " << camera.info().serialNumber().value() << std::endl;
                 times.emplace_back(std::async(std::launch::async,
                                                   captureInThread,
                                                   std::ref(camera),
@@ -149,7 +149,7 @@ int main()
 
             for(size_t j = 0; j < cameras.size(); ++j)
             {
-                std::cout << "Waiting for task of camera " << cameras[j].info().serialNumber().value() << " to finish" << std::endl;
+                //std::cout << "Waiting for task of camera " << cameras[j].info().serialNumber().value() << " to finish" << std::endl;
                 const auto camTimes = times[j].get();
                 allTimes[i][j] = camTimes;
             }
