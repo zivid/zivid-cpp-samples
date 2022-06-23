@@ -108,7 +108,7 @@ int main()
 
         for(auto &camera : cameras)
         {
-            std::cout << "Connecting to camera: " << camera.info().serialNumber().value() << std::endl;
+            std::cout << "Connecting to camera : " << camera.info().serialNumber().value() << std::endl;
             camera.connect();
         }
 
