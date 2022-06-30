@@ -45,6 +45,26 @@ namespace
         }
     };
 
+    MeasuredTimes captureInThreadNoProcessing(Zivid::Camera &camera, Zivid::Settings &settings /*, std::mutex &m*/)
+    {
+        // Capturing frame
+        const auto beforeCapture = HighResClock::now();
+
+        const auto frame = camera.capture(settings);
+
+        const auto afterCapture = HighResClock::now();
+
+        MeasuredTimes times;
+
+        times.captureDuration = afterCapture - beforeCapture;
+        // times.pointCloudDuration = afterPointCloud - afterCapture;
+        // times.processDuration = afterProcess - afterPointCloud;
+        // times.copyDuration = afterCopy - afterProcess;
+        // times.totalDuration = afterCopy - beforeCapture;
+
+        return times;
+    }
+
     MeasuredTimes captureInThread(Zivid::Camera &camera, Zivid::Settings &settings /*, std::mutex &m*/)
     {
         // Capturing frame
@@ -121,40 +141,53 @@ int main()
             std::vector<std::future<MeasuredTimes>> warmupTimes;
             for(auto &camera : cameras)
             {
-                warmupTimes.emplace_back(std::async(std::launch::async, captureInThread, std::ref(camera), std::ref(settings)));
+                warmupTimes.emplace_back(
+                    std::async(std::launch::async, captureInThread, std::ref(camera), std::ref(settings)));
             }
-            for (auto &future : warmupTimes)
+            for(auto &future : warmupTimes)
             {
                 future.wait();
             }
         }
 
-
         const size_t numFrames3D = 10;
 
-        std::vector<std::vector<MeasuredTimes>> allTimes(numFrames3D, {cameras.size(), MeasuredTimes{}});
+        std::vector<std::vector<MeasuredTimes>> allTimes(numFrames3D, { cameras.size(), MeasuredTimes{} });
 
         for(size_t i = 0; i < numFrames3D; i++)
         {
-            std::vector<std::future<MeasuredTimes>> times;
+            std::vector<std::future<MeasuredTimes>> times(3);
 
-            for(auto &camera : cameras)
-            {
-                //std::cout << "Starting task with camera: " << camera.info().serialNumber().value() << std::endl;
-                times.emplace_back(std::async(std::launch::async,
-                                                  captureInThread,
-                                                  std::ref(camera),
-                                                  std::ref(settings)));
-            }
+            times[0] =
+                std::async(std::launch::async, captureInThreadNoProcessing, std::ref(cameras[0]), std::ref(settings));
 
-            for(size_t j = 0; j < cameras.size(); ++j)
-            {
-                //std::cout << "Waiting for task of camera " << cameras[j].info().serialNumber().value() << " to finish" << std::endl;
-                const auto camTimes = times[j].get();
-                allTimes[i][j] = camTimes;
-            }
+            allTimes[i][0] = times[0].get();
+
+            times[1] =
+                std::async(std::launch::async, captureInThreadNoProcessing, std::ref(cameras[1]), std::ref(settings));
+            times[2] =
+                std::async(std::launch::async, captureInThreadNoProcessing, std::ref(cameras[2]), std::ref(settings));
+
+            allTimes[i][1] = times[1].get();
+            allTimes[i][2] = times[2].get();
+
+            // for(auto &camera : cameras)
+            //{
+            //    //std::cout << "Starting task with camera: " << camera.info().serialNumber().value() << std::endl;
+            //    times.emplace_back(std::async(std::launch::async,
+            //                                      captureInThread,
+            //                                      std::ref(camera),
+            //                                      std::ref(settings)));
+            //}
+
+            // for(size_t j = 0; j < cameras.size(); ++j)
+            //{
+            //    // std::cout << "Waiting for task of camera " << cameras[j].info().serialNumber().value() << " to
+            //    // finish" << std::endl;
+            //    allTimes[i][j] = times[j].get();
+            //}
         }
-        
+
         // after this its all single threaded.
         // allTimes[i][j] contains the times for the i-th run of the j-th camera
         // I only calculated the the averages and printed the average of the captureDuration
@@ -173,16 +206,15 @@ int main()
             avg /= numFrames3D;
         }
 
-        for (size_t j = 0; j < cameras.size(); j++)
+        for(size_t j = 0; j < cameras.size(); j++)
         {
             std::cout << "Average capture time for camera " << cameras[j].info().serialNumber().value() << ": "
-                      << formatDuration(averageTimes[j].captureDuration) << " point cloud time: "
-                      << formatDuration(averageTimes[j].pointCloudDuration) << " processing time: "
-                      << formatDuration(averageTimes[j].processDuration) << " copy time: "
-                      << formatDuration(averageTimes[j].copyDuration) << " total time: "
-                      << formatDuration(averageTimes[j].totalDuration) << std::endl;
+                      << formatDuration(averageTimes[j].captureDuration)
+                      << " point cloud time: " << formatDuration(averageTimes[j].pointCloudDuration)
+                      << " processing time: " << formatDuration(averageTimes[j].processDuration)
+                      << " copy time: " << formatDuration(averageTimes[j].copyDuration)
+                      << " total time: " << formatDuration(averageTimes[j].totalDuration) << std::endl;
         }
-
     }
     catch(const std::exception &e)
     {
