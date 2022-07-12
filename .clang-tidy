@@ -12,6 +12,7 @@ Checks: >
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-pro-type-const-cast,
   -llvmlibc-*,
   -llvm-qualified-auto,
   -cppcoreguidelines-pro-type-reinterpret-cast,
@@ -25,7 +26,7 @@ Checks: >
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
-CheckOptions:    
+CheckOptions:
   - key:             cert-dcl59-cpp.HeaderFileExtensions
     value:           h,hh,hpp,hxx
   - key:             cert-err09-cpp.CheckThrowTemporaries

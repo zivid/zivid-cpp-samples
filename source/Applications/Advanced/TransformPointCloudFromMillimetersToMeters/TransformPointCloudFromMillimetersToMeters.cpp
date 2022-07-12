@@ -15,7 +15,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ArucoMarkerInCameraOrigin.zdf";
+        const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/CalibrationBoardInCameraOrigin.zdf";
         std::cout << "Reading " << dataFile << " point cloud" << std::endl;
         auto frame = Zivid::Frame(dataFile);
         auto pointCloud = frame.pointCloud();

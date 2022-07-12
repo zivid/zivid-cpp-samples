@@ -352,7 +352,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithArucoMarker.zdf";
+        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithCalibrationBoard.zdf";
         std::cout << "Reading ZDF frame from file: " << arucoMarkerFile << std::endl;
         const auto frame = Zivid::Frame(arucoMarkerFile);
         auto pointCloud = frame.pointCloud();
