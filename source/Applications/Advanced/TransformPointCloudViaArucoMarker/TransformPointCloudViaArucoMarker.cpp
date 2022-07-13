@@ -213,7 +213,7 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ArucoMarkerInCameraOrigin.zdf";
+        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/CalibrationBoardInCameraOrigin.zdf";
         std::cout << "Reading ZDF frame from file: " << arucoMarkerFile << std::endl;
         const auto frame = Zivid::Frame(arucoMarkerFile);
         auto pointCloud = frame.pointCloud();
@@ -257,7 +257,7 @@ int main()
         std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
         pointCloud.transform(transformCameraToMarker);
 
-        const auto arucoMarkerTransformedFile = "ArucoMarkerInMarkerOrigin.zdf";
+        const auto arucoMarkerTransformedFile = "CalibrationBoardInArucoMarkerOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << arucoMarkerTransformedFile << std::endl;
         frame.save(arucoMarkerTransformedFile);
     }

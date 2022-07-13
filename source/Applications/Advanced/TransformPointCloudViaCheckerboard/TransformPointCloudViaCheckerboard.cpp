@@ -135,9 +135,9 @@ namespace
         fileStorageOut.write("PoseState", transform);
     }
 
-    cv::Mat zivid4x4MatrixToCV(const Zivid::Matrix4x4 &matrix)
+    cv::Mat zivid4x4MatrixAsCV(const Zivid::Matrix4x4 &matrix)
     {
-        return cv::Mat_<float>(4, 4, *matrix.data());
+        return cv::Mat_<float>(4, 4, const_cast<float *>(matrix.data()));
     }
 
 } // namespace
@@ -148,27 +148,28 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto calibrationBoardFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ArucoMarkerInCameraOrigin.zdf";
+        const auto calibrationBoardFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/CalibrationBoardInCameraOrigin.zdf";
         std::cout << "Reading ZDF frame from file: " << calibrationBoardFile << std::endl;
         const auto frame = Zivid::Frame(calibrationBoardFile);
         auto pointCloud = frame.pointCloud();
 
-        std::cout << "Converting to OpenCV image format" << std::endl;
-        const auto bgrImage = pointCloudToColorBGR(pointCloud);
-
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
         const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
+        std::cout << transformCameraToCheckerboard << std::endl;
         std::cout << "Camera pose in checkerboard frame:" << std::endl;
         const auto transformCheckerboardToCamera = transformCameraToCheckerboard.inverse();
         std::cout << transformCheckerboardToCamera << std::endl;
 
         const auto transformlFile = "CheckerboardToCameraTransform.yaml";
         std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformlFile << std::endl;
-        writeTransform(zivid4x4MatrixToCV(transformCheckerboardToCamera), transformlFile);
+        writeTransform(zivid4x4MatrixAsCV(transformCheckerboardToCamera), transformlFile);
 
         std::cout << "Transforming point cloud from camera frame to Checkerboard frame" << std::endl;
         pointCloud.transform(transformCheckerboardToCamera);
+
+        std::cout << "Converting to OpenCV image format" << std::endl;
+        const auto bgrImage = pointCloudToColorBGR(pointCloud);
 
         std::cout << "Visualizing checkerboard with coordinate system" << std::endl;
         drawCoordinateSystem(pointCloud, bgrImage);
