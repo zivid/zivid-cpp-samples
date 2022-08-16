@@ -161,9 +161,9 @@ int main()
         const auto transformCheckerboardToCamera = transformCameraToCheckerboard.inverse();
         std::cout << transformCheckerboardToCamera << std::endl;
 
-        const auto transformlFile = "CheckerboardToCameraTransform.yaml";
-        std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformlFile << std::endl;
-        writeTransform(zivid4x4MatrixAsCV(transformCheckerboardToCamera), transformlFile);
+        const auto transformFile = "CheckerboardToCameraTransform.yaml";
+        std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformFile << std::endl;
+        writeTransform(zivid4x4MatrixAsCV(transformCheckerboardToCamera), transformFile);
 
         std::cout << "Transforming point cloud from camera frame to Checkerboard frame" << std::endl;
         pointCloud.transform(transformCheckerboardToCamera);

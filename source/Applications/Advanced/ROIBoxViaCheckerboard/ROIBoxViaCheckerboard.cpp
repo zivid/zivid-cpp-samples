@@ -184,7 +184,7 @@ int main()
         const auto frame = Zivid::Frame(fileData);
         auto pointCloud = frame.pointCloud();
 
-        std::cout << "Displaying the point cloud original point cloud" << std::endl;
+        std::cout << "Displaying the original point cloud" << std::endl;
         visualizeZividPointCloud(frame);
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
@@ -214,7 +214,7 @@ int main()
                   << "Width: " << roiBoxWidth << std::endl
                   << "Height: " << roiBoxHeight << std::endl;
 
-        std::cout << "Filtering the point cloud beased on ROI Box" << std::endl;
+        std::cout << "Filtering the point cloud based on ROI Box" << std::endl;
         const auto roiPointCloudPCL = roiBoxPointCloud(
             pointCloud,
             roiBoxBottomLeftCornerX,

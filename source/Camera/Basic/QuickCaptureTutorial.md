@@ -2,7 +2,7 @@
 
 Note\! This tutorial has been generated for use on Github. For original
 tutorial see:
-[QuickCaptureTutorial](https://support.zivid.com/latest/rst/getting-started/quick-capture-tutorial.html)
+[QuickCaptureTutorial](https://support.zivid.com/latest/getting-started/quick-capture-tutorial.html)
 
 
 
