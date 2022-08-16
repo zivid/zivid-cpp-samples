@@ -2,7 +2,7 @@
 
 Note\! This tutorial has been generated for use on Github. For original
 tutorial see:
-[PointCloudTutorial](https://support.zivid.com/latest/rst/academy/applications/point-cloud-tutorial.html)
+[PointCloudTutorial](https://support.zivid.com/latest/academy/applications/point-cloud-tutorial.html)
 
 
 
@@ -107,7 +107,7 @@ processing on the GPU is finished. Any calls to data-copy functions
 proceeding with the requested copy operation.
 
 For detailed explanation, see [Point Cloud Capture
-Process](https://support.zivid.com/latest/rst/academy/camera/point-cloud-capture-process.html).
+Process](https://support.zivid.com/latest/academy/camera/point-cloud-capture-process.html).
 
 -----
 
@@ -299,7 +299,7 @@ visualizer.run();
 ```
 
 For more information, check out [Visualization
-Tutorial](https://support.zivid.com/latest/rst/academy/applications/visualization-tutorial.html),
+Tutorial](https://support.zivid.com/latest/academy/applications/visualization-tutorial.html),
 where we cover point cloud, color image, depth map, and normals
 visualization, with implementations using third party libraries.
 

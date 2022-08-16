@@ -357,7 +357,7 @@ int main()
         const auto frame = Zivid::Frame(arucoMarkerFile);
         auto pointCloud = frame.pointCloud();
 
-        std::cout << "Displaying the point cloud original point cloud" << std::endl;
+        std::cout << "Displaying the original point cloud" << std::endl;
         visualizeZividPointCloud(frame);
 
         std::cout << "Configuring ArUco marker" << std::endl;
@@ -402,7 +402,7 @@ int main()
                   << "Width: " << roiBoxWidth << std::endl
                   << "Height: " << roiBoxHeight << std::endl;
 
-        std::cout << "Filtering the point cloud beased on ROI Box" << std::endl;
+        std::cout << "Filtering the point cloud based on ROI Box" << std::endl;
         const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> roiPointCloudPCL = roiBoxPointCloud(
             pointCloud,
             roiBoxBottomLeftCornerX,
