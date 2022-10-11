@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.7.0. For
+This repository contains cpp code samples for Zivid SDK v2.8.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -25,9 +25,9 @@ releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases)
 
 ## Tutorials list
 
-  - [QuickCaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Camera/Basic/QuickCaptureTutorial.md)
-  - [CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Camera/Basic/CaptureTutorial.md)
-  - [PointCloudTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Applications/PointCloudTutorial.md)
+  - [QuickCaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/QuickCaptureTutorial.md)
+  - [CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureTutorial.md)
+  - [PointCloudTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/PointCloudTutorial.md)
 
 ## Samples list
 
@@ -107,6 +107,7 @@ from the camera can be used.
           - [CreateDepthMap](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp) - Convert point cloud from a ZDF file to OpenCV format,
             extract depth map and visualize it.
           - [Downsample](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp) - Downsample point cloud from a ZDF file.
+          - [GammaCorrection](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/GammaCorrection/GammaCorrection.cpp) - Capture 2D image with gamma correction.
           - [HandEyeCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp) - Perform Hand-Eye calibration.
           - [MaskPointCloud](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp) - Mask point cloud from a ZDF file and convert to PCL
             format, extract depth map and visualize it.
@@ -215,13 +216,14 @@ this:
 If you want to use Zivid in HALCON, we provide a GenICam GenTL producer
 that comes with the [Zivid Software](http://www.zivid.com/downloads).
 
-Zivid and HALCON are compatible with Windows 10 and Ubuntu 18.04, 20.04.
+Zivid and HALCON are compatible with Windows 10 and Ubuntu 18.04, 20.04,
+22.04.
 
 -----
 
 Note:
 
-> Support for Ubuntu 16.04 is removed from SDK 2.7.
+> Support for Ubuntu 16.04 is removed since SDK 2.7.
 
 -----
 

@@ -59,7 +59,7 @@ const auto frame = camera.capture(settings);
 ```
 
 Check
-[CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/Source/Camera/Basic/CaptureTutorial.md)
+[CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureTutorial.md)
 for detailed instructions on how to capture.
 
 ### Load
@@ -202,7 +202,7 @@ frame or, e.g., [scale the point cloud by transforming it from mm to
 m](https://support.zivid.com/latest//academy/applications/transform/transform-millimeters-to-meters.html).
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L266))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L235))
 
 ``` sourceCode cpp
 pointCloud.transform(transformBaseToCamera);

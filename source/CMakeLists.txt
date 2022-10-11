@@ -62,7 +62,8 @@ set(SAMPLES
     Applications/Advanced/TransformPointCloudViaCheckerboard
     Applications/Advanced/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/ROIBoxViaArucoMarker
-    Applications/Advanced/ROIBoxViaCheckerboard)
+    Applications/Advanced/ROIBoxViaCheckerboard
+    Applications/Advanced/GammaCorrection)
 
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions)
 set(PCL_DEPENDING
@@ -76,19 +77,14 @@ set(PCL_DEPENDING
     ROIBoxViaCheckerboard)
 set(OpenCV_DEPENDING
     CaptureUndistortRGB
-    UtilizeHandEyeCalibration
-    PoseConversions
     CreateDepthMap
     MaskPointCloud
-    MultiCameraCalibration
-    MultiCameraCalibrationFromZDF
-    StitchByTransformation
-    StitchByTransformationFromZDF
     TransformPointCloudViaArucoMarker
     TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
     ROIBoxViaArucoMarker
-    ROIBoxViaCheckerboard)
+    ROIBoxViaCheckerboard
+    GammaCorrection)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D
@@ -99,8 +95,9 @@ set(Visualization_DEPENDING
     CreateDepthMap
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard)
-set(Clipp_DEPENDING CameraUserData MultiCameraCalibrationFromZDF
-                    StitchByTransformation StitchByTransformationFromZDF)
+set(Clipp_DEPENDING
+    CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation
+    StitchByTransformationFromZDF MultiCameraCalibration)
 set(Thread_DEPENDING MultiCameraCaptureInParallel)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
 set(Halcon_DEPENDING CaptureHalconViaGenICam CaptureHalconViaZivid)

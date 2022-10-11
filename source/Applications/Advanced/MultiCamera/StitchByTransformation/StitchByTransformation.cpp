@@ -2,8 +2,6 @@
 Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from connected cameras.
 */
 
-#include <opencv2/core/core.hpp>
-
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -39,46 +37,31 @@ namespace
         Zivid::Camera &mCamera;
     };
 
-    Zivid::Camera &getCameraBySerialNumber(
-        std::vector<Zivid::Camera> &cameras,
-        const Zivid::CameraInfo::SerialNumber &serialNumber)
-    {
-        auto cameraIterator = std::find_if(cameras.begin(), cameras.end(), [&](Zivid::Camera &camera) {
-            return (camera.info().serialNumber() == serialNumber);
-        });
-        if(cameraIterator == cameras.end())
-        {
-            throw std::runtime_error("Camera " + serialNumber.toString() + " not connected");
-        }
-        return *cameraIterator;
-    }
-
     std::vector<TransformationMatrixAndCameraMap> getTransformationMatricesFromYAML(
-        const std::string &path,
+        const std::vector<std::string> &transformationMatricesfileList,
         std::vector<Zivid::Camera> &cameras)
     {
-        cv::FileStorage fileStorageIn;
-        if(!fileStorageIn.open(path, cv::FileStorage::Mode::READ))
-        {
-            throw std::runtime_error("Could not open " + path + ". Please run this sample from the build directory");
-        }
         auto transformsMappedToCameras = std::vector<TransformationMatrixAndCameraMap>{};
-        for(size_t i = 0; i < cameras.size(); i++)
+        for(auto &camera : cameras)
         {
-            const auto serialNumber =
-                Zivid::CameraInfo::SerialNumber(fileStorageIn["SerialNumber_" + std::to_string(i)].string());
-            std::cout << "SerialNumber_" << std::to_string(i) << ": " << serialNumber << std::endl;
-            const auto transformNode = fileStorageIn["TransformationMatrix_" + std::to_string(i)];
-            const auto &cvMat = transformNode.mat();
-            const auto transformationMatrix = Zivid::Matrix4x4(cvMat.ptr<float>(0), cvMat.ptr<float>(0) + 16);
-            transformsMappedToCameras
-                .emplace_back(transformationMatrix, getCameraBySerialNumber(cameras, serialNumber));
-            std::cout << "TransformationMatrix_" << i << ":" << std::endl;
-            std::cout << transformationMatrix << std::endl;
+            const auto serialNumber = camera.info().serialNumber().toString();
+            for(const auto &fileName : transformationMatricesfileList)
+            {
+                if(serialNumber
+                   == fileName.substr(
+                       fileName.find_last_of('\\') + 1,
+                       (fileName.find_last_of('.')) - (fileName.find_last_of('\\') + 1)))
+                {
+                    Zivid::Matrix4x4 transformationMatrixZivid(fileName);
+                    transformsMappedToCameras.emplace_back(transformationMatrixZivid, camera);
+                    break;
+                }
+                if(transformationMatricesfileList.back() == fileName)
+                {
+                    throw std::runtime_error("You are missing a yaml file named " + serialNumber + ".yaml!");
+                }
+            }
         }
-
-        fileStorageIn.release();
-
         return transformsMappedToCameras;
     }
 
@@ -108,15 +91,15 @@ int main(int argc, char **argv)
     {
         Zivid::Application zivid;
 
-        std::string transformationMatricesFileName;
+        auto transformationMatricesfileList = std::vector<std::string>{};
         std::string stitchedPointCloudFileName;
         auto useRGB = true;
         auto saveStitched = false;
         auto cli =
-            (clipp::value("Transformation Matrices File Name", transformationMatricesFileName)
-                 % "Path to .yaml file with all transformation matrices",
+            (clipp::values("File Names", transformationMatricesfileList)
+                 % "List of yaml files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
-             clipp::option("-o", "--outputfile").set(saveStitched)
+             clipp::required("-o", "--output-file").set(saveStitched)
                  & clipp::value("Transformation Matrices File Name", stitchedPointCloudFileName)
                        % "Save the stitched point cloud to a file with this name.");
 
@@ -139,7 +122,7 @@ int main(int argc, char **argv)
         }
 
         const auto transformsMappedToCameras =
-            getTransformationMatricesFromYAML(transformationMatricesFileName, cameras);
+            getTransformationMatricesFromYAML(transformationMatricesfileList, cameras);
 
         // Capture from all cameras
         auto frames = std::vector<Zivid::Frame>();
