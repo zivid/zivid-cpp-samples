@@ -29,7 +29,8 @@ The YAML files for this sample can be found under the main instructions for Zivi
 #include <Zivid/Zivid.h>
 
 #include <Eigen/Core>
-#include <opencv2/core/core.hpp>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include <cmath>
 #include <iostream>
@@ -89,65 +90,34 @@ namespace
         return RobotCameraConfiguration::unknown;
     }
 
-    Eigen::MatrixXf cvToEigen(const cv::Mat &cvMat)
+    Eigen::Affine3f zividToEigen(const Zivid::Matrix4x4 &matrix)
     {
-        if(cvMat.dims != 2)
+        Eigen::Matrix4f eigenMat;
+        for(std::size_t row = 0; row < Zivid::Matrix4x4::rows; row++)
         {
-            throw std::invalid_argument("Invalid matrix dimensions. Expected 2D.");
-        }
-
-        Eigen::MatrixXf eigenMat(cvMat.rows, cvMat.cols);
-        for(int i = 0; i < cvMat.rows; i++)
-        {
-            for(int j = 0; j < cvMat.cols; j++)
+            for(std::size_t column = 0; column < Zivid::Matrix4x4::cols; column++)
             {
-                eigenMat(i, j) = cvMat.at<float>(i, j);
+                eigenMat(row, column) = matrix(row, column);
             }
         }
-        return eigenMat;
+        Eigen::Affine3f result;
+        result = eigenMat;
+        return result;
     }
 
-    Zivid::Matrix4x4 cvToZivid(const cv::Mat &cvMat)
+    Zivid::Matrix4x4 eigenToZivid(const Eigen::Affine3f &eigenMat)
     {
-        const auto zividMat = Zivid::Matrix4x4(cvMat.ptr<float>(0), cvMat.ptr<float>(0) + 16);
-        return zividMat;
-    }
-
-    cv::Mat readTransform(const std::string &transformFile)
-    {
-        auto fileStorage = cv::FileStorage();
-
-        if(!fileStorage.open(transformFile, cv::FileStorage::Mode::READ))
+        Eigen::Matrix4f matrix4x4f;
+        matrix4x4f = eigenMat.matrix();
+        Zivid::Matrix4x4 zividMatrix;
+        for(Eigen::Index row = 0; row < matrix4x4f.rows(); row++)
         {
-            throw std::invalid_argument("Could not open " + transformFile);
-        }
-        try
-        {
-            const auto poseStateNode = fileStorage["PoseState"];
-
-            if(poseStateNode.empty())
+            for(Eigen::Index column = 0; column < matrix4x4f.cols(); column++)
             {
-                throw std::invalid_argument("PoseState not found in file " + transformFile);
+                zividMatrix(row, column) = matrix4x4f(row, column);
             }
-
-            const auto rows = poseStateNode.mat().rows;
-            const auto cols = poseStateNode.mat().cols;
-            if(rows != 4 || cols != 4)
-            {
-                throw std::invalid_argument(
-                    "Expected 4x4 matrix in " + transformFile + ", but got " + std::to_string(cols) + "x"
-                    + std::to_string(rows));
-            }
-
-            auto poseState = poseStateNode.mat();
-            fileStorage.release();
-            return poseState;
         }
-        catch(...)
-        {
-            fileStorage.release();
-            throw;
-        }
+        return zividMatrix;
     }
 } // namespace
 
@@ -160,7 +130,7 @@ int main()
         std::string fileName;
         size_t imageCoordinateX = 0;
         size_t imageCoordinateY = 0;
-        cv::Mat transformBaseToCameraCV;
+        Zivid::Matrix4x4 transformBaseToCamera;
 
         bool loopContinue = true;
         while(loopContinue)
@@ -180,8 +150,7 @@ int main()
 
                     std::cout << "Reading camera pose in robot base frame (result of eye-to-hand calibration"
                               << std::endl;
-                    transformBaseToCameraCV =
-                        readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
+                    transformBaseToCamera.load(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
 
                     loopContinue = false;
                     break;
@@ -200,15 +169,16 @@ int main()
 
                     std::cout << "Reading camera pose in end-effector frame (result of eye-in-hand calibration)"
                               << std::endl;
-                    const cv::Mat transformEndEffectorToCamera =
-                        readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeInHandTransformFile);
+                    Zivid::Matrix4x4 transformEndEffectorToCamera(
+                        std::string(ZIVID_SAMPLE_DATA_DIR) + eyeInHandTransformFile);
 
                     std::cout << "Reading end-effector pose in robot base frame" << std::endl;
-                    const cv::Mat transformBaseToEndEffector =
-                        readTransform(std::string(ZIVID_SAMPLE_DATA_DIR) + robotTransformFile);
+                    Zivid::Matrix4x4 transformBaseToEndEffector(
+                        std::string(ZIVID_SAMPLE_DATA_DIR) + robotTransformFile);
 
                     std::cout << "Computing camera pose in robot base frame" << std::endl;
-                    transformBaseToCameraCV = transformBaseToEndEffector * transformEndEffectorToCamera;
+                    transformBaseToCamera = eigenToZivid(
+                        zividToEigen(transformBaseToEndEffector) * zividToEigen(transformEndEffectorToCamera));
 
                     loopContinue = false;
                     break;
@@ -247,10 +217,10 @@ int main()
                               << pointInCameraFrame.y() << " " << pointInCameraFrame.z() << std::endl;
 
                     // Converting to Eigen matrix for easier computation
-                    const Eigen::MatrixXf transformBaseToCamera = cvToEigen(transformBaseToCameraCV);
+                    const Eigen::Affine3f transformBaseToCameraEigen = zividToEigen(transformBaseToCamera);
 
                     std::cout << "Transforming (picking) point from camera to robot base frame" << std::endl;
-                    const Eigen::Vector4f pointInBaseFrame = transformBaseToCamera * pointInCameraFrame;
+                    const Eigen::Vector4f pointInBaseFrame = transformBaseToCameraEigen * pointInCameraFrame;
 
                     std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.x() << " "
                               << pointInBaseFrame.y() << " " << pointInBaseFrame.z() << std::endl;
@@ -262,7 +232,6 @@ int main()
                 {
                     std::cout << "Transforming point cloud" << std::endl;
 
-                    const auto transformBaseToCamera = cvToZivid(transformBaseToCameraCV);
                     pointCloud.transform(transformBaseToCamera);
 
                     const auto saveFile = "ZividGemTransformed.zdf";

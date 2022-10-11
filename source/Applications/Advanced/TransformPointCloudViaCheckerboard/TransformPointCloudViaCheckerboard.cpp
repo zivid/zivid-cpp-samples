@@ -7,7 +7,6 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 #include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
-#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -125,21 +124,6 @@ namespace
         coordinateSystemLine(bgrImage, framePoints.originPoint, framePoints.zAxisPoint, cv::Scalar(255, 0, 0));
     }
 
-    void writeTransform(const cv::Mat &transform, const std::string &transformFile)
-    {
-        cv::FileStorage fileStorageOut;
-        if(!fileStorageOut.open(transformFile, cv::FileStorage::Mode::WRITE))
-        {
-            throw std::runtime_error("Could not open " + transformFile + " for writing");
-        }
-        fileStorageOut.write("PoseState", transform);
-    }
-
-    cv::Mat zivid4x4MatrixAsCV(const Zivid::Matrix4x4 &matrix)
-    {
-        return cv::Mat_<float>(4, 4, const_cast<float *>(matrix.data()));
-    }
-
 } // namespace
 
 int main()
@@ -163,7 +147,7 @@ int main()
 
         const auto transformFile = "CheckerboardToCameraTransform.yaml";
         std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformFile << std::endl;
-        writeTransform(zivid4x4MatrixAsCV(transformCheckerboardToCamera), transformFile);
+        transformCheckerboardToCamera.save(transformFile);
 
         std::cout << "Transforming point cloud from camera frame to Checkerboard frame" << std::endl;
         pointCloud.transform(transformCheckerboardToCamera);

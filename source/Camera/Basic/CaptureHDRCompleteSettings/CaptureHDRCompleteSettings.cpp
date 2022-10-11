@@ -29,7 +29,8 @@ namespace
             const std::vector<size_t> exposureTimes{ 10000, 10000, 40000 };
             return { apertures, gains, exposureTimes };
         }
-        if(camera.info().model() == Zivid::CameraInfo::Model::zividTwo)
+        if(camera.info().model() == Zivid::CameraInfo::Model::zividTwo
+           || camera.info().model() == Zivid::CameraInfo::Model::zividTwoL100)
         {
             const std::vector<double> apertures{ 5.66, 2.38, 1.8 };
             const std::vector<double> gains{ 1.0, 1.0, 1.0 };

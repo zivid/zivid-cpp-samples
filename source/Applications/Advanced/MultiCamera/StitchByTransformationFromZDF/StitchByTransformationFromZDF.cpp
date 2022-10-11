@@ -2,8 +2,6 @@
 Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from a ZDF files.
 */
 
-#include <opencv2/core/core.hpp>
-
 #include <clipp.h>
 
 #include <pcl/io/pcd_io.h>
@@ -31,46 +29,43 @@ namespace
     };
 
     std::vector<TransformationMatrixAndFrameMap> getTransformationMatricesAndFramesFromZDF(
-        const std::string &yamlPath,
-        const std::vector<std::string> &fileList)
+        const std::vector<std::string> &transformationMatricesfileList)
     {
-        cv::FileStorage fileStorageIn;
-        if(!fileStorageIn.open(yamlPath, cv::FileStorage::Mode::READ))
-        {
-            throw std::runtime_error(
-                "Could not open " + yamlPath + ". Please run this sample from the build directory");
-        }
+        std::string fileExtension;
+        std::string serialNumber;
+
         auto transformsMappedToFrames = std::vector<TransformationMatrixAndFrameMap>{};
-        size_t i = -1;
-        while(!fileStorageIn["SerialNumber_" + std::to_string(++i)].empty())
+        for(const auto &zdfFileName : transformationMatricesfileList)
         {
-            const auto serialNumber =
-                Zivid::CameraInfo::SerialNumber(fileStorageIn["SerialNumber_" + std::to_string(i)].string());
-            // Look for a frame and transformation matrix for this camera
-            for(const auto &fileName : fileList)
+            fileExtension = zdfFileName.substr(zdfFileName.find_last_of('.') + 1);
+            if(fileExtension == "zdf")
             {
-                if(fileName.find(serialNumber.toString()) != std::string::npos)
+                const auto frame = Zivid::Frame(zdfFileName);
+                serialNumber = frame.cameraInfo().serialNumber().toString();
+                for(const auto &yamlFileName : transformationMatricesfileList)
                 {
-                    std::cout << "SerialNumber_" << std::to_string(i) << ": " << serialNumber << std::endl;
-                    const auto transformNode = fileStorageIn["TransformationMatrix_" + std::to_string(i)];
-                    const auto &cvMat = transformNode.mat();
-                    const auto transformationMatrix = Zivid::Matrix4x4(cvMat.ptr<float>(0), cvMat.ptr<float>(0) + 16);
-                    transformsMappedToFrames.emplace_back(transformationMatrix, Zivid::Frame(fileName));
-                    std::cout << "TransformationMatrix_" << i << ":" << std::endl;
-                    std::cout << transformationMatrix << std::endl;
-                    break;
+                    if(serialNumber
+                       == yamlFileName.substr(
+                           yamlFileName.find_last_of('\\') + 1,
+                           (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of('\\') + 1)))
+                    {
+                        Zivid::Matrix4x4 transformationMatrixZivid(yamlFileName);
+                        transformsMappedToFrames.emplace_back(transformationMatrixZivid, frame);
+                        break;
+                    }
+                    if(transformationMatricesfileList.back() == yamlFileName)
+                    {
+                        throw std::runtime_error("You are missing a yaml file named " + serialNumber + ".yaml!");
+                    }
                 }
             }
         }
         if(transformsMappedToFrames.size() < 2)
         {
-            fileStorageIn.release();
             throw std::runtime_error(
                 "Require minimum two matching transformation and frames, got "
                 + std::to_string(transformsMappedToFrames.size()));
         }
-
-        fileStorageIn.release();
 
         return transformsMappedToFrames;
     }
@@ -101,18 +96,15 @@ int main(int argc, char **argv)
     {
         Zivid::Application zivid;
 
-        std::string transformationMatricesFileName;
         std::string stitchedPointCloudFileName;
-        auto fileList = std::vector<std::string>{};
+        auto transformationMatricesAndZdfFileList = std::vector<std::string>{};
         auto useRGB = true;
         auto saveStitched = false;
         auto cli =
-            (clipp::value("Transformation Matrices File Name", transformationMatricesFileName)
-                 % "Path to .yaml file with all transformation matrices",
-             clipp::values("File Names", fileList)
-                 % "List of .zdf files to stitch. Note that each filename must include serial number of the used camera",
+            (clipp::values("File Names", transformationMatricesAndZdfFileList)
+                 % "List of .zdf files to stitch and list of yaml files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
-             clipp::option("-o", "--outputfile").set(saveStitched)
+             clipp::required("-o", "--output-file").set(saveStitched)
                  & clipp::value("Transformation Matrices File Name", stitchedPointCloudFileName)
                        % "Save the stitched point cloud to a file with this name.");
 
@@ -127,7 +119,7 @@ int main(int argc, char **argv)
         }
 
         const auto transformsMappedToFrames =
-            getTransformationMatricesAndFramesFromZDF(transformationMatricesFileName, fileList);
+            getTransformationMatricesAndFramesFromZDF(transformationMatricesAndZdfFileList);
 
         // Loop through frames to find final size
         auto maxNumberOfPoints = 0;

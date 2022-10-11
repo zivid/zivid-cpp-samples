@@ -14,9 +14,6 @@ be found under the main instructions for Zivid samples.
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/eigen.hpp>
-
 #include <iomanip>
 #include <iostream>
 
@@ -35,7 +32,7 @@ namespace
     struct RollPitchYaw
     {
         RotationConvention convention;
-        Eigen::Array3d rollPitchYaw;
+        Eigen::Array3f rollPitchYaw;
     };
 
     std::string toString(RotationConvention convention)
@@ -58,21 +55,21 @@ namespace
     // and yaw is a rotation about z-axis.
     // Whether the axes are moving (intrinsic) or fixed (extrinsic) is defined by the rotation convention.
     // The array is ordered by Roll, Pitch and then Yaw.
-    Eigen::Matrix3d rollPitchYawToRotationMatrix(const Eigen::Array3d &rollPitchYaw, const RotationConvention &rotation)
+    Eigen::Matrix3f rollPitchYawToRotationMatrix(const Eigen::Array3f &rollPitchYaw, const RotationConvention &rotation)
     {
         switch(rotation)
         {
             case RotationConvention::xyzIntrinsic:
             case RotationConvention::zyxExtrinsic:
-                return (Eigen::AngleAxisd(rollPitchYaw[0], Eigen::Vector3d::UnitX())
-                        * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
-                        * Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ()))
+                return (Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitX())
+                        * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
+                        * Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitZ()))
                     .matrix();
             case RotationConvention::zyxIntrinsic:
             case RotationConvention::xyzExtrinsic:
-                return (Eigen::AngleAxisd(rollPitchYaw[2], Eigen::Vector3d::UnitZ())
-                        * Eigen::AngleAxisd(rollPitchYaw[1], Eigen::Vector3d::UnitY())
-                        * Eigen::AngleAxisd(rollPitchYaw[0], Eigen::Vector3d::UnitX()))
+                return (Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitZ())
+                        * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
+                        * Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitX()))
                     .matrix();
             case RotationConvention::nofROT: break;
         }
@@ -98,8 +95,8 @@ namespace
     // Pitch is a rotation about y-axis and Yaw is a rotation about z-axis.
     // Whether the axes are moving (intrinsic) or fixed (extrinsic) is defined by the rotation convention.
     // The array is ordered by Roll, Pitch and then Yaw.
-    Eigen::Array3d rotationMatrixToRollPitchYaw(
-        const Eigen::Matrix3d &rotationMatrix,
+    Eigen::Array3f rotationMatrixToRollPitchYaw(
+        const Eigen::Matrix3f &rotationMatrix,
         const RotationConvention &convention)
     {
         switch(convention)
@@ -114,7 +111,7 @@ namespace
         throw std::invalid_argument("Invalid rotation");
     }
 
-    std::vector<RollPitchYaw> rotationMatrixToRollPitchYawList(const Eigen::Matrix3d &rotationMatrix)
+    std::vector<RollPitchYaw> rotationMatrixToRollPitchYawList(const Eigen::Matrix3f &rotationMatrix)
     {
         const Eigen::IOFormat vectorFmt(4, 0, ", ", "", "", "", "[", "]");
         std::vector<RollPitchYaw> rpyList;
@@ -128,65 +125,15 @@ namespace
         return rpyList;
     }
 
-    Eigen::MatrixXd cvToEigen(const cv::Mat &cvMat)
+    Eigen::Vector3f rotationMatrixToRotationVector(const Eigen::Matrix3f &rotationMatrix)
     {
-        Eigen::MatrixXd eigenMat(cvMat.rows, cvMat.cols);
-
-        cv::cv2eigen(cvMat, eigenMat);
-
-        return eigenMat;
-    }
-
-    Eigen::Affine3d getTransformationMatrixFromYAML(const std::string &path)
-    {
-        cv::FileStorage fileStorageIn;
-        if(!fileStorageIn.open(path, cv::FileStorage::Mode::READ))
-        {
-            throw std::runtime_error("Could not open " + path + ". Please run this sample from the build directory");
-        }
-        const auto poseStateNode = fileStorageIn["PoseState"];
-        std::cout << "Getting PoseState:" << std::endl;
-        if(poseStateNode.empty())
-        {
-            fileStorageIn.release();
-            throw std::runtime_error("PoseState node not found in file");
-        }
-        auto transformationMatrix = Eigen::Affine3d(static_cast<Eigen::Matrix4d>(cvToEigen(poseStateNode.mat())));
-        fileStorageIn.release();
-
-        return transformationMatrix;
-    }
-
-    cv::Mat eigenToCv(const Eigen::MatrixXd &eigenMat)
-    {
-        cv::Mat cvMat(static_cast<int>(eigenMat.rows()), static_cast<int>(eigenMat.cols()), CV_64FC1, cv::Scalar(0));
-
-        cv::eigen2cv(eigenMat, cvMat);
-
-        return cvMat;
-    }
-
-    void saveTransformationMatrixToYAML(const Eigen::Affine3d &transformationMatrix, const std::string &path)
-    {
-        // Save Transformation Matrix to .YAML file
-        cv::FileStorage fileStorageOut;
-        if(!fileStorageOut.open(path, cv::FileStorage::Mode::WRITE))
-        {
-            throw std::runtime_error("Could not open robotTransformOut.yaml for writing");
-        }
-        fileStorageOut.write("TransformationMatrixFromQuaternion", eigenToCv(transformationMatrix.matrix()));
-        fileStorageOut.release();
-    }
-
-    Eigen::Vector3d rotationMatrixToRotationVector(const Eigen::Matrix3d &rotationMatrix)
-    {
-        const Eigen::AngleAxisd axisAngle(rotationMatrix);
+        const Eigen::AngleAxisf axisAngle(rotationMatrix);
         return axisAngle.angle() * axisAngle.axis();
     }
 
-    Eigen::Matrix3d rotationVectorToRotationMatrix(const Eigen::Vector3d &rotationVector)
+    Eigen::Matrix3f rotationVectorToRotationMatrix(const Eigen::Vector3f &rotationVector)
     {
-        Eigen::AngleAxisd axisAngle(rotationVector.norm(), rotationVector.normalized());
+        Eigen::AngleAxisf axisAngle(rotationVector.norm(), rotationVector.normalized());
         return axisAngle.toRotationMatrix();
     }
 
@@ -194,6 +141,36 @@ namespace
     {
         const std::string asterixLine = "****************************************************************";
         std::cout << asterixLine << "\n* " << txt << std::endl << asterixLine << std::endl;
+    }
+
+    Eigen::Affine3f zividToEigen(const Zivid::Matrix4x4 &matrix)
+    {
+        Eigen::Matrix4f eigenMat;
+        for(std::size_t row = 0; row < Zivid::Matrix4x4::rows; row++)
+        {
+            for(std::size_t column = 0; column < Zivid::Matrix4x4::cols; column++)
+            {
+                eigenMat(row, column) = matrix(row, column);
+            }
+        }
+        Eigen::Affine3f result;
+        result = eigenMat;
+        return result;
+    }
+
+    Zivid::Matrix4x4 eigenToZivid(const Eigen::Affine3f &eigenMat)
+    {
+        Eigen::Matrix4f matrix4x4f;
+        matrix4x4f = eigenMat.matrix();
+        Zivid::Matrix4x4 zividMatrix;
+        for(Eigen::Index row = 0; row < matrix4x4f.rows(); row++)
+        {
+            for(Eigen::Index column = 0; column < matrix4x4f.cols(); column++)
+            {
+                zividMatrix(row, column) = matrix4x4f(row, column);
+            }
+        }
+        return zividMatrix;
     }
 } // namespace
 
@@ -208,8 +185,8 @@ int main()
         Eigen::IOFormat vectorFormatRules(4, 0, ", ", "", "", "", "[", "]");
         printHeader("This example shows conversions to/from Transformation Matrix");
 
-        const auto transformationMatrix =
-            getTransformationMatrixFromYAML(std::string(ZIVID_SAMPLE_DATA_DIR) + "/RobotTransform.yaml");
+        Zivid::Matrix4x4 transformationMatrixZivid(std::string(ZIVID_SAMPLE_DATA_DIR) + "/RobotTransform.yaml");
+        const Eigen::Affine3f transformationMatrix = zividToEigen(transformationMatrixZivid);
         std::cout << transformationMatrix.matrix().format(matrixFormatRules) << std::endl;
 
         // Extract Rotation Matrix and Translation Vector from Transformation Matrix
@@ -221,12 +198,12 @@ int main()
          * Convert from Rotation Matrix (Zivid) to other representations of orientation (Robot)
          */
         printHeader("Convert from Zivid (Rotation Matrix) to Robot");
-        const Eigen::AngleAxisd axisAngle(transformationMatrix.linear());
+        const Eigen::AngleAxisf axisAngle(transformationMatrix.linear());
         std::cout << "AxisAngle:\n"
                   << axisAngle.axis().format(vectorFormatRules) << ", " << axisAngle.angle() << std::endl;
-        const auto rotationVector = rotationMatrixToRotationVector(transformationMatrix.linear());
+        const Eigen::Vector3f rotationVector = rotationMatrixToRotationVector(transformationMatrix.linear());
         std::cout << "Rotation Vector:\n" << rotationVector.format(vectorFormatRules) << std::endl;
-        const Eigen::Quaterniond quaternion(transformationMatrix.linear());
+        const Eigen::Quaternionf quaternion(transformationMatrix.linear());
         std::cout << "Quaternion:\n" << quaternion.coeffs().format(vectorFormatRules) << std::endl;
         const auto rpyList = rotationMatrixToRollPitchYawList(transformationMatrix.linear());
 
@@ -234,21 +211,22 @@ int main()
          * Convert to Rotation Matrix (Zivid) from other representations of orientation (Robot)
          */
         printHeader("Convert from Robot to Zivid (Rotation Matrix)");
-        const auto rotationMatrixFromAxisAngle = axisAngle.toRotationMatrix();
+        const Eigen::Matrix3f rotationMatrixFromAxisAngle = axisAngle.toRotationMatrix();
         std::cout << "Rotation Matrix from Axis Angle:\n"
                   << rotationMatrixFromAxisAngle.format(matrixFormatRules) << std::endl;
-        const auto rotationMatrixFromRotationVector = rotationVectorToRotationMatrix(rotationVector);
+        const Eigen::Matrix3f rotationMatrixFromRotationVector = rotationVectorToRotationMatrix(rotationVector);
         std::cout << "Rotation Matrix from Rotation Vector:\n"
                   << rotationMatrixFromRotationVector.format(matrixFormatRules) << std::endl;
-        const auto rotationMatrixFromQuaternion = quaternion.toRotationMatrix();
+        const Eigen::Matrix3f rotationMatrixFromQuaternion = quaternion.toRotationMatrix();
         std::cout << "Rotation Matrix from Quaternion:\n"
                   << rotationMatrixFromQuaternion.format(matrixFormatRules) << std::endl;
         rollPitchYawListToRotationMatrix(rpyList);
 
         // Combine Rotation Matrix with Translation Vector to form Transformation Matrix
-        Eigen::Affine3d transformationMatrixFromQuaternion(rotationMatrixFromQuaternion);
+        Eigen::Affine3f transformationMatrixFromQuaternion(rotationMatrixFromQuaternion);
         transformationMatrixFromQuaternion.translation() = transformationMatrix.translation();
-        saveTransformationMatrixToYAML(transformationMatrixFromQuaternion, "RobotTransformOut.yaml");
+        Zivid::Matrix4x4 transformationMatrixFromQuaternionZivid = eigenToZivid(transformationMatrixFromQuaternion);
+        transformationMatrixFromQuaternionZivid.save("RobotTransformOut.yaml");
     }
 
     catch(const std::exception &e)
