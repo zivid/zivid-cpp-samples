@@ -12,10 +12,10 @@ To fully understand Multi Camera Calibration, please see the [tutorial](https://
 
 * These applications show how to use the Zivid SDK to calibrate multiple cameras against each other. The result is a transformation matrix from all cameras into one camera. In other words, all point clouds can be represented in the same coordinate frame. The sample is broken down as follows:
    1. Connect to cameras (only in case of [MultiCameraCalibration]([MultiCameraCalibration-url]))
-   2. Capture calibration object or load from .ZDF files
+   2. Capture calibration object or load from ZDF files
    3. Detect checkerboard 3D feature points
    4. Perform Multi-Camera Calibration
-   5. Save transformation matrices to a .yaml file
+   5. Save transformation matrices to a YAML file
 
 -----------------
 

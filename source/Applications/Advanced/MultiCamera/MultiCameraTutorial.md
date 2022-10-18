@@ -24,10 +24,10 @@ You should have installed Zivid SDK and C++ samples. For more details see [Instr
 
 ## Calibrate
 
-In this section, we will connect to multiple cameras, capture images of [the calibration object][calibration_object-url], calculate transformation matrices, and save them to a .yaml file. There are two samples:
+In this section, we will connect to multiple cameras, capture images of [the calibration object][calibration_object-url], calculate transformation matrices, and save them to a YAML file. There are two samples:
 
 1. [MultiCameraCalibration][multi_camera_calibration_sample-url] - Connects to cameras and captures from each
-2. [MultiCameraCalibrationFromZDF][multi_camera_calibration_sample_from_files-url] - Loads existing point clouds from .ZDF files
+2. [MultiCameraCalibrationFromZDF][multi_camera_calibration_sample_from_files-url] - Loads existing point clouds from ZDF files
 
 ### Connect to cameras
 
@@ -108,9 +108,9 @@ const auto &transforms = results.transforms();
 const auto &residuals = results.residuals();
 ```
 
-### Save transformation matrices to .yaml
+### Save transformation matrices to YAML
 
-Later we will use the results, so we store the transformation in .yaml files. To do this, we use our API. It is important to keep track of which transformation matrix belongs to which camera. More precisely, the pose of the camera during calibration. Thus, we use the camera's serial number as an identifier, and we use it on the file name. ([go to source][saveTransformationMatricesToYAML-url]).
+Later we will use the results, so we store the transformation in YAML files. To do this, we use our API. It is important to keep track of which transformation matrix belongs to which camera. More precisely, the pose of the camera during calibration. Thus, we use the camera's serial number as an identifier, and we use it on the file name. ([go to source][saveTransformationMatricesToYAML-url]).
 
 ```cpp
 transforms[i].save(transformationMatricesSavePath + "\\" + serialNumbers[i] + ".yaml");
@@ -125,24 +125,24 @@ In this section, we will:
 1. Load associated transformation matrices and map to point cloud
 2. Apply transformation matrix and stitch transformed point cloud with previous
 3. Visualize stitched point cloud
-4. Save to .ply
+4. Save to PLY
 
 Again there are two samples:
 
 1. [StitchByTransformation][stitch_by_transformation-url] - Connects to cameras and captures from each
-2. [StitchByTransformationFromZDF][stitch_by_transformation_from_files-url] - Loads existing point clouds from .zdf files
+2. [StitchByTransformationFromZDF][stitch_by_transformation_from_files-url] - Loads existing point clouds from ZDF files
 
 ### Load associated transformation matrices and map to point cloud
 
-To apply the correct transformation matrix, we must map it to its corresponding frame. When we capture directly from the camera, we use its serial number, and when we load from the file, we use the serial number from the .zdf frame. When we use the serial number of a camera or the serial number from the .zdf file, we expect to find an exact match on the .yaml file name.
-The way we map transformation matrix to point cloud is quite similar to capturing directly from the camera and when loaded from a file. The main difference is when capturing with a camera, we access the serial number and search for a .yaml file with that name. Then we map a transformation matrix with camera.([go to source][stitch_by_transformation_map_camera-url]).
+To apply the correct transformation matrix, we must map it to its corresponding frame. When we capture directly from the camera, we use its serial number, and when we load from the file, we use the serial number from the ZDF frame. When we use the serial number of a camera or the serial number from the ZDF file, we expect to find an exact match on the YAML file name.
+The way we map transformation matrix to point cloud is quite similar to capturing directly from the camera and when loaded from a file. The main difference is when capturing with a camera, we access the serial number and search for a YAML file with that name. Then we map a transformation matrix with camera.([go to source][stitch_by_transformation_map_camera-url]).
 
 ```cpp
 const auto transformsMappedToCameras =
     getTransformationMatricesFromYAML(transformationMatricesfileList, cameras);
 ```
 
-On the other hand, when loading from .zdf files, we need to find a .zdf file from the list of files and extract his serial number from the frame. And then, we search for a .yaml file on the same file list that uses that serial number as its name. Then we map a transformation matrix with a Frame ([go to source][stitch_by_transformation_map_zdf-url]).
+On the other hand, when loading from ZDF files, we need to find a ZDF file from the list of files and extract his serial number from the frame. And then, we search for a YAML file on the same file list that uses that serial number as its name. Then we map a transformation matrix with a Frame ([go to source][stitch_by_transformation_map_zdf-url]).
 
 ```cpp
 const auto transformsMappedToFrames =
@@ -186,7 +186,7 @@ pointCloud.transform(transformsMappedToFrames.at(i).mTransformationMatrix);
 
 #### Combine data in PCL point cloud
 
-We use PCL to create the new stitched point cloud. This is because we want to visualize the point cloud and save the point cloud to .ply.
+We use PCL to create the new stitched point cloud. This is because we want to visualize the point cloud and save the point cloud to PLY.
 
 ##### Initialize point cloud memory
 
