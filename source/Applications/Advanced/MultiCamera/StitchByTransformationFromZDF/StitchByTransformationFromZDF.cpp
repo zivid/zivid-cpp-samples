@@ -55,7 +55,7 @@ namespace
                     }
                     if(transformationMatricesfileList.back() == yamlFileName)
                     {
-                        throw std::runtime_error("You are missing a yaml file named " + serialNumber + ".yaml!");
+                        throw std::runtime_error("You are missing a YAML file named " + serialNumber + ".yaml!");
                     }
                 }
             }
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
         auto saveStitched = false;
         auto cli =
             (clipp::values("File Names", transformationMatricesAndZdfFileList)
-                 % "List of .zdf files to stitch and list of yaml files containing the transformation matrix.",
+                 % "List of ZDF files to stitch and list of YAML files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
              clipp::required("-o", "--output-file").set(saveStitched)
                  & clipp::value("Transformation Matrices File Name", stitchedPointCloudFileName)

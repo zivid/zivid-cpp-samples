@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
         auto zdfFileList = std::vector<std::string>{};
         auto cli =
-            (clipp::values("File Names", zdfFileList) % "List of .zdf files which contain captures of checker boards",
+            (clipp::values("File Names", zdfFileList) % "List of ZDF files which contain captures of checker boards",
              clipp::required("-o", "--output-dir")
                  & clipp::value(
                      "Transformation Matrices Files will be saved into this directory",
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
             throw std::runtime_error("No files provided.");
         }
 
-        // Read from .zdf and detect checkerboard feature points
+        // Read from ZDF and detect checkerboard feature points
         auto detectionResults = std::vector<Zivid::Calibration::DetectionResult>();
         auto serialNumbers = std::vector<std::string>();
 
