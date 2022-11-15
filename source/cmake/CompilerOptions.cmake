@@ -30,6 +30,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             conversion # Implicit conversion loses integer precision (signed to
                        # unsigned). Expected to happen a lot in these samples,
                        # would complicate them too much to handle manually
+            double-promotion # We are not concerned about the potential
+                             # performance hit from this.
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-${WARNING}")
