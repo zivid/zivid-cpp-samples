@@ -23,6 +23,7 @@ set(SAMPLES
     Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
+    Camera/Advanced/Capture2D+3D
     Camera/Advanced/CaptureHDRLoop
     Camera/Advanced/CaptureHDRPrintNormals
     Camera/Advanced/MultiCameraCaptureSequentially
@@ -96,9 +97,14 @@ set(Visualization_DEPENDING
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard)
 set(Clipp_DEPENDING
-    CameraUserData MultiCameraCalibrationFromZDF StitchByTransformation
-    StitchByTransformationFromZDF MultiCameraCalibration)
-set(Thread_DEPENDING MultiCameraCaptureInParallel)
+    CameraUserData
+    MultiCameraCalibrationFromZDF
+    StitchByTransformation
+    StitchByTransformationFromZDF
+    MultiCameraCalibration
+    Capture2D+3D
+    ZividBenchmark)
+set(Thread_DEPENDING Capture2D+3D MultiCameraCaptureInParallel)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
 set(Halcon_DEPENDING CaptureHalconViaGenICam CaptureHalconViaZivid)
 

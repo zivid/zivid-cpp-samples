@@ -55,6 +55,8 @@ from the camera can be used.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
+          - [Capture2D+3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/Capture2D+3D/Capture2D+3D.cpp) - Capture 2D and then 3D using various capture strategies,
+            optimizing for both 2D quality and 2D acquisition speed.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
           - [CaptureHalconViaZivid](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHalconViaZivid/CaptureHalconViaZivid.cpp) - Capture a point cloud, with colors, using Zivid SDK,
