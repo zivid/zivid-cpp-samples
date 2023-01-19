@@ -1,5 +1,5 @@
 /*
-Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector) 
+Convert to/from Transformation Matrix (Rotation Matrix + Translation Vector)
 
 Zivid primarily operate with a (4x4) transformation matrix. This example shows how to use Eigen to
 convert to and from: AxisAngle, Rotation Vector, Roll-Pitch-Yaw, Quaternion
@@ -50,22 +50,30 @@ namespace
     }
 
     // The following function converts Roll-Pitch-Yaw angles in radians to Rotation Matrix.
-    // This function takes an array of roll, pitch and yaw angles, and a rotation convention, as input parameters.
-    // For Roll-Pitch-Yaw we define that roll is a rotation about x-axis, pitch is a rotation about y-axis
-    // and yaw is a rotation about z-axis.
+    // This function takes an array of angles, and a rotation convention, as input parameters.
     // Whether the axes are moving (intrinsic) or fixed (extrinsic) is defined by the rotation convention.
-    // The array is ordered by Roll, Pitch and then Yaw.
+    // The order of elements in the output array follow the convention, i.e., for ZYX and zyx, the first
+    // element of the array is rotation around z-axis, for XYZ and xyz, the first element is rotation
+    // around x-axis.
     Eigen::Matrix3f rollPitchYawToRotationMatrix(const Eigen::Array3f &rollPitchYaw, const RotationConvention &rotation)
     {
         switch(rotation)
         {
             case RotationConvention::xyzIntrinsic:
-            case RotationConvention::zyxExtrinsic:
                 return (Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitX())
                         * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
                         * Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitZ()))
                     .matrix();
+            case RotationConvention::zyxExtrinsic:
+                return (Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitX())
+                        * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
+                        * Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitZ()))
+                    .matrix();
             case RotationConvention::zyxIntrinsic:
+                return (Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitZ())
+                        * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
+                        * Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitX()))
+                    .matrix();
             case RotationConvention::xyzExtrinsic:
                 return (Eigen::AngleAxisf(rollPitchYaw[2], Eigen::Vector3f::UnitZ())
                         * Eigen::AngleAxisf(rollPitchYaw[1], Eigen::Vector3f::UnitY())
@@ -91,20 +99,23 @@ namespace
     }
 
     // The following function converts Rotation Matrix to Roll-Pitch-Yaw angles in radians.
-    // The rotation convention we use here is that Roll is a rotation about x-axis,
-    // Pitch is a rotation about y-axis and Yaw is a rotation about z-axis.
     // Whether the axes are moving (intrinsic) or fixed (extrinsic) is defined by the rotation convention.
-    // The array is ordered by Roll, Pitch and then Yaw.
+    // The order of elements in the output array follow the convention, i.e., for ZYX and zyx, the first
+    // element of the array is rotation around z-axis, for XYZ and xyz, the first element is rotation
+    // around x-axis.
+    // Eigen only supports intrinsic Euler systems for simplicity. If you want to use extrinsic Euler systems,
+    // Eigen recoments just to use the equal intrinsic opposite order for axes and angles, i.e., axes (A,B,C)
+    // becomes (C,B,A), and angles (a,b,c) becomes (c,b,a).
     Eigen::Array3f rotationMatrixToRollPitchYaw(
         const Eigen::Matrix3f &rotationMatrix,
         const RotationConvention &convention)
     {
         switch(convention)
         {
-            case RotationConvention::zyxExtrinsic:
+            case RotationConvention::zyxExtrinsic: return rotationMatrix.eulerAngles(0, 1, 2).reverse();
             case RotationConvention::xyzIntrinsic: return rotationMatrix.eulerAngles(0, 1, 2);
-            case RotationConvention::xyzExtrinsic:
-            case RotationConvention::zyxIntrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
+            case RotationConvention::xyzExtrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
+            case RotationConvention::zyxIntrinsic: return rotationMatrix.eulerAngles(2, 1, 0);
             case RotationConvention::nofROT: break;
         }
 
@@ -190,22 +201,23 @@ int main()
         std::cout << transformationMatrix.matrix().format(matrixFormatRules) << std::endl;
 
         // Extract Rotation Matrix and Translation Vector from Transformation Matrix
-        std::cout << "RotationMatrix:\n" << transformationMatrix.linear().format(matrixFormatRules) << std::endl;
-        std::cout << "TranslationVector:\n"
-                  << transformationMatrix.translation().format(vectorFormatRules) << std::endl;
+        const Eigen::Matrix3f rotationMatrix = transformationMatrix.linear();
+        const Eigen::Vector3f translationVector = transformationMatrix.translation();
+        std::cout << "RotationMatrix:\n" << rotationMatrix.format(matrixFormatRules) << std::endl;
+        std::cout << "TranslationVector:\n" << translationVector.format(vectorFormatRules) << std::endl;
 
         /*
          * Convert from Rotation Matrix (Zivid) to other representations of orientation (Robot)
          */
         printHeader("Convert from Zivid (Rotation Matrix) to Robot");
-        const Eigen::AngleAxisf axisAngle(transformationMatrix.linear());
+        const Eigen::AngleAxisf axisAngle(rotationMatrix);
         std::cout << "AxisAngle:\n"
                   << axisAngle.axis().format(vectorFormatRules) << ", " << axisAngle.angle() << std::endl;
-        const Eigen::Vector3f rotationVector = rotationMatrixToRotationVector(transformationMatrix.linear());
+        const Eigen::Vector3f rotationVector = rotationMatrixToRotationVector(rotationMatrix);
         std::cout << "Rotation Vector:\n" << rotationVector.format(vectorFormatRules) << std::endl;
-        const Eigen::Quaternionf quaternion(transformationMatrix.linear());
+        const Eigen::Quaternionf quaternion(rotationMatrix);
         std::cout << "Quaternion:\n" << quaternion.coeffs().format(vectorFormatRules) << std::endl;
-        const auto rpyList = rotationMatrixToRollPitchYawList(transformationMatrix.linear());
+        const auto rpyList = rotationMatrixToRollPitchYawList(rotationMatrix);
 
         /*
          * Convert to Rotation Matrix (Zivid) from other representations of orientation (Robot)
@@ -224,7 +236,7 @@ int main()
 
         // Combine Rotation Matrix with Translation Vector to form Transformation Matrix
         Eigen::Affine3f transformationMatrixFromQuaternion(rotationMatrixFromQuaternion);
-        transformationMatrixFromQuaternion.translation() = transformationMatrix.translation();
+        transformationMatrixFromQuaternion.translation() = translationVector;
         Zivid::Matrix4x4 transformationMatrixFromQuaternionZivid = eigenToZivid(transformationMatrixFromQuaternion);
         transformationMatrixFromQuaternionZivid.save("RobotTransformOut.yaml");
     }

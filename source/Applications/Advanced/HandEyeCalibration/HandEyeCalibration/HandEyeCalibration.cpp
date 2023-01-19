@@ -119,15 +119,18 @@ int main()
 
                         std::cout << "Detecting checkerboard in point cloud" << std::endl;
                         const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
-                        if(detectionResult)
+
+                        if(detectionResult.valid())
                         {
-                            std::cout << "OK" << std::endl;
+                            std::cout << "Calibration board detected " << std::endl;
                             handEyeInput.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, detectionResult });
                             currentPoseId++;
                         }
                         else
                         {
-                            std::cout << "FAILED" << std::endl;
+                            std::cout
+                                << "Failed to detect calibration board, ensure that the entire board is in the view of the camera"
+                                << std::endl;
                         }
                     }
                     catch(const std::exception &e)
