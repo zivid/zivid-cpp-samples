@@ -8,6 +8,7 @@ Use transformation matrices from Multi-Camera calibration to transform point clo
 
 #include <clipp.h>
 
+#include <Zivid/Experimental/SettingsInfo.h>
 #include <Zivid/Zivid.h>
 #include <cmath>
 #include <iostream>
@@ -131,7 +132,9 @@ int main(int argc, char **argv)
         {
             std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
             const auto frame = assistedCapture(transformAndCamera.mCamera);
-            maxNumberOfPoints += frame.pointCloud().size();
+            const auto resolution =
+                Zivid::Experimental::SettingsInfo::resolution(transformAndCamera.mCamera.info(), frame.settings());
+            maxNumberOfPoints += resolution.size();
             frames.push_back(frame);
         }
 

@@ -1,6 +1,6 @@
 /*
-Filter the point cloud based on a ROI box given relative to the ArUco marker.
-The ZDF file for this sample can be found under the main instructions for Zivid samples.
+Filter the point cloud based on a ROI box given relative to the ArUco marker on a Zivid Calibration Board.
+The ZFC file for this sample can be downloaded from https://support.zivid.com/en/latest/api-reference/samples/sample-data.html.
 
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
@@ -14,11 +14,11 @@ This sample depends on ArUco libraries in OpenCV with extra modules (https://git
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/visualization/pcl_visualizer.h>
-
 #include <opencv2/aruco.hpp>
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
 #include <cmath>
 #include <iostream>
@@ -47,10 +47,10 @@ namespace
 
     cv::Point2f estimate2DMarkerCenter(const std::vector<cv::Point2f> &markerCorners)
     {
-        const auto markerCorner0 = markerCorners[0];
-        const auto markerCorner1 = markerCorners[1];
-        const auto markerCorner2 = markerCorners[2];
-        const auto markerCorner3 = markerCorners[3];
+        const auto &markerCorner0 = markerCorners[0];
+        const auto &markerCorner1 = markerCorners[1];
+        const auto &markerCorner2 = markerCorners[2];
+        const auto &markerCorner3 = markerCorners[3];
 
         // Fitting line between two diagonal marker corners
         const auto backDiagonal{ fitLine(markerCorner2, markerCorner0) };
@@ -155,7 +155,7 @@ namespace
         const Zivid::PointCloud &pointCloud,
         const std::vector<cv::Point2f> &markerCorners)
     {
-        // Extracting 2D corners and estimateing 2D center
+        // Extracting 2D corners and estimating 2D center
         const auto center2D = estimate2DMarkerCenter(markerCorners);
 
         // Estimating 3D corners and center from 2D data
@@ -166,10 +166,10 @@ namespace
         const auto origin = cv::Vec3f(center3D.x, center3D.y, center3D.z);
 
         const auto xAxis = cv::Vec3f(
-            corners3D[2].x - corners3D[1].x, corners3D[2].y - corners3D[1].y, corners3D[2].z - corners3D[1].z);
+            corners3D[1].x - corners3D[0].x, corners3D[1].y - corners3D[0].y, corners3D[1].z - corners3D[0].z);
 
         const auto yAxis = cv::Vec3f(
-            corners3D[0].x - corners3D[1].x, corners3D[0].y - corners3D[1].y, corners3D[0].z - corners3D[1].z);
+            corners3D[2].x - corners3D[1].x, corners3D[2].y - corners3D[1].y, corners3D[2].z - corners3D[1].z);
 
         const auto u = xAxis / cv::norm(xAxis, cv::NORM_L2);
         const auto v = yAxis / cv::norm(yAxis, cv::NORM_L2);
@@ -197,153 +197,71 @@ namespace
         return gray;
     }
 
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> roiBoxPointCloud(
-        const Zivid::PointCloud &pointCloud,
-        const float roiBoxBottomLeftCornerX,
-        const float roiBoxBottomLeftCornerY,
-        const float roiBoxBottomLeftCornerZ,
-        const float roiBoxLength,
-        const float roiBoxWidth,
-        const float roiBoxHeight)
+    std::vector<Eigen::Vector3f> zividToEigen(const std::vector<Zivid::PointXYZ> &zividPoints)
     {
-        const auto data = pointCloud.copyPointsXYZColorsRGBA();
-        const int height = data.height();
-        const int width = data.width();
-
-        // Creating point cloud structure
-        pcl::PointCloud<pcl::PointXYZRGB> maskedPointCloud(width, height);
-        maskedPointCloud.is_dense = false;
-        maskedPointCloud.points.resize(height * width);
-
-        // Copying data points within the mask. Rest is set to NaN
-        for(int i = 0; i < height; i++)
+        std::vector<Eigen::Vector3f> eigenPoints(zividPoints.size());
+        for(std::size_t i = 0; i < zividPoints.size(); i++)
         {
-            for(int j = 0; j < width; j++)
-            {
-                if(data(i, j).point.x < roiBoxBottomLeftCornerX
-                   && data(i, j).point.x > roiBoxBottomLeftCornerX - (roiBoxWidth + 20)
-                   && data(i, j).point.y < roiBoxBottomLeftCornerY
-                   && data(i, j).point.y > roiBoxBottomLeftCornerY - (roiBoxLength + 20)
-                   && data(i, j).point.z < roiBoxBottomLeftCornerZ
-                   && data(i, j).point.z > roiBoxBottomLeftCornerZ - (roiBoxHeight + 20))
-                {
-                    maskedPointCloud(j, i).r = data(i, j).color.r;
-                    maskedPointCloud(j, i).g = data(i, j).color.g;
-                    maskedPointCloud(j, i).b = data(i, j).color.b;
-                    maskedPointCloud(j, i).x = data(i, j).point.x;
-                    maskedPointCloud(j, i).y = data(i, j).point.y;
-                    maskedPointCloud(j, i).z = data(i, j).point.z;
-                }
-                else
-                {
-                    maskedPointCloud(j, i).r = 0;
-                    maskedPointCloud(j, i).g = 0;
-                    maskedPointCloud(j, i).b = 0;
-                    maskedPointCloud(j, i).x = NAN;
-                    maskedPointCloud(j, i).y = NAN;
-                    maskedPointCloud(j, i).z = NAN;
-                }
-            }
+            eigenPoints[i] = Eigen::Vector3f{ zividPoints[i].x, zividPoints[i].y, zividPoints[i].z };
         }
-        return boost::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>(maskedPointCloud);
+
+        return eigenPoints;
     }
 
-    cv::Mat pointCloudToCvZ(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
+    Eigen::Affine3f zividToEigen(const Zivid::Matrix4x4 &zividMatrix)
     {
-        // Getting min and max values for X, Y, Z images
-        float zMax = -1;
-        float zMin = 1000000;
-        for(size_t i = 0; i < pointCloud.height; i++)
+        Eigen::Matrix4f eigenMatrix;
+        for(std::size_t row = 0; row < Zivid::Matrix4x4::rows; row++)
         {
-            for(size_t j = 0; j < pointCloud.width; j++)
+            for(std::size_t column = 0; column < Zivid::Matrix4x4::cols; column++)
             {
-                zMax = std::max(zMax, pointCloud(j, i).z);
-                zMin = std::min(zMin, pointCloud(j, i).z);
+                eigenMatrix(row, column) = zividMatrix(row, column);
             }
         }
-
-        // Filling in OpenCV matrix with the cloud data
-        cv::Mat z(pointCloud.height, pointCloud.width, CV_8UC1, cv::Scalar(0));
-        for(size_t i = 0; i < pointCloud.height; i++)
-        {
-            for(size_t j = 0; j < pointCloud.width; j++)
-            {
-                if(std::isnan(pointCloud(j, i).z))
-                {
-                    z.at<uint8_t>(i, j) = 0;
-                }
-                else
-                {
-                    // If few points are captured resulting in zMin == zMax, this will throw an division-by-zero
-                    // exception.
-                    z.at<uint8_t>(i, j) = static_cast<uint8_t>((255.0F * (pointCloud(j, i).z - zMin) / (zMax - zMin)));
-                }
-            }
-        }
-
-        // Applying color map
-        cv::Mat zColorMap;
-        cv::applyColorMap(z, zColorMap, cv::COLORMAP_VIRIDIS);
-
-        // Setting invalid points (nan) to black
-        for(size_t i = 0; i < pointCloud.height; i++)
-        {
-            for(size_t j = 0; j < pointCloud.width; j++)
-            {
-                if(std::isnan(pointCloud(j, i).z))
-                {
-                    auto &zRGB = zColorMap.at<cv::Vec3b>(i, j);
-                    zRGB[0] = 0;
-                    zRGB[1] = 0;
-                    zRGB[2] = 0;
-                }
-            }
-        }
-        return zColorMap;
+        Eigen::Affine3f eigenTransform{ eigenMatrix };
+        return eigenTransform;
     }
 
-    void visualizeDepthMap(const pcl::PointCloud<pcl::PointXYZRGB> &pointCloud)
+    std::vector<Zivid::PointXYZ> eigenToZivid(const std::vector<Eigen::Vector3f> &eigenPoints)
     {
-        // Converting to Depth map in OpenCV format
-        cv::Mat zColorMap = pointCloudToCvZ(pointCloud);
-        // Visualizing Depth map
-        cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
-        cv::imshow("Depth map", zColorMap);
-        cv::waitKey(0);
+        std::vector<Zivid::PointXYZ> zividPoints(eigenPoints.size());
+        for(std::size_t i = 0; i < eigenPoints.size(); i++)
+        {
+            zividPoints[i] = Zivid::PointXYZ{ eigenPoints[i](0), eigenPoints[i](1), eigenPoints[i](2) };
+        }
+
+        return zividPoints;
     }
 
-    void visualizePointCloud(const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> &pointCloud)
+    std::vector<Zivid::PointXYZ> transformPoints(
+        const std::vector<Zivid::PointXYZ> &zividPoints,
+        const Zivid::Matrix4x4 &zividTransform)
     {
-        auto viewer = boost::make_shared<pcl::visualization::PCLVisualizer>("Viewer");
+        std::vector<Eigen::Vector3f> eigenPoints = zividToEigen(zividPoints);
+        Eigen::Affine3f eigenTransform = zividToEigen(zividTransform);
 
-        viewer->addText("Cloud", 0, 0, "CloudText");
-        viewer->addPointCloud<pcl::PointXYZRGB>(pointCloud, "cloudNormals");
-
-        viewer->setCameraPosition(0, 0, -100, -1, 0, 0);
-
-        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
-        while(!viewer->wasStopped())
+        std::vector<Eigen::Vector3f> transformedEigenPoints(eigenPoints.size());
+        for(std::size_t i = 0; i < transformedEigenPoints.size(); i++)
         {
-            viewer->spinOnce(100);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            transformedEigenPoints[i] = eigenTransform.rotation() * eigenPoints[i] + eigenTransform.translation();
         }
+
+        std::vector<Zivid::PointXYZ> transformedZividPoints = eigenToZivid(transformedEigenPoints);
+
+        return transformedZividPoints;
     }
 
     void visualizeZividPointCloud(const Zivid::Frame &frame)
     {
-        std::cout << "Setting up visualization" << std::endl;
         Zivid::Visualization::Visualizer visualizer;
 
-        std::cout << "Visualizing point cloud" << std::endl;
         visualizer.showMaximized();
         visualizer.show(frame);
         visualizer.resetToFit();
 
-        std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
         visualizer.run();
     }
-
 } // namespace
 
 int main()
@@ -352,13 +270,37 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto arucoMarkerFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithCalibrationBoard.zdf";
-        std::cout << "Reading ZDF frame from file: " << arucoMarkerFile << std::endl;
-        const auto frame = Zivid::Frame(arucoMarkerFile);
-        auto pointCloud = frame.pointCloud();
+        const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithCalibrationBoard.zfc";
+
+        std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
+        auto camera = zivid.createFileCamera(fileCamera);
+
+        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+
+        const auto originalFrame = camera.capture(settings);
+        auto pointCloud = originalFrame.pointCloud();
 
         std::cout << "Displaying the original point cloud" << std::endl;
-        visualizeZividPointCloud(frame);
+        visualizeZividPointCloud(originalFrame);
+
+        std::cout << "Configuring ROI box based on bin size and checkerboard placement" << std::endl;
+        const float roiBoxLength = 545.F;
+        const float roiBoxWidth = 345.F;
+        const float roiBoxHeight = 150.F;
+
+        // Coordinates are relative to the ArUco marker origin which lies in the center of the ArUco marker.
+        // Positive x-axis is "East", y-axis is "South" and z-axis is "Down".
+        const Zivid::PointXYZ roiBoxLowerRightCornerInArUcoFrame{ 240.F, 30.F, 5.F };
+        const Zivid::PointXYZ roiBoxUpperRightCornerInArUcoFrame{ roiBoxLowerRightCornerInArUcoFrame.x,
+                                                                  roiBoxLowerRightCornerInArUcoFrame.y - roiBoxWidth,
+                                                                  roiBoxLowerRightCornerInArUcoFrame.z };
+        const Zivid::PointXYZ roiBoxLowerLeftCornerInArUcoFrame{ roiBoxLowerRightCornerInArUcoFrame.x - roiBoxLength,
+                                                                 roiBoxLowerRightCornerInArUcoFrame.y,
+                                                                 roiBoxLowerRightCornerInArUcoFrame.z };
+
+        const Zivid::PointXYZ pointOInArUcoFrame = roiBoxLowerRightCornerInArUcoFrame;
+        const Zivid::PointXYZ pointAInArUcoFrame = roiBoxUpperRightCornerInArUcoFrame;
+        const Zivid::PointXYZ pointBInArUcoFrame = roiBoxLowerLeftCornerInArUcoFrame;
 
         std::cout << "Configuring ArUco marker" << std::endl;
         const auto markerDictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
@@ -376,47 +318,29 @@ int main()
         if(markerIds.empty())
         {
             std::cout << "No ArUco markers detected" << std::endl;
-            return EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
         std::cout << "Estimating pose of detected ArUco marker" << std::endl;
         const auto transformMarkerToCamera = estimateArUcoMarkerPose(pointCloud, markerCorners[0]);
-        const auto transformCameraToMarker = transformMarkerToCamera.inverse();
 
-        std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
-        pointCloud.transform(transformCameraToMarker);
+        std::cout << "Transforming the ROI base frame points to the camera frame" << std::endl;
+        const auto roiPointsInCameraFrame = transformPoints(
+            std::vector<Zivid::PointXYZ>{ pointOInArUcoFrame, pointAInArUcoFrame, pointBInArUcoFrame },
+            transformMarkerToCamera);
 
-        std::cout << "Bottom-Left ROI Box corner:" << std::endl;
-        const int roiBoxBottomLeftCornerX = 60; // Positive is "South"
-        const int roiBoxBottomLeftCornerY = 90; // Positive is "West"
-        const int roiBoxBottomLeftCornerZ = 15; // Positive is "Down"
-        std::cout << "X: " << roiBoxBottomLeftCornerX << std::endl
-                  << "Y: " << roiBoxBottomLeftCornerY << std::endl
-                  << "Z: " << roiBoxBottomLeftCornerZ << std::endl;
+        std::cout << "Setting the ROI" << std::endl;
+        settings.set(Zivid::Settings::RegionOfInterest{
+            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
+            Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
+            Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
+            Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
 
-        std::cout << "ROI Box size:" << std::endl;
-        const int roiBoxLength = 600;
-        const int roiBoxWidth = 400;
-        const int roiBoxHeight = 80;
-        std::cout << "Length: " << roiBoxLength << std::endl
-                  << "Width: " << roiBoxWidth << std::endl
-                  << "Height: " << roiBoxHeight << std::endl;
+        const auto roiFrame = camera.capture(settings);
 
-        std::cout << "Filtering the point cloud based on ROI Box" << std::endl;
-        const boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> roiPointCloudPCL = roiBoxPointCloud(
-            pointCloud,
-            roiBoxBottomLeftCornerX,
-            roiBoxBottomLeftCornerY,
-            roiBoxBottomLeftCornerZ,
-            roiBoxLength,
-            roiBoxWidth,
-            roiBoxHeight);
-
-        std::cout << "Displaying transformed point cloud after ROI Box filtering" << std::endl;
-        visualizePointCloud(roiPointCloudPCL);
-
-        std::cout << "Displaying depth map of the transformed point cloud after ROI Box filtering" << std::endl;
-        visualizeDepthMap(*roiPointCloudPCL);
+        std::cout << "Displaying the ROI-filtered point cloud" << std::endl;
+        visualizeZividPointCloud(roiFrame);
     }
     catch(const std::exception &e)
     {

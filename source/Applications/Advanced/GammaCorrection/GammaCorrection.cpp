@@ -52,6 +52,7 @@ namespace
         return bgr;
     }
 
+
     cv::Mat combineImages(const cv::Mat &imageOne, const cv::Mat &imageTwo)
     {
         cv::Mat combinedImage;
@@ -65,6 +66,7 @@ namespace
         return combinedImage;
     }
 
+
     void displayBGR(const cv::Mat &bgr, const std::string &bgrName)
     {
         cv::namedWindow(bgrName, cv::WINDOW_NORMAL);
@@ -72,6 +74,7 @@ namespace
         std::cout << "Press any key to continue" << std::endl;
         cv::waitKey(0);
     }
+
 } // namespace
 
 int main(int argc, char **argv)

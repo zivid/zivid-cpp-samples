@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake
                       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/3rd-party)
 include(CompilerOptions)
 
-set(ZIVID_VERSION 2.5.0)
+set(ZIVID_VERSION 2.10.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
@@ -27,6 +27,7 @@ set(SAMPLES
     Camera/Advanced/CaptureHDRLoop
     Camera/Advanced/CaptureHDRPrintNormals
     Camera/Advanced/MultiCameraCaptureSequentially
+    Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing
     Camera/Advanced/MultiCameraCaptureInParallel
     Camera/Advanced/AllocateMemoryForPointCloudData
     Camera/Advanced/CaptureHalconViaGenICam
@@ -66,16 +67,11 @@ set(SAMPLES
     Applications/Advanced/ROIBoxViaCheckerboard
     Applications/Advanced/GammaCorrection)
 
-set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions)
+set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions
+                     ROIBoxViaArucoMarker ROIBoxViaCheckerboard)
 set(PCL_DEPENDING
-    MaskPointCloud
-    ReadPCLVis3D
-    CaptureWritePCLVis3D
-    CaptureHDRVisNormals
-    StitchByTransformation
-    StitchByTransformationFromZDF
-    ROIBoxViaArucoMarker
-    ROIBoxViaCheckerboard)
+    MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals
+    StitchByTransformation StitchByTransformationFromZDF)
 set(OpenCV_DEPENDING
     CaptureUndistortRGB
     CreateDepthMap
@@ -84,7 +80,6 @@ set(OpenCV_DEPENDING
     TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
     ROIBoxViaArucoMarker
-    ROIBoxViaCheckerboard
     GammaCorrection)
 set(Visualization_DEPENDING
     CaptureVis3D
@@ -103,8 +98,12 @@ set(Clipp_DEPENDING
     StitchByTransformationFromZDF
     MultiCameraCalibration
     Capture2D+3D
-    ZividBenchmark)
-set(Thread_DEPENDING Capture2D+3D MultiCameraCaptureInParallel)
+    ZividBenchmark
+    CaptureFromFileCamera
+    CaptureFromFileCameraVis3D)
+set(Thread_DEPENDING
+    Capture2D+3D MultiCameraCaptureSequentially MultiCameraCaptureInParallel
+    MultiCameraCaptureSequentiallyWithInterleavedProcessing)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
 set(Halcon_DEPENDING CaptureHalconViaGenICam CaptureHalconViaZivid)
 

@@ -41,10 +41,10 @@ namespace
 
     cv::Point2f estimate2DMarkerCenter(const std::vector<cv::Point2f> &markerCorners)
     {
-        const auto markerCorner0 = markerCorners[0];
-        const auto markerCorner1 = markerCorners[1];
-        const auto markerCorner2 = markerCorners[2];
-        const auto markerCorner3 = markerCorners[3];
+        const auto &markerCorner0 = markerCorners[0];
+        const auto &markerCorner1 = markerCorners[1];
+        const auto &markerCorner2 = markerCorners[2];
+        const auto &markerCorner3 = markerCorners[3];
 
         // Fitting line between two diagonal marker corners
         const auto backDiagonal{ fitLine(markerCorner2, markerCorner0) };
