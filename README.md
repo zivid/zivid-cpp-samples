@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.8.1. For
+This repository contains cpp code samples for Zivid SDK v2.9.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -44,8 +44,8 @@ from the camera can be used.
           - [Capture2D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp) - Capture 2D images from the Zivid camera.
           - [CaptureAssistant](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureAssistant/CaptureAssistant.cpp) - Capture Assistant to capture point clouds, with color,
             from the Zivid camera.
-          - [CaptureFromFileCamera](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp) - Capture point clouds, with color, from the Zivid file
-            camera. Currently supported by Zivid One.
+          - [CaptureFromFileCamera](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp) - Capture point clouds, with color, with the Zivid file
+            camera.
           - [CaptureHDR](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDR/CaptureHDR.cpp) - Capture HDR point clouds, with color, from the Zivid
             camera.
           - [CaptureHDRCompleteSettings](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp) - Capture point clouds, with color, from the Zivid camera
@@ -69,6 +69,8 @@ from the camera can be used.
             subset.
           - [MultiCameraCaptureInParallel](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp) - Capture point clouds with multiple cameras in parallel.
           - [MultiCameraCaptureSequentially](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp) - Capture point clouds with multiple cameras sequentially.
+          - [MultiCameraCaptureSequentiallyWithInterleavedProcessing](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing/MultiCameraCaptureSequentiallyWithInterleavedProcessing.cpp) - Capture point clouds with multiple cameras sequentially
+            with interleaved processing.
       - **InfoUtilOther**
           - [CameraUserData](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp) - Store user data on the Zivid camera.
           - [CaptureWithDiagnostics](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/CaptureWithDiagnostics/CaptureWithDiagnostics.cpp) - Capture point clouds, with color, from the Zivid camera,
@@ -76,7 +78,7 @@ from the camera can be used.
           - [FirmwareUpdater](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp) - Update firmware on the Zivid camera.
           - [FrameInfo](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/FrameInfo/FrameInfo.cpp) - Read frame info from the Zivid camera.
           - [GetCameraIntrinsics](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp) - Read intrinsic parameters from the Zivid camera (OpenCV
-            model).
+            model) or estimate them from the point cloud.
           - [PrintVersionInfo](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/PrintVersionInfo/PrintVersionInfo.cpp) - List connected cameras and print version information.
           - [SettingsInfo](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/SettingsInfo/SettingsInfo.cpp) - Read settings info from the Zivid camera.
           - [Warmup](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/Warmup/Warmup.cpp) - Short example of a basic way to warm up the camera with
@@ -86,14 +88,13 @@ from the camera can be used.
             provide
       - **Maintenance**
           - [CorrectCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp) - Correct the dimension trueness of a Zivid camera.
-          - [ResetCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/ResetCameraInField/ResetCameraInField.cpp) - Reset in-field correction on a camera.
+          - [ResetCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/ResetCameraInField/ResetCameraInField.cpp) - Reset infield correction on a camera.
           - [VerifyCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp) - Check the dimension trueness of a Zivid camera.
   - **Applications**
       - **Basic**
           - **Visualization**
-              - [CaptureFromFileCameraVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp) - Capture point clouds, with color, from the virtual
-                Zivid camera, and visualize it. Currently supported by
-                Zivid One.
+              - [CaptureFromFileCameraVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp) - Capture point clouds, with color, with the Zivid file
+                camera and visualize them.
               - [CaptureHDRVisNormals](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureHDRVisNormals/CaptureHDRVisNormals.cpp) - Capture Zivid point clouds, with color and normals,
                 and visualize it in 3D and as a normal map.
               - [CaptureVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp) - Capture point clouds, with color, from the Zivid
@@ -114,7 +115,7 @@ from the camera can be used.
           - [MaskPointCloud](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp) - Mask point cloud from a ZDF file and convert to PCL
             format, extract depth map and visualize it.
           - [ROIBoxViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp) - Filter the point cloud based on a ROI box given relative
-            to the ArUco marker.
+            to the ArUco marker on a Zivid Calibration Board.
           - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
             to the Zivid Calibration Board.
           - [TransformPointCloudFromMillimetersToMeters](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp) - Transform point cloud data from millimeters to meters.

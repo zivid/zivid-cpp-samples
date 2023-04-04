@@ -52,7 +52,7 @@ compute device memory) and the capture and camera information.
 When you capture with Zivid, you get a frame in return.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L32))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -82,7 +82,7 @@ const auto frame = Zivid::Frame(dataFile);
 You can now get a handle to the point cloud data on the GPU.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L23))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L22))
 
 ``` sourceCode cpp
 const auto pointCloud = frame.pointCloud();
@@ -130,7 +130,7 @@ complete list of output data formats and how to copy them from the GPU.
 Here is an example of how to copy data.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L25))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L23))
 
 ``` sourceCode cpp
 const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
@@ -202,7 +202,7 @@ frame or, e.g., [scale the point cloud by transforming it from mm to
 m](https://support.zivid.com/latest//academy/applications/transform/transform-millimeters-to-meters.html).
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L235))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L233))
 
 ``` sourceCode cpp
 pointCloud.transform(transformBaseToCamera);
@@ -220,7 +220,7 @@ Downsampling can be done in-place, which modifies the current point
 cloud.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L60))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L57))
 
 ``` sourceCode cpp
 pointCloud.downsample(Zivid::PointCloud::Downsampling::by2x2);
@@ -230,7 +230,7 @@ It is also possible to get the downsampled point cloud as a new point
 cloud instance, which does not alter the existing point cloud.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L52))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L50))
 
 ``` sourceCode cpp
 auto downsampledPointCloud = pointCloud.downsampled(Zivid::PointCloud::Downsampling::by2x2);
@@ -274,14 +274,14 @@ visualizer.showMaximized();
 visualizer.show(frame);
 visualizer.resetToFit();
 
-std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+std::cout << "Running visualizer. Blocking until window closes." << std::endl;
 visualizer.run();
 ```
 
 You can visualize the point cloud from the point cloud object as well.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L41-L25))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp#L16-L42))
 
 ``` sourceCode cpp
 std::cout << "Getting point cloud from frame" << std::endl;
@@ -294,7 +294,7 @@ visualizer.showMaximized();
 visualizer.show(pointCloud);
 visualizer.resetToFit();
 
-std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+std::cout << "Running visualizer. Blocking until window closes." << std::endl;
 visualizer.run();
 ```
 

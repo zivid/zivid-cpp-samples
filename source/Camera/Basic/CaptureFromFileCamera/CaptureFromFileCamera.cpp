@@ -1,22 +1,40 @@
 /*
-Capture point clouds, with color, from the Zivid file camera. Currently supported by Zivid One.
+Capture point clouds, with color, with the Zivid file camera.
+This sample can be used without access to a physical camera.
 
-This example can be used without access to a physical camera.
-The ZFC files for this sample can be found under the main instructions for Zivid samples.
+The file camera files are found in Zivid Sample Data with ZFC file extension.
+See the instructions in README.md to download the Zivid Sample Data.
+There are five available file cameras to choose from, one for each camera model.
+The default file camera used in this sample is the Zivid Two M70 file camera.
 */
 
 #include <Zivid/Zivid.h>
 
+#include <clipp.h>
 #include <iostream>
 
-int main()
+int main(int argc, char **argv)
 {
     try
     {
+        bool userInput = false;
+
+        std::string fileCameraPath;
+        auto cli =
+            (clipp::option("--file-camera").set(userInput, true)
+             & clipp::value("<Path to the file camera .zfc file>", fileCameraPath));
+
+        if(!parse(argc, argv, cli))
+        {
+            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
+            std::cout << clipp::usage_lines(cli, "Usage: ", fmt) << std::endl;
+            throw std::runtime_error{ "Invalid usage" };
+        }
+
         Zivid::Application zivid;
 
-        // The fileCamera file is in Zivid Sample Data. See instructions in README.md
-        const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividOne.zfc";
+        const auto fileCamera =
+            userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividTwoM70.zfc";
 
         std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
         auto camera = zivid.createFileCamera(fileCamera);

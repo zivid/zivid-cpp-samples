@@ -50,7 +50,7 @@ Zivid::Application zivid;
 ## Connect
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L18))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L17))
 
 ``` sourceCode cpp
 auto camera = zivid.connectCamera();
@@ -73,7 +73,7 @@ auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettings
 ## Capture
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L32))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -82,7 +82,7 @@ const auto frame = camera.capture(settings);
 ## Save
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L38))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L31-L33))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";

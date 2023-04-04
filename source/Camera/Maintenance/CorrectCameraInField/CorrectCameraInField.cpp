@@ -46,7 +46,7 @@ namespace
     std::vector<Zivid::Experimental::Calibration::InfieldCorrectionInput> collectDataset(Zivid::Camera &camera)
     {
         std::vector<Zivid::Experimental::Calibration::InfieldCorrectionInput> dataset;
-        std::cout << "Please point the camera at a Zivid in-field calibration board. " << std::endl;
+        std::cout << "Please point the camera at a Zivid infield calibration board. " << std::endl;
 
         const std::string printLine = "------------------------------------------------------------------------";
         while(true)
@@ -95,7 +95,7 @@ int main()
         // Gather data
         const auto dataset = collectDataset(camera);
 
-        // Calculate in-field correction
+        // Calculate infield correction
         std::cout << "Collected " << dataset.size() << " valid measurements." << std::endl;
         std::cout << "Computing new camera correction..." << std::endl;
         const auto correction = Zivid::Experimental::Calibration::computeCameraCorrection(dataset);

@@ -50,9 +50,16 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring processing settings for capture:" << std::endl;
+        std::cout << "Configuring settings for capture:" << std::endl;
         Zivid::Settings settings{
             Zivid::Settings::Experimental::Engine::phase,
+            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
+            Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
+            Zivid::Settings::RegionOfInterest::Box::PointB{ -1000, 1000, 1000 },
+            Zivid::Settings::RegionOfInterest::Box::Extents{ -1000, 1000 },
+            Zivid::Settings::RegionOfInterest::Depth::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Depth::Range{ 200, 2000 },
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
             Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
@@ -61,17 +68,23 @@ int main()
             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+            Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
+            Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::HoleSize{ 0.2 },
+            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Strictness{ 1 },
             Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
             Zivid::Settings::Processing::Color::Gamma{ 1.0 },
             Zivid::Settings::Processing::Color::Experimental::Mode::automatic
         };
-        std::cout << settings.processing() << std::endl;
+        std::cout << settings << std::endl;
 
         std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
         const auto baseAcquisition = Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 } };

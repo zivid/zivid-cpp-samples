@@ -154,31 +154,29 @@ namespace
         std::cout << asterixLine << "\n* " << txt << std::endl << asterixLine << std::endl;
     }
 
-    Eigen::Affine3f zividToEigen(const Zivid::Matrix4x4 &matrix)
+    Eigen::Affine3f zividToEigen(const Zivid::Matrix4x4 &zividMatrix)
     {
-        Eigen::Matrix4f eigenMat;
+        Eigen::Matrix4f eigenMatrix;
         for(std::size_t row = 0; row < Zivid::Matrix4x4::rows; row++)
         {
             for(std::size_t column = 0; column < Zivid::Matrix4x4::cols; column++)
             {
-                eigenMat(row, column) = matrix(row, column);
+                eigenMatrix(row, column) = zividMatrix(row, column);
             }
         }
-        Eigen::Affine3f result;
-        result = eigenMat;
-        return result;
+        Eigen::Affine3f eigenTransform{ eigenMatrix };
+        return eigenTransform;
     }
 
-    Zivid::Matrix4x4 eigenToZivid(const Eigen::Affine3f &eigenMat)
+    Zivid::Matrix4x4 eigenToZivid(const Eigen::Affine3f &eigenTransform)
     {
-        Eigen::Matrix4f matrix4x4f;
-        matrix4x4f = eigenMat.matrix();
+        Eigen::Matrix4f eigenMatrix = eigenTransform.matrix();
         Zivid::Matrix4x4 zividMatrix;
-        for(Eigen::Index row = 0; row < matrix4x4f.rows(); row++)
+        for(Eigen::Index row = 0; row < eigenMatrix.rows(); row++)
         {
-            for(Eigen::Index column = 0; column < matrix4x4f.cols(); column++)
+            for(Eigen::Index column = 0; column < eigenMatrix.cols(); column++)
             {
-                zividMatrix(row, column) = matrix4x4f(row, column);
+                zividMatrix(row, column) = eigenMatrix(row, column);
             }
         }
         return zividMatrix;

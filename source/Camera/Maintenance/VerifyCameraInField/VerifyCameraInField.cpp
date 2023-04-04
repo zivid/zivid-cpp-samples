@@ -33,19 +33,19 @@ int main()
         }
         else
         {
-            std::cout << "This camera has no in-field correction written to it." << std::endl;
+            std::cout << "This camera has no infield correction written to it." << std::endl;
         }
 
         // Gather data
         std::cout << "Capturing calibration board" << std::endl;
         const auto detectionResult = Zivid::Experimental::Calibration::detectFeaturePoints(camera);
 
-        // Prepare data and check that it is appropriate for in-field verification
+        // Prepare data and check that it is appropriate for infield verification
         const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
         if(!input.valid())
         {
             throw std::runtime_error(
-                "Capture not valid for in-field verification! Feedback: " + input.statusDescription());
+                "Capture not valid for infield verification! Feedback: " + input.statusDescription());
         }
 
         // Show results

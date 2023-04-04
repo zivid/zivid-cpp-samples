@@ -22,7 +22,12 @@ Checks: >
   -readability-identifier-naming,
   -readability-uppercase-literal-suffix,
   -readability-magic-numbers,
-  -readability-qualified-auto
+  -readability-qualified-auto,
+  -readability-identifier-length,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -altera-*,
+  -bugprone-easily-swappable-parameters,
+  -concurrency-mt-unsafe
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
