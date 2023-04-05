@@ -6,8 +6,8 @@ function apt-yes {
     apt-get --assume-yes "$@"
 }
 
-apt-yes update || exit $?
-apt-yes dist-upgrade || exit $?
+apt-yes update || exit
+apt-yes dist-upgrade || exit
 
 apt-yes install \
     clang \
@@ -22,14 +22,14 @@ apt-yes install \
     exit $?
 
 function install_www_deb {
-    TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit $?
-    pushd $TMP_DIR || exit $?
-    wget -q "$@" || exit $?
+    TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit
+    pushd $TMP_DIR || exit
+    wget -q "$@" || exit
     echo "Installing Zivid debian package $1"
-    apt-yes install --fix-broken ./*deb || exit $?
-    popd || exit $?
-    rm -r $TMP_DIR || exit $?
+    apt-yes install --fix-broken ./*deb || exit
+    popd || exit
+    rm -r $TMP_DIR || exit
 }
 
-install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.8.1+dd4dffea-1/u20/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit $?
-install_www_deb https://www.zivid.com/hubfs/softwarefiles/releases/2.8.1+dd4dffea-1/u20/zivid_2.8.1+dd4dffea-1_amd64.deb || exit $?
+install_www_deb https://downloads.zivid.com/sdk/releases/2.9.0+4dbba385-1/u20/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit
+install_www_deb https://downloads.zivid.com/sdk/releases/2.9.0+4dbba385-1/u20/zivid_2.9.0+4dbba385-1_amd64.deb || exit

@@ -84,6 +84,7 @@ namespace
         } } };
     }
 
+
     Zivid::Settings2D setProjectorBrightness(Zivid::Settings2D &settings2D, const bool useProjector)
     {
         settings2D.acquisitions()[0].brightness() =

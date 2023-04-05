@@ -31,7 +31,7 @@ int main()
         visualizer.show(frame);
         visualizer.resetToFit();
 
-        std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
         visualizer.run();
     }
     catch(const std::exception &e)

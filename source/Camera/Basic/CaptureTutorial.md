@@ -14,6 +14,7 @@ tutorial see:
 [**Connect**](#Connect) |
 [**Configure**](#Configure) |
 [**Capture**](#Capture) |
+[**Multithreading**](#Multithreading) |
 [**Conclusion**](#Conclusion)
 
 ---
@@ -69,7 +70,7 @@ Zivid::Application zivid;
 Now we can connect to the camera.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L18))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L17))
 
 ``` sourceCode cpp
 auto camera = zivid.connectCamera();
@@ -110,25 +111,50 @@ for(auto &camera : cameras)
 
 ### File Camera
 
-You may want to experiment with the SDK, without access to a physical
-camera. Minor changes are required to keep the sample working.
+The file camera option allows you to experiment with the SDK without
+access to a physical camera. The file cameras can be found in [Sample
+Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html)
+where there are multiple file cameras to choose from. Each file camera
+demonstrates a use case within one of the main applications of the
+respective camera model. The example below shows how to create a file
+camera using the Zivid Two M70 file camera from [Sample
+Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html).
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L19-L23))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L36-L37))
 
 ``` sourceCode cpp
-const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividOne.zfc";
+const auto fileCamera =
+	userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividTwoM70.zfc";
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L40))
+
+``` sourceCode cpp
 auto camera = zivid.createFileCamera(fileCamera);
 ```
 
------
+The acquisition settings should be initialized like shown below, but you
+are free to alter the processing settings.
 
-Note:
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L43-L51))
 
-The quality of the point cloud you get from `FileCameraZividOne.zfc` is
-not representative of the Zivid 3D cameras.
+``` sourceCode cpp
+const auto settings =
+	Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+					Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+					Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+					Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+					Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+					Zivid::Settings::Processing::Color::Balance::Red{ 1 },
+					Zivid::Settings::Processing::Color::Balance::Green{ 1 },
+					Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
+```
 
------
+You can read more about the file camera option in [File
+Camera](https://support.zivid.com/latest/academy/camera/file-camera.html).
 
 ## Configure
 
@@ -181,10 +207,10 @@ settings](https://support.zivid.com/latest//reference-articles/standard-acquisit
 
 #### Single Acquisition
 
-We can create settings for a single capture.
+We can create settings for a single acquisition capture.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22-L28))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L20-L26))
 
 ``` sourceCode cpp
 const auto settings =
@@ -198,7 +224,8 @@ const auto settings =
 
 #### Multi Acquisition HDR
 
-We may also create settings to be used in an HDR capture.
+We may also create settings to be used in a multi-acquisition HDR
+capture.
 
 ([go to
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDR/CaptureHDR.cpp#L21-L29))
@@ -218,12 +245,19 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L53-L98))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L53-L109))
 
 ``` sourceCode cpp
-std::cout << "Configuring processing settings for capture:" << std::endl;
+std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings settings{
 	Zivid::Settings::Experimental::Engine::phase,
+	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::PointB{ -1000, 1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::Extents{ -1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Depth::Enabled::yes,
+	Zivid::Settings::RegionOfInterest::Depth::Range{ 200, 2000 },
 	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
 	Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
@@ -232,17 +266,23 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
 	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+	Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
+	Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::HoleSize{ 0.2 },
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Strictness{ 1 },
 	Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
 	Zivid::Settings::Processing::Color::Gamma{ 1.0 },
 	Zivid::Settings::Processing::Color::Experimental::Mode::automatic
 };
-std::cout << settings.processing() << std::endl;
+std::cout << settings << std::endl;
 std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
 const auto baseAcquisition = Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 } };
 std::cout << baseAcquisition << std::endl;
@@ -293,7 +333,7 @@ read and applied in the API. You may find it easier to modify the
 settings in these (human-readable) yaml-files in your preferred editor.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L111-L118))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L121-L126))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -306,7 +346,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L111-L114))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L121-L123))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -327,7 +367,7 @@ multiple acquisitions (HDR) is given by the number of `acquisitions` in
 `settings`.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L32))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -357,7 +397,7 @@ If we only want to capture a 2D image, which is faster than 3D, we can
 do so via the 2D API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L33))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L32))
 
 ``` sourceCode cpp
 const auto frame2D = camera.capture(settings2D);
@@ -377,7 +417,7 @@ Save ----
 We can now save our results.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L38))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L31-L33))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";
@@ -398,7 +438,7 @@ for a list of supported formats. For example, we can export the point
 cloud to .ply format.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L41-L44))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L37))
 
 ``` sourceCode cpp
 const auto dataFilePLY = "PointCloud.ply";
@@ -419,7 +459,7 @@ const auto image = frame.pointCloud().copyImageRGBA();
 2D captures also produce 2D color images.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L37))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L35))
 
 ``` sourceCode cpp
 const auto image = frame2D.imageRGBA();
@@ -428,13 +468,20 @@ const auto image = frame2D.imageRGBA();
 Then, we can save the 2D image.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L47-L49))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L44-L46))
 
 ``` sourceCode cpp
 const auto imageFile = "Image.png";
 std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
 image.save(imageFile);
 ```
+
+## Multithreading
+
+Operations on camera objects are thread-safe, but other operations like
+listing cameras and connecting to cameras should be executed in
+sequence. Find out more in
+[CaptureTutorial](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureTutorial.md).
 
 ## Conclusion
 

@@ -1,5 +1,5 @@
 /*
-Capture point clouds with multiple cameras in parallel.
+Capture point clouds with multiple cameras sequentially with interleaved processing.
 */
 
 #include <Zivid/Zivid.h>
@@ -12,20 +12,6 @@ Capture point clouds with multiple cameras in parallel.
 
 namespace
 {
-    Zivid::Frame captureInThread(Zivid::Camera &camera)
-    {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-
-        std::cout << "Capturing frame with camera: " << camera.info().serialNumber().value() << std::endl;
-        auto frame = camera.capture(settings);
-
-        return frame;
-    }
-
     Zivid::Array2D<Zivid::PointXYZColorRGBA> processAndSaveInThread(const Zivid::Frame &frame)
     {
         const auto pointCloud = frame.pointCloud();
@@ -39,7 +25,6 @@ namespace
 
         return data;
     }
-
 } // namespace
 
 int main()
@@ -58,40 +43,31 @@ int main()
             camera.connect();
         }
 
-        std::vector<std::future<Zivid::Frame>> futureFrames;
+        std::vector<std::future<Zivid::Array2D<Zivid::PointXYZColorRGBA>>> futureData;
 
         for(auto &camera : cameras)
         {
-            std::cout << "Starting to capture (in a separate thread) with camera: "
-                      << camera.info().serialNumber().value() << std::endl;
-            futureFrames.emplace_back(std::async(std::launch::async, captureInThread, std::ref(camera)));
-        }
+            std::cout << "Capturing frame with camera: " << camera.info().serialNumber() << std::endl;
+            const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+                Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+                Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+            };
+            const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+            const auto frame = camera.capture(settings);
 
-        std::vector<Zivid::Frame> frames;
-
-        for(size_t i = 0; i < cameras.size(); ++i)
-        {
-            std::cout << "Waiting for camera " << cameras[i].info().serialNumber() << " to finish capturing"
-                      << std::endl;
-            const auto frame = futureFrames[i].get();
-            frames.push_back(frame);
-        }
-
-        std::vector<std::future<Zivid::Array2D<Zivid::PointXYZColorRGBA>>> futureData;
-
-        for(auto &frame : frames)
-        {
             std::cout << "Starting to process and save (in a separate thread) the frame captured with camera: "
                       << frame.cameraInfo().serialNumber().value() << std::endl;
             futureData.emplace_back(std::async(std::launch::async, processAndSaveInThread, frame));
         }
 
+        // This is where the scene can move relative to the cameras
+
         std::vector<Zivid::Array2D<Zivid::PointXYZColorRGBA>> allData;
 
-        for(size_t i = 0; i < frames.size(); ++i)
+        for(size_t i = 0; i < cameras.size(); ++i)
         {
-            std::cout << "Waiting for processing and saving to finish for camera "
-                      << frames[i].cameraInfo().serialNumber().value() << std::endl;
+            std::cout << "Waiting for processing and saving to finish for camera " << cameras[i].info().serialNumber()
+                      << std::endl;
             const auto data = futureData[i].get();
             allData.push_back(data);
         }

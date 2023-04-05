@@ -31,6 +31,7 @@ namespace
         }
         return getValueZ(a) < getValueZ(b) ? true : std::isnan(getValueZ(a));
     }
+
     bool isGreaterOrNaN(const Zivid::PointZ &a, const Zivid::PointZ &b)
     {
         if(std::isnan(getValueZ(a)) && std::isnan(getValueZ(b)))
@@ -50,7 +51,7 @@ namespace
         visualizer.show(pointCloud);
         visualizer.resetToFit();
 
-        std::cout << "Running visualizer. Blocking until window closes" << std::endl;
+        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
         visualizer.run();
     }
 
@@ -102,6 +103,7 @@ namespace
         return zColorMap;
     }
 
+
     cv::Mat pointCloudToCvBGR(const Zivid::PointCloud &pointCloud)
     {
         auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
@@ -111,6 +113,7 @@ namespace
 
         return bgr;
     }
+
 
 } // namespace
 

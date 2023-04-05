@@ -16,8 +16,8 @@ echo "-----------------------------------------------"
 echo "             Running clang-tidy                "
 echo "-----------------------------------------------"
 BUILD_DIR="$ROOT_DIR/build/ci/tidy"
-mkdir --parents "$BUILD_DIR" || exit $?
-cd "$BUILD_DIR" || exit $?
+mkdir --parents "$BUILD_DIR" || exit
+cd "$BUILD_DIR" || exit
 cmake -GNinja \
     -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
     -DWARNINGS=ON \
@@ -27,7 +27,7 @@ cmake -GNinja \
     -DUSE_OPENCV=ON \
     -DUSE_ARUCO=ON \
     -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
-    "$SOURCE_DIR" || exit $?
-cmake --build . || exit $?
+    "$SOURCE_DIR" || exit
+cmake --build . || exit
 
 echo "All files are properly formatted!" ["$0"]

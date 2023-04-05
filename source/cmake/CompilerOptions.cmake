@@ -86,6 +86,8 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
                  # padding to the end of a struct
             4868 # compiler may not enforce left-to-right evaluation order in
                  # braced initializer list
+            4355 # #include <future> causes the following: 'this': used in base
+                 # member initializer list
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")
