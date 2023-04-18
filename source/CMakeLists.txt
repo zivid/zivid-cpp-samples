@@ -42,6 +42,7 @@ set(SAMPLES
     Camera/InfoUtilOther/ZividBenchmark
     Camera/InfoUtilOther/Warmup
     Camera/Maintenance/VerifyCameraInField
+    Camera/Maintenance/VerifyCameraInFieldFromZDF
     Camera/Maintenance/CorrectCameraInField
     Applications/Basic/Visualization/CaptureFromFileCameraVis3D
     Applications/Basic/Visualization/CaptureVis3D

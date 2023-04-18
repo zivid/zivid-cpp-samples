@@ -90,6 +90,8 @@ from the camera can be used.
           - [CorrectCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp) - Correct the dimension trueness of a Zivid camera.
           - [ResetCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/ResetCameraInField/ResetCameraInField.cpp) - Reset infield correction on a camera.
           - [VerifyCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp) - Check the dimension trueness of a Zivid camera.
+          - [VerifyCameraInFieldFromZDF](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/VerifyCameraInFieldFromZDF/VerifyCameraInFieldFromZDF.cpp) - Check the dimension trueness of a Zivid camera from a ZDF
+            file.
   - **Applications**
       - **Basic**
           - **Visualization**
