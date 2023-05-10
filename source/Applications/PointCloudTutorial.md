@@ -156,16 +156,17 @@ std::cout << "Capturing frame" << std::endl;
 frame = camera.capture(settings);
 pointCloud = frame.pointCloud();
 std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-auto colors = pointCloud.copyColorsRGBA();
+auto colors = pointCloud.copyColorsBGRA();
 
 std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
           << std::endl;
+
 auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
 
 std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
-          << "Zivid::ColorRGBA exactly matches the layout of CV_8UC4. No copying occurs in this step."
+          << "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
           << std::endl;
-const cv::Mat rgbaZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
+const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
 ```
 
 **Copy selected data from GPU to CPU memory (user-allocated)**
@@ -183,14 +184,21 @@ API to copy data directly from the GPU into this memory location.
 ``` sourceCode cpp
 std::cout << "Allocating the necessary storage with OpenCV API based on resolution info before any capturing"
 << std::endl;
-auto rgbaUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
+auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
 std::cout << "Capturing frame" << std::endl;
 auto frame = camera.capture(settings);
 auto pointCloud = frame.pointCloud();
 
 std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
           << std::endl;
-pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgbaUserAllocated.data));
+pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgraUserAllocated.data));
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L233))
+
+``` sourceCode cpp
+pointCloud.transform(transformBaseToCamera);
 ```
 
 ## Transform

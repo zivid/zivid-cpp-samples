@@ -39,7 +39,7 @@ int main()
 
         std::cout << "Allocating the necessary storage with OpenCV API based on resolution info before any capturing"
                   << std::endl;
-        auto rgbaUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
+        auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
 
         std::cout << "Capturing frame" << std::endl;
         auto frame = camera.capture(settings);
@@ -47,12 +47,10 @@ int main()
 
         std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
                   << std::endl;
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgbaUserAllocated.data));
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgraUserAllocated.data));
 
         std::cout << "Displaying image" << std::endl;
-        cv::Mat bgrUserAllocated;
-        cv::cvtColor(rgbaUserAllocated, bgrUserAllocated, cv::COLOR_RGBA2BGR);
-        cv::imshow("BGR image User Allocated", bgrUserAllocated);
+        cv::imshow("BGRA image User Allocated", bgraUserAllocated);
         cv::waitKey(0);
 
         // Copy selected data from GPU to system memory (Zivid-allocated)
@@ -62,10 +60,11 @@ int main()
         pointCloud = frame.pointCloud();
 
         std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-        auto colors = pointCloud.copyColorsRGBA();
+        auto colors = pointCloud.copyColorsBGRA();
 
         std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
                   << std::endl;
+
         // The cast for colors.data() is required because the cv::Mat constructor requires non-const void *.
         // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
         // our own instance with const.
@@ -73,14 +72,12 @@ int main()
         auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
 
         std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
-                  << "Zivid::ColorRGBA exactly matches the layout of CV_8UC4. No copying occurs in this step."
+                  << "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
                   << std::endl;
-        const cv::Mat rgbaZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
+        const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
 
         std::cout << "Displaying image" << std::endl;
-        cv::Mat bgrZividAllocated;
-        cv::cvtColor(rgbaZividAllocated, bgrZividAllocated, cv::COLOR_RGBA2BGR);
-        cv::imshow("BGR image Zivid Allocated", bgrZividAllocated);
+        cv::imshow("BGRA image Zivid Allocated", bgraZividAllocated);
         cv::waitKey(0);
     }
     catch(const std::exception &e)

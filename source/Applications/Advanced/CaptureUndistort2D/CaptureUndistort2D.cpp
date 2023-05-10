@@ -1,9 +1,9 @@
 /*
-Use camera intrinsics to undistort an RGB image.
+Use camera intrinsics to undistort a 2D image.
 
 The example will prompt the user for whether to capture an image (2D) or a point cloud (3D).
-In both instances it will operate on an RGB image. However, in the 3D case it will extract
-the RGB image from the point cloud. The 2D variant is faster.
+In both instances it will operate on an BGRA image. However, in the 3D case it will extract
+the BGRA image from the point cloud. The 2D variant is faster.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
@@ -59,18 +59,19 @@ namespace
         return settings2D;
     }
 
-    cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorRGBA> &image)
+    cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorBGRA> &image)
     {
         // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
         // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
         // our own instance with const.
-        const cv::Mat rgbaMat(
+        const cv::Mat bgra(
             image.height(),
             image.width(),
             CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
             const_cast<void *>(static_cast<const void *>(image.data())));
+
         cv::Mat bgr;
-        cv::cvtColor(rgbaMat, bgr, cv::COLOR_RGBA2BGR);
+        cv::cvtColor(bgra, bgr, cv::COLOR_BGRA2BGR);
 
         return bgr;
     }
@@ -93,8 +94,8 @@ namespace
         std::cout << "Running visualizer. Blocking until window closes." << std::endl;
         visualizer.run();
 
-        std::cout << "Converting to OpenCV BGR image" << std::endl;
-        const auto image = frame.pointCloud().copyImageRGBA();
+        std::cout << "Converting to OpenCV BGRA image" << std::endl;
+        const auto image = frame.pointCloud().copyImageBGRA();
 
         const auto imageFile = "Image.png";
         std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
@@ -111,7 +112,7 @@ namespace
         const auto frame2D = camera.capture(settings);
 
         std::cout << "Getting RGBA image" << std::endl;
-        const auto image = frame2D.imageRGBA();
+        const auto image = frame2D.imageBGRA();
 
         std::cout << "Converting to OpenCV BGR image" << std::endl;
 
