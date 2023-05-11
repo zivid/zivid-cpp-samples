@@ -189,9 +189,12 @@ namespace
 
     cv::Mat pointCloudToGray(const Zivid::PointCloud &pointCloud)
     {
-        const auto rgba = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgba.data));
-        auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
+        const auto image = pointCloud.copyImageRGBA();
+        const auto rgba = cv::Mat(
+            pointCloud.height(),
+            pointCloud.width(),
+            CV_8UC4,
+            const_cast<void *>(static_cast<const void *>(image.data())));
         cv::Mat gray;
         cv::cvtColor(rgba, gray, cv::COLOR_RGBA2GRAY);
         return gray;

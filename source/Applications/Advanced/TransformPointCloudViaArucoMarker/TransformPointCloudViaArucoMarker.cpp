@@ -181,20 +181,18 @@ namespace
         return transformationMatrix(rotationMatrix, origin);
     }
 
-    cv::Mat pointCloudToColorBGR(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
     {
-        const auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgb.data));
-        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
+        auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgra.data));
 
-        return bgr;
+        return bgra;
     }
 
-    cv::Mat colorBGRToGray(const cv::Mat &bgr)
+    cv::Mat colorBGRAToGray(const cv::Mat &bgra)
     {
         cv::Mat gray;
-        cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(bgra, gray, cv::COLOR_BGRA2GRAY);
         return gray;
     }
 
@@ -219,8 +217,8 @@ int main()
         auto pointCloud = frame.pointCloud();
 
         std::cout << "Converting to OpenCV image format" << std::endl;
-        const auto bgrImage = pointCloudToColorBGR(pointCloud);
-        const auto grayImage = colorBGRToGray(bgrImage);
+        const auto bgraImage = pointCloudToColorBGRA(pointCloud);
+        const auto grayImage = colorBGRAToGray(bgraImage);
 
         std::cout << "Configuring ArUco marker" << std::endl;
         const auto markerDictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_100);
@@ -233,8 +231,10 @@ int main()
         cv::aruco::detectMarkers(grayImage, markerDictionary, markerCorners, markerIds, detectorParameters);
 
         std::cout << "Displaying detected ArUco marker" << std::endl;
-        cv::aruco::drawDetectedMarkers(bgrImage, markerCorners);
-        displayBGR(bgrImage, "ArucoMarkerDetected");
+        cv::Mat bgr;
+        cv::cvtColor(bgraImage, bgr, cv::COLOR_BGRA2BGR);
+        cv::aruco::drawDetectedMarkers(bgr, markerCorners);
+        displayBGR(bgr, "ArucoMarkerDetected");
 
         if(markerIds.empty())
         {
@@ -244,7 +244,7 @@ int main()
 
         const auto bgrImageFile = "ArucoMarkerDetected.png";
         std::cout << "Saving 2D color image with detected ArUco marker to file: " << bgrImageFile << std::endl;
-        cv::imwrite(bgrImageFile, bgrImage);
+        cv::imwrite(bgrImageFile, bgr);
 
         std::cout << "Estimating pose of detected ArUco marker" << std::endl;
         const auto transformMarkerToCamera = estimateArUcoMarkerPose(pointCloud, markerCorners[0]);

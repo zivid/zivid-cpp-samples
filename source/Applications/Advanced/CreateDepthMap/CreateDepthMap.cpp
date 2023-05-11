@@ -104,14 +104,12 @@ namespace
     }
 
 
-    cv::Mat pointCloudToCvBGR(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToCvBGRA(const Zivid::PointCloud &pointCloud)
     {
-        auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgb.data));
-        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        cv::cvtColor(rgb, bgr, cv::COLOR_BGR2RGB);
+        auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgra.data));
 
-        return bgr;
+        return bgra;
     }
 
 
@@ -129,15 +127,15 @@ int main()
 
         visualizePointCloud(pointCloud);
 
-        std::cout << "Converting to BGR image in OpenCV format" << std::endl;
-        cv::Mat bgr = pointCloudToCvBGR(pointCloud);
+        std::cout << "Converting point cloud to BGRA image in OpenCV format" << std::endl;
+        cv::Mat bgra = pointCloudToCvBGRA(pointCloud);
 
-        const auto bgrImageFile = "Image.png";
-        std::cout << "Visualizing and saving BGR image to file: " << bgrImageFile << std::endl;
+        const auto bgraImageFile = "Image.png";
+        std::cout << "Visualizing and saving BGR image to file: " << bgraImageFile << std::endl;
         cv::namedWindow("BGR image", cv::WINDOW_AUTOSIZE);
-        cv::imshow("BGR image", bgr);
+        cv::imshow("BGR image", bgra);
         cv::waitKey(0);
-        cv::imwrite(bgrImageFile, bgr);
+        cv::imwrite(bgraImageFile, bgra);
 
         std::cout << "Converting to Depth map in OpenCV format" << std::endl;
         cv::Mat zColorMap = pointCloudToCvZ(pointCloud);

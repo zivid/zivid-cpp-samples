@@ -24,20 +24,18 @@ namespace
         cv::Point2d zAxisPoint;
     };
 
-    cv::Mat pointCloudToColorBGR(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
     {
-        const auto rgb = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorRGBA *>(rgb.data));
-        auto bgr = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        cv::cvtColor(rgb, bgr, cv::COLOR_RGBA2BGR);
+        auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
+        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgra.data));
 
-        return bgr;
+        return bgra;
     }
 
-    void displayBGR(const cv::Mat &bgr, const std::string &bgrName)
+    void displayBGRA(const cv::Mat &bgra, const std::string &bgraName)
     {
-        cv::namedWindow(bgrName, cv::WINDOW_AUTOSIZE);
-        cv::imshow(bgrName, bgr);
+        cv::namedWindow(bgraName, cv::WINDOW_AUTOSIZE);
+        cv::imshow(bgraName, bgra);
         cv::waitKey(0);
     }
 
@@ -173,11 +171,11 @@ int main()
         pointCloud.transform(transformCheckerboardToCamera);
 
         std::cout << "Converting to OpenCV image format" << std::endl;
-        const auto bgrImage = pointCloudToColorBGR(pointCloud);
+        const auto bgraImage = pointCloudToColorBGRA(pointCloud);
 
         std::cout << "Visualizing checkerboard with coordinate system" << std::endl;
-        drawCoordinateSystem(frame, transformCameraToCheckerboard, bgrImage);
-        displayBGR(bgrImage, "Checkerboard transformation frame");
+        drawCoordinateSystem(frame, transformCameraToCheckerboard, bgraImage);
+        displayBGRA(bgraImage, "Checkerboard transformation frame");
 
         const auto checkerboardTransformedFile = "CalibrationBoardInCheckerboardOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << checkerboardTransformedFile << std::endl;

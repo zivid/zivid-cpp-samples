@@ -50,7 +50,7 @@ set(SAMPLES
     Applications/Basic/Visualization/CaptureWritePCLVis3D
     Applications/Basic/Visualization/CaptureHDRVisNormals
     Applications/Basic/FileFormats/ReadIterateZDF
-    Applications/Advanced/CaptureUndistortRGB
+    Applications/Advanced/CaptureUndistort2D
     Applications/Advanced/Downsample
     Applications/Advanced/MaskPointCloud
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
@@ -74,7 +74,7 @@ set(PCL_DEPENDING
     MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals
     StitchByTransformation StitchByTransformationFromZDF)
 set(OpenCV_DEPENDING
-    CaptureUndistortRGB
+    CaptureUndistort2D
     CreateDepthMap
     MaskPointCloud
     TransformPointCloudViaArucoMarker
@@ -88,7 +88,7 @@ set(Visualization_DEPENDING
     CaptureFromFileCameraVis3D
     Downsample
     CaptureWritePCLVis3D
-    CaptureUndistortRGB
+    CaptureUndistort2D
     CreateDepthMap
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard)

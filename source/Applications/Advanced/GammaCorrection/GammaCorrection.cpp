@@ -22,23 +22,7 @@ namespace
         return std::stod(argv[1]);
     }
 
-    cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorRGBA> &image)
-    {
-        // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
-        // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
-        // our own instance with const.
-        const cv::Mat rgbaMat(
-            image.height(),
-            image.width(),
-            CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-            const_cast<void *>(static_cast<const void *>(image.data())));
-        cv::Mat bgr;
-        cv::cvtColor(rgbaMat, bgr, cv::COLOR_RGBA2BGR);
-
-        return bgr;
-    }
-
-    cv::Mat captureBGRImage(Zivid::Camera &camera, const double gamma)
+    cv::Mat captureBGRAImage(Zivid::Camera &camera, const double gamma)
     {
         std::cout << "Configuring settings" << std::endl;
         const auto settings2D = Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
@@ -46,10 +30,13 @@ namespace
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings2D);
-        const auto image = frame2D.imageRGBA();
-        auto bgr = imageToBGR(image);
+        const auto image = frame2D.imageBGRA();
 
-        return bgr;
+        auto imageDataPointer = const_cast<void *>(static_cast<const void *>(image.data()));
+
+        cv::Mat bgra = cv::Mat(image.height(), image.width(), CV_8UC4, imageDataPointer).clone();
+
+        return bgra;
     }
 
 
@@ -67,10 +54,10 @@ namespace
     }
 
 
-    void displayBGR(const cv::Mat &bgr, const std::string &bgrName)
+    void displayBGRA(const cv::Mat &bgra, const std::string &bgraName)
     {
-        cv::namedWindow(bgrName, cv::WINDOW_NORMAL);
-        cv::imshow(bgrName, bgr);
+        cv::namedWindow(bgraName, cv::WINDOW_NORMAL);
+        cv::imshow(bgraName, bgra);
         std::cout << "Press any key to continue" << std::endl;
         cv::waitKey(0);
     }
@@ -88,15 +75,15 @@ int main(int argc, char **argv)
         auto camera = zivid.connectCamera();
 
         std::cout << "Capturing without gamma correction" << std::endl;
-        cv::Mat bgrOriginal = captureBGRImage(camera, 1.0);
-        cv::imwrite("Original.jpg", bgrOriginal);
+        cv::Mat bgraOriginal = captureBGRAImage(camera, 1.0);
+        cv::imwrite("Original.jpg", bgraOriginal);
         std::cout << "Capturing with gamma correction: " << gamma << std::endl;
-        cv::Mat bgrAdjusted = captureBGRImage(camera, gamma);
-        cv::imwrite("Adjusted.jpg", bgrAdjusted);
+        cv::Mat bgraAdjusted = captureBGRAImage(camera, gamma);
+        cv::imwrite("Adjusted.jpg", bgraAdjusted);
 
         std::cout << "Displaying color image before and after gamma correction: " << gamma << std::endl;
-        cv::Mat combinedImage = combineImages(bgrOriginal, bgrAdjusted);
-        displayBGR(combinedImage, "Original on left, adjusted on right");
+        cv::Mat combinedImage = combineImages(bgraOriginal, bgraAdjusted);
+        displayBGRA(combinedImage, "Original on left, adjusted on right");
     }
     catch(const std::exception &e)
     {

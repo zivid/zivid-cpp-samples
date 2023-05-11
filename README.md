@@ -108,7 +108,7 @@ from the camera can be used.
               - [ReadIterateZDF](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp) - Read point cloud data from a ZDF file, iterate through
                 it, and extract individual points.
       - **Advanced**
-          - [CaptureUndistortRGB](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp) - Use camera intrinsics to undistort an RGB image.
+          - [CaptureUndistort2D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/CaptureUndistort2D/CaptureUndistort2D.cpp) - Use camera intrinsics to undistort a 2D image.
           - [CreateDepthMap](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp) - Convert point cloud from a ZDF file to OpenCV format,
             extract depth map and visualize it.
           - [Downsample](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/Downsample/Downsample.cpp) - Downsample point cloud from a ZDF file.

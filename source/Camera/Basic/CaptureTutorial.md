@@ -450,10 +450,10 @@ frame.save(dataFilePLY);
 We can get 2D color image from a 3D capture.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/CaptureUndistortRGB/CaptureUndistortRGB.cpp#L97))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp#L192))
 
 ``` sourceCode cpp
-const auto image = frame.pointCloud().copyImageRGBA();
+const auto image = pointCloud.copyImageRGBA();
 ```
 
 2D captures also produce 2D color images.
