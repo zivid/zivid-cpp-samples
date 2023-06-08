@@ -56,11 +56,13 @@ set(SAMPLES
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
+    Applications/Advanced/HandEyeCalibration/AngleAxisAndEuler
     Applications/Advanced/CreateDepthMap
     Applications/Advanced/MultiCamera/MultiCameraCalibration
     Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
+    Applications/Advanced/SimplePlaceAlgorithm
     Applications/Advanced/TransformPointCloudViaArucoMarker
     Applications/Advanced/TransformPointCloudViaCheckerboard
     Applications/Advanced/TransformPointCloudFromMillimetersToMeters
@@ -69,10 +71,11 @@ set(SAMPLES
     Applications/Advanced/GammaCorrection)
 
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions
-                     ROIBoxViaArucoMarker ROIBoxViaCheckerboard)
+                     ROIBoxViaArucoMarker ROIBoxViaCheckerboard
+                     SimplePlaceAlgorithm)
 set(PCL_DEPENDING
     MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals
-    StitchByTransformation StitchByTransformationFromZDF)
+    StitchByTransformation StitchByTransformationFromZDF SimplePlaceAlgorithm)
 set(OpenCV_DEPENDING
     CaptureUndistort2D
     CreateDepthMap
@@ -81,7 +84,8 @@ set(OpenCV_DEPENDING
     TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
     ROIBoxViaArucoMarker
-    GammaCorrection)
+    GammaCorrection
+    SimplePlaceAlgorithm)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D
