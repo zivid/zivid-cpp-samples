@@ -19,15 +19,16 @@ apt-yes install \
     ninja-build ||
     exit $?
 
+source /etc/os-release || exit
+
 function install_www_deb {
-    TMP_DIR=$(mktemp --tmpdir --directory install_www_deb-XXXX) || exit
+    TMP_DIR=$(mktemp --tmpdir --directory zivid-sdk-install-www-deb-XXXX) || exit
     pushd $TMP_DIR || exit
-    wget -q "$@" || exit
-    echo "Installing Zivid debian package $1"
+    wget -nv "$@" || exit
     apt-yes install --fix-broken ./*deb || exit
     popd || exit
     rm -r $TMP_DIR || exit
 }
 
-install_www_deb https://downloads.zivid.com/sdk/releases/2.9.0+4dbba385-1/u18/zivid-telicam-driver_3.0.1.1-3_amd64.deb || exit
-install_www_deb https://downloads.zivid.com/sdk/releases/2.9.0+4dbba385-1/u18/zivid_2.9.0+4dbba385-1_amd64.deb || exit
+install_www_deb "https://downloads.zivid.com/sdk/previews/2.10.0-preview-3+90aa8c92-1/u${VERSION_ID:0:2}/zivid-telicam-driver_3.0.1.1-3_amd64.deb" || exit
+install_www_deb "https://downloads.zivid.com/sdk/previews/2.10.0-preview-3+90aa8c92-1/u${VERSION_ID:0:2}/zivid_2.10.0-preview-3+90aa8c92-1_amd64.deb" || exit

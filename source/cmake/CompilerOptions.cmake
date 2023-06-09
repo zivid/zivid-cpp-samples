@@ -88,6 +88,10 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
                  # braced initializer list
             4355 # #include <future> causes the following: 'this': used in base
                  # member initializer list
+            4996 # Complains about usage of `gmtime`. Ignoring since most
+                 # samples use single thread.
+            4514 # Complains about unused inline functions in header files. Too
+                 # strict and noisy for this code base.
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${WARNING}")

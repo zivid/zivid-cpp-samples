@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.9.0. For
+This repository contains cpp code samples for Zivid SDK v2.10.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -116,6 +116,10 @@ from the camera can be used.
           - [HandEyeCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp) - Perform Hand-Eye calibration.
           - [MaskPointCloud](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp) - Mask point cloud from a ZDF file and convert to PCL
             format, extract depth map and visualize it.
+          - [ProjectAndFindMarker](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ProjectAndFindMarker/ProjectAndFindMarker.cpp) - Show a marker using the projector, capture a set of 2D
+            images to find the marker coordinates (2D and 3D).
+          - [ReprojectPoints](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ReprojectPoints/ReprojectPoints.cpp) - Illuminate checkerboard (Zivid Calibration Board) corners
+            by getting checkerboard pose
           - [ROIBoxViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp) - Filter the point cloud based on a ROI box given relative
             to the ArUco marker on a Zivid Calibration Board.
           - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
@@ -161,7 +165,7 @@ then type `cmd` and press `Enter`.
 Navigate to a location where you want to clone the repository, then run
 to following command:
 
-``` sourceCode 
+``` sourceCode bat
 git clone https://github.com/zivid/zivid-cpp-samples
 ```
 
@@ -177,14 +181,14 @@ Open the Terminal by pressing `Ctrl` + `Alt` + `T` keys on the keyboard.
 Navigate to a location where you want to clone the repository, then run
 to following command:
 
-``` sourceCode 
+``` sourceCode bash
 git clone https://github.com/zivid/zivid-cpp-samples
 cd zivid-cpp-samples
 ```
 
 Build the project:
 
-``` sourceCode 
+``` sourceCode bash
 mkdir build
 cd build
 cmake <options, see below> ../source
@@ -212,7 +216,7 @@ If you do want to use them:
 The samples can now be run from the build directory, for instance like
 this:
 
-``` sourceCode 
+``` sourceCode bash
 ./CaptureFromFileCameraVis3D
 ```
 

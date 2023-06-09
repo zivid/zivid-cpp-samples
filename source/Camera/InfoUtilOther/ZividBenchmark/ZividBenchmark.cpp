@@ -295,7 +295,7 @@ namespace
         {
             return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
         }
-        return std::chrono::microseconds{ 1677 }; // Min for Zivid Two
+        return std::chrono::microseconds{ 1677 }; // Min for Zivid 2 and Zivid 2+
     }
 
     Zivid::Settings makeSettings(
