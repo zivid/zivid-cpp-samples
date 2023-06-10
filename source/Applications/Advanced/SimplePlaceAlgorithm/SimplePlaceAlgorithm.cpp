@@ -1,14 +1,16 @@
 #include <Eigen/Core>
 #include <iostream>
-#include <pcl/common/common.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
+#include <open3d/Open3D.h>
+//#include <pcl/common/common.h>
+//#include <pcl/io/pcd_io.h>
+//#include <pcl/point_types.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <iomanip>
 
-typedef pcl::PointXYZRGB PointT;
-typedef pcl::PointCloud<PointT> PointCloudT;
+//typedef pcl::PointXYZRGB PointT;
+//typedef pcl::PointCloud<PointT> PointCloudT;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
 typedef std::array<MatrixXd, 3> Matrix3Xd;
 typedef std::array<MatrixXd, 5> Matrix5Xd;
@@ -365,38 +367,91 @@ namespace
         print_time(text, (endTime - startTime));
     }
 
-    int add(int a, int b) {
-        return a + b;
+    bool update_progress(double progress)
+    {
+        std::cout << "\rLoading point cloud: " << progress;
+        for (int i = 0; i < 10; i++)
+        {
+            std::cout << " ";
+        }
+        std::cout.flush();
+        if (progress == 100.0)
+        {
+            std::cout << std::endl;
+        }
+        return true;
+    }
+
+    uint8_t convertColorToUint8(const double color)
+    {
+        return (uint8_t)(255 * color);
+    }
+
+    std::tuple< Matrix3Xd, cv::Mat > placeDataInMatrices(open3d::geometry::PointCloud& pointCloud, const int height, const int width)
+    {
+        Matrix3Xd xyz{ MatrixXd(height, width), MatrixXd(height, width), MatrixXd(height, width) };
+        cv::Mat full_bgr(height, width, CV_8UC3, cv::Scalar(100, 100, 0));
+
+        for (int row = 0; row < height; ++row)
+        {
+            for (int col = 0; col < width; ++col)
+            {
+                const auto i = col + row * width;
+                auto point = pointCloud.points_[i];
+                xyz[0](row, col) = point[0];
+                xyz[1](row, col) = point[1];
+                xyz[2](row, col) = point[2];
+                auto color = pointCloud.colors_[i];
+                full_bgr.at<cv::Vec3b>(row, col) = cv::Vec3b(
+                    convertColorToUint8(color[2]),
+                    convertColorToUint8(color[1]),
+                    convertColorToUint8(color[0])
+                );
+            }
+        }
+        return std::make_tuple(xyz, full_bgr);
     }
 } // namespace
 
 int main()
 {
+    // INPUT
     std::string pcd_path = "C:/Zivid/Temp/Fizyr/checkerboard_in_bin.pcd";
-    PointCloudT::Ptr cloud(new PointCloudT);
-    pcl::io::loadPCDFile<PointT>(pcd_path, *cloud);
-    std::cout << "PCD dimensions: " << cloud->height << " x " << cloud->width << std::endl;
-    Matrix3Xd xyz{ MatrixXd(cloud->height, cloud->width), MatrixXd(cloud->height, cloud->width), MatrixXd(cloud->height, cloud->width) };
-    cv::Mat full_bgr(cloud->height, cloud->width, CV_8UC3, cv::Scalar(100, 100, 0));
-    for (int row = 0; row < cloud->height; ++row)
+    std::cout << "Loading point cloud from " << pcd_path << std::endl;
+    // Load the point cloud using Open3D
+    //auto pointCloud = open3d::io::CreatePointCloudFromFile(pcd_path);
+    auto pointCloud = open3d::geometry::PointCloud();
+    const open3d::io::ReadPointCloudOption pclOption(update_progress);
+    open3d::io::ReadPointCloudFromPCD(pcd_path, pointCloud, pclOption);
+    const int width = 1224;
+    const int height = 1024;
+    if (!pointCloud.HasColors())
     {
-        for (int col = 0; col < cloud->width; ++col)
-        {
-            auto i = col + row * cloud->width;
-            auto point = cloud->points[i];
-            xyz[0](row, col) = point.x;
-            xyz[1](row, col) = point.y;
-            xyz[2](row, col) = point.z;
-            full_bgr.at<cv::Vec3b>(row, col) = cv::Vec3b(point.b, point.g, point.r);
-        }
+        std::cout << "Has no colors" << std::endl;
+    }
+    if (!pointCloud.HasPoints())
+    {
+        std::cout << "Has no points" << std::endl;
+    }
+    if (pointCloud.HasPoints() && pointCloud.HasColors())
+    {
+        std::cout << "PointCloud size: " << pointCloud.points_.size() << std::endl;
+    }
+    if (pointCloud.points_.size() != (width * height))
+    {
+        std::cout << "Expected " << (width * height) << " points, got " << pointCloud.points_.size() << std::endl;
     }
 
-    // INPUT
     const std::map<std::string, int> bin{ { "row_min", 236 }, { "col_min", 229 }, { "row_max", 840 }, { "col_max", 1166 } };
     //const Eigen::Vector2d object_extent_mm(40, 40);
     //const int extent_divider_for_search = 4;
     const Eigen::Vector2d object_extent_mm(200, 300);
     const int extent_divider_for_search = 2;
+
+    // PREPARE DATA
+    Matrix3Xd xyz;
+    cv::Mat full_bgr;
+    std::tie(xyz, full_bgr) = placeDataInMatrices(pointCloud, height, width);
 
     // ALGORITHM
     const auto xyz_cropped = timeFunction("* TIME TO crop xyz", crop_xyz_2d, bin, xyz);

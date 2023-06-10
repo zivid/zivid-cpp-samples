@@ -11,6 +11,7 @@ set(ZIVID_VERSION 2.9.0)
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
+option(USE_OPEN3D "Enable samples which depend on Open3D" ON)
 option(USE_ARUCO
        "Enable samples which depend on ArUco (OpenCV with extra modules)" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
@@ -75,7 +76,7 @@ set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions
                      SimplePlaceAlgorithm)
 set(PCL_DEPENDING
     MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals
-    StitchByTransformation StitchByTransformationFromZDF SimplePlaceAlgorithm)
+    StitchByTransformation StitchByTransformationFromZDF)
 set(OpenCV_DEPENDING
     CaptureUndistort2D
     CreateDepthMap
@@ -86,6 +87,7 @@ set(OpenCV_DEPENDING
     ROIBoxViaArucoMarker
     GammaCorrection
     SimplePlaceAlgorithm)
+set(Open3D_DEPENDING SimplePlaceAlgorithm)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D
@@ -184,6 +186,18 @@ else()
     disable_samples("OpenCV")
 endif()
 
+if(USE_OPEN3D)
+    find_package(Open3D 0.17.0)
+    if(NOT Open3D_FOUND)
+        message(
+            FATAL_ERROR
+                "Open3D not found. Please point Open3D_ROOT to the directory of your Open3D installation (containing the file Open3D.cmake), or disable the Open3D samples with -DUSE_OPEN3D=OFF."
+        )
+    endif()
+else()
+    disable_samples("Open3D")
+endif()
+
 if(USE_HALCON)
     if(DEFINED ENV{HALCONROOT} AND NOT $ENV{HALCONROOT} STREQUAL "")
         message("Using HALCONROOT " $ENV{HALCONROOT})
@@ -233,6 +247,12 @@ foreach(SAMPLE ${SAMPLES})
         target_link_libraries(${SAMPLE_NAME} ${PCL_LIBRARIES})
         target_include_directories(${SAMPLE_NAME} SYSTEM
                                    PRIVATE ${PCL_INCLUDE_DIRS})
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST Open3D_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} ${Open3D_LIBRARIES})
+        target_include_directories(${SAMPLE_NAME} SYSTEM
+                                   PRIVATE ${Open3D_INCLUDE_DIRS})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
