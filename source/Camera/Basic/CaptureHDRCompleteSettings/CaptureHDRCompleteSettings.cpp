@@ -17,27 +17,49 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 
 namespace
 {
-    std::tuple<std::vector<double>, std::vector<double>, std::vector<size_t>> getExposureValues(
-        const Zivid::Camera &camera)
+    using std::chrono::microseconds;
+
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<microseconds>, std::vector<double>>
+    getExposureValues(const Zivid::Camera &camera)
     {
-        if(camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusSmall
-           || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusMedium
-           || camera.info().model() == Zivid::CameraInfo::Model::zividOnePlusLarge)
+        const auto model = camera.info().model().value();
+        switch(model)
         {
-            const std::vector<double> apertures{ 8.0, 4.0, 4.0 };
-            const std::vector<double> gains{ 1.0, 1.0, 2.0 };
-            const std::vector<size_t> exposureTimes{ 10000, 10000, 40000 };
-            return { apertures, gains, exposureTimes };
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+            {
+                const std::vector<double> apertures{ 8.0, 4.0, 1.4 };
+                const std::vector<double> gains{ 1.0, 1.0, 2.0 };
+                const std::vector<microseconds> exposureTimes{ microseconds{ 6500 },
+                                                               microseconds{ 10000 },
+                                                               microseconds{ 40000 } };
+                const std::vector<double> brightnesses{ 1.8, 1.8, 1.8 };
+                return { apertures, gains, exposureTimes, brightnesses };
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            {
+                const std::vector<double> apertures{ 5.66, 2.38, 2.1 };
+                const std::vector<double> gains{ 1.0, 1.0, 1.0 };
+                const std::vector<microseconds> exposureTimes{ microseconds{ 1677 },
+                                                               microseconds{ 5000 },
+                                                               microseconds{ 100000 } };
+                const std::vector<double> brightnesses{ 1.8, 1.8, 1.8 };
+                return { apertures, gains, exposureTimes, brightnesses };
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividTwoPlusM130:
+            {
+                const std::vector<double> apertures{ 5.66, 2.38, 2.1 };
+                const std::vector<double> gains{ 1.0, 1.0, 1.0 };
+                const std::vector<microseconds> exposureTimes{ microseconds{ 1677 },
+                                                               microseconds{ 5000 },
+                                                               microseconds{ 100000 } };
+                const std::vector<double> brightnesses{ 2.5, 2.5, 2.5 };
+                return { apertures, gains, exposureTimes, brightnesses };
+            }
         }
-        if(camera.info().model() == Zivid::CameraInfo::Model::zividTwo
-           || camera.info().model() == Zivid::CameraInfo::Model::zividTwoL100)
-        {
-            const std::vector<double> apertures{ 5.66, 2.38, 1.8 };
-            const std::vector<double> gains{ 1.0, 1.0, 1.0 };
-            const std::vector<size_t> exposureTimes{ 1677, 5000, 100000 };
-            return { apertures, gains, exposureTimes };
-        }
-        throw std::invalid_argument("Unknown camera model");
+        throw std::invalid_argument("Unsupported camera model in this sample: " + camera.info().modelName().toString());
     }
 } // namespace
 
@@ -87,24 +109,27 @@ int main()
         std::cout << settings << std::endl;
 
         std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
-        const auto baseAcquisition = Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Brightness{ 1.8 } };
+        const auto baseAcquisition = Zivid::Settings::Acquisition{};
         std::cout << baseAcquisition << std::endl;
 
         std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
         auto exposureValues = getExposureValues(camera);
         const std::vector<double> aperture = std::get<0>(exposureValues);
         const std::vector<double> gain = std::get<1>(exposureValues);
-        const std::vector<size_t> exposureTime = std::get<2>(exposureValues);
+        const std::vector<std::chrono::microseconds> exposureTime = std::get<2>(exposureValues);
+        const std::vector<double> brightness = std::get<3>(exposureValues);
         for(size_t i = 0; i < aperture.size(); ++i)
         {
             std::cout << "Acquisition " << i + 1 << ":" << std::endl;
-            std::cout << "  Exposure Time: " << exposureTime.at(i) << std::endl;
+            std::cout << "  Exposure Time: " << exposureTime.at(i).count() << std::endl;
             std::cout << "  Aperture: " << aperture.at(i) << std::endl;
             std::cout << "  Gain: " << gain.at(i) << std::endl;
+            std::cout << "  Brightness: " << brightness.at(i) << std::endl;
             const auto acquisitionSettings = baseAcquisition.copyWith(
                 Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
                 Zivid::Settings::Acquisition::Gain{ gain.at(i) },
-                Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ exposureTime.at(i) } });
+                Zivid::Settings::Acquisition::ExposureTime{ exposureTime.at(i) },
+                Zivid::Settings::Acquisition::Brightness{ brightness.at(i) });
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
 

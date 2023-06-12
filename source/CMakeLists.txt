@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake
                       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/3rd-party)
 include(CompilerOptions)
 
-set(ZIVID_VERSION 2.9.0)
+set(ZIVID_VERSION 2.10.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
@@ -66,7 +66,9 @@ set(SAMPLES
     Applications/Advanced/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/ROIBoxViaArucoMarker
     Applications/Advanced/ROIBoxViaCheckerboard
-    Applications/Advanced/GammaCorrection)
+    Applications/Advanced/GammaCorrection
+    Applications/Advanced/ProjectAndFindMarker
+    Applications/Advanced/ReprojectPoints)
 
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions
                      ROIBoxViaArucoMarker ROIBoxViaCheckerboard)
@@ -81,7 +83,9 @@ set(OpenCV_DEPENDING
     TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
     ROIBoxViaArucoMarker
-    GammaCorrection)
+    GammaCorrection
+    ProjectAndFindMarker
+    ReprojectPoints)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D

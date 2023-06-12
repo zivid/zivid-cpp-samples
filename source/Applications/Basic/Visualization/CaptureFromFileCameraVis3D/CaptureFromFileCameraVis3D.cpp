@@ -5,7 +5,7 @@ This sample can be used without access to a physical camera.
 The file camera files are found in Zivid Sample Data with ZFC file extension.
 See the instructions in README.md to download the Zivid Sample Data.
 There are five available file cameras to choose from, one for each camera model.
-The default file camera used in this sample is the Zivid Two M70 file camera.
+The default file camera used in this sample is the Zivid 2 M70 file camera.
 */
 
 #include <Zivid/Visualization/Visualizer.h>
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
         Zivid::Application zivid;
 
         const auto fileCamera =
-            userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZividTwoM70.zfc";
+            userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZivid2M70.zfc";
 
         std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
         auto camera = zivid.createFileCamera(fileCamera);
