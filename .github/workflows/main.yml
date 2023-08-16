@@ -27,7 +27,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                ubuntu-version: ["18.04", "20.04"]
+                ubuntu-version: ["20.04"]
         steps:
             - name: Check out code
               uses: actions/checkout@v3

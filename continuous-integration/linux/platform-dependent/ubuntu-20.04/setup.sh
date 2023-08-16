@@ -33,4 +33,4 @@ function install_www_deb {
 }
 
 install_www_deb "https://downloads.zivid.com/sdk/previews/2.10.0-preview-3+90aa8c92-1/u${VERSION_ID:0:2}/zivid-telicam-driver_3.0.1.1-3_amd64.deb" || exit
-install_www_deb "https://downloads.zivid.com/sdk/previews/2.10.0-preview-3+90aa8c92-1/u${VERSION_ID:0:2}/zivid_2.10.0-preview-3+90aa8c92-1_amd64.deb" || exit
+install_www_deb "https://downloads.zivid.com/sdk/releases/2.10.0+8ce7dae3-2/u${VERSION_ID:0:2}/zivid_2.10.0+8ce7dae3-2_amd64.deb" || exit
