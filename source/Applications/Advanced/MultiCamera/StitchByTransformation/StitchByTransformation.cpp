@@ -50,8 +50,8 @@ namespace
             {
                 if(serialNumber
                    == fileName.substr(
-                       fileName.find_last_of('\\') + 1,
-                       (fileName.find_last_of('.')) - (fileName.find_last_of('\\') + 1)))
+                       fileName.find_last_of("\\/") + 1,
+                       (fileName.find_last_of('.')) - (fileName.find_last_of("\\/") + 1)))
                 {
                     Zivid::Matrix4x4 transformationMatrixZivid(fileName);
                     transformsMappedToCameras.emplace_back(transformationMatrixZivid, camera);
@@ -101,8 +101,8 @@ int main(int argc, char **argv)
                  % "List of YAML files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
              clipp::required("-o", "--output-file").set(saveStitched)
-                 & clipp::value("Transformation Matrices File Name", stitchedPointCloudFileName)
-                       % "Save the stitched point cloud to a file with this name.");
+                 & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
+                       % "Save the stitched point cloud to a file with this name. (.ply)");
 
         if(!parse(argc, argv, cli))
         {

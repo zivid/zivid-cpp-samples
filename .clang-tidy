@@ -27,7 +27,8 @@ Checks: >
   -bugprone-implicit-widening-of-multiplication-result,
   -altera-*,
   -bugprone-easily-swappable-parameters,
-  -concurrency-mt-unsafe
+  -concurrency-mt-unsafe,
+  -abseil-*
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false

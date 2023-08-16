@@ -5,6 +5,7 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 */
 
 #include <Zivid/Experimental/Calibration.h>
+#include <Zivid/Experimental/SettingsInfo.h>
 #include <Zivid/Zivid.h>
 
 #include <chrono>
@@ -123,6 +124,39 @@ int main()
                       << "Aperture: " << std::fixed << std::setprecision(2) << aperture
                       << ", Lens Temperature: " << temperature << "\370C" << std::endl;
             printIntrinsicParametersDelta(intrinsics, estimated_intrinsics);
+        }
+
+        const auto supportedSamplingPixelValues =
+            Zivid::Experimental::SettingsInfo::validValues<Zivid::Settings::Sampling::Pixel>(camera.info());
+        if(supportedSamplingPixelValues.find(Zivid::Settings::Sampling::Pixel::ValueType::blueSubsample2x2)
+           != supportedSamplingPixelValues.end())
+        {
+            const auto settingsSubsampled =
+                Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
+                                 Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                                 Zivid::Settings::Sampling::Pixel::blueSubsample2x2 };
+            const std::string fixedIntrinsicsForSubsampledSettingsPath = "FixedIntrinsicsSubsampledBlue2x2.yml";
+            std::cout << "Saving camera intrinsics for subsampled capture to file: "
+                      << fixedIntrinsicsForSubsampledSettingsPath << std::endl;
+            const auto fixedIntrinsicsForSubsampledSettings =
+                Zivid::Experimental::Calibration::intrinsics(camera, settingsSubsampled);
+            fixedIntrinsicsForSubsampledSettings.save(fixedIntrinsicsForSubsampledSettingsPath);
+            const auto frame = camera.capture(settingsSubsampled);
+            const auto estimatedIntrinsicsForSubsampledSettings =
+                Zivid::Experimental::Calibration::estimateIntrinsics(frame);
+            const std::string estimatedIntrinsicsForSubsampledSettingsPath =
+                "EstimatedIntrinsicsFromSubsampledBlue2x2Capture.yml";
+            std::cout << "Saving estimated camera intrinsics for subsampled capture to file: "
+                      << estimatedIntrinsicsForSubsampledSettingsPath << std::endl;
+            estimatedIntrinsicsForSubsampledSettings.save(estimatedIntrinsicsForSubsampledSettingsPath);
+            std::cout << std::endl
+                      << "Difference between fixed and estimated intrinsics for subsampled point cloud: " << std::endl;
+            printIntrinsicParametersDelta(
+                fixedIntrinsicsForSubsampledSettings, estimatedIntrinsicsForSubsampledSettings);
+        }
+        else
+        {
+            std::cout << camera.info().modelName() << " does not support sub-sampled mode." << std::endl;
         }
     }
     catch(const std::exception &e)

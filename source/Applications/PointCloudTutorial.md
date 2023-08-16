@@ -16,7 +16,8 @@ tutorial see:
 [**Downsample**](#Downsample) |
 [**Normals**](#Normals) |
 [**Visualize**](#Visualize) |
-[**Conclusion**](#Conclusion)
+[**Conclusion**](#Conclusion) |
+[**Version**](#Version-History)
 
 ---
 
@@ -152,21 +153,21 @@ If you are only concerned about e.g. RGB color data of the point cloud,
 you can copy only that data to the CPU memory.
 
 ``` sourceCode cpp
-std::cout << "Capturing frame" << std::endl;
-frame = camera.capture(settings);
+auto pointCloud = frame.pointCloud();
+std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
+          << std::endl;
+pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA>()));
+
+std::cout << "Displaying image" << std::endl;
+cv::imshow("BGRA image User Allocated", bgraUserAllocated);
+cv::waitKey(0);
+
 pointCloud = frame.pointCloud();
+
 std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
 auto colors = pointCloud.copyColorsBGRA();
 
 std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
-          << std::endl;
-
-auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
-
-std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
-          << "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
-          << std::endl;
-const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
 ```
 
 **Copy selected data from GPU to CPU memory (user-allocated)**
@@ -182,16 +183,16 @@ we allow OpenCV to allocate the necessary storage. Then we ask the Zivid
 API to copy data directly from the GPU into this memory location.
 
 ``` sourceCode cpp
-std::cout << "Allocating the necessary storage with OpenCV API based on resolution info before any capturing"
-<< std::endl;
-auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
-std::cout << "Capturing frame" << std::endl;
-auto frame = camera.capture(settings);
-auto pointCloud = frame.pointCloud();
+std::cout << "Creating settings" << std::endl;
+auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+std::cout << "Getting camera resolution" << std::endl;
+const auto resolution = Zivid::Experimental::SettingsInfo::resolution(camera.info(), settings);
 
-std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
-          << std::endl;
-pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgraUserAllocated.data));
+std::cout << "Camera resolution:" << std::endl;
+std::cout << "Height: " << resolution.height() << std::endl;
+std::cout << "Width: " << resolution.width() << std::endl;
+
+// Copy selected data from GPU to system memory (User-allocated)
 ```
 
 ([go to
@@ -223,6 +224,17 @@ resolution (High spatial resolution means more detail and less distance
 between points)` as given from the camera. You may then
 [downsample](https://support.zivid.com/latest//academy/applications/downsampling.html)
 the point cloud.
+
+-----
+
+Note:
+
+[Monochrome
+Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html)
+is a hardware-based subsample method that reduces the resolution of the
+point cloud during capture while also reducing the capture time.
+
+-----
 
 Downsampling can be done in-place, which modifies the current point
 cloud.
@@ -315,3 +327,9 @@ visualization, with implementations using third party libraries.
 
 This tutorial shows how to use the Zivid SDK to extract the point cloud,
 manipulate it, transform it, and visualize it.
+
+## Version History
+
+| SDK    | Changes                                                                                                                                                             |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.10.0 | [Monochrome Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`. |

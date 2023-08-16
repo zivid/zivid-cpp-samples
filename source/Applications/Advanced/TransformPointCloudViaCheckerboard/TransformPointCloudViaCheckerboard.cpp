@@ -14,6 +14,18 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 #include <cmath>
 #include <iostream>
 
+template<>
+struct cv::DataType<Zivid::ColorBGRA>
+{
+    using channel_type = Zivid::ColorBGRA::ValueType;
+};
+
+template<>
+struct cv::traits::Type<Zivid::ColorBGRA>
+{
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+};
+
 namespace
 {
     struct CoordinateSystemPoints
@@ -27,7 +39,7 @@ namespace
     cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
     {
         auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgra.data));
+        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA>()));
 
         return bgra;
     }

@@ -158,8 +158,15 @@ Camera](https://support.zivid.com/latest/academy/camera/file-camera.html).
 
 ## Configure
 
-As with all cameras there are settings that can be configured. These may
-be set manually, or you use our Capture Assistant.
+As with all cameras there are settings that can be configured.
+
+### Presets
+
+The recommendation is to use [Zivid
+Presets](https://support.zivid.com/latest/reference-articles/presets-settings.html)
+available in Zivid Studio and as .yml files (see `load_yml_label`
+below). Alternatively, you can use our Capture Assistant, or you may
+configure the settings manually.
 
 ### Capture Assistant
 
@@ -245,12 +252,14 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L75-L134))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L75-L138))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings settings{
 	Zivid::Settings::Experimental::Engine::phase,
+	Zivid::Settings::Sampling::Color::rgb,
+	Zivid::Settings::Sampling::Pixel::all,
 	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
 	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
 	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -262,6 +271,8 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
 	Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
+	Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
 	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
@@ -334,9 +345,12 @@ const auto settings2D =
 Zivid Studio can store the current settings to .yml files. These can be
 read and applied in the API. You may find it easier to modify the
 settings in these (human-readable) yaml-files in your preferred editor.
+Check out [Zivid
+Presets](https://support.zivid.com/latest/reference-articles/presets-settings.html)
+for recommended .yml files tuned for your application.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L146-L151))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L150-L155))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -349,7 +363,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L146-L148))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L150-L152))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";

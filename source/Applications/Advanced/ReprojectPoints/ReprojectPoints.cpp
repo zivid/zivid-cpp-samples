@@ -20,14 +20,6 @@ the image using the projector.
 
 namespace
 {
-    cv::Mat createBlankImage(const Zivid::Resolution &resolution)
-    {
-        const cv::Scalar backgroundColor{ 0, 0, 0, 255 };
-        return cv::Mat{
-            static_cast<int>(resolution.height()), static_cast<int>(resolution.width()), CV_8UC4, backgroundColor
-        };
-    }
-
     std::vector<cv::Matx41f> checkerboardGrid()
     {
         std::vector<cv::Matx41f> points;
@@ -37,21 +29,24 @@ namespace
             {
                 const float xPos = x * 30.0F;
                 const float yPos = y * 30.0F;
-                points.emplace_back(xPos, yPos, 0, 1);
+                points.emplace_back(xPos, yPos, 0.0F, 1.0F);
             }
         }
         return points;
     }
 
-    std::vector<Zivid::PointXYZ> transformGrid(const std::vector<cv::Matx41f> &grid, const Zivid::Matrix4x4 &transform)
+    std::vector<Zivid::PointXYZ> transformGridToCalibrationBoard(
+        const std::vector<cv::Matx41f> &grid,
+        const Zivid::Matrix4x4 &transformCameraToCheckerboard)
     {
-        std::vector<Zivid::PointXYZ> points;
+        std::vector<Zivid::PointXYZ> pointsInCameraFrame;
+        const auto transformationMatrix = cv::Matx44f{ transformCameraToCheckerboard.data() };
         for(const auto &point : grid)
         {
-            const auto transformed = cv::Matx44f{ transform.data() } * point;
-            points.emplace_back(transformed(0, 0), transformed(1, 0), transformed(2, 0));
+            const auto transformedPoint = transformationMatrix * point;
+            pointsInCameraFrame.emplace_back(transformedPoint(0, 0), transformedPoint(1, 0), transformedPoint(2, 0));
         }
-        return points;
+        return pointsInCameraFrame;
     }
 
     void drawFilledCircles(
@@ -97,7 +92,7 @@ int main()
         const auto grid = checkerboardGrid();
 
         std::cout << "Transforming the grid to the camera frame" << std::endl;
-        const auto pointsInCameraFrame = transformGrid(grid, transformCameraToCheckerboard);
+        const auto pointsInCameraFrame = transformGridToCalibrationBoard(grid, transformCameraToCheckerboard);
 
         std::cout << "Getting projector pixels (2D) corresponding to points (3D) in the camera frame" << std::endl;
         const auto projectorPixels = Zivid::Experimental::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
@@ -107,24 +102,27 @@ int main()
 
         std::cout << "Creating a blank projector image with resolution: " << projectorResolution.toString()
                   << std::endl;
-        auto projectorImageOpenCV = createBlankImage(projectorResolution);
+        const cv::Scalar backgroundColor{ 0, 0, 0, 255 };
+        auto projectorImageOpenCV = cv::Mat{ static_cast<int>(projectorResolution.height()),
+                                             static_cast<int>(projectorResolution.width()),
+                                             CV_8UC4,
+                                             backgroundColor };
 
         std::cout << "Drawing circles on the projector image for each grid point" << std::endl;
         const cv::Scalar circleColor{ 0, 255, 0, 255 };
         drawFilledCircles(projectorImageOpenCV, projectorPixels, 2, circleColor);
 
         std::cout << "Creating a Zivid::Image from the OpenCV image" << std::endl;
-        const Zivid::Image<Zivid::ColorBGRA> projectorImage{
-            projectorResolution,
-            reinterpret_cast<const Zivid::ColorBGRA *>(projectorImageOpenCV.datastart),
-            reinterpret_cast<const Zivid::ColorBGRA *>(projectorImageOpenCV.dataend)
-        };
+        const Zivid::Image<Zivid::ColorBGRA> projectorImage{ projectorResolution,
+                                                             projectorImageOpenCV.datastart,
+                                                             projectorImageOpenCV.dataend };
 
         const std::string projectorImageFile = "ProjectorImage.png";
         std::cout << "Saving the projector image to file: " << projectorImageFile << std::endl;
         projectorImage.save(projectorImageFile);
 
         std::cout << "Displaying the projector image" << std::endl;
+
 
         { // A Local Scope to handle the projected image lifetime
 
@@ -146,6 +144,7 @@ int main()
             std::cin.get();
 
         } // projectedImageHandle now goes out of scope, thereby stopping the projection
+
 
         std::cout << "Done" << std::endl;
     }

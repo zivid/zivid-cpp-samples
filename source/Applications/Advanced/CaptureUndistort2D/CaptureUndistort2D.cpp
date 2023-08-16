@@ -184,12 +184,15 @@ int main()
         const auto gain = 1.0;
         const auto brightness = 1.0;
 
-        const auto bgr = use2D ? getImage2D(camera, makeSettings2D(exposureTime, aperture, gain, brightness))
-                               : getImage3D(camera, makeSettings(exposureTime, aperture, gain, brightness));
+        const auto settings2D = makeSettings2D(exposureTime, aperture, gain, brightness);
+        const auto settings = makeSettings(exposureTime, aperture, gain, brightness);
+        const auto bgr = use2D ? getImage2D(camera, settings2D) : getImage3D(camera, settings);
 
         std::cout << "Undistorting BGR image" << std::endl;
 
-        const auto cameraIntrinsticsCV = reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera));
+        const auto cameraIntrinsticsCV =
+            use2D ? reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera, settings2D))
+                  : reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera, settings));
         const auto distortionCoefficients = cameraIntrinsticsCV.distortionCoefficients;
         const auto cameraMatrix = cameraIntrinsticsCV.cameraMatrix;
 
@@ -213,7 +216,7 @@ int main()
         std::cout << "Visualizing and saving undistorted BGR image to file: " << imageUndistorted << std::endl;
         cv::imwrite(imageUndistorted, bgrUndistorted);
 
-        const auto imageUndistortedFull = "ImageUnistortedFull.jpg";
+        const auto imageUndistortedFull = "ImageUndistortedFull.jpg";
         displayBGR(bgrUndistortedFull, "Undistorted BGR image - full");
         std::cout << "Visualizing and saving undistorted BGR image (full) to file: " << imageUndistortedFull
                   << std::endl;

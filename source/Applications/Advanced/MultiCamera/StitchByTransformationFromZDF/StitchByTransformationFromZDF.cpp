@@ -44,10 +44,11 @@ namespace
                 serialNumber = frame.cameraInfo().serialNumber().toString();
                 for(const auto &yamlFileName : transformationMatricesfileList)
                 {
+                    std::cout << "Searching in " << yamlFileName << std::endl;
                     if(serialNumber
                        == yamlFileName.substr(
-                           yamlFileName.find_last_of('\\') + 1,
-                           (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of('\\') + 1)))
+                           yamlFileName.find_last_of("\\/") + 1,
+                           (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of("\\/") + 1)))
                     {
                         Zivid::Matrix4x4 transformationMatrixZivid(yamlFileName);
                         transformsMappedToFrames.emplace_back(transformationMatrixZivid, frame);
@@ -105,8 +106,8 @@ int main(int argc, char **argv)
                  % "List of ZDF files to stitch and list of YAML files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
              clipp::required("-o", "--output-file").set(saveStitched)
-                 & clipp::value("Transformation Matrices File Name", stitchedPointCloudFileName)
-                       % "Save the stitched point cloud to a file with this name.");
+                 & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
+                       % "Save the stitched point cloud to a file with this name. (.ply)");
 
         if(!parse(argc, argv, cli))
         {
