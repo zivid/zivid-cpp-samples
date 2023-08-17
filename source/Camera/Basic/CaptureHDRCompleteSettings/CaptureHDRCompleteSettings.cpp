@@ -22,8 +22,8 @@ namespace
     std::tuple<std::vector<double>, std::vector<double>, std::vector<microseconds>, std::vector<double>>
     getExposureValues(const Zivid::Camera &camera)
     {
-        const auto model = camera.info().model().value();
-        switch(model)
+        const auto model = camera.info().model();
+        switch(model.value())
         {
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
@@ -48,7 +48,7 @@ namespace
                 const std::vector<double> brightnesses{ 1.8, 1.8, 1.8 };
                 return { apertures, gains, exposureTimes, brightnesses };
             }
-            case Zivid::CameraInfo::Model::ValueType::zividTwoPlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
             {
                 const std::vector<double> apertures{ 5.66, 2.38, 2.1 };
                 const std::vector<double> gains{ 1.0, 1.0, 1.0 };
@@ -59,7 +59,7 @@ namespace
                 return { apertures, gains, exposureTimes, brightnesses };
             }
         }
-        throw std::invalid_argument("Unsupported camera model in this sample: " + camera.info().modelName().toString());
+        throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
     }
 } // namespace
 
@@ -75,6 +75,8 @@ int main()
         std::cout << "Configuring settings for capture:" << std::endl;
         Zivid::Settings settings{
             Zivid::Settings::Experimental::Engine::phase,
+            Zivid::Settings::Sampling::Color::rgb,
+            Zivid::Settings::Sampling::Pixel::all,
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -86,6 +88,8 @@ int main()
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
             Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
+            Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
             Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,

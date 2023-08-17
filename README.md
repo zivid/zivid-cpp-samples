@@ -55,7 +55,7 @@ from the camera can be used.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
-          - [Capture2D+3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/Capture2D+3D/Capture2D+3D.cpp) - Capture 2D and then 3D using various capture strategies,
+          - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and then 3D using various capture strategies,
             optimizing for both 2D quality and 2D acquisition speed.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
@@ -84,8 +84,7 @@ from the camera can be used.
           - [Warmup](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/Warmup/Warmup.cpp) - Short example of a basic way to warm up the camera with
             specified time and capture cycle.
           - [ZividBenchmark](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp) - Zividbenchmarks is a sample that will test the average
-            speed of different operations on your computer. It will
-            provide
+            speed of different operations on your computer.
       - **Maintenance**
           - [CorrectCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp) - Correct the dimension trueness of a Zivid camera.
           - [ResetCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Maintenance/ResetCameraInField/ResetCameraInField.cpp) - Reset infield correction on a camera.
@@ -103,6 +102,9 @@ from the camera can be used.
                 camera, and visualize it.
               - [CaptureWritePCLVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp) - Capture point clouds, with color, from the Zivid
                 camera, save it to PCD file format, and visualize it.
+              - [ProjectImageStartAndStop](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/ProjectImageStartAndStop/ProjectImageStartAndStop.cpp) - Start the Image Projection and Stop it.
+              - [ReadAndProjectImage](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/ReadAndProjectImage/ReadAndProjectImage.cpp) - Read a 2D image from file and project it using the
+                camera projector.
               - [ReadPCLVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp) - Read point cloud from PCL file and visualize it.
           - **FileFormats**
               - [ReadIterateZDF](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp) - Read point cloud data from a ZDF file, iterate through
@@ -225,14 +227,13 @@ this:
 If you want to use Zivid in HALCON, we provide a GenICam GenTL producer
 that comes with the [Zivid Software](http://www.zivid.com/downloads).
 
-Zivid and HALCON are compatible with Windows 10 and Ubuntu 18.04, 20.04,
-22.04.
+Zivid and HALCON are compatible with Windows 10 and Ubuntu 20.04, 22.04.
 
 -----
 
 Note:
 
-> Support for Ubuntu 16.04 is removed since SDK 2.7.
+> Support for Ubuntu 18.04 is removed since SDK 2.10.
 
 -----
 

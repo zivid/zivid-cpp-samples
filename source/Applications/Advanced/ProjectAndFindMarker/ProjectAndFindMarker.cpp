@@ -111,7 +111,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return 1.52;
 
-            case Zivid::CameraInfo::Model::ValueType::zividTwoPlusM130: return 2.47;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130: return 2.47;
         }
         throw std::invalid_argument("Invalid camera model");
     }
@@ -177,6 +177,7 @@ namespace
             Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 }
         };
         settings.set(processing);
+        settings.set(Zivid::Settings::Sampling::Pixel::all);
         return camera.capture(settings);
     }
 
@@ -208,11 +209,9 @@ int main()
         copyToCenter(marker, projectorImageOpenCV);
 
         std::cout << "Creating a Zivid::Image from the OpenCV image" << std::endl;
-        const Zivid::Image<Zivid::ColorBGRA> projectorImage{
-            projectorResolution,
-            reinterpret_cast<const Zivid::ColorBGRA *>(projectorImageOpenCV.datastart),
-            reinterpret_cast<const Zivid::ColorBGRA *>(projectorImageOpenCV.dataend)
-        };
+        const Zivid::Image<Zivid::ColorBGRA> projectorImage{ projectorResolution,
+                                                             projectorImageOpenCV.datastart,
+                                                             projectorImageOpenCV.dataend };
 
         const std::string projectorImageFile = "ProjectorImage.png";
         std::cout << "Saving the projector image to file: " << projectorImageFile << std::endl;
@@ -259,18 +258,25 @@ int main()
 
         std::cout << "Looking up 3D coordinate based on the marker position in the 2D image:" << std::endl;
         const auto pointsXYZ = frame.pointCloud().copyPointsXYZ();
-        const auto col = markerLocation.x;
-        const auto row = markerLocation.y;
-        std::cout << pointsXYZ(row, col) << std::endl;
+        const size_t col = markerLocation.x;
+        const size_t row = markerLocation.y;
+        if(col < pointsXYZ.width() && row < pointsXYZ.height() && !pointsXYZ(row, col).isNaN())
+        {
+            std::cout << pointsXYZ(row, col) << std::endl;
 
-        std::cout << "Annotating the 2D image captured while projecting the marker" << std::endl;
-        const auto annotatedImage = annotate(projectedMarkerFrame2D, markerLocation);
+            std::cout << "Annotating the 2D image captured while projecting the marker" << std::endl;
+            const auto annotatedImage = annotate(projectedMarkerFrame2D, markerLocation);
 
-        const std::string annotatedImageFile = "ImageWithMarker.png";
-        std::cout << "Saving the annotated 2D image to file: " << annotatedImageFile << std::endl;
-        cv::imwrite(annotatedImageFile, annotatedImage);
+            const std::string annotatedImageFile = "ImageWithMarker.png";
+            std::cout << "Saving the annotated 2D image to file: " << annotatedImageFile << std::endl;
+            cv::imwrite(annotatedImageFile, annotatedImage);
 
-        std::cout << "Done" << std::endl;
+            std::cout << "Done" << std::endl;
+        }
+        else
+        {
+            std::cout << "Unable to find 3D coordinate!" << std::endl;
+        }
     }
     catch(const std::exception &e)
     {

@@ -16,6 +16,18 @@ notice.
 
 #include <iostream>
 
+template<>
+struct cv::DataType<Zivid::ColorBGRA>
+{
+    using channel_type = Zivid::ColorBGRA::ValueType;
+};
+
+template<>
+struct cv::traits::Type<Zivid::ColorBGRA>
+{
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+};
+
 int main()
 {
     try
@@ -47,7 +59,7 @@ int main()
 
         std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
                   << std::endl;
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgraUserAllocated.data));
+        pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA>()));
 
         std::cout << "Displaying image" << std::endl;
         cv::imshow("BGRA image User Allocated", bgraUserAllocated);

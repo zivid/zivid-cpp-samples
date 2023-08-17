@@ -88,7 +88,7 @@ int main(int argc, char **argv)
             const auto &residuals = results.residuals();
             for(size_t i = 0; i < transforms.size(); ++i)
             {
-                transforms[i].save(transformationMatricesSavePath + "\\" + serialNumbers[i] + ".yaml");
+                transforms[i].save(transformationMatricesSavePath + "/" + serialNumbers[i] + ".yaml");
 
                 std::cout << transforms[i] << std::endl;
                 std::cout << residuals[i] << std::endl;

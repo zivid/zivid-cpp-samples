@@ -9,14 +9,25 @@ This sample depends on ArUco libraries in OpenCV with extra modules (https://git
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
+#include <opencv2/aruco.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <opencv2/aruco.hpp>
-
 #include <cmath>
 #include <iostream>
+
+template<>
+struct cv::DataType<Zivid::ColorBGRA>
+{
+    using channel_type = Zivid::ColorBGRA::ValueType;
+};
+
+template<>
+struct cv::traits::Type<Zivid::ColorBGRA>
+{
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+};
 
 namespace
 {
@@ -184,7 +195,7 @@ namespace
     cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
     {
         auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(reinterpret_cast<Zivid::ColorBGRA *>(bgra.data));
+        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA>()));
 
         return bgra;
     }

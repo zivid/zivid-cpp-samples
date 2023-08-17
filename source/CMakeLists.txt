@@ -23,7 +23,7 @@ set(SAMPLES
     Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
-    Camera/Advanced/Capture2D+3D
+    Camera/Advanced/Capture2DAnd3D
     Camera/Advanced/CaptureHDRLoop
     Camera/Advanced/CaptureHDRPrintNormals
     Camera/Advanced/MultiCameraCaptureSequentially
@@ -47,6 +47,8 @@ set(SAMPLES
     Applications/Basic/Visualization/CaptureFromFileCameraVis3D
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
+    Applications/Basic/Visualization/ProjectImageStartAndStop
+    Applications/Basic/Visualization/ReadAndProjectImage
     Applications/Basic/Visualization/CaptureWritePCLVis3D
     Applications/Basic/Visualization/CaptureHDRVisNormals
     Applications/Basic/FileFormats/ReadIterateZDF
@@ -73,9 +75,15 @@ set(SAMPLES
 set(Eigen3_DEPENDING UtilizeHandEyeCalibration PoseConversions
                      ROIBoxViaArucoMarker ROIBoxViaCheckerboard)
 set(PCL_DEPENDING
-    MaskPointCloud ReadPCLVis3D CaptureWritePCLVis3D CaptureHDRVisNormals
-    StitchByTransformation StitchByTransformationFromZDF)
+    Capture2DAnd3D
+    MaskPointCloud
+    ReadPCLVis3D
+    CaptureWritePCLVis3D
+    CaptureHDRVisNormals
+    StitchByTransformation
+    StitchByTransformationFromZDF)
 set(OpenCV_DEPENDING
+    Capture2DAnd3D
     CaptureUndistort2D
     CreateDepthMap
     MaskPointCloud
@@ -85,7 +93,8 @@ set(OpenCV_DEPENDING
     ROIBoxViaArucoMarker
     GammaCorrection
     ProjectAndFindMarker
-    ReprojectPoints)
+    ReprojectPoints
+    ReadAndProjectImage)
 set(Visualization_DEPENDING
     CaptureVis3D
     CaptureLiveVis3D
@@ -102,13 +111,13 @@ set(Clipp_DEPENDING
     StitchByTransformation
     StitchByTransformationFromZDF
     MultiCameraCalibration
-    Capture2D+3D
+    Capture2DAnd3D
     ZividBenchmark
     CaptureFromFileCamera
     CaptureFromFileCameraVis3D)
 set(Thread_DEPENDING
-    Capture2D+3D MultiCameraCaptureSequentially MultiCameraCaptureInParallel
-    MultiCameraCaptureSequentiallyWithInterleavedProcessing)
+    Capture2DAnd3D MultiCameraCaptureSequentially MultiCameraCaptureInParallel
+    MultiCameraCaptureSequentiallyWithInterleavedProcessing ZividBenchmark)
 set(ArUco_DEPENDING TransformPointCloudViaArucoMarker ROIBoxViaArucoMarker)
 set(Halcon_DEPENDING CaptureHalconViaGenICam CaptureHalconViaZivid)
 

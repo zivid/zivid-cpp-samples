@@ -12,6 +12,27 @@ The YML file for this sample can be found under the main instructions for Zivid 
 
 #include <iostream>
 
+namespace
+{
+    std::string settingsFolder(const Zivid::Camera &camera)
+    {
+        const auto modelName = camera.info().modelName().value();
+        if(modelName.find("Zivid One+") == 0)
+        {
+            return "zividOne";
+        }
+        if(modelName.find("Zivid 2+") == 0)
+        {
+            return "zivid2Plus";
+        }
+        if(modelName.find("Zivid 2") == 0)
+        {
+            return "zivid2";
+        }
+        throw std::runtime_error("Unhandled model '" + modelName + "'");
+    }
+} // namespace
+
 int main()
 {
     try
@@ -22,8 +43,8 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring settings from file" << std::endl;
-        const auto cameraModel = camera.info().model().toString().substr(0, 8);
-        const auto settingsFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + cameraModel + "/Settings01.yml";
+        const auto settingsFile =
+            std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + settingsFolder(camera) + "/Settings01.yml";
         auto settings = Zivid::Settings(settingsFile);
 
         std::cout << "Enabling diagnostics" << std::endl;

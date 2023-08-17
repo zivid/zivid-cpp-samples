@@ -101,7 +101,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
             "${CMAKE_CXX_FLAGS} /experimental:external /external:anglebrackets /external:W0"
         )
     else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
     endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099")
 else()
