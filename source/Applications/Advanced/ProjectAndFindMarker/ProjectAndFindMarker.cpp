@@ -111,7 +111,9 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return 1.52;
 
-            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130: return 2.47;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return 2.47;
         }
         throw std::invalid_argument("Invalid camera model");
     }
@@ -178,6 +180,14 @@ namespace
         };
         settings.set(processing);
         settings.set(Zivid::Settings::Sampling::Pixel::all);
+
+        // We must limit Brightness to a *maximum* of 2.2, when using `all` mode.
+        // This code can be removed by changing the Config.yml option 'Camera/Power/Limit'.
+        for(auto &a : settings.acquisitions())
+        {
+            a.set(Zivid::Settings::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
+        }
+
         return camera.capture(settings);
     }
 

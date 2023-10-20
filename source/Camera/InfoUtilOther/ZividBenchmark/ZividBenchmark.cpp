@@ -984,10 +984,10 @@ int main(int argc, char **argv)
                                         : makeSettings(twoApertures, twoExposureTimes, false, false);
         auto settings2D = settings2DFromYML ? Zivid::Settings2D(settings2DFile) : makeSettings2D(exposureTime);
 
-        camera.connect();
-
         printHeader("TEST: Connect/Disconnect");
         benchmarkConnect(camera, numConnects);
+
+        camera.connect();
 
         if(settingsFromYML)
         {
