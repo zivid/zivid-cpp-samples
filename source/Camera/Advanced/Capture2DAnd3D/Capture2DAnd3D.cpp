@@ -182,12 +182,26 @@ int main(int argc, char **argv)
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
 
         std::cout << "Configuring 3D settings" << std::endl;
-        const auto settings = Zivid::Settings{
+        auto settings = Zivid::Settings{
             Zivid::Settings::Experimental::Engine::phase,
             Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
             Zivid::Settings::Sampling::Pixel{ pixelsToSample },
             Zivid::Settings::Sampling::Color{ Zivid::Settings::Sampling::Color::disabled },
         };
+
+        const auto cameraModel = camera.info().model().value();
+        if(pixelsToSample == Zivid::Settings::Sampling::Pixel::all
+           && (cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusM130
+               || cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusM60
+               || cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusL110))
+        {
+            // For 2+, we must lower Brightness from the default 2.5 to 2.2, when using `all` mode.
+            // This code can be removed by changing the Config.yml option 'Camera/Power/Limit'.
+            for(auto &a : settings.acquisitions())
+            {
+                a.set(Zivid::Settings::Acquisition::Brightness{ 2.2 });
+            }
+        }
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings2D);

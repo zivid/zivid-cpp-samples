@@ -49,13 +49,15 @@ namespace
                 return { apertures, gains, exposureTimes, brightnesses };
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
             {
-                const std::vector<double> apertures{ 5.66, 2.38, 2.1 };
+                const std::vector<double> apertures{ 5.66, 2.8, 2.37 };
                 const std::vector<double> gains{ 1.0, 1.0, 1.0 };
                 const std::vector<microseconds> exposureTimes{ microseconds{ 1677 },
                                                                microseconds{ 5000 },
                                                                microseconds{ 100000 } };
-                const std::vector<double> brightnesses{ 2.5, 2.5, 2.5 };
+                const std::vector<double> brightnesses{ 2.2, 2.2, 2.2 };
                 return { apertures, gains, exposureTimes, brightnesses };
             }
         }

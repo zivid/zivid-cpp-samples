@@ -252,7 +252,7 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L75-L138))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L77-L140))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
@@ -350,7 +350,7 @@ Presets](https://support.zivid.com/latest/reference-articles/presets-settings.ht
 for recommended .yml files tuned for your application.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L150-L155))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L152-L157))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -363,7 +363,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L150-L152))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L152-L154))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
