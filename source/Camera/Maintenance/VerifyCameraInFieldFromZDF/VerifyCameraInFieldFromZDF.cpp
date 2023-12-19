@@ -2,7 +2,7 @@
 Check the dimension trueness of a Zivid camera from a ZDF file.
 
 This example shows how to verify the local dimension trueness of a camera from a ZDF file. If the trueness is much worse
-than expected, the camera may have been damaged by shock in shipping in handling. If so, look at the CorrectCameraInField
+than expected, the camera may have been damaged by shock in shipping or handling. If so, look at the CorrectCameraInField
 sample.
 
 Why is verifying camera accuracy from a ZDF file useful?
@@ -62,7 +62,7 @@ int main()
 
         std::cout << "Successful measurement at " << detectionResult.centroid() << std::endl;
         const auto verification = Zivid::Experimental::Calibration::verifyCamera(input);
-        std::cout << "Estimated dimension trueness at measured position: " << std::setprecision(2) << std::fixed
+        std::cout << "Estimated dimension trueness error at measured position: " << std::setprecision(2) << std::fixed
                   << verification.localDimensionTrueness() * 100.0F << "%" << std::endl;
     }
     catch(const std::exception &e)

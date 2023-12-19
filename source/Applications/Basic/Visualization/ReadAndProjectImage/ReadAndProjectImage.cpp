@@ -38,6 +38,7 @@ namespace
         return projectorImage;
     }
 
+
 } // namespace
 
 int main()

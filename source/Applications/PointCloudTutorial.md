@@ -127,6 +127,8 @@ complete list of output data formats and how to copy them from the GPU.
 | `Zivid::Array2D<Zivid::PointXYZColorRGBA>` | `PointCloud::copyData<PointXYZColorRGBA>()`                                            | 16 bytes       | 37 MB      |
 | `Zivid::Array2D<Zivid::PointXYZColorBGRA>` | `PointCloud::copyPointsXYZColorsBGRA()` or `PointCloud::copyData<PointXYZColorBGRA>()` | 16 bytes       | 37 MB      |
 | `Zivid::Image<Zivid::ColorRGBA>`           | `PointCloud::copyImageRGBA()`                                                          | 4 bytes        | 9 MB       |
+| `Zivid::Image<Zivid::ColorBGRA>`           | `PointCloud::copyImageBGRA()`                                                          | 4 bytes        | 9 MB       |
+| `Zivid::Image<Zivid::ColorsRGB>`           | `PointCloud::copyImagesRGB()`                                                          | 4 bytes        | 9 MB       |
 
 Here is an example of how to copy data.
 

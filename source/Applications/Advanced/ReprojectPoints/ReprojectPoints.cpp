@@ -35,6 +35,7 @@ namespace
         return points;
     }
 
+
     std::vector<Zivid::PointXYZ> transformGridToCalibrationBoard(
         const std::vector<cv::Matx41f> &grid,
         const Zivid::Matrix4x4 &transformCameraToCheckerboard)
@@ -48,6 +49,7 @@ namespace
         }
         return pointsInCameraFrame;
     }
+
 
     void drawFilledCircles(
         cv::Mat image,
