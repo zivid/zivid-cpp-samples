@@ -2,6 +2,7 @@
 Capture 2D and then 3D using various capture strategies, optimizing for both 2D quality and 2D acquisition speed.
 */
 
+#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
 #include <clipp.h>
@@ -17,21 +18,22 @@ Capture 2D and then 3D using various capture strategies, optimizing for both 2D 
 
 namespace
 {
-    cv::Mat mapBGR(const Zivid::Settings::Sampling::Pixel &pixelsToSample, const cv::Mat &fullResolutionBGR)
+    cv::Mat mapBGR(const Zivid::Experimental::PixelMapping &pixelMapping, const cv::Mat &fullResolutionBGR)
     {
-        std::cout << "Pixels to sample: " << pixelsToSample << std::endl;
-        const int subsampleDivider =
-            (pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::all) ? 1 : 2;
-        int offset = (pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::blueSubsample2x2) ? 0 : 1;
-        cv::Mat
-            mappedBGR(fullResolutionBGR.rows / subsampleDivider, fullResolutionBGR.cols / subsampleDivider, CV_8UC3);
+        std::cout << "Pixel mapping: " << pixelMapping << std::endl;
+        cv::Mat mappedBGR(
+            fullResolutionBGR.rows / pixelMapping.rowStride(),
+            fullResolutionBGR.cols / pixelMapping.colStride(),
+            CV_8UC3);
         std::cout << "Mapped width: " << mappedBGR.cols << ", height: " << mappedBGR.rows << std::endl;
-        for(size_t row = 0; row < static_cast<size_t>(fullResolutionBGR.rows - offset); row += subsampleDivider)
+        for(size_t row = 0; row < static_cast<size_t>(fullResolutionBGR.rows - pixelMapping.rowOffset());
+            row += pixelMapping.rowStride())
         {
-            for(size_t col = 0; col < static_cast<size_t>(fullResolutionBGR.cols - offset); col += subsampleDivider)
+            for(size_t col = 0; col < static_cast<size_t>(fullResolutionBGR.cols - pixelMapping.colOffset());
+                col += pixelMapping.colStride())
             {
-                mappedBGR.at<cv::Vec3b>(row / subsampleDivider, col / subsampleDivider) =
-                    fullResolutionBGR.at<cv::Vec3b>(row + offset, col + offset);
+                mappedBGR.at<cv::Vec3b>(row / pixelMapping.rowStride(), col / pixelMapping.colStride()) =
+                    fullResolutionBGR.at<cv::Vec3b>(row + pixelMapping.rowOffset(), col + pixelMapping.colOffset());
             }
         }
         return mappedBGR;
@@ -214,9 +216,10 @@ int main(int argc, char **argv)
             const_cast<void *>(static_cast<const void *>(image.data())));
         cv::Mat fullResolutionBGR;
         cv::cvtColor(fullResolutionBGRA, fullResolutionBGR, cv::COLOR_BGRA2BGR);
+        const auto pixelMapping = Zivid::Experimental::Calibration::pixelMapping(camera, settings);
         const auto mappedBGR = (pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::all)
                                    ? fullResolutionBGR
-                                   : mapBGR(pixelsToSample, fullResolutionBGR);
+                                   : mapBGR(pixelMapping, fullResolutionBGR);
         if(pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::all)
         {
             displayBGR({ fullResolutionBGR }, { "Full resolution 2D" });

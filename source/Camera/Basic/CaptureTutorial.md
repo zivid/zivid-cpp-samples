@@ -98,7 +98,7 @@ You may also list all cameras connected to the computer, and view their
 serial numbers through
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/PrintVersionInfo/PrintVersionInfo.cpp#L16-L21))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/InfoUtilOther/CameraInfo/CameraInfo.cpp#L16-L22))
 
 ``` sourceCode cpp
 auto cameras = zivid.cameras();
@@ -106,6 +106,7 @@ std::cout << "Found " << cameras.size() << " cameras" << std::endl;
 for(auto &camera : cameras)
 {
 	std::cout << "Camera Info: " << camera.info() << std::endl;
+	std::cout << "Camera State: " << camera.state() << std::endl;
 }
 ```
 

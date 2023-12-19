@@ -1,3 +1,4 @@
+# gersemi: off
 if(NOT DEFINED HALCONARCH)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       set(HALCONARCH x64-macosx)
@@ -37,7 +38,7 @@ if(HALCONROOT)
   endif()
 
 endif()
-                    
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   if(HALCON_EXT_LIB_DIR)
     set(HALCON_LIBS "-F ${HALCON_EXT_LIB_DIR} -framework HALCON"
@@ -82,3 +83,4 @@ else()
                        ${PREFIX}halconcppxl${SUFFIX})
   endif()
 endif()
+# gersemi: on

@@ -1,5 +1,5 @@
 /*
-List connected cameras and print version information.
+List connected cameras and print camera version and state information for each connected camera.
 */
 
 #include <Zivid/Zivid.h>
@@ -18,6 +18,7 @@ int main()
         for(auto &camera : cameras)
         {
             std::cout << "Camera Info: " << camera.info() << std::endl;
+            std::cout << "Camera State: " << camera.state() << std::endl;
         }
     }
     catch(const std::exception &e)

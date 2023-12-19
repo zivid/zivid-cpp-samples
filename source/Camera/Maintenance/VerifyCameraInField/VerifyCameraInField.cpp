@@ -3,7 +3,7 @@ Check the dimension trueness of a Zivid camera.
 
 This example shows how to verify the local dimension trueness of a camera.
 If the trueness is much worse than expected, the camera may have been damaged by
-shock in shipping in handling. If so, look at the CorrectCameraInField sample.
+shock in shipping or handling. If so, look at the CorrectCameraInField sample.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
@@ -51,7 +51,7 @@ int main()
         // Show results
         std::cout << "Successful measurement at " << detectionResult.centroid() << std::endl;
         const auto verification = Zivid::Experimental::Calibration::verifyCamera(input);
-        std::cout << "Estimated dimension trueness at measured position: " << std::setprecision(2) << std::fixed
+        std::cout << "Estimated dimension trueness error at measured position: " << std::setprecision(2) << std::fixed
                   << verification.localDimensionTrueness() * 100.0F << "%" << std::endl;
     }
     catch(const std::exception &e)

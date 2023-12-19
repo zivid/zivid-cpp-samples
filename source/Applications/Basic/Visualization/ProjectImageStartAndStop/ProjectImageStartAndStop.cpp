@@ -26,6 +26,7 @@ namespace
         return projectorImage;
     }
 
+
     void projecting(Zivid::Camera &camera, const Zivid::Image<Zivid::ColorBGRA> &projectorImageFunctionScope)
     {
         auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImageFunctionScope);
@@ -52,6 +53,7 @@ int main()
         const auto redColor = Zivid::ColorBGRA(0, 0, 255, 255);
 
         auto projectorImage = createProjectorImage(projectorResolution, redColor);
+
         auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
 
         std::cout << "Press enter to stop projecting using the \".stop()\" function." << std::endl;

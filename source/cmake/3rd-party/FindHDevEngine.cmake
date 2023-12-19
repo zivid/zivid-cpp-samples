@@ -1,3 +1,4 @@
+# gersemi: off
 if(NOT DEFINED HALCONARCH)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       set(HALCONARCH x64-macosx)
@@ -62,3 +63,4 @@ else()
     set(HDEVENGINE_LIBS_XL ${PREFIX}hdevenginecppxl${SUFFIX})
   endif()
 endif()
+# gersemi: on
