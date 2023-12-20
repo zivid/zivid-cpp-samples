@@ -39,6 +39,31 @@ namespace
     }
 
 
+    std::string getProjectorImageFileForGivenCamera(const Zivid::Camera &camera)
+    {
+        const auto model = camera.info().model().value();
+        switch(model)
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+                return std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividLogoZivid2ProjectorResolution.png";
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+                return std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividLogoZivid2PlusProjectorResolution.png";
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+                throw std::invalid_argument("Projecting images is not supported for Zivid One+ cameras");
+        }
+        throw std::invalid_argument("Invalid camera model");
+    }
+
 } // namespace
 
 int main()
@@ -51,7 +76,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::string imageFile = std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividLogo.png";
-        std::cout << "Reading 2D image from file: " << imageFile << std::endl;
+        std::cout << "Reading 2D image (of arbitrary resolution) from file: " << imageFile << std::endl;
         const auto inputImage = cv::imread(imageFile, cv::IMREAD_UNCHANGED);
 
         std::cout << "input image size: " << inputImage.size() << std::endl;
@@ -84,6 +109,22 @@ int main()
             const std::string capturedImageFile = "CapturedImage.png";
             std::cout << "Saving the captured image: " << capturedImageFile << std::endl;
             frame2D.imageBGRA().save(capturedImageFile);
+
+            std::cout << "Press enter to stop projecting..." << std::endl;
+            std::cin.get();
+
+        } // projectedImageHandle now goes out of scope, thereby stopping the projection
+
+        std::string projectorImageFileForGivenCamera = getProjectorImageFileForGivenCamera(camera);
+
+        std::cout << "Reading 2D image (of resolution matching the Zivid camera projector resolution) from file: "
+                  << projectorImageFileForGivenCamera << std::endl;
+        const auto projectorImageForGivenCamera = Zivid::Image<Zivid::ColorBGRA>(projectorImageFileForGivenCamera);
+
+        { // A Local Scope to handle the projected image lifetime
+
+            auto projectedImageHandle =
+                Zivid::Experimental::Projection::showImage(camera, projectorImageForGivenCamera);
 
             std::cout << "Press enter to stop projecting..." << std::endl;
             std::cin.get();
