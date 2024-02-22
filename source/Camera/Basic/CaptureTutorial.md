@@ -59,7 +59,7 @@ Camera. This is essentially the Zivid driver.
 -----
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L14))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L13))
 
 ``` sourceCode cpp
 Zivid::Application zivid;
@@ -70,7 +70,7 @@ Zivid::Application zivid;
 Now we can connect to the camera.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L17))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L16))
 
 ``` sourceCode cpp
 auto camera = zivid.connectCamera();
@@ -218,16 +218,10 @@ settings](https://support.zivid.com/latest//reference-articles/standard-acquisit
 We can create settings for a single acquisition capture.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L20-L26))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L19))
 
 ``` sourceCode cpp
-const auto settings =
-	Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
-					Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
-						Zivid::Settings::Acquisition::Aperture{ 5.66 },
-						Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 6500 } } } },
-					Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
-					Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 } };
+const auto settings = Zivid::Settings(Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} });
 ```
 
 #### Multi Acquisition HDR
@@ -385,7 +379,7 @@ multiple acquisitions (HDR) is given by the number of `acquisitions` in
 `settings`.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -435,7 +429,7 @@ Save ----
 We can now save our results.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L31-L33))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L24-L26))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";
@@ -456,7 +450,7 @@ for a list of supported formats. For example, we can export the point
 cloud to .ply format.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L35-L37))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L28-L30))
 
 ``` sourceCode cpp
 const auto dataFilePLY = "PointCloud.ply";

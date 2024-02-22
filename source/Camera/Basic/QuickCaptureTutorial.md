@@ -41,7 +41,7 @@ Calling any of the APIs in the Zivid SDK requires initializing the Zivid
 application and keeping it alive while the program runs.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L14))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L13))
 
 ``` sourceCode cpp
 Zivid::Application zivid;
@@ -50,7 +50,7 @@ Zivid::Application zivid;
 ## Connect
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L17))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L16))
 
 ``` sourceCode cpp
 auto camera = zivid.connectCamera();
@@ -73,7 +73,7 @@ auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettings
 ## Capture
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -82,7 +82,7 @@ const auto frame = camera.capture(settings);
 ## Save
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L31-L33))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L24-L26))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";

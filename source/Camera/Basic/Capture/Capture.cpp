@@ -4,7 +4,6 @@ Capture point clouds, with color, from the Zivid camera.
 
 #include <Zivid/Zivid.h>
 
-#include <chrono>
 #include <iostream>
 
 int main()
@@ -16,14 +15,8 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Creating settings" << std::endl;
-        const auto settings =
-            Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
-                             Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
-                                 Zivid::Settings::Acquisition::Aperture{ 5.66 },
-                                 Zivid::Settings::Acquisition::ExposureTime{ std::chrono::microseconds{ 6500 } } } },
-                             Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
-                             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 } };
+        std::cout << "Creating default capture settings" << std::endl;
+        const auto settings = Zivid::Settings(Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} });
 
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture(settings);
