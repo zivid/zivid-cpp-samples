@@ -53,7 +53,7 @@ compute device memory) and the capture and camera information.
 When you capture with Zivid, you get a frame in return.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L29))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22))
 
 ``` sourceCode cpp
 const auto frame = camera.capture(settings);
@@ -334,4 +334,5 @@ manipulate it, transform it, and visualize it.
 
 | SDK    | Changes                                                                                                                                                             |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.11.0 | Added support for SRGB color space.                                                                                                                                 |
 | 2.10.0 | [Monochrome Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`. |
