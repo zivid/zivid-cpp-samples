@@ -20,8 +20,7 @@ namespace
     {
         const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
             Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{std::chrono::milliseconds{800}}};
         const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
         return camera.capture(settings);
     }
@@ -30,9 +29,9 @@ namespace
     {
     public:
         TransformationMatrixAndCameraMap(Zivid::Matrix4x4 transformationMatrix, Zivid::Camera &camera)
-            : mTransformationMatrix(transformationMatrix)
-            , mCamera(camera)
-        {}
+            : mTransformationMatrix(transformationMatrix), mCamera(camera)
+        {
+        }
 
         const Zivid::Matrix4x4 mTransformationMatrix;
         Zivid::Camera &mCamera;
@@ -43,21 +42,20 @@ namespace
         std::vector<Zivid::Camera> &cameras)
     {
         auto transformsMappedToCameras = std::vector<TransformationMatrixAndCameraMap>{};
-        for(auto &camera : cameras)
+        for (auto &camera : cameras)
         {
             const auto serialNumber = camera.info().serialNumber().toString();
-            for(const auto &fileName : transformationMatricesfileList)
+            for (const auto &fileName : transformationMatricesfileList)
             {
-                if(serialNumber
-                   == fileName.substr(
-                       fileName.find_last_of("\\/") + 1,
-                       (fileName.find_last_of('.')) - (fileName.find_last_of("\\/") + 1)))
+                if (serialNumber == fileName.substr(
+                                        fileName.find_last_of("\\/") + 1,
+                                        (fileName.find_last_of('.')) - (fileName.find_last_of("\\/") + 1)))
                 {
                     Zivid::Matrix4x4 transformationMatrixZivid(fileName);
                     transformsMappedToCameras.emplace_back(transformationMatrixZivid, camera);
                     break;
                 }
-                if(transformationMatricesfileList.back() == fileName)
+                if (transformationMatricesfileList.back() == fileName)
                 {
                     throw std::runtime_error("You are missing a YAML file named " + serialNumber + ".yaml!");
                 }
@@ -97,14 +95,11 @@ int main(int argc, char **argv)
         auto useRGB = true;
         auto saveStitched = false;
         auto cli =
-            (clipp::values("File Names", transformationMatricesfileList)
-                 % "List of YAML files containing the transformation matrix.",
+            (clipp::values("File Names", transformationMatricesfileList) % "List of YAML files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
-             clipp::required("-o", "--output-file").set(saveStitched)
-                 & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
-                       % "Save the stitched point cloud to a file with this name. (.ply)");
+             clipp::required("-o", "--output-file").set(saveStitched) & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName) % "Save the stitched point cloud to a file with this name. (.ply)");
 
-        if(!parse(argc, argv, cli))
+        if (!parse(argc, argv, cli))
         {
             std::cout << "SYNOPSIS:" << std::endl;
             std::cout << clipp::usage_lines(cli, "StitchByTransformation") << std::endl;
@@ -116,7 +111,7 @@ int main(int argc, char **argv)
         auto cameras = zivid.cameras();
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
 
-        for(auto &camera : cameras)
+        for (auto &camera : cameras)
         {
             std::cout << "Connecting camera: " << camera.info().serialNumber() << std::endl;
             camera.connect();
@@ -128,7 +123,7 @@ int main(int argc, char **argv)
         // Capture from all cameras
         auto frames = std::vector<Zivid::Frame>();
         auto maxNumberOfPoints = 0;
-        for(const auto &transformAndCamera : transformsMappedToCameras)
+        for (const auto &transformAndCamera : transformsMappedToCameras)
         {
             std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
             const auto frame = assistedCapture(transformAndCamera.mCamera);
@@ -146,7 +141,7 @@ int main(int argc, char **argv)
         stitchedPointCloud.points.resize(maxNumberOfPoints);
 
         size_t validPoints = 0;
-        for(size_t i = 0; i < transformsMappedToCameras.size(); i++)
+        for (size_t i = 0; i < transformsMappedToCameras.size(); i++)
         {
             auto pointCloud = frames.at(i).pointCloud();
 
@@ -156,9 +151,9 @@ int main(int argc, char **argv)
             // Stitch, and add color
             const auto rgba = pointCloud.copyColorsRGBA();
             const auto xyz = pointCloud.copyPointsXYZ();
-            for(size_t j = 0; j < pointCloud.size(); j++)
+            for (size_t j = 0; j < pointCloud.size(); j++)
             {
-                if(!isnan(xyz(j).x))
+                if (!isnan(xyz(j).x))
                 {
                     stitchedPointCloud.points[validPoints].x =
                         xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
@@ -166,7 +161,7 @@ int main(int argc, char **argv)
                         xyz(j).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
                     stitchedPointCloud.points[validPoints].z =
                         xyz(j).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    if(useRGB)
+                    if (useRGB)
                     {
                         stitchedPointCloud.points[validPoints].r =
                             rgba(j).r; // NOLINT(cppcoreguidelines-pro-type-union-access)
@@ -191,22 +186,23 @@ int main(int argc, char **argv)
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
         *cloudPTR = stitchedPointCloud;
 
-        std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
-        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        viewer.showCloud(cloudPTR);
-        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
-        while(!viewer.wasStopped())
-        {
-        }
-        if(saveStitched)
+        // std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
+        // pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
+        // viewer.showCloud(cloudPTR);
+        // std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
+        // std::cout << "Press q to me exit the viewer application" << std::endl;
+        // while(!viewer.wasStopped())
+        // {
+        // }
+        // printf("Viewer closed\n");
+        if (saveStitched)
         {
             std::cerr << "Saving " << stitchedPointCloud.points.size()
                       << " data points to " + stitchedPointCloudFileName << std::endl;
             pcl::io::savePLYFileBinary(stitchedPointCloudFileName, stitchedPointCloud);
         }
     }
-    catch(const std::exception &e)
+    catch (const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;
         std::cout << "Press enter to exit." << std::endl;

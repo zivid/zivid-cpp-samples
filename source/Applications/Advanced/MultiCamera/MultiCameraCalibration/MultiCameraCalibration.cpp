@@ -67,6 +67,7 @@ int main(int argc, char **argv)
             const auto frame = assistedCapture(camera);
             std::cout << "Detecting checkerboard in point cloud" << std::endl;
             const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+            
             if(detectionResult)
             {
                 detectionResults.push_back(detectionResult);
