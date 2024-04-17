@@ -8,7 +8,7 @@ allowing us to find the 3D coordinates relative to the camera.
 #include <Zivid/Application.h>
 #include <Zivid/CaptureAssistant.h>
 #include <Zivid/Exception.h>
-#include <Zivid/Experimental/Projection.h>
+#include <Zivid/Projection/Projection.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -172,12 +172,11 @@ namespace
             Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
         };
         auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
-        const auto processing = Zivid::Settings::Processing{
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
-            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 }
-        };
+        const auto processing =
+            Zivid::Settings::Processing{ Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+                                         Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 } };
         settings.set(processing);
         settings.set(Zivid::Settings::Sampling::Pixel::all);
 
@@ -203,7 +202,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
-        const auto projectorResolution = Zivid::Experimental::Projection::projectorResolution(camera);
+        const auto projectorResolution = Zivid::Projection::projectorResolution(camera);
 
         std::cout << "Creating a projector image with resolution: " << projectorResolution.toString() << std::endl;
         const int cvMatArrayType = CV_8UC4;
@@ -228,7 +227,7 @@ int main()
         projectorImage.save(projectorImageFile);
 
         std::cout << "Displaying the projector image" << std::endl;
-        auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+        auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
         std::cout << "Press enter to continue...";
         std::cin.get();

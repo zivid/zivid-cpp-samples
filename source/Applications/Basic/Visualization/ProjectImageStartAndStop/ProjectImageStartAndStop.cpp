@@ -9,7 +9,7 @@ How to stop the image projection is demonstrated in three different ways:
 */
 
 #include <Zivid/Application.h>
-#include <Zivid/Experimental/Projection.h>
+#include <Zivid/Projection/Projection.h>
 #include <Zivid/Zivid.h>
 
 #include <iostream>
@@ -29,7 +29,7 @@ namespace
 
     void projecting(Zivid::Camera &camera, const Zivid::Image<Zivid::ColorBGRA> &projectorImageFunctionScope)
     {
-        auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImageFunctionScope);
+        auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImageFunctionScope);
 
         std::cout << "Press enter to stop projecting by leaving a function scope" << std::endl;
         std::cin.get();
@@ -48,13 +48,13 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
-        const auto projectorResolution = Zivid::Experimental::Projection::projectorResolution(camera);
+        const auto projectorResolution = Zivid::Projection::projectorResolution(camera);
 
         const auto redColor = Zivid::ColorBGRA(0, 0, 255, 255);
 
         auto projectorImage = createProjectorImage(projectorResolution, redColor);
 
-        auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+        auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
         std::cout << "Press enter to stop projecting using the \".stop()\" function." << std::endl;
         std::cin.get();
@@ -63,7 +63,7 @@ int main()
         const auto greenColor = Zivid::ColorBGRA(0, 255, 0, 255);
         {
             projectorImage = createProjectorImage(projectorResolution, greenColor);
-            projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+            projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
             std::cout << "Press enter to stop projecting by leaving a local scope" << std::endl;
             std::cin.get();
@@ -75,7 +75,7 @@ int main()
 
         const auto zividPinkColor = Zivid::ColorBGRA(114, 52, 237, 255);
         projectorImage = createProjectorImage(projectorResolution, zividPinkColor);
-        projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+        projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
         std::cout << "Press enter to stop projecting by performing a 3D capture" << std::endl;
         std::cin.get();

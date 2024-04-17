@@ -40,6 +40,27 @@ namespace
         return data;
     }
 
+
+    std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
+    {
+        std::vector<Zivid::Camera> connectedCameras;
+        for(auto camera : cameras)
+        {
+            if(camera.state().status() == Zivid::CameraState::Status::available)
+            {
+                std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
+                camera.connect();
+                connectedCameras.push_back(camera);
+            }
+            else
+            {
+                std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
+                          << "Camera status: " << camera.state().status() << std::endl;
+            }
+        }
+        return connectedCameras;
+    }
+
 } // namespace
 
 int main()
@@ -52,15 +73,11 @@ int main()
         auto cameras = zivid.cameras();
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
 
-        for(auto &camera : cameras)
-        {
-            std::cout << "Connecting to camera: " << camera.info().serialNumber().value() << std::endl;
-            camera.connect();
-        }
+        auto connectedCameras = connectToAllAvailableCameras(cameras);
 
         std::vector<std::future<Zivid::Frame>> futureFrames;
 
-        for(auto &camera : cameras)
+        for(auto &camera : connectedCameras)
         {
             std::cout << "Starting to capture (in a separate thread) with camera: "
                       << camera.info().serialNumber().value() << std::endl;
@@ -69,9 +86,9 @@ int main()
 
         std::vector<Zivid::Frame> frames;
 
-        for(size_t i = 0; i < cameras.size(); ++i)
+        for(size_t i = 0; i < connectedCameras.size(); ++i)
         {
-            std::cout << "Waiting for camera " << cameras[i].info().serialNumber() << " to finish capturing"
+            std::cout << "Waiting for camera " << connectedCameras[i].info().serialNumber() << " to finish capturing"
                       << std::endl;
             const auto frame = futureFrames[i].get();
             frames.push_back(frame);
