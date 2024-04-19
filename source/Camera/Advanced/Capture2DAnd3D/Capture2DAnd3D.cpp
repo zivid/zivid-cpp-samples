@@ -1,11 +1,13 @@
 /*
-Capture 2D and then 3D using various capture strategies, optimizing for both 2D quality and 2D acquisition speed.
+Capture 2D and 3D separately with the Zivid camera.
+
+Capture separate 2D image with subsampling2x2. Then capture 3D with subsampling4x4
+and upsampling2x2 to match resolution  of 2D.
+Then use color from 2D when visualizing the 3D point cloud.
 */
 
-#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
-#include <clipp.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <pcl/point_cloud.h>
@@ -18,92 +20,7 @@ Capture 2D and then 3D using various capture strategies, optimizing for both 2D 
 
 namespace
 {
-    cv::Mat mapBGR(const Zivid::Experimental::PixelMapping &pixelMapping, const cv::Mat &fullResolutionBGR)
-    {
-        std::cout << "Pixel mapping: " << pixelMapping << std::endl;
-        cv::Mat mappedBGR(
-            fullResolutionBGR.rows / pixelMapping.rowStride(),
-            fullResolutionBGR.cols / pixelMapping.colStride(),
-            CV_8UC3);
-        std::cout << "Mapped width: " << mappedBGR.cols << ", height: " << mappedBGR.rows << std::endl;
-        for(size_t row = 0; row < static_cast<size_t>(fullResolutionBGR.rows - pixelMapping.rowOffset());
-            row += pixelMapping.rowStride())
-        {
-            for(size_t col = 0; col < static_cast<size_t>(fullResolutionBGR.cols - pixelMapping.colOffset());
-                col += pixelMapping.colStride())
-            {
-                mappedBGR.at<cv::Vec3b>(row / pixelMapping.rowStride(), col / pixelMapping.colStride()) =
-                    fullResolutionBGR.at<cv::Vec3b>(row + pixelMapping.rowOffset(), col + pixelMapping.colOffset());
-            }
-        }
-        return mappedBGR;
-    }
-
-    Zivid::Settings::Sampling::Pixel stringToPixelSetting(const std::string &pixelsToSample)
-    {
-        const auto validValues = Zivid::Settings::Sampling::Pixel::validValues();
-        for(const auto &value : validValues)
-        {
-            const auto pixelSetting = Zivid::Settings::Sampling::Pixel{ value };
-            if(pixelSetting.toString() == pixelsToSample)
-            {
-                return pixelSetting;
-            }
-        }
-
-        std::stringstream errorMsg;
-        errorMsg << "Invalid pixel value. Use one of:";
-        for(const auto &value : validValues)
-        {
-            errorMsg << " " << Zivid::Settings::Sampling::Pixel{ value }.toString();
-        }
-        throw std::runtime_error(errorMsg.str());
-    }
-
-    void displayBGR(const std::vector<cv::Mat> &bgrs, const std::vector<std::string> &bgrNames)
-    {
-        if(bgrs.empty() || bgrNames.empty() || bgrs.size() != bgrNames.size())
-        {
-            std::cerr << "Error: Invalid input data." << std::endl;
-            return;
-        }
-
-        const int titleMargin = 60;
-        int totalRows = bgrs[0].rows;
-        const int separationMargin = 40;
-        int combinedWidth = 0;
-        for(const auto &bgr : bgrs)
-        {
-            totalRows = std::max(totalRows, bgr.rows);
-            combinedWidth += bgr.cols + separationMargin;
-        }
-        totalRows += titleMargin;
-
-        cv::Mat combinedImage(totalRows, combinedWidth, bgrs[0].type());
-
-        int x_offset = 0;
-        for(size_t i = 0; i < bgrs.size(); ++i)
-        {
-            cv::Mat roi(combinedImage, cv::Rect(x_offset, titleMargin, bgrs[i].cols, bgrs[i].rows));
-            bgrs[i].copyTo(roi);
-
-            x_offset += bgrs[i].cols + separationMargin;
-
-            cv::putText(
-                combinedImage,
-                bgrNames[i],
-                cv::Point(x_offset - bgrs[i].cols, 20),
-                cv::FONT_HERSHEY_SIMPLEX,
-                0.5,
-                cv::Scalar(255, 255, 255),
-                1,
-                cv::LINE_AA);
-        }
-        cv::imshow("Combined Image", combinedImage);
-        cv::waitKey(0);
-    }
-
-    void displayPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &mappedBGR)
+    void displayPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &bgra)
     {
         const auto xyz = pointCloud.copyData<Zivid::PointXYZ>();
 
@@ -114,15 +31,12 @@ namespace
         pclPointCloud.points.resize(xyz.size());
         for(size_t i = 0; i < xyz.size(); ++i)
         {
-            pclPointCloud.points[i].x = xyz(i).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pclPointCloud.points[i].y = xyz(i).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pclPointCloud.points[i].z = xyz(i).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pclPointCloud.points[i].b =
-                mappedBGR.at<cv::Vec3b>(i)[0]; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pclPointCloud.points[i].g =
-                mappedBGR.at<cv::Vec3b>(i)[1]; // NOLINT(cppcoreguidelines-pro-type-union-access)
-            pclPointCloud.points[i].r =
-                mappedBGR.at<cv::Vec3b>(i)[2]; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].x = xyz(i).x;                 // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].y = xyz(i).y;                 // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].z = xyz(i).z;                 // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].b = bgra.at<cv::Vec4b>(i)[0]; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].g = bgra.at<cv::Vec4b>(i)[1]; // NOLINT(cppcoreguidelines-pro-type-union-access)
+            pclPointCloud.points[i].r = bgra.at<cv::Vec4b>(i)[2]; // NOLINT(cppcoreguidelines-pro-type-union-access)
         }
 
         auto viewer = pcl::visualization::PCLVisualizer("Viewer");
@@ -144,99 +58,58 @@ namespace
     }
 } // namespace
 
-int main(int argc, char **argv)
+int main()
 {
     try
     {
-        std::stringstream pixelSettingDoc;
-        pixelSettingDoc << "Select which pixels to sample. Valid options:";
-        const auto validValues = Zivid::Settings::Sampling::Pixel::validValues();
-        for(const auto &value : validValues)
-        {
-            pixelSettingDoc << " '" << Zivid::Settings::Sampling::Pixel{ value }.toString() << "'";
-        }
-
-        auto pixelsToSample = Zivid::Settings::Sampling::Pixel::all;
-        auto cli =
-            ((clipp::option("-p", "--pixels-to-sample")
-              & clipp::value("pixelsToSample") >>
-                    [&](const std::string &value) { pixelsToSample = stringToPixelSetting(value); })
-             % pixelSettingDoc.str());
-
-        if(!parse(argc, argv, cli))
-        {
-            auto fmt = clipp::doc_formatting{};
-            //.alternatives_min_split_size(1).surround_labels("\"", "\"");
-            std::cout << "SYNOPSIS:" << std::endl;
-            std::cout << clipp::usage_lines(cli, "Capture2DAnd3D", fmt) << std::endl;
-            std::cout << "OPTIONS:" << std::endl;
-            std::cout << clipp::documentation(cli) << std::endl;
-            throw std::runtime_error{ "Invalid usage" };
-        }
-
         Zivid::Application zivid;
 
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring 2D settings" << std::endl;
-        const auto settings2D =
-            Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
+        const auto settings2D = Zivid::Settings2D{
+            Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
+            Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2,
+        };
 
         std::cout << "Configuring 3D settings" << std::endl;
         auto settings = Zivid::Settings{
-            Zivid::Settings::Experimental::Engine::phase,
+            Zivid::Settings::Engine::phase,
             Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-            Zivid::Settings::Sampling::Pixel{ pixelsToSample },
-            Zivid::Settings::Sampling::Color{ Zivid::Settings::Sampling::Color::disabled },
+            Zivid::Settings::Sampling::Pixel::blueSubsample4x4,
+            Zivid::Settings::Sampling::Color::disabled,
+            Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
         };
 
-        const auto cameraModel = camera.info().model().value();
-        if(pixelsToSample == Zivid::Settings::Sampling::Pixel::all
-           && (cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusM130
-               || cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusM60
-               || cameraModel == Zivid::CameraInfo::Model::ValueType::zivid2PlusL110))
+        if((camera.info().model() == Zivid::CameraInfo::Model::zividTwo)
+           || (camera.info().model() == Zivid::CameraInfo::Model::zividTwoL100))
         {
-            // For 2+, we must lower Brightness from the default 2.5 to 2.2, when using `all` mode.
-            // This code can be removed by changing the Config.yml option 'Camera/Power/Limit'.
-            for(auto &a : settings.acquisitions())
-            {
-                a.set(Zivid::Settings::Acquisition::Brightness{ 2.2 });
-            }
+            std::cout
+                << camera.info().modelName()
+                << " does not support 4x4 subsampling. This sample is written to show how combinations of Sampling::Pixel and Processing::Resampling::Mode."
+                << std::endl;
+            settings = settings.copyWith(
+                Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
+                Zivid::Settings::Processing::Resampling::Mode::disabled);
         }
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings2D);
         std::cout << "Getting BGRA image" << std::endl;
         const auto image = frame2D.imageBGRA();
-        const cv::Mat fullResolutionBGRA(
+        const cv::Mat bgra(
             image.height(),
             image.width(),
             CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
             const_cast<void *>(static_cast<const void *>(image.data())));
-        cv::Mat fullResolutionBGR;
-        cv::cvtColor(fullResolutionBGRA, fullResolutionBGR, cv::COLOR_BGRA2BGR);
-        const auto pixelMapping = Zivid::Experimental::Calibration::pixelMapping(camera, settings);
-        const auto mappedBGR = (pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::all)
-                                   ? fullResolutionBGR
-                                   : mapBGR(pixelMapping, fullResolutionBGR);
-        if(pixelsToSample.value() == Zivid::Settings::Sampling::Pixel::ValueType::all)
-        {
-            displayBGR({ fullResolutionBGR }, { "Full resolution 2D" });
-        }
-        else
-        {
-            std::ostringstream mappedTitle;
-            mappedTitle << pixelsToSample << " RGB from 2D capture";
-            displayBGR({ fullResolutionBGR, mappedBGR }, { "Full resolution 2D", mappedTitle.str() });
-        }
 
         std::cout << "Capturing frame" << std::endl;
 
         const auto frame = camera.capture(settings);
         const auto pointCloud = frame.pointCloud();
         std::cout << "Visualizing point cloud" << std::endl;
-        displayPointCloud(pointCloud, mappedBGR);
+        displayPointCloud(pointCloud, bgra);
     }
     catch(const std::exception &e)
     {
