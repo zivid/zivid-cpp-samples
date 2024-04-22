@@ -27,16 +27,7 @@ namespace
         {
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
-            {
-                const std::vector<double> apertures{ 8.0, 4.0, 1.4 };
-                const std::vector<double> gains{ 1.0, 1.0, 2.0 };
-                const std::vector<microseconds> exposureTimes{ microseconds{ 6500 },
-                                                               microseconds{ 10000 },
-                                                               microseconds{ 40000 } };
-                const std::vector<double> brightnesses{ 1.8, 1.8, 1.8 };
-                return { apertures, gains, exposureTimes, brightnesses };
-            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
             {
@@ -76,7 +67,7 @@ int main()
 
         std::cout << "Configuring settings for capture:" << std::endl;
         Zivid::Settings settings{
-            Zivid::Settings::Experimental::Engine::phase,
+            Zivid::Settings::Engine::phase,
             Zivid::Settings::Sampling::Color::rgb,
             Zivid::Settings::Sampling::Pixel::all,
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
@@ -95,7 +86,7 @@ int main()
             Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
             Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
             Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
@@ -103,9 +94,9 @@ int main()
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
             Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
-            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::HoleSize{ 0.2 },
-            Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Strictness{ 1 },
+            Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
+            Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
             Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
