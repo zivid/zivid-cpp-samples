@@ -6,8 +6,7 @@ The image for this sample can be found under the main instructions for Zivid sam
 
 #include <Zivid/Application.h>
 #include <Zivid/Exception.h>
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
-#include <Zivid/Experimental/Projection.h>
+#include <Zivid/Projection/Projection.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -58,8 +57,7 @@ namespace
                 // intentional fallthrough
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
                 // intentional fallthrough
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
-                throw std::invalid_argument("Projecting images is not supported for Zivid One+ cameras");
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
         }
         throw std::invalid_argument("Invalid camera model");
     }
@@ -82,7 +80,7 @@ int main()
         std::cout << "input image size: " << inputImage.size() << std::endl;
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
-        const auto projectorResolution = Zivid::Experimental::Projection::projectorResolution(camera);
+        const auto projectorResolution = Zivid::Projection::projectorResolution(camera);
 
         std::cout << "Resizing input image to fit projector resolution: " << projectorResolution.toString()
                   << std::endl;
@@ -96,7 +94,7 @@ int main()
 
         { // A Local Scope to handle the projected image lifetime
 
-            auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+            auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
             const Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
                 Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
@@ -123,8 +121,7 @@ int main()
 
         { // A Local Scope to handle the projected image lifetime
 
-            auto projectedImageHandle =
-                Zivid::Experimental::Projection::showImage(camera, projectorImageForGivenCamera);
+            auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImageForGivenCamera);
 
             std::cout << "Press enter to stop projecting..." << std::endl;
             std::cin.get();

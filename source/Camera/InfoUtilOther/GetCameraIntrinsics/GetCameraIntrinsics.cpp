@@ -112,7 +112,7 @@ int main()
         for(const auto aperture : { 11.31, 5.66, 2.83 })
         {
             const auto settings =
-                Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
+                Zivid::Settings{ Zivid::Settings::Engine::phase,
                                  Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
                                      Zivid::Settings::Acquisition::Aperture{ aperture } } },
                                  Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
@@ -132,7 +132,7 @@ int main()
            != supportedSamplingPixelValues.end())
         {
             const auto settingsSubsampled =
-                Zivid::Settings{ Zivid::Settings::Experimental::Engine::phase,
+                Zivid::Settings{ Zivid::Settings::Engine::phase,
                                  Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
                                  Zivid::Settings::Sampling::Pixel::blueSubsample2x2 };
             const std::string fixedIntrinsicsForSubsampledSettingsPath = "FixedIntrinsicsSubsampledBlue2x2.yml";
