@@ -120,13 +120,19 @@ int main(int argc, char **argv)
         const auto transformsMappedToCameras =
             getTransformationMatricesFromYAML(transformationMatricesfileList, cameras);
 
+        // Load camera settings
+        const auto settingsFile = "./Configs/camera_settings.yml";
+        std::cout << "Loading settings from file: " << settingsFile << std::endl;
+        const auto settingsFromFile = Zivid::Settings(settingsFile);
+
         // Capture from all cameras
         auto frames = std::vector<Zivid::Frame>();
         auto maxNumberOfPoints = 0;
         for (const auto &transformAndCamera : transformsMappedToCameras)
         {
             std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
-            const auto frame = assistedCapture(transformAndCamera.mCamera);
+            const auto frame = transformAndCamera.mCamera.capture(settingsFromFile); 
+            // const auto frame = assistedCapture(transformAndCamera.mCamera);
             const auto resolution =
                 Zivid::Experimental::SettingsInfo::resolution(transformAndCamera.mCamera.info(), frame.settings());
             maxNumberOfPoints += resolution.size();
