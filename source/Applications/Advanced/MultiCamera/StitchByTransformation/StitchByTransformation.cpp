@@ -14,6 +14,8 @@ Use transformation matrices from Multi-Camera calibration to transform point clo
 #include <iostream>
 #include <vector>
 
+#include <cstdlib>
+
 namespace
 {
     Zivid::Frame assistedCapture(Zivid::Camera &camera)
@@ -125,87 +127,94 @@ int main(int argc, char **argv)
         std::cout << "Loading settings from file: " << settingsFile << std::endl;
         const auto settingsFromFile = Zivid::Settings(settingsFile);
 
-        // Capture from all cameras
-        auto frames = std::vector<Zivid::Frame>();
-        auto maxNumberOfPoints = 0;
-        for (const auto &transformAndCamera : transformsMappedToCameras)
-        {
-            std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
-            const auto frame = transformAndCamera.mCamera.capture(settingsFromFile); 
-            // const auto frame = assistedCapture(transformAndCamera.mCamera);
-            const auto resolution =
-                Zivid::Experimental::SettingsInfo::resolution(transformAndCamera.mCamera.info(), frame.settings());
-            maxNumberOfPoints += resolution.size();
-            frames.push_back(frame);
-        }
-
-        // Stitch frames
-        // Creating a PointCloud structure
-        pcl::PointCloud<pcl::PointXYZRGB> stitchedPointCloud;
-
-        // Filling in the cloud data, unorganized skipping NaNs
-        stitchedPointCloud.points.resize(maxNumberOfPoints);
-
-        size_t validPoints = 0;
-        for (size_t i = 0; i < transformsMappedToCameras.size(); i++)
-        {
-            auto pointCloud = frames.at(i).pointCloud();
-
-            // Transform point cloud
-            pointCloud.transform(transformsMappedToCameras.at(i).mTransformationMatrix);
-
-            // Stitch, and add color
-            const auto rgba = pointCloud.copyColorsRGBA();
-            const auto xyz = pointCloud.copyPointsXYZ();
-            for (size_t j = 0; j < pointCloud.size(); j++)
+        while (true) {
+            std::cout << "\nEnter filename: " << std::endl;
+            std::getline(std::cin, stitchedPointCloudFileName);
+            
+            // Capture from all cameras
+            auto frames = std::vector<Zivid::Frame>();
+            auto maxNumberOfPoints = 0;
+            for (const auto &transformAndCamera : transformsMappedToCameras)
             {
-                if (!isnan(xyz(j).x))
+                std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
+                const auto frame = transformAndCamera.mCamera.capture(settingsFromFile); 
+                // const auto frame = assistedCapture(transformAndCamera.mCamera);
+                const auto resolution =
+                    Zivid::Experimental::SettingsInfo::resolution(transformAndCamera.mCamera.info(), frame.settings());
+                maxNumberOfPoints += resolution.size();
+                frames.push_back(frame);
+            }
+
+            // Stitch frames
+            // Creating a PointCloud structure
+            pcl::PointCloud<pcl::PointXYZRGB> stitchedPointCloud;
+
+            // Filling in the cloud data, unorganized skipping NaNs
+            stitchedPointCloud.points.resize(maxNumberOfPoints);
+
+            size_t validPoints = 0;
+            for (size_t i = 0; i < transformsMappedToCameras.size(); i++)
+            {
+                auto pointCloud = frames.at(i).pointCloud();
+
+                // Transform point cloud
+                pointCloud.transform(transformsMappedToCameras.at(i).mTransformationMatrix);
+
+                // Stitch, and add color
+                const auto rgba = pointCloud.copyColorsRGBA();
+                const auto xyz = pointCloud.copyPointsXYZ();
+                for (size_t j = 0; j < pointCloud.size(); j++)
                 {
-                    stitchedPointCloud.points[validPoints].x =
-                        xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    stitchedPointCloud.points[validPoints].y =
-                        xyz(j).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    stitchedPointCloud.points[validPoints].z =
-                        xyz(j).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    if (useRGB)
+                    if (!isnan(xyz(j).x))
                     {
-                        stitchedPointCloud.points[validPoints].r =
-                            rgba(j).r; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                        stitchedPointCloud.points[validPoints].g =
-                            rgba(j).g; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                        stitchedPointCloud.points[validPoints].b =
-                            rgba(j).b; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                        stitchedPointCloud.points[validPoints].x =
+                            xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                        stitchedPointCloud.points[validPoints].y =
+                            xyz(j).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                        stitchedPointCloud.points[validPoints].z =
+                            xyz(j).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                        if (useRGB)
+                        {
+                            stitchedPointCloud.points[validPoints].r =
+                                rgba(j).r; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                            stitchedPointCloud.points[validPoints].g =
+                                rgba(j).g; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                            stitchedPointCloud.points[validPoints].b =
+                                rgba(j).b; // NOLINT(cppcoreguidelines-pro-type-union-access)
+                        }
+                        else
+                        {
+                            stitchedPointCloud.points[validPoints].rgb = rgbList.at(i);
+                        }
+                        validPoints++;
                     }
-                    else
-                    {
-                        stitchedPointCloud.points[validPoints].rgb = rgbList.at(i);
-                    }
-                    validPoints++;
                 }
             }
-        }
-        // Remove unused memory (would have been occupied by NaNs)
-        stitchedPointCloud.points.resize(validPoints);
-        std::cout << "Got " << validPoints << " out of " << maxNumberOfPoints << " points" << std::endl;
+            // Remove unused memory (would have been occupied by NaNs)
+            stitchedPointCloud.points.resize(validPoints);
+            std::cout << "Got " << validPoints << " out of " << maxNumberOfPoints << " points" << std::endl;
 
-        // Simple Cloud Visualization
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
-        *cloudPTR = stitchedPointCloud;
+            // Simple Cloud Visualization
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
+            *cloudPTR = stitchedPointCloud;
 
-        // std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
-        // pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        // viewer.showCloud(cloudPTR);
-        // std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        // std::cout << "Press q to me exit the viewer application" << std::endl;
-        // while(!viewer.wasStopped())
-        // {
-        // }
-        // printf("Viewer closed\n");
-        if (saveStitched)
-        {
-            std::cerr << "Saving " << stitchedPointCloud.points.size()
-                      << " data points to " + stitchedPointCloudFileName << std::endl;
-            pcl::io::savePLYFileBinary(stitchedPointCloudFileName, stitchedPointCloud);
+            // std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
+            // pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
+            // viewer.showCloud(cloudPTR);
+            // std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
+            // std::cout << "Press q to me exit the viewer application" << std::endl;
+            // while(!viewer.wasStopped())
+            // {
+            // }
+            // printf("Viewer closed\n");
+            if (saveStitched)
+            {
+                std::cerr << "Saving " << stitchedPointCloud.points.size()
+                        << " data points to " + stitchedPointCloudFileName << "\n" << std::endl;
+                pcl::io::savePLYFileBinary(stitchedPointCloudFileName, stitchedPointCloud);
+  
+                system("beep -f 2000 -l 100 -n -f 3000 -l 100");
+            }
         }
     }
     catch (const std::exception &e)
