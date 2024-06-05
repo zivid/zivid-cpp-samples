@@ -6,11 +6,14 @@ The checkerboard pose is determined first and then used to estimate the coordina
 in the camera frame. These points are then passed to the API to get the corresponding projector pixels.
 The projector pixel coordinates are then used to draw markers at the correct locations before displaying
 the image using the projector.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
+
 #include <Zivid/Application.h>
 #include <Zivid/Exception.h>
 #include <Zivid/Experimental/Calibration/InfieldCorrection.h>
-#include <Zivid/Experimental/Projection.h>
+#include <Zivid/Projection/Projection.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -97,10 +100,10 @@ int main()
         const auto pointsInCameraFrame = transformGridToCalibrationBoard(grid, transformCameraToCheckerboard);
 
         std::cout << "Getting projector pixels (2D) corresponding to points (3D) in the camera frame" << std::endl;
-        const auto projectorPixels = Zivid::Experimental::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
+        const auto projectorPixels = Zivid::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
-        const auto projectorResolution = Zivid::Experimental::Projection::projectorResolution(camera);
+        const auto projectorResolution = Zivid::Projection::projectorResolution(camera);
 
         std::cout << "Creating a blank projector image with resolution: " << projectorResolution.toString()
                   << std::endl;
@@ -128,7 +131,7 @@ int main()
 
         { // A Local Scope to handle the projected image lifetime
 
-            auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
+            auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
             const Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
                 Zivid::Settings2D::Acquisition::Brightness{ 0.0 },

@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.11.1. For
+This repository contains cpp code samples for Zivid SDK v2.12.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -55,8 +55,7 @@ from the camera can be used.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
-          - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and then 3D using various capture strategies,
-            optimizing for both 2D quality and 2D acquisition speed.
+          - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and 3D separately with the Zivid camera.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
           - [CaptureHalconViaZivid](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaZivid/CaptureHalconViaZivid.cpp) - Capture a point cloud, with colors, using Zivid SDK,
@@ -84,7 +83,7 @@ from the camera can be used.
           - [SettingsInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/SettingsInfo/SettingsInfo.cpp) - Read settings info from the Zivid camera.
           - [Warmup](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/Warmup/Warmup.cpp) - Short example of a basic way to warm up the camera with
             specified time and capture cycle.
-          - [ZividBenchmark](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp) - Zividbenchmarks is a sample that will test the average
+          - [ZividBenchmark](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp) - Zividbenchmark is a sample that will test the average
             speed of different operations on your computer.
       - **Maintenance**
           - [CorrectCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp) - Correct the dimension trueness of a Zivid camera.
@@ -137,7 +136,7 @@ from the camera can be used.
               - [PoseConversions](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp) - Convert to/from Transformation Matrix (Rotation Matrix
                 + Translation Vector)
               - [UtilizeHandEyeCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp) - Transform single data point or entire point cloud from
-                camera frame to robot base frame using Hand-Eye
+                camera to robot base reference frame using Hand-Eye
                 calibration
           - **MultiCamera**
               - [MultiCameraCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/MultiCamera/MultiCameraCalibration/MultiCameraCalibration.cpp) - Use captures of a calibration object to generate
@@ -228,7 +227,8 @@ this:
 If you want to use Zivid in HALCON, we provide a GenICam GenTL producer
 that comes with the [Zivid Software](http://www.zivid.com/downloads).
 
-Zivid and HALCON are compatible with Windows 10 and Ubuntu 20.04, 22.04.
+Zivid and HALCON are compatible with Windows 10 and 11, and Ubuntu
+20.04, 22.04.
 
 -----
 
