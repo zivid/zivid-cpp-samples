@@ -60,11 +60,17 @@ int main(int argc, char **argv)
         auto detectionResults = std::vector<Zivid::Calibration::DetectionResult>();
         auto serialNumbers = std::vector<std::string>();
 
+        // Load camera settings
+        const auto settingsFile = "./Configs/camera_settings.yml";
+        std::cout << "Loading settings from file: " << settingsFile << std::endl;
+        const auto settingsFromFile = Zivid::Settings(settingsFile);
+
         for(auto &camera : cameras)
         {
             const auto serial = camera.info().serialNumber().toString();
             std::cout << "Capturing frame with camera: " << serial << std::endl;
-            const auto frame = assistedCapture(camera);
+            const auto frame = camera.capture(settingsFromFile);
+            // const auto frame = assistedCapture(camera);
             std::cout << "Detecting checkerboard in point cloud" << std::endl;
             const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
             
