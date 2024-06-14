@@ -12,7 +12,7 @@ include(CompilerOptions)
 set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL "MinSizeRel;Release;")
 set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RelWithDebInfo;Release;")
 
-set(ZIVID_VERSION 2.10.0)
+set(ZIVID_VERSION 2.12.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)

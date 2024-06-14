@@ -69,7 +69,7 @@ int main()
         Zivid::Settings settings{
             Zivid::Settings::Engine::phase,
             Zivid::Settings::Sampling::Color::rgb,
-            Zivid::Settings::Sampling::Pixel::all,
+            Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -97,6 +97,7 @@ int main()
             Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
             Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
             Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
+            Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
             Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
             Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
