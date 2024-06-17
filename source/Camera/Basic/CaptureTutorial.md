@@ -248,14 +248,14 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L68-L131))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L68-L132))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings settings{
 	Zivid::Settings::Engine::phase,
 	Zivid::Settings::Sampling::Color::rgb,
-	Zivid::Settings::Sampling::Pixel::all,
+	Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
 	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
 	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
 	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -283,6 +283,7 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
 	Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
+	Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
 	Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
@@ -346,7 +347,7 @@ Check out
 for recommended .yml files tuned for your application.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L143-L148))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L149))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -359,7 +360,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L143-L145))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L146))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
