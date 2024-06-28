@@ -1,25 +1,25 @@
 /*
-Transform single data point or entire point cloud from camera to robot base reference frame using Hand-Eye calibration
+Transform single data point or entire point cloud from camera frame to robot base frame using Hand-Eye calibration
 matrix.
 
 This example shows how to utilize the result of Hand-Eye calibration to transform either (picking) point coordinates
-or the entire point cloud from the camera to the robot base reference frame.
+or the entire point cloud from the camera frame to the robot base frame.
 
 For both Eye-To-Hand and Eye-In-Hand, there is a Zivid gem placed approx. 500 mm away from the robot base (see below).
-The (picking) point is the Zivid gem centroid, defined as image coordinates in the camera reference frame and hard-coded
+The (picking) point is the Zivid gem centroid, defined as image coordinates in the camera frame and hard-coded
 in this code example. Open the ZDF files in Zivid Studio to inspect the gem's 2D and corresponding 3D coordinates.
 
 Eye-To-Hand
 - ZDF file: ZividGemEyeToHand.zdf
 - 2D image coordinates: (1035,255)
 - Corresponding 3D coordinates: (37.77 -145.92 1227.1)
-- Corresponding 3D coordinates (robot base reference frame): (-12.4  514.37 -21.79)
+- Corresponding 3D coordinates (robot base frame): (-12.4  514.37 -21.79)
 
 Eye-In-Hand:
 - ZDF file: ZividGemEyeInHand.zdf
 - 2D image coordinates: (1460,755)
-- Corresponding 3D coordinates (camera reference frame): (83.95  28.84 305.7)
-- Corresponding 3D coordinates (robot base reference frame): (531.03  -5.44 164.6)
+- Corresponding 3D coordinates (camera frame): (83.95  28.84 305.7)
+- Corresponding 3D coordinates (robot base frame): (531.03  -5.44 164.6)
 
 For verification, check that the Zivid gem centroid 3D coordinates are the same as above after the transformation.
 
@@ -139,14 +139,14 @@ int main()
                 {
                     fileName = "/ZividGemEyeToHand.zdf";
 
-                    // The (picking) point is defined as image coordinates in camera reference frame. It is hard-coded
-                    // for the ZividGemEyeToHand.zdf (1035,255) X: 37.77 Y: -145.92 Z: 1227.1
+                    // The (picking) point is defined as image coordinates in camera frame. It is hard-coded for the
+                    // ZividGemEyeToHand.zdf (1035,255) X: 37.77 Y: -145.92 Z: 1227.1
                     imageCoordinateX = 1035;
                     imageCoordinateY = 255;
 
                     const auto eyeToHandTransformFile = "/EyeToHandTransform.yaml";
 
-                    std::cout << "Reading camera pose in robot base reference frame (result of eye-to-hand calibration"
+                    std::cout << "Reading camera pose in robot base frame (result of eye-to-hand calibration"
                               << std::endl;
                     transformBaseToCamera.load(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
 
@@ -157,25 +157,24 @@ int main()
                 {
                     fileName = "/ZividGemEyeInHand.zdf";
 
-                    // The (picking) point is defined as image coordinates in camera reference frame. It is hard-coded
-                    // for the ZividGemEyeInHand.zdf (1460,755) X: 83.95 Y: 28.84 Z: 305.7
+                    // The (picking) point is defined as image coordinates in camera frame. It is hard-coded for the
+                    // ZividGemEyeInHand.zdf (1460,755) X: 83.95 Y: 28.84 Z: 305.7
                     imageCoordinateX = 1357;
                     imageCoordinateY = 666;
 
                     const auto eyeInHandTransformFile = "/EyeInHandTransform.yaml";
                     const auto robotTransformFile = "/RobotTransform.yaml";
 
-                    std::cout
-                        << "Reading camera pose in end-effector reference frame (result of eye-in-hand calibration)"
-                        << std::endl;
+                    std::cout << "Reading camera pose in end-effector frame (result of eye-in-hand calibration)"
+                              << std::endl;
                     Zivid::Matrix4x4 transformEndEffectorToCamera(
                         std::string(ZIVID_SAMPLE_DATA_DIR) + eyeInHandTransformFile);
 
-                    std::cout << "Reading end-effector pose in robot base reference frame" << std::endl;
+                    std::cout << "Reading end-effector pose in robot base frame" << std::endl;
                     Zivid::Matrix4x4 transformBaseToEndEffector(
                         std::string(ZIVID_SAMPLE_DATA_DIR) + robotTransformFile);
 
-                    std::cout << "Computing camera pose in robot base reference frame" << std::endl;
+                    std::cout << "Computing camera pose in robot base frame" << std::endl;
                     transformBaseToCamera = eigenToZivid(
                         zividToEigen(transformBaseToEndEffector) * zividToEigen(transformEndEffectorToCamera));
 
@@ -191,7 +190,7 @@ int main()
         }
 
         const auto dataFile = std::string(ZIVID_SAMPLE_DATA_DIR) + fileName;
-        std::cout << "Reading point cloud from file: " << dataFile << std::endl;
+        std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
         const auto frame = Zivid::Frame(dataFile);
         auto pointCloud = frame.pointCloud();
 
@@ -212,16 +211,16 @@ int main()
                         xyz(imageCoordinateY, imageCoordinateX).z,
                         xyz(imageCoordinateY, imageCoordinateX).w);
 
-                    std::cout << "Point coordinates in camera reference frame: " << pointInCameraFrame.x() << " "
+                    std::cout << "Point coordinates in camera frame: " << pointInCameraFrame.x() << " "
                               << pointInCameraFrame.y() << " " << pointInCameraFrame.z() << std::endl;
 
                     // Converting to Eigen matrix for easier computation
                     const Eigen::Affine3f transformBaseToCameraEigen = zividToEigen(transformBaseToCamera);
 
-                    std::cout << "Transforming (picking) point from camera to robot base reference frame" << std::endl;
+                    std::cout << "Transforming (picking) point from camera to robot base frame" << std::endl;
                     const Eigen::Vector4f pointInBaseFrame = transformBaseToCameraEigen * pointInCameraFrame;
 
-                    std::cout << "Point coordinates in robot base reference frame: " << pointInBaseFrame.x() << " "
+                    std::cout << "Point coordinates in robot base frame: " << pointInBaseFrame.x() << " "
                               << pointInBaseFrame.y() << " " << pointInBaseFrame.z() << std::endl;
 
                     loopContinue = false;
@@ -234,7 +233,7 @@ int main()
                     pointCloud.transform(transformBaseToCamera);
 
                     const auto saveFile = "ZividGemTransformed.zdf";
-                    std::cout << "Saving point cloud to file: " << saveFile << std::endl;
+                    std::cout << "Saving frame to file: " << saveFile << std::endl;
                     frame.save(saveFile);
 
                     loopContinue = false;

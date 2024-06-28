@@ -33,12 +33,10 @@ data.
 
 Tip:
 
-> If you prefer watching a video, our webinar [Getting your point cloud
-> ready for your
-> application](https://www.zivid.com/webinars-page?wchannelid=ffpqbqc7sg&wmediaid=h66zph71vo)
-> covers the Point Cloud Tutorial.
-
-**Prerequisites**
+If you prefer watching a video, our webinar [Getting your point cloud
+ready for your
+application](https://www.zivid.com/webinars-page?wchannelid=ffpqbqc7sg&wmediaid=h66zph71vo)
+covers the Point Cloud Tutorial. .. rubric:: Prerequisites
 
   - Install [Zivid
     Software](https://support.zivid.com/latest//getting-started/software-installation.html).
@@ -103,13 +101,11 @@ from GPU memory.
 
 Note:
 
-`Zivid::Camera::capture()` method returns at some moment in time after
-the camera completes capturing raw images. The handle from
-`Zivid::Frame::pointCloud()` is available instantly. However, the actual
-point cloud data becomes available only after the processing on the GPU
-is finished. Any calls to data-copy functions (section below) will block
-and wait for processing to finish before proceeding with the requested
-copy operation.
+The handle from `Zivid::Frame::pointCloud()` is available instantly.
+However, the actual point cloud data becomes available only after the
+processing on the GPU is finished. Any calls to data-copy functions
+(section below) will block and wait for processing to finish before
+proceeding with the requested copy operation.
 
 For detailed explanation, see [Point Cloud Capture
 Process](https://support.zivid.com/latest/academy/camera/point-cloud-capture-process.html).
@@ -158,54 +154,57 @@ We present examples for the two memory allocation options using OpenCV.
 If you are only concerned about e.g. RGB color data of the point cloud,
 you can copy only that data to the CPU memory.
 
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L70-L93))
+
 ``` sourceCode cpp
+std::cout << "Capturing frame" << std::endl;
+frame = camera.capture(settings);
+pointCloud = frame.pointCloud();
+std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
+auto colors = pointCloud.copyColorsBGRA();
+
+std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
+		<< std::endl;
+auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
+
+std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
+		<< "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
+		<< std::endl;
+const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
+
+std::cout << "Displaying image" << std::endl;
+cv::imshow("BGRA image Zivid Allocated", bgraZividAllocated);
+cv::waitKey(0);
+  .. rubric:: Copy selected data from GPU to CPU memory (user-allocated)
+
+  In the above example, ownership of the data was held by the returned :code:`Zivid::Array2D<>` objects.
+  Alternatively, you may provide a pre-allocated memory buffer to :code:`Zivid::PointCloud::copyData(dataPtr)`.
+  The type of :code:`dataPtr` defines what shall be copied (:code:`PointXYZ`, :code:`ColorRGBA`, etc.).
+
+  Now let us look at the exact same use case as above.
+  However, this time, we allow OpenCV to allocate the necessary storage.
+  Then we ask the Zivid API to copy data directly from the GPU into this memory location.
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L52-L66))
+
+``` sourceCode cpp
+std::cout << "Allocating the necessary storage with OpenCV API based on resolution info before any capturing"
+		<< std::endl;
+auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
+std::cout << "Capturing frame" << std::endl;
+auto frame = camera.capture(settings);
 auto pointCloud = frame.pointCloud();
+
 std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
-          << std::endl;
+		<< std::endl;
 pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA>()));
 
 std::cout << "Displaying image" << std::endl;
 cv::imshow("BGRA image User Allocated", bgraUserAllocated);
 cv::waitKey(0);
-
-pointCloud = frame.pointCloud();
-
-std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-auto colors = pointCloud.copyColorsBGRA();
-
-std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
-```
-
-**Copy selected data from GPU to CPU memory (user-allocated)**
-
-In the above example, ownership of the data was held by the returned
-`Zivid::Array2D<>` objects. Alternatively, you may provide a
-pre-allocated memory buffer to `Zivid::PointCloud::copyData(dataPtr)`.
-The type of `dataPtr` defines what shall be copied (`PointXYZ`,
-`ColorRGBA`, etc.).
-
-Now let us look at the exact same use case as above. However, this time,
-we allow OpenCV to allocate the necessary storage. Then we ask the Zivid
-API to copy data directly from the GPU into this memory location.
-
-``` sourceCode cpp
-std::cout << "Creating settings" << std::endl;
-auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
-std::cout << "Getting camera resolution" << std::endl;
-const auto resolution = Zivid::Experimental::SettingsInfo::resolution(camera.info(), settings);
-
-std::cout << "Camera resolution:" << std::endl;
-std::cout << "Height: " << resolution.height() << std::endl;
-std::cout << "Width: " << resolution.width() << std::endl;
-
-// Copy selected data from GPU to system memory (User-allocated)
-```
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L234))
-
-``` sourceCode cpp
-pointCloud.transform(transformBaseToCamera);
 ```
 
 ## Transform
@@ -217,7 +216,7 @@ frame or, e.g., [scale the point cloud by transforming it from mm to
 m](https://support.zivid.com/latest//academy/applications/transform/transform-millimeters-to-meters.html).
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L234))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L233))
 
 ``` sourceCode cpp
 pointCloud.transform(transformBaseToCamera);
@@ -235,11 +234,10 @@ the point cloud.
 
 Note:
 
-> [Monochrome
-> Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html)
-> is a hardware-based subsample method that reduces the resolution of
-> the point cloud during capture while also reducing the acquisition and
-> capture time.
+[Monochrome
+Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html)
+is a hardware-based subsample method that reduces the resolution of the
+point cloud during capture while also reducing the capture time.
 
 -----
 

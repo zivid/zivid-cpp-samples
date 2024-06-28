@@ -4,7 +4,6 @@ Use captures of a calibration object to generate transformation matrices to a si
 
 #include <clipp.h>
 
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Zivid.h>
 #include <cmath>
 #include <iostream>

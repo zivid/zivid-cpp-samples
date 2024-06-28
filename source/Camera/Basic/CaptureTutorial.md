@@ -14,7 +14,6 @@ tutorial see:
 [**Connect**](#Connect) |
 [**Configure**](#Configure) |
 [**Capture**](#Capture) |
-[**Save**](#Save) |
 [**Multithreading**](#Multithreading) |
 [**Conclusion**](#Conclusion)
 
@@ -34,12 +33,11 @@ MATLAB](https://github.com/zivid/zivid-matlab-samples/blob/master/source/Camera/
 
 Tip:
 
-> If you prefer watching a video, our webinar [Making 3D captures easy -
-> A tour of Zivid Studio and Zivid
-> SDK](https://www.zivid.com/webinars-page?wchannelid=ffpqbqc7sg&wmediaid=ce68dbjldk)
-> covers the same content as the Capture Tutorial.
-
-**Prerequisites**
+If you prefer watching a video, our webinar [Making 3D captures easy - A
+tour of Zivid Studio and Zivid
+SDK](https://www.zivid.com/webinars-page?wchannelid=ffpqbqc7sg&wmediaid=ce68dbjldk)
+covers the same content as the Capture Tutorial. .. rubric::
+Prerequisites
 
   - Install [Zivid
     Software](https://support.zivid.com/latest//getting-started/software-installation.html).
@@ -92,7 +90,7 @@ auto camera = zivid.connectCamera(Zivid::CameraInfo::SerialNumber{ "2020C0DE" })
 
 Note:
 
-> The serial number of your camera is shown in the Zivid Studio.
+The serial number of your camera is shown in the Zivid Studio.
 
 -----
 
@@ -142,17 +140,18 @@ The acquisition settings should be initialized like shown below, but you
 are free to alter the processing settings.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L43-L50))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L43-L51))
 
 ``` sourceCode cpp
-const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-									Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-									Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
-									Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-									Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
-									Zivid::Settings::Processing::Color::Balance::Red{ 1 },
-									Zivid::Settings::Processing::Color::Balance::Green{ 1 },
-									Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
+const auto settings =
+	Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+					Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+					Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+					Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+					Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+					Zivid::Settings::Processing::Color::Balance::Red{ 1 },
+					Zivid::Settings::Processing::Color::Balance::Green{ 1 },
+					Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
 ```
 
 You can read more about the file camera option in [File
@@ -211,8 +210,8 @@ There are only two parameters to configure with Capture Assistant:
 Another option is to configure settings manually. For more information
 about what each settings does, please see [Camera
 Settings](https://support.zivid.com/latest/reference-articles/camera-settings.html).
-Then, the next step it's [Capturing High Quality Point
-Clouds](https://support.zivid.com/latest/academy/camera/capturing-high-quality-point-clouds.html)
+Note that Zivid 2 has a set of [standard
+settings](https://support.zivid.com/latest//reference-articles/standard-acquisition-settings-zivid-two.html).
 
 #### Single Acquisition
 
@@ -248,14 +247,14 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L68-L132))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L77-L140))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings settings{
-	Zivid::Settings::Engine::phase,
+	Zivid::Settings::Experimental::Engine::phase,
 	Zivid::Settings::Sampling::Color::rgb,
-	Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
+	Zivid::Settings::Sampling::Pixel::all,
 	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
 	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
 	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -272,7 +271,7 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
 	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-	Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+	Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
 	Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
 	Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
 	Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
@@ -280,10 +279,9 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
 	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
-	Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
-	Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
-	Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
-	Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::HoleSize{ 0.2 },
+	Zivid::Settings::Processing::Filters::Experimental::HoleFilling::Strictness{ 1 },
 	Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
 	Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
@@ -347,7 +345,7 @@ Check out
 for recommended .yml files tuned for your application.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L149))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L152-L157))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -360,7 +358,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L146))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L152-L154))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -417,7 +415,16 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Ba
 const auto frame2D = camera.capture(settings2D);
 ```
 
-## Save
+-----
+
+Caution\!:
+
+> Zivid One+ camera has a time penalty when changing the capture mode
+> (2D and 3D) if the 2D capture settings use brightness \> 0.
+
+You can read more about it in [2D and 3D switching
+limitation](https://support.zivid.com/latest//support/2d-3d-switching-limitation.html).
+Save ----
 
 We can now save our results.
 
@@ -433,10 +440,9 @@ frame.save(dataFile);
 
 Tip:
 
-> You can open and view `Frame.zdf` file in [Zivid
-> Studio](https://support.zivid.com/latest//getting-started/studio-guide.html).
-
-### Export
+You can open and view `Frame.zdf` file in [Zivid
+Studio](https://support.zivid.com/latest//getting-started/studio-guide.html).
+Export ^^^^^^
 
 The API detects which format to use. See [Point
 Cloud](https://support.zivid.com/latest//reference-articles/point-cloud-structure-and-output-formats.html)
@@ -456,7 +462,7 @@ frame.save(dataFilePLY);
 We can get 2D color image from a 3D capture.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp#L191))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp#L192))
 
 ``` sourceCode cpp
 const auto image = pointCloud.copyImageRGBA();

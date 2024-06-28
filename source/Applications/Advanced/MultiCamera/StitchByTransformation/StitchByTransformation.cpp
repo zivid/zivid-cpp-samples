@@ -1,7 +1,5 @@
 /*
 Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from connected cameras.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <pcl/io/pcd_io.h>
@@ -68,26 +66,6 @@ namespace
         return transformsMappedToCameras;
     }
 
-    std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
-    {
-        std::vector<Zivid::Camera> connectedCameras;
-        for(auto camera : cameras)
-        {
-            if(camera.state().status() == Zivid::CameraState::Status::available)
-            {
-                std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
-                camera.connect();
-                connectedCameras.push_back(camera);
-            }
-            else
-            {
-                std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
-                          << "Camera status: " << camera.state().status() << std::endl;
-            }
-        }
-        return connectedCameras;
-    }
-
     const auto rgbList = std::array<std::uint32_t, 16>{
         0xFFB300, // Vivid Yellow
         0x803E75, // Strong Purple
@@ -138,9 +116,14 @@ int main(int argc, char **argv)
         auto cameras = zivid.cameras();
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
 
-        auto connectedCameras = connectToAllAvailableCameras(cameras);
+        for(auto &camera : cameras)
+        {
+            std::cout << "Connecting camera: " << camera.info().serialNumber() << std::endl;
+            camera.connect();
+        }
+
         const auto transformsMappedToCameras =
-            getTransformationMatricesFromYAML(transformationMatricesfileList, connectedCameras);
+            getTransformationMatricesFromYAML(transformationMatricesfileList, cameras);
 
         // Capture from all cameras
         auto frames = std::vector<Zivid::Frame>();

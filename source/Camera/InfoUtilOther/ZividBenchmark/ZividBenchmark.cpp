@@ -1,8 +1,6 @@
 /*
-Zividbenchmark is a sample that will test the average speed of different operations on your computer.
+Zividbenchmarks is a sample that will test the average speed of different operations on your computer. 
 It will provide the mean and median for connects, disconnects, single imaging, HDR and filtering.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Zivid.h>
@@ -295,23 +293,21 @@ namespace
     Zivid::Camera getFirstCamera(Zivid::Application &zivid)
     {
         const auto cameras = zivid.cameras();
-        for(const auto &camera : cameras)
+        if(cameras.size() != 1)
         {
-            if(camera.state().status() == Zivid::CameraState::Status::available)
-            {
-                std::cout << "Available camera: " << camera.info().serialNumber() << std::endl;
-                printZividInfo(camera, zivid);
-                return camera;
-            }
-            std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
-                      << "Camera status: " << camera.state().status() << std::endl;
+            throw std::runtime_error("At least one camera needs to be connected");
         }
-        throw std::runtime_error("At least one camera needs to be available");
+        printZividInfo(cameras.at(0), zivid);
+        return cameras.at(0);
     }
 
-    std::chrono::microseconds getMinExposureTime()
+    std::chrono::microseconds getMinExposureTime(const std::string &modelName)
     {
-        return std::chrono::microseconds{ 1677 };
+        if(modelName.substr(0, 14) == "Zivid One Plus")
+        {
+            return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
+        }
+        return std::chrono::microseconds{ 1677 }; // Min for Zivid 2 and Zivid 2+
     }
 
     Zivid::Settings::Acquisition
@@ -336,7 +332,7 @@ namespace
             throw std::runtime_error("Unequal input vector size");
         }
 
-        Zivid::Settings settings{ Zivid::Settings::Engine::phase,
+        Zivid::Settings settings{ Zivid::Settings::Experimental::Engine::phase,
                                   Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled{ enableGaussian },
                                   Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
                                   Zivid::Settings::Processing::Filters::Noise::Removal::Enabled{ true },
@@ -975,7 +971,7 @@ int main(int argc, char **argv)
         const size_t numFramesSave = 10;
         const size_t numCopies = 10;
 
-        const std::chrono::microseconds exposureTime = getMinExposureTime();
+        const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
         const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
         const std::vector<std::chrono::microseconds> threeExposureTimes{ exposureTime, exposureTime, exposureTime };

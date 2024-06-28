@@ -5,6 +5,7 @@ The ZFC file for this sample can be downloaded from https://support.zivid.com/en
 This sample depends on ArUco libraries in OpenCV with extra modules (https://github.com/opencv/opencv_contrib).
 */
 
+#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 

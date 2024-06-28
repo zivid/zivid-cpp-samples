@@ -4,7 +4,7 @@ Filter the point cloud based on a ROI box given relative to the Zivid Calibratio
 The ZFC file for this sample can be downloaded from https://support.zivid.com/en/latest/api-reference/samples/sample-data.html.
 */
 
-#include <Zivid/Calibration/Detector.h>
+#include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
@@ -127,7 +127,7 @@ int main()
         const Zivid::PointXYZ pointBInCheckerboardFrame = roiBoxLowerLeftCornerInCheckerboardFrame;
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(originalFrame.pointCloud());
+        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(pointCloud);
         const auto transformCheckerboardToCamera = detectionResult.pose().toMatrix();
 
         std::cout << "Transforming the ROI base frame points to the camera frame" << std::endl;

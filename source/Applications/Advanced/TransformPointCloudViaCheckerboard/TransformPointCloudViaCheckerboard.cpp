@@ -2,11 +2,8 @@
 Transform a point cloud from camera to checkerboard (Zivid Calibration Board) coordinate frame by getting checkerboard pose from the API.
 
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
