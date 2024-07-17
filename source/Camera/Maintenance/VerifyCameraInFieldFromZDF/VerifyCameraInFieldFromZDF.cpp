@@ -17,6 +17,7 @@ used in production. In addition, you can send these ZDF files to Zivid Customer 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
@@ -37,7 +38,7 @@ int main()
         // offline infield verification
 
         std::cout << "Capturing calibration board" << std::endl;
-        const auto frame = Zivid::Experimental::Calibration::captureCalibrationBoard(camera);
+        const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
 
         const auto dataFile = "FrameWithCalibrationBoard.zdf";
         std::cout << "Saving frame to file: " << dataFile << ", for later use in offline infield verification"
@@ -51,7 +52,7 @@ int main()
         const auto loadedFrame = Zivid::Frame(dataFile);
 
         std::cout << "Detecting calibration board" << std::endl;
-        const auto detectionResult = Zivid::Experimental::Calibration::detectFeaturePoints(loadedFrame);
+        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(loadedFrame);
 
         const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
         if(!input.valid())

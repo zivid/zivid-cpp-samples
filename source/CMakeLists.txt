@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5...3.29 FATAL_ERROR)
 
 project(ZividCppSamples)
 
@@ -12,12 +12,11 @@ include(CompilerOptions)
 set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL "MinSizeRel;Release;")
 set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RelWithDebInfo;Release;")
 
-set(ZIVID_VERSION 2.12.0)
+set(ZIVID_VERSION 2.13.0)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
-option(USE_ARUCO "Enable samples which depend on ArUco (OpenCV with extra modules)" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
 set(SAMPLES
@@ -41,6 +40,7 @@ set(SAMPLES
     Camera/InfoUtilOther/CaptureWithDiagnostics
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/FirmwareUpdater
+    Camera/InfoUtilOther/NetworkConfiguration
     Camera/InfoUtilOther/CameraInfo
     Camera/InfoUtilOther/SettingsInfo
     Camera/InfoUtilOther/FrameInfo
@@ -137,10 +137,6 @@ set(Thread_DEPENDING
     MultiCameraCaptureSequentiallyWithInterleavedProcessing
     ZividBenchmark
 )
-set(ArUco_DEPENDING
-    TransformPointCloudViaArucoMarker
-    ROIBoxViaArucoMarker
-)
 set(Halcon_DEPENDING
     CaptureHalconViaGenICam
     CaptureHalconViaZivid
@@ -197,29 +193,12 @@ if(USE_OPENCV)
         highgui
         calib3d
     )
-    if(USE_ARUCO)
-        find_package(
-            OpenCV
-            4.1.0
-            COMPONENTS
-                ${OPENCV_COMMON_MODULES}
-                aruco
+    find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES})
+    if(NOT OpenCV_FOUND)
+        message(
+            FATAL_ERROR
+            "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF."
         )
-        if(NOT OpenCV_FOUND)
-            message(
-                FATAL_ERROR
-                "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake). If you don't have OpenCV with extra modules (OpenCV_Contrib), disable the ArUco samples with -DUSE_ARUCO=OFF."
-            )
-        endif()
-    else()
-        disable_samples("ArUco")
-        find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES})
-        if(NOT OpenCV_FOUND)
-            message(
-                FATAL_ERROR
-                "OpenCV not found. Please point OpenCV_DIR to the directory of your OpenCV installation (containing the file OpenCVConfig.cmake), or disable the OpenCV samples  with -DUSE_OPENCV=OFF."
-            )
-        endif()
     endif()
 else()
     disable_samples("OpenCV")

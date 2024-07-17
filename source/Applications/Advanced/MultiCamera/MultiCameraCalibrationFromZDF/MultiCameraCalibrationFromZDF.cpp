@@ -47,7 +47,7 @@ int main(int argc, char **argv)
             const auto serial = frame.cameraInfo().serialNumber().toString();
 
             std::cout << "Detecting checkerboard in point cloud..." << std::endl;
-            const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
             if(detectionResult)
             {
                 detectionResults.push_back(detectionResult);

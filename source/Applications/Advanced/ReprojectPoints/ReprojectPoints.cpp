@@ -6,13 +6,11 @@ The checkerboard pose is determined first and then used to estimate the coordina
 in the camera frame. These points are then passed to the API to get the corresponding projector pixels.
 The projector pixel coordinates are then used to draw markers at the correct locations before displaying
 the image using the projector.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Application.h>
+#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Exception.h>
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Projection/Projection.h>
 
 #include <opencv2/opencv.hpp>
@@ -82,7 +80,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Capturing and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Experimental::Calibration::detectFeaturePoints(camera);
+        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
         if(!detectionResult.valid())
         {
             throw std::runtime_error("Calibration board not detected!");

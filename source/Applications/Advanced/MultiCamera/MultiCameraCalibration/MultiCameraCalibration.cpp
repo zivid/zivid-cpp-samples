@@ -84,7 +84,7 @@ int main(int argc, char **argv)
             std::cout << "Capturing frame with camera: " << serial << std::endl;
             const auto frame = assistedCapture(camera);
             std::cout << "Detecting checkerboard in point cloud" << std::endl;
-            const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
             if(detectionResult)
             {
                 detectionResults.push_back(detectionResult);

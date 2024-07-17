@@ -1,7 +1,5 @@
 /*
 Perform Hand-Eye calibration.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Application.h>
@@ -9,7 +7,6 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 #include <Zivid/Calibration/HandEye.h>
 #include <Zivid/Calibration/Pose.h>
 #include <Zivid/Exception.h>
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <iostream>
@@ -115,10 +112,10 @@ int main()
                     {
                         const auto robotPose = enterRobotPose(currentPoseId);
 
-                        const auto frame = Zivid::Experimental::Calibration::captureCalibrationBoard(camera);
+                        const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
 
                         std::cout << "Detecting checkerboard in point cloud" << std::endl;
-                        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+                        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
 
                         if(detectionResult.valid())
                         {
