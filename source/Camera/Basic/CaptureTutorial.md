@@ -455,9 +455,6 @@ frame.save(dataFilePLY);
 
 We can get 2D color image from a 3D capture.
 
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp#L191))
-
 ``` sourceCode cpp
 const auto image = pointCloud.copyImageRGBA();
 ```

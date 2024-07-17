@@ -32,4 +32,4 @@ function install_www_deb {
     rm -r $TMP_DIR || exit
 }
 
-install_www_deb "https://downloads.zivid.com/sdk/releases/2.12.0+6afd4961-1/u${VERSION_ID:0:2}/zivid_2.12.0+6afd4961-1_amd64.deb" || exit
+install_www_deb "https://downloads.zivid.com/sdk/releases/2.13.1+18e79e79-1/u${VERSION_ID:0:2}/zivid_2.13.1+18e79e79-1_amd64.deb" || exit

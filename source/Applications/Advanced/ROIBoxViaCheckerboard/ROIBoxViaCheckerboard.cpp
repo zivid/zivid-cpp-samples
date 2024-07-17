@@ -127,14 +127,14 @@ int main()
         const Zivid::PointXYZ pointBInCheckerboardFrame = roiBoxLowerLeftCornerInCheckerboardFrame;
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(originalFrame.pointCloud());
-        const auto transformCheckerboardToCamera = detectionResult.pose().toMatrix();
+        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(originalFrame);
+        const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
 
         std::cout << "Transforming the ROI base frame points to the camera frame" << std::endl;
         const auto roiPointsInCameraFrame = transformPoints(
             std::vector<Zivid::PointXYZ>{
                 pointOInCheckerboardFrame, pointAInCheckerboardFrame, pointBInCheckerboardFrame },
-            transformCheckerboardToCamera);
+            transformCameraToCheckerboard);
 
         std::cout << "Setting the ROI" << std::endl;
         settings.set(Zivid::Settings::RegionOfInterest{

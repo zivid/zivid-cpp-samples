@@ -118,7 +118,6 @@ namespace
     CoordinateSystemPoints
     getCoordinateSystemPoints(const Zivid::Frame &frame, const Zivid::Matrix4x4 &checkerboardPose, float size_of_axis)
     {
-        const auto pointCloud = frame.pointCloud();
         const auto intrinsics = Zivid::Experimental::Calibration::estimateIntrinsics(frame);
         const auto cvCameraMatrix = zividCameraMatrixToOpenCVCameraMatrix(intrinsics.cameraMatrix());
         const auto cvDistCoeffs = zividDistortionCoefficientsToOpenCVDistortionCoefficients(intrinsics.distortion());
@@ -171,7 +170,7 @@ int main()
         auto pointCloud = frame.pointCloud();
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
         const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
         std::cout << transformCameraToCheckerboard << std::endl;
         std::cout << "Camera pose in checkerboard frame:" << std::endl;

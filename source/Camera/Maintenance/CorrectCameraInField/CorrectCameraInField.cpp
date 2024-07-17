@@ -12,6 +12,7 @@ time that camera captures a new point cloud.
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Experimental/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
@@ -55,7 +56,7 @@ namespace
             if(yesNoPrompt("Capture (y) or finish (n)?"))
             {
                 std::cout << "Capturing calibration board" << std::endl;
-                const auto detectionResult = Zivid::Experimental::Calibration::detectFeaturePoints(camera);
+                const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
                 const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
 
                 if(input.valid())

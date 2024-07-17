@@ -39,7 +39,7 @@ auto cameras = zivid.cameras();
 
 ### Capture calibration object
 
-We are now ready to capture the calibration object. We assume that all cameras will get good captures of the calibration object with Capture Assistant. You may use Zivid Studio to quickly verify that the calibration object is in view. The detection API ([Zivid::Calibration::detectFeaturePoints][detect_feature_points-url]) will notify the user if the quality is not good enough for calibration.
+We are now ready to capture the calibration object. We assume that all cameras will get good captures of the calibration object with Capture Assistant. You may use Zivid Studio to quickly verify that the calibration object is in view. The detection API ([Zivid::Calibration::detectCalibrationBoard][detect_calibration_board-url]) will notify the user if the quality is not good enough for calibration.
 
 Capture in the sample is performed with Capture Assistant, this was covered in the [Capture Tutorial][capture_tutorial_capture_assistant-url]. The assisted capture has been wrapped in the function `assistedCapture` ([go to source][capture_with_ca-url]).
 
@@ -55,10 +55,10 @@ const auto frame = Zivid::Frame(fileName);
 
 ### Detect checkerboard feature points
 
-The calibration object we use in this tutorial is a checkerboard. Before we can run calibration, we must detect feature points from the checkerboard from all cameras ([go to source][detect_feature_points-url]).
+The calibration object we use in this tutorial is a checkerboard. Before we can run calibration, we must detect feature points from the checkerboard from all cameras ([go to source][detect_calibration_board-url]).
 
 ```cpp
-const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
 ```
 
 We may, at this point, verify that the capture had good enough quality. `detectionResult` is of a type that can be tested directly. It overloads the bool operator to provide this information. When it passes the quality test, we save the detection result and the serial number of the camera used ([go to source][verify_checkerboard_capture_quality-url]).
@@ -326,7 +326,7 @@ This tutorial shows how to use the Zivid SDK to calibrate multiple cameras and u
 [calibration_object-url]: https://support.zivid.com/latest/academy/applications/hand-eye/calibration-object.html
 [connect_all_cameras-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L48
 [capture_tutorial_capture_assistant-url]: ../../../../Camera/Basic/CaptureTutorial.md#capture-assistant
-[detect_feature_points-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L69
+[detect_calibration_board-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L69
 [capture_with_ca-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L67
 [verify_checkerboard_capture_quality-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L70-L79
 [calibrate-url]: MultiCameraCalibration/MultiCameraCalibration.cpp#L83
