@@ -4,7 +4,6 @@ Use captures of a calibration object to generate transformation matrices to a si
 
 #include <clipp.h>
 
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Zivid.h>
 #include <iostream>
 #include <vector>
@@ -19,26 +18,6 @@ namespace
         };
         const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
         return camera.capture(settings);
-    }
-
-    std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
-    {
-        std::vector<Zivid::Camera> connectedCameras;
-        for(auto camera : cameras)
-        {
-            if(camera.state().status() == Zivid::CameraState::Status::available)
-            {
-                std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
-                camera.connect();
-                connectedCameras.push_back(camera);
-            }
-            else
-            {
-                std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
-                          << "Camera status: " << camera.state().status() << std::endl;
-            }
-        }
-        return connectedCameras;
     }
 } // namespace
 
@@ -67,24 +46,27 @@ int main(int argc, char **argv)
 
         std::cout << "Finding cameras" << std::endl;
         auto cameras = zivid.cameras();
-        std::cout << "Number of cameras found: " << cameras.size() << std::endl;
-
-        auto connectedCameras = connectToAllAvailableCameras(cameras);
-        if(connectedCameras.size() < 2)
+        if(cameras.size() < 2)
         {
             throw std::runtime_error("At least two cameras need to be connected");
         }
-        std::cout << "Number of connected cameras: " << connectedCameras.size() << std::endl;
+        std::cout << "Number of cameras found: " << cameras.size() << std::endl;
+        for(auto &camera : cameras)
+        {
+            std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
+            camera.connect();
+        }
 
         auto detectionResults = std::vector<Zivid::Calibration::DetectionResult>();
         auto serialNumbers = std::vector<std::string>();
-        for(auto &camera : connectedCameras)
+
+        for(auto &camera : cameras)
         {
             const auto serial = camera.info().serialNumber().toString();
             std::cout << "Capturing frame with camera: " << serial << std::endl;
             const auto frame = assistedCapture(camera);
             std::cout << "Detecting checkerboard in point cloud" << std::endl;
-            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+            const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
             if(detectionResult)
             {
                 detectionResults.push_back(detectionResult);

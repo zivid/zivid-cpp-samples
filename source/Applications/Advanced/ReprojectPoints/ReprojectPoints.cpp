@@ -7,11 +7,10 @@ in the camera frame. These points are then passed to the API to get the correspo
 The projector pixel coordinates are then used to draw markers at the correct locations before displaying
 the image using the projector.
 */
-
 #include <Zivid/Application.h>
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Exception.h>
-#include <Zivid/Projection/Projection.h>
+#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
+#include <Zivid/Experimental/Projection.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -80,7 +79,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Capturing and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
+        const auto detectionResult = Zivid::Experimental::Calibration::detectFeaturePoints(camera);
         if(!detectionResult.valid())
         {
             throw std::runtime_error("Calibration board not detected!");
@@ -98,10 +97,10 @@ int main()
         const auto pointsInCameraFrame = transformGridToCalibrationBoard(grid, transformCameraToCheckerboard);
 
         std::cout << "Getting projector pixels (2D) corresponding to points (3D) in the camera frame" << std::endl;
-        const auto projectorPixels = Zivid::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
+        const auto projectorPixels = Zivid::Experimental::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
-        const auto projectorResolution = Zivid::Projection::projectorResolution(camera);
+        const auto projectorResolution = Zivid::Experimental::Projection::projectorResolution(camera);
 
         std::cout << "Creating a blank projector image with resolution: " << projectorResolution.toString()
                   << std::endl;
@@ -129,7 +128,7 @@ int main()
 
         { // A Local Scope to handle the projected image lifetime
 
-            auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
+            auto projectedImageHandle = Zivid::Experimental::Projection::showImage(camera, projectorImage);
 
             const Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
                 Zivid::Settings2D::Acquisition::Brightness{ 0.0 },

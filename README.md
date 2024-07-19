@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.13.1. For
+This repository contains cpp code samples for Zivid SDK v2.11.1. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -55,7 +55,8 @@ from the camera can be used.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
-          - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and 3D separately with the Zivid camera.
+          - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and then 3D using various capture strategies,
+            optimizing for both 2D quality and 2D acquisition speed.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
           - [CaptureHalconViaZivid](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaZivid/CaptureHalconViaZivid.cpp) - Capture a point cloud, with colors, using Zivid SDK,
@@ -80,12 +81,10 @@ from the camera can be used.
           - [FrameInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/FrameInfo/FrameInfo.cpp) - Read frame info from the Zivid camera.
           - [GetCameraIntrinsics](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp) - Read intrinsic parameters from the Zivid camera (OpenCV
             model) or estimate them from the point cloud.
-          - [NetworkConfiguration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/NetworkConfiguration/NetworkConfiguration.cpp) - Uses Zivid API to change the IP address of the Zivid
-            camera.
           - [SettingsInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/SettingsInfo/SettingsInfo.cpp) - Read settings info from the Zivid camera.
           - [Warmup](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/Warmup/Warmup.cpp) - Short example of a basic way to warm up the camera with
             specified time and capture cycle.
-          - [ZividBenchmark](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp) - Zividbenchmark is a sample that will test the average
+          - [ZividBenchmark](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp) - Zividbenchmarks is a sample that will test the average
             speed of different operations on your computer.
       - **Maintenance**
           - [CorrectCameraInField](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp) - Correct the dimension trueness of a Zivid camera.
@@ -129,9 +128,8 @@ from the camera can be used.
           - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
             to the Zivid Calibration Board.
           - [TransformPointCloudFromMillimetersToMeters](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp) - Transform point cloud data from millimeters to meters.
-          - [TransformPointCloudViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp) - Transform a point cloud from camera to ArUco marker
+          - [TransformPointCloudViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp) - Transform a point cloud from camera to ArUco Marker
             coordinate frame by estimating the marker's pose from the
-            point cloud.
           - [TransformPointCloudViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudViaCheckerboard/TransformPointCloudViaCheckerboard.cpp) - Transform a point cloud from camera to checkerboard (Zivid
             Calibration Board) coordinate frame by getting checkerboard
             pose from the API.
@@ -139,7 +137,7 @@ from the camera can be used.
               - [PoseConversions](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp) - Convert to/from Transformation Matrix (Rotation Matrix
                 + Translation Vector)
               - [UtilizeHandEyeCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp) - Transform single data point or entire point cloud from
-                camera to robot base reference frame using Hand-Eye
+                camera frame to robot base frame using Hand-Eye
                 calibration
           - **MultiCamera**
               - [MultiCameraCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/MultiCamera/MultiCameraCalibration/MultiCameraCalibration.cpp) - Use captures of a calibration object to generate
@@ -230,8 +228,7 @@ this:
 If you want to use Zivid in HALCON, we provide a GenICam GenTL producer
 that comes with the [Zivid Software](http://www.zivid.com/downloads).
 
-Zivid and HALCON are compatible with Windows 10 and 11, and Ubuntu
-20.04, 22.04, 24.04.
+Zivid and HALCON are compatible with Windows 10 and Ubuntu 20.04, 22.04.
 
 -----
 

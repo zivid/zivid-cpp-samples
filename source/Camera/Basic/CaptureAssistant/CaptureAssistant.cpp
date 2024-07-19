@@ -29,11 +29,12 @@ int main()
 
         std::cout << "Manually configuring processing settings (Capture Assistant only suggests acquisition settings)"
                   << std::endl;
-        const auto processing =
-            Zivid::Settings::Processing{ Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-                                         Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
-                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 } };
+        const auto processing = Zivid::Settings::Processing{
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Experimental::Mode::global,
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 }
+        };
         settings.set(processing);
 
         std::cout << "Capturing frame" << std::endl;

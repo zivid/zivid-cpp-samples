@@ -4,7 +4,6 @@ Use captures of a calibration object to generate transformation matrices to a si
 
 #include <clipp.h>
 
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Zivid.h>
 #include <cmath>
 #include <iostream>
@@ -47,7 +46,7 @@ int main(int argc, char **argv)
             const auto serial = frame.cameraInfo().serialNumber().toString();
 
             std::cout << "Detecting checkerboard in point cloud..." << std::endl;
-            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+            const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
             if(detectionResult)
             {
                 detectionResults.push_back(detectionResult);

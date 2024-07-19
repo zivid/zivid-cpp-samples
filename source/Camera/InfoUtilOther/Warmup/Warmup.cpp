@@ -8,7 +8,7 @@ Short example of a basic way to warm up the camera with specified time and captu
 #include <iostream>
 #include <thread>
 
-using SteadyClock = std::chrono::steady_clock;
+using HighResClock = std::chrono::high_resolution_clock;
 using Duration = std::chrono::nanoseconds;
 
 int main()
@@ -33,13 +33,13 @@ int main()
 
         std::cout << "Starting warm up for: " << warmupTime.count() << " minutes" << std::endl;
 
-        const auto beforeWarmup = SteadyClock::now();
+        const auto beforeWarmup = HighResClock::now();
 
-        while(SteadyClock::now() - beforeWarmup < warmupTime)
+        while(HighResClock::now() - beforeWarmup < warmupTime)
         {
-            const auto beforeCapture = SteadyClock::now();
+            const auto beforeCapture = HighResClock::now();
             camera.capture(settings);
-            const auto afterCapture = SteadyClock::now();
+            const auto afterCapture = HighResClock::now();
             const auto captureTime = afterCapture - beforeCapture;
             if(captureTime < captureCycle)
             {
@@ -51,7 +51,7 @@ int main()
                           << "Please increase the desired capture cycle." << std::endl;
             }
 
-            const auto remainingTime = warmupTime - (SteadyClock::now() - beforeWarmup);
+            const auto remainingTime = warmupTime - (HighResClock::now() - beforeWarmup);
 
             const auto remainingTimeMinutes = std::chrono::duration_cast<std::chrono::minutes>(remainingTime);
             const auto remainingTimeSeconds =

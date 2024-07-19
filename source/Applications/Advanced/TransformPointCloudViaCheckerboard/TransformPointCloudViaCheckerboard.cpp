@@ -2,11 +2,8 @@
 Transform a point cloud from camera to checkerboard (Zivid Calibration Board) coordinate frame by getting checkerboard pose from the API.
 
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
-#include <Zivid/Calibration/Detector.h>
 #include <Zivid/Experimental/Calibration.h>
 #include <Zivid/Zivid.h>
 
@@ -118,6 +115,7 @@ namespace
     CoordinateSystemPoints
     getCoordinateSystemPoints(const Zivid::Frame &frame, const Zivid::Matrix4x4 &checkerboardPose, float size_of_axis)
     {
+        const auto pointCloud = frame.pointCloud();
         const auto intrinsics = Zivid::Experimental::Calibration::estimateIntrinsics(frame);
         const auto cvCameraMatrix = zividCameraMatrixToOpenCVCameraMatrix(intrinsics.cameraMatrix());
         const auto cvDistCoeffs = zividDistortionCoefficientsToOpenCVDistortionCoefficients(intrinsics.distortion());
@@ -170,7 +168,7 @@ int main()
         auto pointCloud = frame.pointCloud();
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
-        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
         const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
         std::cout << transformCameraToCheckerboard << std::endl;
         std::cout << "Camera pose in checkerboard frame:" << std::endl;

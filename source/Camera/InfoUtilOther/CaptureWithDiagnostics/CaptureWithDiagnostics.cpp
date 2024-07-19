@@ -17,6 +17,10 @@ namespace
     std::string settingsFolder(const Zivid::Camera &camera)
     {
         const auto modelName = camera.info().modelName().value();
+        if(modelName.find("Zivid One+") == 0)
+        {
+            return "zividOne";
+        }
         if(modelName.find("Zivid 2+") == 0)
         {
             return "zivid2Plus";

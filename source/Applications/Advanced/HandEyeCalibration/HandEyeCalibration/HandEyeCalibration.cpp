@@ -61,6 +61,16 @@ namespace
         return robotPose;
     }
 
+    Zivid::Frame assistedCapture(Zivid::Camera &camera)
+    {
+        const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+        };
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
+        return camera.capture(settings);
+    }
+
     Zivid::Calibration::HandEyeOutput performCalibration(
         const std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput)
     {
@@ -71,13 +81,11 @@ namespace
             if(calibrationType == "eth" || calibrationType == "ETH")
             {
                 std::cout << "Performing eye-to-hand calibration" << std::endl;
-                std::cout << "The resulting transform is the camera pose in robot base frame" << std::endl;
                 return Zivid::Calibration::calibrateEyeToHand(handEyeInput);
             }
             if(calibrationType == "eih" || calibrationType == "EIH")
             {
                 std::cout << "Performing eye-in-hand calibration" << std::endl;
-                std::cout << "The resulting transform is the camera pose in flange (end-effector) frame" << std::endl;
                 return Zivid::Calibration::calibrateEyeInHand(handEyeInput);
             }
             std::cout << "Entered uknown method" << std::endl;
@@ -96,11 +104,6 @@ int main()
 
         size_t currentPoseId{ 0 };
         bool calibrate{ false };
-
-        std::cout << "Zivid primarily operates with a (4x4) transformation matrix. To convert" << std::endl;
-        std::cout << "from axis-angle, rotation vector, roll-pitch-yaw, or quaternion, check out" << std::endl;
-        std::cout << "our PoseConversions sample." << std::endl;
-
         std::vector<Zivid::Calibration::HandEyeInput> handEyeInput;
         do
         {
@@ -112,10 +115,10 @@ int main()
                     {
                         const auto robotPose = enterRobotPose(currentPoseId);
 
-                        const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
+                        const auto frame = assistedCapture(camera);
 
                         std::cout << "Detecting checkerboard in point cloud" << std::endl;
-                        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+                        const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
 
                         if(detectionResult.valid())
                         {
@@ -151,10 +154,6 @@ int main()
         } while(!calibrate);
 
         const auto calibrationResult{ performCalibration(handEyeInput) };
-
-        std::cout << "Zivid primarily operates with a (4x4) transformation matrix. To convert" << std::endl;
-        std::cout << "to axis-angle, rotation vector, roll-pitch-yaw, or quaternion, check out" << std::endl;
-        std::cout << "our PoseConversions sample." << std::endl;
 
         if(calibrationResult.valid())
         {

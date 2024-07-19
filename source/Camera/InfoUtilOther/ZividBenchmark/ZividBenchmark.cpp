@@ -1,8 +1,6 @@
 /*
-Zividbenchmark is a sample that will test the average speed of different operations on your computer.
+Zividbenchmarks is a sample that will test the average speed of different operations on your computer. 
 It will provide the mean and median for connects, disconnects, single imaging, HDR and filtering.
-
-Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
 #include <Zivid/Zivid.h>
@@ -19,7 +17,7 @@ namespace
 {
     const int printWidth = 56;
 
-    using SteadyClock = std::chrono::steady_clock;
+    using HighResClock = std::chrono::high_resolution_clock;
     using Duration = std::chrono::nanoseconds;
 
     Duration computeAverageDuration(const std::vector<Duration> &durations)
@@ -295,23 +293,21 @@ namespace
     Zivid::Camera getFirstCamera(Zivid::Application &zivid)
     {
         const auto cameras = zivid.cameras();
-        for(const auto &camera : cameras)
+        if(cameras.size() != 1)
         {
-            if(camera.state().status() == Zivid::CameraState::Status::available)
-            {
-                std::cout << "Available camera: " << camera.info().serialNumber() << std::endl;
-                printZividInfo(camera, zivid);
-                return camera;
-            }
-            std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
-                      << "Camera status: " << camera.state().status() << std::endl;
+            throw std::runtime_error("At least one camera needs to be connected");
         }
-        throw std::runtime_error("At least one camera needs to be available");
+        printZividInfo(cameras.at(0), zivid);
+        return cameras.at(0);
     }
 
-    std::chrono::microseconds getMinExposureTime()
+    std::chrono::microseconds getMinExposureTime(const std::string &modelName)
     {
-        return std::chrono::microseconds{ 1677 };
+        if(modelName.substr(0, 14) == "Zivid One Plus")
+        {
+            return std::chrono::microseconds{ 6500 }; // Min for Zivid One Plus
+        }
+        return std::chrono::microseconds{ 1677 }; // Min for Zivid 2 and Zivid 2+
     }
 
     Zivid::Settings::Acquisition
@@ -336,7 +332,7 @@ namespace
             throw std::runtime_error("Unequal input vector size");
         }
 
-        Zivid::Settings settings{ Zivid::Settings::Engine::phase,
+        Zivid::Settings settings{ Zivid::Settings::Experimental::Engine::phase,
                                   Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled{ enableGaussian },
                                   Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
                                   Zivid::Settings::Processing::Filters::Noise::Removal::Enabled{ true },
@@ -361,9 +357,9 @@ namespace
     template<typename FrameT, typename SettingsT>
     FrameAndCaptureTime<FrameT> captureAndMeasure(Zivid::Camera &camera, const SettingsT &settings)
     {
-        const auto before = SteadyClock::now();
+        const auto before = HighResClock::now();
         const auto frame = camera.capture(settings);
-        const auto after = SteadyClock::now();
+        const auto after = HighResClock::now();
         return { std::move(frame), (after - before) };
     }
 
@@ -373,19 +369,19 @@ namespace
     template<>
     Duration useFrame<Zivid::Frame>(const Zivid::Frame &frame)
     {
-        const auto before = SteadyClock::now();
+        const auto before = HighResClock::now();
         const auto pointCloud = frame.pointCloud();
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
-        const auto after = SteadyClock::now();
+        const auto after = HighResClock::now();
         return (after - before);
     }
 
     template<>
     Duration useFrame<Zivid::Frame2D>(const Zivid::Frame2D &frame2D)
     {
-        const auto before = SteadyClock::now();
+        const auto before = HighResClock::now();
         const auto image = frame2D.imageRGBA();
-        const auto after = SteadyClock::now();
+        const auto after = HighResClock::now();
         return (after - before);
     }
 
@@ -406,14 +402,14 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             dummyCapture2D(camera, settings2D);
-            const auto before = SteadyClock::now();
+            const auto before = HighResClock::now();
             const auto frame2dAndCaptureTime = captureAndMeasure<Zivid::Frame2D>(camera, settings2D);
             std::future<Duration> userThread =
                 std::async(std::launch::async, useFrame<Zivid::Frame2D>, std::ref(frame2dAndCaptureTime.frame));
             const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings);
             const auto processTime = useFrame(frameAndCaptureTime.frame);
             const auto processTime2D = userThread.get();
-            const auto after = SteadyClock::now();
+            const auto after = HighResClock::now();
 
             captureDurations2D.push_back(frame2dAndCaptureTime.captureTime);
             captureDurations.push_back(frameAndCaptureTime.captureTime);
@@ -456,14 +452,14 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             dummyCapture3D(camera, settings);
-            const auto before = SteadyClock::now();
+            const auto before = HighResClock::now();
             const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings);
             std::future<Duration> userThread =
                 std::async(std::launch::async, useFrame<Zivid::Frame>, std::ref(frameAndCaptureTime.frame));
             const auto frame2dAndCaptureTime = captureAndMeasure<Zivid::Frame2D>(camera, settings2D);
             const auto processTime2D = useFrame(frame2dAndCaptureTime.frame);
             const auto processTime = userThread.get();
-            const auto after = SteadyClock::now();
+            const auto after = HighResClock::now();
 
             captureDurations2D.push_back(frame2dAndCaptureTime.captureTime);
             captureDurations.push_back(frameAndCaptureTime.captureTime);
@@ -509,10 +505,10 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             dummyCapture3D(camera, settings);
-            const auto before = SteadyClock::now();
+            const auto before = HighResClock::now();
             const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings);
             const auto processTime = useFrame(frameAndCaptureTime.frame);
-            const auto after = SteadyClock::now();
+            const auto after = HighResClock::now();
 
             captureDurations.push_back(frameAndCaptureTime.captureTime);
             processDurations.push_back(processTime);
@@ -539,11 +535,11 @@ namespace
 
         for(size_t i = 0; i < numConnects; i++)
         {
-            const auto beforeConnect = SteadyClock::now();
+            const auto beforeConnect = HighResClock::now();
             camera.connect();
-            const auto afterConnect = SteadyClock::now();
+            const auto afterConnect = HighResClock::now();
             camera.disconnect();
-            const auto afterDisconnect = SteadyClock::now();
+            const auto afterDisconnect = HighResClock::now();
 
             connectDurations.push_back(afterConnect - beforeConnect);
             disconnectDurations.push_back(afterDisconnect - afterConnect);
@@ -581,16 +577,16 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
-            const auto beforeCapture2D = SteadyClock::now();
+            const auto beforeCapture2D = HighResClock::now();
             const auto frame2D = camera.capture(settings2D);
-            const auto afterCapture2D = SteadyClock::now();
+            const auto afterCapture2D = HighResClock::now();
             const auto frame = camera.capture(settings);
-            const auto afterCapture = SteadyClock::now();
+            const auto afterCapture = HighResClock::now();
             const auto image = frame2D.imageRGBA();
-            const auto afterProcess2D = SteadyClock::now();
+            const auto afterProcess2D = HighResClock::now();
             const auto pointCloud = frame.pointCloud();
             const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
-            const auto afterProcess = SteadyClock::now();
+            const auto afterProcess = HighResClock::now();
 
             captureDurations2D.push_back(afterCapture2D - beforeCapture2D);
             captureDurations.push_back(afterCapture - afterCapture2D);
@@ -642,16 +638,16 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
-            const auto beforeCapture = SteadyClock::now();
+            const auto beforeCapture = HighResClock::now();
             const auto frame = camera.capture(settings);
-            const auto afterCapture = SteadyClock::now();
+            const auto afterCapture = HighResClock::now();
             const auto frame2D = camera.capture(settings2D);
-            const auto afterCapture2D = SteadyClock::now();
+            const auto afterCapture2D = HighResClock::now();
             const auto pointCloud = frame.pointCloud();
             const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
-            const auto afterProcess = SteadyClock::now();
+            const auto afterProcess = HighResClock::now();
             const auto image = frame2D.imageRGBA();
-            const auto afterProcess2D = SteadyClock::now();
+            const auto afterProcess2D = HighResClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
             captureDurations2D.push_back(afterCapture2D - afterCapture);
@@ -696,12 +692,12 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
-            const auto beforeCapture = SteadyClock::now();
+            const auto beforeCapture = HighResClock::now();
             const auto frame = camera.capture(settings);
-            const auto afterCapture = SteadyClock::now();
+            const auto afterCapture = HighResClock::now();
             const auto pointCloud = frame.pointCloud();
             const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
-            const auto afterProcess = SteadyClock::now();
+            const auto afterProcess = HighResClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
             processDurations.push_back(afterProcess - afterCapture);
@@ -738,9 +734,9 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
-            const auto beforeSuggestSettings = SteadyClock::now();
+            const auto beforeSuggestSettings = HighResClock::now();
             const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
-            const auto afterSuggestSettings = SteadyClock::now();
+            const auto afterSuggestSettings = HighResClock::now();
 
             suggestSettingsDurations.push_back(afterSuggestSettings - beforeSuggestSettings);
         }
@@ -825,11 +821,11 @@ namespace
 
         for(size_t i = 0; i < numFrames; i++)
         {
-            const auto beforeCapture = SteadyClock::now();
+            const auto beforeCapture = HighResClock::now();
             // The 2D capture API returns after the 2D image is available in CPU memory.
             // All the acquisition, processing, and copying happen inside this function call.
             const auto frame2D = camera.capture(settings);
-            const auto afterCapture = SteadyClock::now();
+            const auto afterCapture = HighResClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
         }
@@ -853,19 +849,19 @@ namespace
     Duration copyDataTime(Zivid::Frame &frame)
     {
         auto pointCloud = frame.pointCloud();
-        const auto beforeCopyData = SteadyClock::now();
+        const auto beforeCopyData = HighResClock::now();
         pointCloud.copyData<DataType>();
-        const auto afterCopyData = SteadyClock::now();
+        const auto afterCopyData = HighResClock::now();
         return afterCopyData - beforeCopyData;
     }
 
     Duration copyDataTime(Zivid::Frame2D &frame2D)
     {
-        const auto beforeCopyData = SteadyClock::now();
+        const auto beforeCopyData = HighResClock::now();
         // The method to get the image from the Frame2D object returns the image right away.
         // The image object holds a handle to the image data in CPU memory.
         frame2D.imageRGBA();
-        const auto afterCopyData = SteadyClock::now();
+        const auto afterCopyData = HighResClock::now();
         return afterCopyData - beforeCopyData;
     }
 
@@ -929,9 +925,9 @@ namespace
             std::vector<Duration> durationsPerFormat;
             for(size_t j = 0; j < numFrames; j++)
             {
-                const auto beforeSave = SteadyClock::now();
+                const auto beforeSave = HighResClock::now();
                 frame.save(dataFile);
-                const auto afterSave = SteadyClock::now();
+                const auto afterSave = HighResClock::now();
 
                 durationsPerFormat.push_back(afterSave - beforeSave);
             }
@@ -975,7 +971,7 @@ int main(int argc, char **argv)
         const size_t numFramesSave = 10;
         const size_t numCopies = 10;
 
-        const std::chrono::microseconds exposureTime = getMinExposureTime();
+        const std::chrono::microseconds exposureTime = getMinExposureTime(camera.info().modelName().toString());
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
         const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
         const std::vector<std::chrono::microseconds> threeExposureTimes{ exposureTime, exposureTime, exposureTime };

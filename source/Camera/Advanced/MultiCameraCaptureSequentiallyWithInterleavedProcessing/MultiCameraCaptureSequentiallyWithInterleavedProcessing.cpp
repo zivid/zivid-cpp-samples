@@ -25,26 +25,6 @@ namespace
 
         return data;
     }
-
-    std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
-    {
-        std::vector<Zivid::Camera> connectedCameras;
-        for(auto camera : cameras)
-        {
-            if(camera.state().status() == Zivid::CameraState::Status::available)
-            {
-                std::cout << "Connecting to camera: " << camera.info().serialNumber() << std::endl;
-                camera.connect();
-                connectedCameras.push_back(camera);
-            }
-            else
-            {
-                std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
-                          << "Camera status: " << camera.state().status() << std::endl;
-            }
-        }
-        return connectedCameras;
-    }
 } // namespace
 
 int main()
@@ -57,11 +37,15 @@ int main()
         auto cameras = zivid.cameras();
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
 
-        auto connectedCameras = connectToAllAvailableCameras(cameras);
+        for(auto &camera : cameras)
+        {
+            std::cout << "Connecting to camera: " << camera.info().serialNumber().value() << std::endl;
+            camera.connect();
+        }
 
         std::vector<std::future<Zivid::Array2D<Zivid::PointXYZColorRGBA>>> futureData;
 
-        for(auto &camera : connectedCameras)
+        for(auto &camera : cameras)
         {
             std::cout << "Capturing frame with camera: " << camera.info().serialNumber() << std::endl;
             const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
