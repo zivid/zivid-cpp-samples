@@ -29,7 +29,7 @@ namespace
 
     CommandType enterCommand()
     {
-        std::cout << "Enter command, p (to add robot pose) or c (to perform calibration):";
+        std::cout << "Enter command, p (to add robot pose) or c (to perform calibration): ";
         const auto command = getInput();
 
         if(command == "P" || command == "p")
@@ -61,41 +61,96 @@ namespace
         return robotPose;
     }
 
-    Zivid::Calibration::HandEyeOutput performCalibration(
-        const std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput)
+    Zivid::Frame assistedCapture(Zivid::Camera &camera)
     {
-        while(true)
+        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
+            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
+            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
+        };
+        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+        return camera.capture(settings);
+    }
+
+    std::string markersToString(const std::vector<int> &markerIds)
+    {
+        std::ostringstream oss;
+        for(const auto &id : markerIds)
         {
-            std::cout << "Enter type of calibration, eth (for eye-to-hand) or eih (for eye-in-hand): ";
-            const auto calibrationType = getInput();
-            if(calibrationType == "eth" || calibrationType == "ETH")
+            oss << id << " ";
+        }
+        return oss.str();
+    }
+
+    void handleAddPose(
+        size_t &currentPoseId,
+        std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput,
+        Zivid::Camera &camera,
+        const std::string &calibrationObject)
+    {
+        const auto robotPose = enterRobotPose(currentPoseId);
+
+        std::cout << "Detecting calibration object in point cloud" << std::endl;
+        if(calibrationObject == "c")
+        {
+            const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
+            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+
+            if(detectionResult.valid())
             {
-                std::cout << "Performing eye-to-hand calibration" << std::endl;
-                std::cout << "The resulting transform is the camera pose in robot base frame" << std::endl;
-                return Zivid::Calibration::calibrateEyeToHand(handEyeInput);
+                std::cout << "Calibration board detected " << std::endl;
+                handEyeInput.emplace_back(robotPose, detectionResult);
+                currentPoseId++;
             }
-            if(calibrationType == "eih" || calibrationType == "EIH")
+            else
             {
-                std::cout << "Performing eye-in-hand calibration" << std::endl;
-                std::cout << "The resulting transform is the camera pose in flange (end-effector) frame" << std::endl;
-                return Zivid::Calibration::calibrateEyeInHand(handEyeInput);
+                std::cout
+                    << "Failed to detect calibration board, ensure that the entire board is in the view of the camera"
+                    << std::endl;
             }
-            std::cout << "Entered uknown method" << std::endl;
+        }
+        else if(calibrationObject == "m")
+        {
+            const auto frame = assistedCapture(camera);
+
+            auto markerDictionary = Zivid::Calibration::MarkerDictionary::aruco4x4_50;
+            std::vector<int> markerIds = { 1, 2, 3 };
+
+            std::cout << "Detecting arUco marker IDs " << markersToString(markerIds) << "from the dictionary "
+                      << markerDictionary << std::endl;
+            auto detectionResult = Zivid::Calibration::detectMarkers(frame, markerIds, markerDictionary);
+
+            if(detectionResult.valid())
+            {
+                std::cout << "ArUco marker(s) detected: " << detectionResult.detectedMarkers().size() << std::endl;
+                handEyeInput.emplace_back(robotPose, detectionResult);
+                currentPoseId++;
+            }
+            else
+            {
+                std::cout
+                    << "Failed to detect any ArUco markers, ensure that at least one ArUco marker is in the view of the camera"
+                    << std::endl;
+            }
         }
     }
-} // namespace
 
-int main()
-{
-    try
+    std::vector<Zivid::Calibration::HandEyeInput> readHandEyeInputs(Zivid::Camera &camera)
     {
-        Zivid::Application zivid;
-
-        std::cout << "Connecting to camera" << std::endl;
-        auto camera{ zivid.connectCamera() };
-
         size_t currentPoseId{ 0 };
         bool calibrate{ false };
+
+        std::string calibrationObject;
+        while(true)
+        {
+            std::cout
+                << "Enter calibration object you are using, m (for ArUco marker(s)) or c (for Zivid checkerboard): "
+                << std::endl;
+            calibrationObject = getInput();
+            if(calibrationObject == "m" || calibrationObject == "c")
+            {
+                break;
+            }
+        }
 
         std::cout << "Zivid primarily operates with a (4x4) transformation matrix. To convert" << std::endl;
         std::cout << "from axis-angle, rotation vector, roll-pitch-yaw, or quaternion, check out" << std::endl;
@@ -110,25 +165,7 @@ int main()
                 {
                     try
                     {
-                        const auto robotPose = enterRobotPose(currentPoseId);
-
-                        const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
-
-                        std::cout << "Detecting checkerboard in point cloud" << std::endl;
-                        const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
-
-                        if(detectionResult.valid())
-                        {
-                            std::cout << "Calibration board detected " << std::endl;
-                            handEyeInput.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, detectionResult });
-                            currentPoseId++;
-                        }
-                        else
-                        {
-                            std::cout
-                                << "Failed to detect calibration board, ensure that the entire board is in the view of the camera"
-                                << std::endl;
-                        }
+                        handleAddPose(currentPoseId, handEyeInput, camera, calibrationObject);
                     }
                     catch(const std::exception &e)
                     {
@@ -149,6 +186,45 @@ int main()
                 }
             }
         } while(!calibrate);
+        return handEyeInput;
+    }
+
+    Zivid::Calibration::HandEyeOutput performCalibration(
+        const std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput)
+    {
+        while(true)
+        {
+            std::cout << "Enter type of calibration, eth (for eye-to-hand) or eih (for eye-in-hand): ";
+            const auto calibrationType = getInput();
+            if(calibrationType == "eth" || calibrationType == "ETH")
+            {
+                std::cout << "Performing eye-to-hand calibration with " << handEyeInput.size() << " dataset pairs"
+                          << std::endl;
+                std::cout << "The resulting transform is the camera pose in robot base frame" << std::endl;
+                return Zivid::Calibration::calibrateEyeToHand(handEyeInput);
+            }
+            if(calibrationType == "eih" || calibrationType == "EIH")
+            {
+                std::cout << "Performing eye-in-hand calibration with " << handEyeInput.size() << " dataset pairs"
+                          << std::endl;
+                std::cout << "The resulting transform is the camera pose in flange (end-effector) frame" << std::endl;
+                return Zivid::Calibration::calibrateEyeInHand(handEyeInput);
+            }
+            std::cout << "Entered uknown method" << std::endl;
+        }
+    }
+} // namespace
+
+int main()
+{
+    try
+    {
+        Zivid::Application zivid;
+
+        std::cout << "Connecting to camera" << std::endl;
+        auto camera{ zivid.connectCamera() };
+
+        const auto handEyeInput{ readHandEyeInputs(camera) };
 
         const auto calibrationResult{ performCalibration(handEyeInput) };
 
