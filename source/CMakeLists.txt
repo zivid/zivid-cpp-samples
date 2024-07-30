@@ -36,6 +36,7 @@ set(SAMPLES
     Camera/Advanced/AllocateMemoryForPointCloudData
     Camera/Advanced/CaptureHalconViaGenICam
     Camera/Advanced/CaptureHalconViaZivid
+    Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/CaptureWithDiagnostics
     Camera/InfoUtilOther/GetCameraIntrinsics
@@ -120,6 +121,7 @@ set(Visualization_DEPENDING
     ROIBoxViaCheckerboard
 )
 set(Clipp_DEPENDING
+    AutomaticNetworkConfigurationForCameras
     CameraUserData
     MultiCameraCalibrationFromZDF
     StitchByTransformation
