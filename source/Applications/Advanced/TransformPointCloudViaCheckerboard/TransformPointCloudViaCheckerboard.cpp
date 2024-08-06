@@ -171,24 +171,24 @@ int main()
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
-        const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
-        std::cout << transformCameraToCheckerboard << std::endl;
+        const auto cameraToCheckerboardTransform = detectionResult.pose().toMatrix();
+        std::cout << cameraToCheckerboardTransform << std::endl;
         std::cout << "Camera pose in checkerboard frame:" << std::endl;
-        const auto transformCheckerboardToCamera = transformCameraToCheckerboard.inverse();
-        std::cout << transformCheckerboardToCamera << std::endl;
+        const auto checkerboardToCameraTransform = cameraToCheckerboardTransform.inverse();
+        std::cout << checkerboardToCameraTransform << std::endl;
 
         const auto transformFile = "CheckerboardToCameraTransform.yaml";
         std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformFile << std::endl;
-        transformCheckerboardToCamera.save(transformFile);
+        checkerboardToCameraTransform.save(transformFile);
 
         std::cout << "Transforming point cloud from camera frame to Checkerboard frame" << std::endl;
-        pointCloud.transform(transformCheckerboardToCamera);
+        pointCloud.transform(checkerboardToCameraTransform);
 
         std::cout << "Converting to OpenCV image format" << std::endl;
         const auto bgraImage = pointCloudToColorBGRA(pointCloud);
 
         std::cout << "Visualizing checkerboard with coordinate system" << std::endl;
-        drawCoordinateSystem(frame, transformCameraToCheckerboard, bgraImage);
+        drawCoordinateSystem(frame, cameraToCheckerboardTransform, bgraImage);
         displayBGRA(bgraImage, "Checkerboard transformation frame");
 
         const auto checkerboardTransformedFile = "CalibrationBoardInCheckerboardOrigin.zdf";
