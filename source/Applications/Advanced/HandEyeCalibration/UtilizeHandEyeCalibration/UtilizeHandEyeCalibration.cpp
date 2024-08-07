@@ -128,7 +128,7 @@ int main()
         std::string fileName;
         size_t imageCoordinateX = 0;
         size_t imageCoordinateY = 0;
-        Zivid::Matrix4x4 transformBaseToCamera;
+        Zivid::Matrix4x4 baseToCameraTransform;
 
         bool loopContinue = true;
         while(loopContinue)
@@ -148,7 +148,7 @@ int main()
 
                     std::cout << "Reading camera pose in robot base reference frame (result of eye-to-hand calibration"
                               << std::endl;
-                    transformBaseToCamera.load(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
+                    baseToCameraTransform.load(std::string(ZIVID_SAMPLE_DATA_DIR) + eyeToHandTransformFile);
 
                     loopContinue = false;
                     break;
@@ -168,16 +168,16 @@ int main()
                     std::cout
                         << "Reading camera pose in end-effector reference frame (result of eye-in-hand calibration)"
                         << std::endl;
-                    Zivid::Matrix4x4 transformEndEffectorToCamera(
+                    Zivid::Matrix4x4 endEffectorToCameraTransform(
                         std::string(ZIVID_SAMPLE_DATA_DIR) + eyeInHandTransformFile);
 
                     std::cout << "Reading end-effector pose in robot base reference frame" << std::endl;
-                    Zivid::Matrix4x4 transformBaseToEndEffector(
+                    Zivid::Matrix4x4 baseToEndEffectorTransform(
                         std::string(ZIVID_SAMPLE_DATA_DIR) + robotTransformFile);
 
                     std::cout << "Computing camera pose in robot base reference frame" << std::endl;
-                    transformBaseToCamera = eigenToZivid(
-                        zividToEigen(transformBaseToEndEffector) * zividToEigen(transformEndEffectorToCamera));
+                    baseToCameraTransform = eigenToZivid(
+                        zividToEigen(baseToEndEffectorTransform) * zividToEigen(endEffectorToCameraTransform));
 
                     loopContinue = false;
                     break;
@@ -216,10 +216,10 @@ int main()
                               << pointInCameraFrame.y() << " " << pointInCameraFrame.z() << std::endl;
 
                     // Converting to Eigen matrix for easier computation
-                    const Eigen::Affine3f transformBaseToCameraEigen = zividToEigen(transformBaseToCamera);
+                    const Eigen::Affine3f baseToCameraTransformEigen = zividToEigen(baseToCameraTransform);
 
                     std::cout << "Transforming (picking) point from camera to robot base reference frame" << std::endl;
-                    const Eigen::Vector4f pointInBaseFrame = transformBaseToCameraEigen * pointInCameraFrame;
+                    const Eigen::Vector4f pointInBaseFrame = baseToCameraTransformEigen * pointInCameraFrame;
 
                     std::cout << "Point coordinates in robot base reference frame: " << pointInBaseFrame.x() << " "
                               << pointInBaseFrame.y() << " " << pointInBaseFrame.z() << std::endl;
@@ -231,7 +231,7 @@ int main()
                 {
                     std::cout << "Transforming point cloud" << std::endl;
 
-                    pointCloud.transform(transformBaseToCamera);
+                    pointCloud.transform(baseToCameraTransform);
 
                     const auto saveFile = "ZividGemTransformed.zdf";
                     std::cout << "Saving point cloud to file: " << saveFile << std::endl;
