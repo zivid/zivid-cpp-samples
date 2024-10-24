@@ -141,12 +141,12 @@ int main()
         }
 
         std::cout << "Estimating pose of detected ArUco marker" << std::endl;
-        const auto transformCameraToMarker = detectionResult.detectedMarkers()[0].pose().toMatrix();
+        const auto cameraToMarkerTransform = detectionResult.detectedMarkers()[0].pose().toMatrix();
 
         std::cout << "Transforming the ROI base frame points to the camera frame" << std::endl;
         const auto roiPointsInCameraFrame = transformPoints(
             std::vector<Zivid::PointXYZ>{ pointOInArUcoFrame, pointAInArUcoFrame, pointBInArUcoFrame },
-            transformCameraToMarker);
+            cameraToMarkerTransform);
 
         std::cout << "Setting the ROI" << std::endl;
         settings.set(Zivid::Settings::RegionOfInterest{
