@@ -37,12 +37,12 @@ namespace
     }
 
 
-    std::vector<Zivid::PointXYZ> transformGridToCalibrationBoard(
+    std::vector<Zivid::PointXYZ> transformGridToCameraFrame(
         const std::vector<cv::Matx41f> &grid,
-        const Zivid::Matrix4x4 &transformCameraToCheckerboard)
+        const Zivid::Matrix4x4 &cameraToCheckerboardTransform)
     {
         std::vector<Zivid::PointXYZ> pointsInCameraFrame;
-        const auto transformationMatrix = cv::Matx44f{ transformCameraToCheckerboard.data() };
+        const auto transformationMatrix = cv::Matx44f{ cameraToCheckerboardTransform.data() };
         for(const auto &point : grid)
         {
             const auto transformedPoint = transformationMatrix * point;
@@ -87,15 +87,16 @@ int main()
         }
 
         std::cout << "Estimating checkerboard pose" << std::endl;
-        const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
-        std::cout << transformCameraToCheckerboard << std::endl;
+        const auto cameraToCheckerboardTransform = detectionResult.pose().toMatrix();
+        std::cout << cameraToCheckerboardTransform << std::endl;
 
         std::cout << "Creating a grid of 7 x 6 points (3D) with 30 mm spacing to match checkerboard corners"
                   << std::endl;
-        const auto grid = checkerboardGrid();
+        const auto gridInCheckerboardFrame = checkerboardGrid();
 
         std::cout << "Transforming the grid to the camera frame" << std::endl;
-        const auto pointsInCameraFrame = transformGridToCalibrationBoard(grid, transformCameraToCheckerboard);
+        const auto pointsInCameraFrame =
+            transformGridToCameraFrame(gridInCheckerboardFrame, cameraToCheckerboardTransform);
 
         std::cout << "Getting projector pixels (2D) corresponding to points (3D) in the camera frame" << std::endl;
         const auto projectorPixels = Zivid::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);

@@ -107,15 +107,15 @@ int main()
         std::cout << "ArUco marker pose in camera frame:" << std::endl;
         std::cout << transformCameraToMarker << std::endl;
         std::cout << "Camera pose in ArUco marker frame:" << std::endl;
-        const auto transformMarkerToCamera = transformCameraToMarker.inverse();
-        std::cout << transformMarkerToCamera << std::endl;
+        const auto markerToCameraTransform = transformCameraToMarker.inverse();
+        std::cout << markerToCameraTransform << std::endl;
 
         const auto transformFile = "ArUcoMarkerToCameraTransform.yaml";
         std::cout << "Saving a YAML file with Inverted ArUco marker pose to file: " << transformFile << std::endl;
-        transformMarkerToCamera.save(transformFile);
+        markerToCameraTransform.save(transformFile);
 
         std::cout << "Transforming point cloud from camera frame to ArUco marker frame" << std::endl;
-        pointCloud.transform(transformMarkerToCamera);
+        pointCloud.transform(markerToCameraTransform);
 
         const auto arucoMarkerTransformedFile = "CalibrationBoardInArucoMarkerOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << arucoMarkerTransformedFile << std::endl;
