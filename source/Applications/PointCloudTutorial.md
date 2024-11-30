@@ -223,7 +223,7 @@ m](https://support.zivid.com/latest//academy/applications/transform/transform-mi
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L234))
 
 ``` sourceCode cpp
-pointCloud.transform(transformBaseToCamera);
+pointCloud.transform(baseToCameraTransform);
 ```
 
 ## Downsample

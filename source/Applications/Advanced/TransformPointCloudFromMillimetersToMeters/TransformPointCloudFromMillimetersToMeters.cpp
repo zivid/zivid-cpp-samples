@@ -20,11 +20,11 @@ int main()
         auto frame = Zivid::Frame(dataFile);
         auto pointCloud = frame.pointCloud();
 
-        const auto transformMillimetersToMeters =
+        const auto millimetersToMetersTransform =
             Zivid::Matrix4x4{ { 0.001F, 0, 0, 0 }, { 0, 0.001F, 0, 0 }, { 0, 0, 0.001F, 0 }, { 0, 0, 0, 1 } };
 
         std::cout << "Transforming point cloud from mm to m" << std::endl;
-        pointCloud.transform(transformMillimetersToMeters);
+        pointCloud.transform(millimetersToMetersTransform);
 
         const auto transformedFile = "FrameInMeters.zdf";
         std::cout << "Saving transformed point cloud to file: " << transformedFile << std::endl;
