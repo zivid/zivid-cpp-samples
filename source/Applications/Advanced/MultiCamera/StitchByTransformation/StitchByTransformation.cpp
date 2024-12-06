@@ -4,14 +4,15 @@ Use transformation matrices from Multi-Camera calibration to transform point clo
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Experimental/SettingsInfo.h>
+#include <Zivid/Zivid.h>
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/visualization/cloud_viewer.h>
 
 #include <clipp.h>
 
-#include <Zivid/Experimental/SettingsInfo.h>
-#include <Zivid/Zivid.h>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -175,7 +176,7 @@ int main(int argc, char **argv)
             const auto xyz = pointCloud.copyPointsXYZ();
             for(size_t j = 0; j < pointCloud.size(); j++)
             {
-                if(!isnan(xyz(j).x))
+                if(!std::isnan(xyz(j).x))
                 {
                     stitchedPointCloud.points[validPoints].x =
                         xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)

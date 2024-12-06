@@ -2,13 +2,13 @@
 Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from a ZDF files.
 */
 
+#include <Zivid/Zivid.h>
+
 #include <clipp.h>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/visualization/cloud_viewer.h>
-
-#include <Zivid/Zivid.h>
 
 #include <cmath>
 #include <iostream>
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
             const auto xyz = pointCloud.copyPointsXYZ();
             for(size_t j = 0; j < pointCloud.size(); j++)
             {
-                if(!isnan(xyz(j).x))
+                if(!std::isnan(xyz(j).x))
                 {
                     stitchedPointCloud.points[validPoints].x =
                         xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)

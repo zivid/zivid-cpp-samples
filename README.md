@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.13.1. For
+This repository contains cpp code samples for Zivid SDK v2.14.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -66,6 +66,7 @@ from the camera can be used.
             find a compromise.
           - [CaptureHDRPrintNormals](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp) - Capture Zivid point clouds, compute normals and print a
             subset.
+          - [CaptureViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureViaGenICam/CaptureViaGenICam.cpp) - Capture using the GenICam interface.
           - [MultiCameraCaptureInParallel](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp) - Capture point clouds with multiple cameras in parallel.
           - [MultiCameraCaptureSequentially](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp) - Capture point clouds with multiple cameras sequentially.
           - [MultiCameraCaptureSequentiallyWithInterleavedProcessing](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing/MultiCameraCaptureSequentiallyWithInterleavedProcessing.cpp) - Capture point clouds with multiple cameras sequentially
@@ -244,8 +245,8 @@ Note:
 
 -----
 
-To setup and use Zivid in one of these operating systems, please follow
-their respective instructions in the following pages:
+To set up and use Zivid in one of these operating systems, please follow
+their respective instructions on the following pages:
 
   - [Install Zivid + HALCON for
     Windows](https://support.zivid.com/latest/api-reference/samples/halcon/install-zivid-halcon-for-windows.html)
@@ -255,6 +256,8 @@ their respective instructions in the following pages:
     Program](https://support.zivid.com/latest/api-reference/samples/halcon/create-a-halcon-hello-world.html)
   - [How to Run a HALCON
     Sample](https://support.zivid.com/latest/api-reference/samples/halcon/how-to-run-a-halcon-sample.html)
+  - [Debug in
+    HALCON](https://support.zivid.com/latest/api-reference/samples/halcon/halcon-debug.html)
   - [HALCON Sample
     Videos](https://support.zivid.com/latest/api-reference/samples/halcon/halcon-sample-videos.html)
 
@@ -263,7 +266,7 @@ with Zivid cameras:
 
   - 19.05 Progress, 20.05 Progress, 21.11 Progress
 
-We recommend to use one of the HALCON versions we have tested.
+We recommend using one of the HALCON versions we have tested.
 
 ## Support
 

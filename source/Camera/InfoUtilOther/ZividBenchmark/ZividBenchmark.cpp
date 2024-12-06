@@ -155,11 +155,6 @@ namespace
         }
     }
 
-    void printAssistedCapture3DHeader(const size_t numFrames)
-    {
-        printHeaderLine("Running assisted capture ", numFrames, " times:");
-    }
-
     void printCapture2DHeader(const size_t numFrames, const Zivid::Settings2D &settings)
     {
         printHeaderLine("Capturing ", numFrames, " 2D frames:");
@@ -225,11 +220,6 @@ namespace
               "  2D image processing time:",
               "  Total 3D + 2D capture time:" },
             durations);
-    }
-
-    void printAssistedCapture3DResults(const std::vector<Duration> &durations)
-    {
-        printResults({ "  Suggest settings time:" }, durations);
     }
 
     void printNegligableFilters()
@@ -314,18 +304,7 @@ namespace
         return std::chrono::microseconds{ 1677 };
     }
 
-    Zivid::Settings::Acquisition
-    acquisition3D(const double aperture, const std::chrono::microseconds exposureTime, const bool useProjector)
-    {
-        return Zivid::Settings::Acquisition{
-            Zivid::Settings::Acquisition::ExposureTime{ exposureTime },
-            Zivid::Settings::Acquisition::Aperture{ aperture },
-            Zivid::Settings::Acquisition::Brightness{ (useProjector) ? 1.0 : 0.0 },
-            Zivid::Settings::Acquisition::Gain{ 1.0 },
-        };
-    }
-
-    Zivid::Settings makeSettings(
+    Zivid::Settings makeSettings3D(
         const std::vector<double> &apertures,
         const std::vector<std::chrono::microseconds> &exposureTimes,
         const bool enableGaussian,
@@ -345,10 +324,34 @@ namespace
                                       enableReflection } };
         for(size_t i = 0; i < apertures.size(); ++i)
         {
-            settings.acquisitions().emplaceBack(acquisition3D(apertures.at(i), exposureTimes.at(i), true));
+            settings.acquisitions().emplaceBack(Zivid::Settings::Acquisition{
+                Zivid::Settings::Acquisition::ExposureTime{ exposureTimes.at(i) },
+                Zivid::Settings::Acquisition::Aperture{ apertures.at(i) },
+                Zivid::Settings::Acquisition::Brightness{ 1.0 },
+                Zivid::Settings::Acquisition::Gain{ 1.0 },
+            });
         }
 
         return settings;
+    }
+
+    Zivid::Settings2D makeSettings2D(const std::chrono::microseconds exposureTime)
+    {
+        Zivid::Settings2D settings{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                                        Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } },
+                                    Zivid::Settings2D::Sampling::Color::rgb };
+        return settings;
+    }
+
+    Zivid::Settings makeSettings(
+        const std::vector<double> &apertures,
+        const std::vector<std::chrono::microseconds> &exposureTimes,
+        const std::chrono::microseconds &exposureTime2D,
+        const bool enableGaussian,
+        const bool enableReflection)
+    {
+        return makeSettings3D(apertures, exposureTimes, enableGaussian, enableReflection)
+            .copyWith(Zivid::Settings::Color{ makeSettings2D(exposureTime2D) });
     }
 
     template<typename FrameT>
@@ -389,12 +392,34 @@ namespace
         return (after - before);
     }
 
+    bool doesNotSupportColorWithoutProjector(const Zivid::CameraInfo::Model model)
+    {
+        return (
+            model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
+            || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
+            || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60);
+    }
+
     void benchmarkCapture2DFirstAndThen3D(
         Zivid::Camera &camera,
-        const Zivid::Settings2D &settings2D,
         const Zivid::Settings &settings,
-        const size_t numFrames)
+        const size_t numFrames,
+        const bool withProjectorFor2D)
     {
+        if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
+           && settings.color().value().sampling().color().value()
+                  != Zivid::Settings2D::Sampling::Color::ValueType::grayscale)
+        {
+            std::cout << "Skipping test: " << camera.info().model() << " does not support color without projector"
+                      << std::endl;
+            return;
+        }
+        auto settings3D = settings.copyWith(Zivid::Settings::Color{}, Zivid::Settings::Sampling::Color::disabled);
+        auto settings2D = settings.color().value();
+        for(auto &acquisition : settings2D.acquisitions())
+        {
+            acquisition.set(Zivid::Settings2D::Acquisition::Brightness{ withProjectorFor2D ? 1.0 : 0.0 });
+        }
         std::vector<Duration> captureDurations2D;
         std::vector<Duration> captureDurations;
         std::vector<Duration> processDurations2D;
@@ -410,7 +435,7 @@ namespace
             const auto frame2dAndCaptureTime = captureAndMeasure<Zivid::Frame2D>(camera, settings2D);
             std::future<Duration> userThread =
                 std::async(std::launch::async, useFrame<Zivid::Frame2D>, std::ref(frame2dAndCaptureTime.frame));
-            const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings);
+            const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings3D);
             const auto processTime = useFrame(frameAndCaptureTime.frame);
             const auto processTime2D = userThread.get();
             const auto after = SteadyClock::now();
@@ -442,9 +467,23 @@ namespace
     void benchmarkCapture3DFirstAndThen2D(
         Zivid::Camera &camera,
         const Zivid::Settings &settings,
-        const Zivid::Settings2D &settings2D,
-        const size_t numFrames)
+        const size_t numFrames,
+        const bool withProjectorFor2D)
     {
+        if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
+           && settings.color().value().sampling().color().value()
+                  != Zivid::Settings2D::Sampling::Color::ValueType::grayscale)
+        {
+            std::cout << "Skipping test: " << camera.info().model() << " does not support color without projector"
+                      << std::endl;
+            return;
+        }
+        auto settings3D = settings.copyWith(Zivid::Settings::Color{}, Zivid::Settings::Sampling::Color::disabled);
+        auto settings2D = settings.color().value();
+        for(auto &acquisition : settings2D.acquisitions())
+        {
+            acquisition.set(Zivid::Settings2D::Acquisition::Brightness{ withProjectorFor2D ? 1.0 : 0.0 });
+        }
         std::vector<Duration> captureDurations2D;
         std::vector<Duration> captureDurations;
         std::vector<Duration> processDurations2D;
@@ -457,7 +496,7 @@ namespace
         {
             dummyCapture3D(camera, settings);
             const auto before = SteadyClock::now();
-            const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings);
+            const auto frameAndCaptureTime = captureAndMeasure<Zivid::Frame>(camera, settings3D);
             std::future<Duration> userThread =
                 std::async(std::launch::async, useFrame<Zivid::Frame>, std::ref(frameAndCaptureTime.frame));
             const auto frame2dAndCaptureTime = captureAndMeasure<Zivid::Frame2D>(camera, settings2D);
@@ -493,18 +532,26 @@ namespace
         Zivid::Camera &camera,
         const Zivid::Settings &baseSettings,
         const size_t numFrames,
-        bool useProjector)
+        bool withProjectorFor2D)
     {
+        if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
+           && baseSettings.color().value().sampling().color().value()
+                  != Zivid::Settings2D::Sampling::Color::ValueType::grayscale)
+        {
+            std::cout << "Skipping test: " << camera.info().model() << " does not support color without projector"
+                      << std::endl;
+            return;
+        }
         std::vector<Duration> captureDurations;
         std::vector<Duration> processDurations;
         std::vector<Duration> totalDurations;
         std::vector<Duration> allDurations;
 
-        auto acquisitions = baseSettings.acquisitions().value();
-        acquisitions.insert(acquisitions.begin(), acquisition3D(2.8, std::chrono::microseconds{ 10000 }, useProjector));
-        const auto settings = baseSettings.copyWith(
-            Zivid::Settings::Acquisitions{ acquisitions },
-            Zivid::Settings::Processing::Color::Experimental::Mode::useFirstAcquisition);
+        const auto aperture = baseSettings.acquisitions().at(0).aperture().value();
+        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+            Zivid::Settings2D::Acquisition::Aperture{ aperture },
+            Zivid::Settings2D::Acquisition::ExposureTime(std::chrono::microseconds{ 10000 }) } } };
+        const auto settings = baseSettings.copyWith(Zivid::Settings::Color{ settings2D });
 
         for(size_t i = 0; i < numFrames; i++)
         {
@@ -557,13 +604,10 @@ namespace
         printConnectResults(allDurations);
     }
 
-    std::vector<Duration> benchmarkCapture2D3D(
-        Zivid::Camera &camera,
-        const Zivid::Settings2D &settings2D,
-        const Zivid::Settings &settings,
-        const size_t numFrames)
+    std::vector<Duration>
+    benchmarkCapture2D3D(Zivid::Camera &camera, const Zivid::Settings &settings, const size_t numFrames)
     {
-        printCapture2DHeader(numFrames, settings2D);
+        printCapture2DHeader(numFrames, settings.color().value());
         printCapture3DHeader(numFrames, settings);
 
         for(size_t i = 0; i < 5; i++) // setup time
@@ -582,7 +626,7 @@ namespace
         for(size_t i = 0; i < numFrames; i++)
         {
             const auto beforeCapture2D = SteadyClock::now();
-            const auto frame2D = camera.capture(settings2D);
+            const auto frame2D = camera.capture(settings.color().value());
             const auto afterCapture2D = SteadyClock::now();
             const auto frame = camera.capture(settings);
             const auto afterCapture = SteadyClock::now();
@@ -618,14 +662,11 @@ namespace
         return totalDurations;
     }
 
-    std::vector<Duration> benchmarkCapture3D2D(
-        Zivid::Camera &camera,
-        const Zivid::Settings &settings,
-        const Zivid::Settings2D &settings2D,
-        const size_t numFrames)
+    std::vector<Duration>
+    benchmarkCapture3D2D(Zivid::Camera &camera, const Zivid::Settings &settings, const size_t numFrames)
     {
         printCapture3DHeader(numFrames, settings);
-        printCapture2DHeader(numFrames, settings2D);
+        printCapture2DHeader(numFrames, settings.color().value());
 
         for(size_t i = 0; i < 5; i++) // setup time
         {
@@ -645,7 +686,7 @@ namespace
             const auto beforeCapture = SteadyClock::now();
             const auto frame = camera.capture(settings);
             const auto afterCapture = SteadyClock::now();
-            const auto frame2D = camera.capture(settings2D);
+            const auto frame2D = camera.capture(settings.color().value());
             const auto afterCapture2D = SteadyClock::now();
             const auto pointCloud = frame.pointCloud();
             const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
@@ -720,38 +761,6 @@ namespace
         return totalDurations;
     }
 
-    void benchmarkAssistedCapture3D(Zivid::Camera &camera, const size_t numFrames)
-    {
-        printAssistedCapture3DHeader(numFrames);
-
-        const Zivid::CaptureAssistant::SuggestSettingsParameters suggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
-        };
-
-        for(size_t i = 0; i < 5; i++) // Warmup
-        {
-            const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
-        }
-
-        std::vector<Duration> suggestSettingsDurations;
-
-        for(size_t i = 0; i < numFrames; i++)
-        {
-            const auto beforeSuggestSettings = SteadyClock::now();
-            const auto settings{ Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters) };
-            const auto afterSuggestSettings = SteadyClock::now();
-
-            suggestSettingsDurations.push_back(afterSuggestSettings - beforeSuggestSettings);
-        }
-
-        std::vector<Duration> allDurations;
-        allDurations.push_back(computeMedianDuration(suggestSettingsDurations));
-        allDurations.push_back(computeAverageDuration(suggestSettingsDurations));
-
-        printAssistedCapture3DResults(allDurations);
-    }
-
     std::tuple<Duration, Duration> benchmarkFilterProcessing(
         const std::vector<Duration> &captureDuration,
         const std::vector<Duration> &captureDurationFilter)
@@ -774,7 +783,7 @@ namespace
         printSubtestHeader(subtestName.at(0));
 
         const std::vector<Duration> captureDurationWithoutFilter =
-            benchmarkCapture3D(camera, makeSettings(apertures, exposureTimes, false, false), numFrames3D);
+            benchmarkCapture3D(camera, makeSettings3D(apertures, exposureTimes, false, false), numFrames3D);
 
         const std::vector<bool> gaussian{ true, false, true };
         const std::vector<bool> reflection{ false, true, true };
@@ -785,7 +794,7 @@ namespace
             printSubtestHeader(subtestName.at(i + 1));
 
             const std::vector<Duration> captureDurationWithFilter = benchmarkCapture3D(
-                camera, makeSettings(apertures, exposureTimes, gaussian.at(i), reflection.at(i)), numFrames3D);
+                camera, makeSettings3D(apertures, exposureTimes, gaussian.at(i), reflection.at(i)), numFrames3D);
 
             const auto meanAndAverageFilterDurations =
                 benchmarkFilterProcessing(captureDurationWithoutFilter, captureDurationWithFilter);
@@ -794,21 +803,6 @@ namespace
             filterProcessingDurations.push_back(std::get<1>(meanAndAverageFilterDurations));
         }
         printFilterResults(filterProcessingDurations);
-    }
-
-    Zivid::Settings2D makeSettings2D(const std::chrono::microseconds exposureTime)
-    {
-        Zivid::Settings2D settings{ Zivid::Settings2D::Acquisitions{
-            Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::ExposureTime(exposureTime) } } };
-        return settings;
-    }
-
-    Zivid::Settings2D setProjectorBrightness(Zivid::Settings2D &settings2D, const bool useProjector)
-    {
-        settings2D.acquisitions()[0].brightness() =
-            Zivid::Settings2D::Acquisition::Brightness{ useProjector ? 1.0 : 0.0 };
-
-        return settings2D;
     }
 
     void benchmarkCapture2D(Zivid::Camera &camera, const Zivid::Settings2D &settings, const size_t numFrames)
@@ -839,16 +833,6 @@ namespace
         printCapture2DResults(allDurations);
     }
 
-    Zivid::Frame assistedCapture(Zivid::Camera &camera)
-    {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture(settings);
-    }
-
     template<typename DataType>
     Duration copyDataTime(Zivid::Frame &frame)
     {
@@ -875,9 +859,11 @@ namespace
         std::array<std::vector<Duration>, numData> copyDataDurations;
         std::array<std::vector<Duration>, numData> allDurations;
 
-        auto warmupFrame = assistedCapture(camera);
-        const auto setting2D = makeSettings2D(exposureTime);
-        auto warmupFrame2D = camera.capture(setting2D);
+        const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
+        const std::vector<double> twoApertures{ 8.0, 4.0 };
+        const auto settings = makeSettings(twoApertures, twoExposureTimes, exposureTime, false, false);
+        auto warmupFrame = camera.capture(settings);
+        auto warmupFrame2D = camera.capture(settings.color().value());
 
         copyDataTime<Zivid::PointXYZ>(warmupFrame);
         copyDataTime<Zivid::PointXYZW>(warmupFrame);
@@ -891,8 +877,8 @@ namespace
 
         for(size_t i = 0; i < numCopies; i++)
         {
-            auto frame = assistedCapture(camera);
-            auto frame2D = camera.capture(setting2D);
+            auto frame = camera.capture(settings);
+            auto frame2D = camera.capture(settings.color().value());
 
             copyDataDurations[0].push_back(copyDataTime<Zivid::PointXYZ>(frame));
             copyDataDurations[1].push_back(copyDataTime<Zivid::PointXYZW>(frame));
@@ -955,8 +941,7 @@ int main(int argc, char **argv)
         auto cli =
             ((clipp::option("--settings-2d").set(settings2DFromYML, true)
               & clipp::value("settings-2d-file", settings2DFile)),
-             (clipp::option("--settings-3d").set(settingsFromYML, true)
-              & clipp::value("settings-3d-file", settingsFile)));
+             (clipp::option("--settings").set(settingsFromYML, true) & clipp::value("settings-file", settingsFile)));
 
         if(!parse(argc, argv, cli))
         {
@@ -985,8 +970,16 @@ int main(int argc, char **argv)
         const std::vector<double> threeApertures{ 11.31, 5.66, 2.83 };
 
         auto settings = settingsFromYML ? Zivid::Settings(settingsFile)
-                                        : makeSettings(twoApertures, twoExposureTimes, false, false);
-        auto settings2D = settings2DFromYML ? Zivid::Settings2D(settings2DFile) : makeSettings2D(exposureTime);
+                                        : makeSettings(twoApertures, twoExposureTimes, exposureTime, false, false);
+        if(settings2DFromYML)
+        {
+            settings = settings.copyWith(Zivid::Settings::Color{ Zivid::Settings2D(settings2DFile) });
+        }
+        else if(!settings.color().hasValue())
+        {
+            settings = settings.copyWith(Zivid::Settings::Color{ makeSettings2D(exposureTime) });
+        }
+        auto settings3D = settings.copyWith(Zivid::Settings::Color{}, Zivid::Settings::Sampling::Color::disabled);
 
         printHeader("TEST: Connect/Disconnect");
         benchmarkConnect(camera, numConnects);
@@ -996,26 +989,24 @@ int main(int argc, char **argv)
         if(settingsFromYML)
         {
             printHeader("TEST: 3D Capture");
-            benchmarkCapture3D(camera, settings, numFrames3D);
+            benchmarkCapture3D(camera, settings3D, numFrames3D);
         }
         else
         {
-            printHeader("TEST: Assisted Capture");
-            benchmarkAssistedCapture3D(camera, numFrames3D);
             printHeader("TEST: One Acquisition Capture");
             benchmarkCapture3DAndFilters(camera, oneAperture, oneExposureTime, numFrames3D);
             printHeader("TEST: Two Acquisitions (HDR) Capture");
-            benchmarkCapture3D(camera, makeSettings(twoApertures, twoExposureTimes, false, false), numFrames3D);
+            benchmarkCapture3D(camera, makeSettings3D(twoApertures, twoExposureTimes, false, false), numFrames3D);
             printHeader("TEST: Three Acquisitions (HDR) Capture");
             benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
         }
         printHeader("TEST: 2D Capture");
-        benchmarkCapture2D(camera, settings2D, numFrames2D);
+        benchmarkCapture2D(camera, settings.color().value(), numFrames2D);
 
         printHeader("TEST: 3D + 2D Capture");
-        benchmarkCapture3D2D(camera, settings, settings2D, numFrames3D);
+        benchmarkCapture3D2D(camera, settings, numFrames3D);
         printHeader("TEST: 2D + 3D Capture");
-        benchmarkCapture2D3D(camera, settings2D, settings, numFrames3D);
+        benchmarkCapture2D3D(camera, settings, numFrames3D);
 
         printHeader("TEST: Copy Data");
         benchmarkCopyData(camera, exposureTime, numCopies);
@@ -1023,14 +1014,14 @@ int main(int argc, char **argv)
         benchmarkSave(camera, numFramesSave);
 
         printHeader("TEST: 2D without projector followed by 3D");
-        benchmarkCapture2DFirstAndThen3D(camera, setProjectorBrightness(settings2D, false), settings, numFrames3D);
+        benchmarkCapture2DFirstAndThen3D(camera, settings, numFrames3D, false);
         printHeader("TEST: 2D with projector followed by 3D");
-        benchmarkCapture2DFirstAndThen3D(camera, setProjectorBrightness(settings2D, true), settings, numFrames3D);
+        benchmarkCapture2DFirstAndThen3D(camera, settings, numFrames3D, true);
 
         printHeader("TEST: 3D followed by 2D without projector");
-        benchmarkCapture3DFirstAndThen2D(camera, settings, setProjectorBrightness(settings2D, false), numFrames3D);
+        benchmarkCapture3DFirstAndThen2D(camera, settings, numFrames3D, false);
         printHeader("TEST: 3D followed by 2D with projector");
-        benchmarkCapture3DFirstAndThen2D(camera, settings, setProjectorBrightness(settings2D, true), numFrames3D);
+        benchmarkCapture3DFirstAndThen2D(camera, settings, numFrames3D, true);
 
         printHeader("TEST: 3D including 2D without projector");
         benchmarkCapture3DIncluding2D(camera, settings, numFrames3D, false);

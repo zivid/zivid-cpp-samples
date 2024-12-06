@@ -8,6 +8,7 @@ information about the system that captured the frame, and the time stamp of the 
 
 #include <Zivid/Zivid.h>
 
+#include <chrono>
 #include <iostream>
 
 namespace
@@ -45,6 +46,17 @@ int main()
 
         std::cout << "The time of frame capture:" << std::endl;
         std::cout << frameInfo.timeStamp() << std::endl;
+
+        std::cout << "Acquisition time:" << std::endl;
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                         frameInfo.metrics().acquisitionTime().value())
+                         .count()
+                  << " ms" << std::endl;
+
+        std::cout << "Capture time:" << std::endl;
+        std::cout
+            << std::chrono::duration_cast<std::chrono::milliseconds>(frameInfo.metrics().captureTime().value()).count()
+            << " ms" << std::endl;
     }
     catch(const std::exception &e)
     {

@@ -10,6 +10,8 @@ Capture point clouds, with color, from the Zivid camera, save it to PCD file for
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
 
+#include <clipp.h>
+
 #include <iostream>
 #include <thread>
 
@@ -82,7 +84,7 @@ namespace
 
         addPointCloudToViewer(viewer, pointCloud.makeShared());
 
-        viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
+        viewer.setCameraPosition(0, 0, -100, 0, 0, 1000, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
@@ -111,7 +113,19 @@ int main(int argc, char **argv)
 {
     try
     {
-        bool useNormals = argc >= 2 && std::string(argv[1]) == "normals";
+        bool useNormals = false;
+        auto cli =
+            clipp::group(clipp::option("normals").set(useNormals).doc("Compute normals in captured point cloud."));
+
+        if(!parse(argc, argv, cli))
+        {
+            auto fmt = clipp::doc_formatting{};
+            std::cout << "SYNOPSIS:" << std::endl;
+            std::cout << clipp::usage_lines(cli, "CaptureWritePCLVis3D", fmt) << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << clipp::documentation(cli) << std::endl;
+            throw std::runtime_error{ "Invalid usage" };
+        }
 
         Zivid::Application zivid;
 

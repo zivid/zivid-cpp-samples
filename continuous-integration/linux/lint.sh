@@ -26,6 +26,7 @@ cmake -GNinja \
     -DUSE_EIGEN3=ON \
     -DUSE_OPENCV=ON \
     -DUSE_ARUCO=ON \
+    -DUSE_GENTL=ON \
     -DEIGEN3_INCLUDE_DIR="/usr/include/eigen3" \
     "$SOURCE_DIR" || exit
 cmake --build . || exit

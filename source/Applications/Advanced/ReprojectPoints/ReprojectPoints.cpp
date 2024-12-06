@@ -68,6 +68,44 @@ namespace
         }
     }
 
+    Zivid::Settings2D get2DCaptureSettings(const Zivid::Camera &camera)
+    {
+        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+            Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
+            Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+            Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } } };
+
+        auto model = camera.info().model();
+        switch(model.value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Color::rgb);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Color::grayscale);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+            {
+                throw std::runtime_error("Unsupported camera model '" + model.toString() + "'");
+            }
+            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
+        }
+
+        return settings2D;
+    }
+
 } // namespace
 
 int main()
@@ -132,10 +170,7 @@ int main()
 
             auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
-            const Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
-                Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-                Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } } };
+            const auto settings2D = get2DCaptureSettings(camera);
 
             std::cout << "Capturing a 2D image with the projected image" << std::endl;
             const auto frame2D = projectedImageHandle.capture(settings2D);
