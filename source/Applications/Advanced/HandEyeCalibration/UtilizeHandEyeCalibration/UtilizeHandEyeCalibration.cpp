@@ -34,6 +34,7 @@ The YAML files for this sample can be found under the main instructions for Zivi
 
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 
 namespace
 {
@@ -187,6 +188,7 @@ int main()
                     std::cout << "Entered unknown Hand-Eye calibration type" << std::endl;
                     break;
                 }
+                default: throw std::runtime_error{ "Unhandled robot camera configuration. " };
             }
         }
 
@@ -245,6 +247,7 @@ int main()
                     std::cout << "Entered unknown command" << std::endl;
                     break;
                 }
+                default: throw std::runtime_error{ "Unhandled command. " };
             }
         }
     }

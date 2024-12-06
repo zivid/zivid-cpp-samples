@@ -41,6 +41,34 @@ namespace
             throw std::runtime_error{ "This camera does not support user data" };
         }
     }
+
+    void act(Zivid::Camera &camera, std::string &userData, Mode mode)
+    {
+        switch(mode)
+        {
+            case Mode::read:
+            {
+                std::cout << "Reading user data from camera" << std::endl;
+                std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
+                return;
+            }
+            case Mode::write:
+            {
+                std::cout << "Writing '" << userData << "' to the camera" << std::endl;
+                write(camera, userData);
+                std::cout << "Done. Note! Camera must be rebooted to allow another write operation" << std::endl;
+                return;
+            }
+            case Mode::clear:
+            {
+                std::cout << "Clearing user data from camera" << std::endl;
+                clear(camera);
+                std::cout << "Done. Note! Camera must be rebooted to allow another clear operation" << std::endl;
+                return;
+            }
+            default: throw std::runtime_error("Unhandled mode");
+        }
+    }
 } // namespace
 
 int main(int argc, char **argv)
@@ -68,25 +96,7 @@ int main(int argc, char **argv)
         auto camera = zivid.connectCamera();
         checkUserDataSupport(camera);
 
-        switch(mode)
-        {
-            case Mode::read:
-                std::cout << "Reading user data from camera" << std::endl;
-                std::cout << "Done. User data: '" << read(camera) << "'" << std::endl;
-                break;
-            case Mode::write:
-            {
-                std::cout << "Writing '" << userData << "' to the camera" << std::endl;
-                write(camera, userData);
-                std::cout << "Done. Note! Camera must be rebooted to allow another write operation" << std::endl;
-                break;
-            }
-            case Mode::clear:
-                std::cout << "Clearing user data from camera" << std::endl;
-                clear(camera);
-                std::cout << "Done. Note! Camera must be rebooted to allow another clear operation" << std::endl;
-                break;
-        }
+        act(camera, userData, mode);
     }
     catch(const std::exception &e)
     {

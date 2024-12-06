@@ -82,6 +82,42 @@ namespace
                   << intrinsics.distortion().p2().value() << Zivid::CameraIntrinsics::Distortion::P2::description
                   << std::endl;
     }
+
+    Zivid::Settings subsampledSettingsForCamera(const Zivid::Camera &camera)
+    {
+        auto settingsSubsampled = Zivid::Settings{ Zivid::Settings::Engine::phase,
+                                                   Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+
+        auto model = camera.info().model();
+        switch(model.value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                settingsSubsampled.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                settingsSubsampled.set(Zivid::Settings::Sampling::Pixel::by2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+            {
+                throw std::runtime_error("Unsupported camera model '" + model.toString() + "'");
+            }
+            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
+        }
+
+        return settingsSubsampled;
+    }
 } // namespace
 
 int main()
@@ -98,7 +134,7 @@ int main()
 
         std::cout << intrinsics << std::endl;
 
-        const std::string outputFile = "Intrinsics.yml";
+        const auto outputFile = "Intrinsics.yml";
         std::cout << "Saving camera intrinsics to file: " << outputFile << std::endl;
         intrinsics.save(outputFile);
 
@@ -126,38 +162,33 @@ int main()
             printIntrinsicParametersDelta(intrinsics, estimated_intrinsics);
         }
 
-        const auto supportedSamplingPixelValues =
-            Zivid::Experimental::SettingsInfo::validValues<Zivid::Settings::Sampling::Pixel>(camera.info());
-        if(supportedSamplingPixelValues.find(Zivid::Settings::Sampling::Pixel::ValueType::blueSubsample2x2)
-           != supportedSamplingPixelValues.end())
-        {
-            const auto settingsSubsampled =
-                Zivid::Settings{ Zivid::Settings::Engine::phase,
-                                 Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-                                 Zivid::Settings::Sampling::Pixel::blueSubsample2x2 };
-            const std::string fixedIntrinsicsForSubsampledSettingsPath = "FixedIntrinsicsSubsampledBlue2x2.yml";
-            std::cout << "Saving camera intrinsics for subsampled capture to file: "
-                      << fixedIntrinsicsForSubsampledSettingsPath << std::endl;
-            const auto fixedIntrinsicsForSubsampledSettings =
-                Zivid::Experimental::Calibration::intrinsics(camera, settingsSubsampled);
-            fixedIntrinsicsForSubsampledSettings.save(fixedIntrinsicsForSubsampledSettingsPath);
-            const auto frame = camera.capture(settingsSubsampled);
-            const auto estimatedIntrinsicsForSubsampledSettings =
-                Zivid::Experimental::Calibration::estimateIntrinsics(frame);
-            const std::string estimatedIntrinsicsForSubsampledSettingsPath =
-                "EstimatedIntrinsicsFromSubsampledBlue2x2Capture.yml";
-            std::cout << "Saving estimated camera intrinsics for subsampled capture to file: "
-                      << estimatedIntrinsicsForSubsampledSettingsPath << std::endl;
-            estimatedIntrinsicsForSubsampledSettings.save(estimatedIntrinsicsForSubsampledSettingsPath);
-            std::cout << std::endl
-                      << "Difference between fixed and estimated intrinsics for subsampled point cloud: " << std::endl;
-            printIntrinsicParametersDelta(
-                fixedIntrinsicsForSubsampledSettings, estimatedIntrinsicsForSubsampledSettings);
-        }
-        else
-        {
-            std::cout << camera.info().modelName() << " does not support sub-sampled mode." << std::endl;
-        }
+        const auto settingsSubsampled = subsampledSettingsForCamera(camera);
+        const auto fixedIntrinsicsForSubsampledSettingsPath = "FixedIntrinsicsSubsampled2x2.yml";
+        std::cout << "Saving camera intrinsics for subsampled capture to file: "
+                  << fixedIntrinsicsForSubsampledSettingsPath << std::endl;
+        const auto fixedIntrinsicsForSubsampledSettings =
+            Zivid::Experimental::Calibration::intrinsics(camera, settingsSubsampled);
+        fixedIntrinsicsForSubsampledSettings.save(fixedIntrinsicsForSubsampledSettingsPath);
+        const auto frame = camera.capture(settingsSubsampled);
+        const auto estimatedIntrinsicsForSubsampledSettings =
+            Zivid::Experimental::Calibration::estimateIntrinsics(frame);
+        const auto estimatedIntrinsicsForSubsampledSettingsPath = "EstimatedIntrinsicsFromSubsampled2x2Capture.yml";
+        std::cout << "Saving estimated camera intrinsics for subsampled capture to file: "
+                  << estimatedIntrinsicsForSubsampledSettingsPath << std::endl;
+        estimatedIntrinsicsForSubsampledSettings.save(estimatedIntrinsicsForSubsampledSettingsPath);
+        std::cout << std::endl
+                  << "Difference between fixed and estimated intrinsics for subsampled point cloud: " << std::endl;
+        printIntrinsicParametersDelta(fixedIntrinsicsForSubsampledSettings, estimatedIntrinsicsForSubsampledSettings);
+
+        const auto settings2D =
+            Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
+        std::cout << "Getting camera intrinsics for 2D settings" << std::endl;
+        const auto fixedIntrinsicsForSettings2D = Zivid::Experimental::Calibration::intrinsics(camera, settings2D);
+        std::cout << fixedIntrinsicsForSettings2D << std::endl;
+        const auto fixedIntrinsicsForSettings2DPath = "FixedIntrinsicsSettings2D.yml";
+        std::cout << "Saving camera intrinsics for 2D settings to file: " << fixedIntrinsicsForSettings2DPath
+                  << std::endl;
+        fixedIntrinsicsForSettings2D.save(fixedIntrinsicsForSettings2DPath);
     }
     catch(const std::exception &e)
     {

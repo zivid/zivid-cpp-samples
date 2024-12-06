@@ -37,6 +37,10 @@ if(HALCONROOT)
     endif()
   endif()
 
+  if(HALCON_EXT_LIB_DIR AND HALCON_INC_DIRS)
+    set(HALCON_FOUND TRUE)
+  endif()
+
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

@@ -117,6 +117,11 @@ int main()
         std::cout << "Saving point cloud to file: " << pointCloudFile << std::endl;
         savePointCloud(objectModel3D, pointCloudFile);
     }
+    catch(HalconCpp::HException &except)
+    {
+        std::cerr << "Error: " << except.ErrorMessage() << std::endl;
+        return EXIT_FAILURE;
+    }
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << Zivid::toString(e) << std::endl;

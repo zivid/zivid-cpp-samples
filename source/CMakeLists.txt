@@ -17,6 +17,7 @@ set(ZIVID_VERSION 2.13.0)
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
+option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
 set(SAMPLES
@@ -36,6 +37,7 @@ set(SAMPLES
     Camera/Advanced/AllocateMemoryForPointCloudData
     Camera/Advanced/CaptureHalconViaGenICam
     Camera/Advanced/CaptureHalconViaZivid
+    Camera/Advanced/CaptureViaGenICam
     Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/CaptureWithDiagnostics
@@ -131,7 +133,12 @@ set(Clipp_DEPENDING
     ZividBenchmark
     CaptureFromFileCamera
     CaptureFromFileCameraVis3D
+    ReadPCLVis3D
+    CaptureWritePCLVis3D
+    GammaCorrection
+    Warmup
 )
+set(GenTL_DEPENDING CaptureViaGenICam)
 set(Thread_DEPENDING
     Capture2DAnd3D
     MultiCameraCaptureSequentially
@@ -160,7 +167,12 @@ macro(disable_samples DEPENDENCY_NAME)
 endmacro()
 
 if(USE_EIGEN3)
-    if(NOT DEFINED EIGEN3_INCLUDE_DIR)
+    set(EIGEN3_INCLUDE_DIR
+        ""
+        CACHE PATH
+        "Path to the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.)"
+    )
+    if(NOT EIGEN3_INCLUDE_DIR)
         message(
             FATAL_ERROR
             "Please point EIGEN3_INCLUDE_DIR to the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.), or disable the Eigen samples (-DUSE_EIGEN3=OFF)."
@@ -206,6 +218,18 @@ else()
     disable_samples("OpenCV")
 endif()
 
+if(USE_GENTL)
+    find_package(Zivid ${ZIVID_VERSION} COMPONENTS GenTLProducer REQUIRED)
+    if(NOT TARGET Zivid::GenTLProducer)
+        message(
+            FATAL_ERROR
+            "Zivid GenTLProducer not found. Please install it together with the Zivid SDK, or disable the GenTL samples with -DUSE_GENTL=OFF."
+        )
+    endif()
+else()
+    disable_samples("GenTL")
+endif()
+
 if(USE_HALCON)
     if(DEFINED ENV{HALCONROOT} AND NOT $ENV{HALCONROOT} STREQUAL "")
         message(
@@ -215,6 +239,12 @@ if(USE_HALCON)
         string(REGEX REPLACE "\\\\" "/" HALCONROOT $ENV{HALCONROOT})
     endif()
     find_package(Halcon REQUIRED)
+    if(NOT HALCON_FOUND)
+        message(
+            FATAL_ERROR
+            "Halcon not found. Please install Halcon and make sure the key environmental variables HALCONARCH and HALCONROOT are set, or disable the Halcon samples  with -DUSE_HALCON=OFF."
+        )
+    endif()
     find_package(HDevEngine REQUIRED)
 else()
     disable_samples("Halcon")
@@ -263,6 +293,11 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)
         target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/clipp/include)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST GenTL_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} Zivid::GenTLProducer)
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rd-party/GenTL/include)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)

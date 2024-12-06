@@ -28,10 +28,10 @@ Checks: >
   -altera-*,
   -bugprone-easily-swappable-parameters,
   -concurrency-mt-unsafe,
-  -abseil-*
+  -abseil-*,
+  -google-build-using-namespace
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
-AnalyzeTemporaryDtors: false
 CheckOptions:
   - key:             cert-dcl59-cpp.HeaderFileExtensions
     value:           h,hh,hpp,hxx
