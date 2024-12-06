@@ -16,6 +16,7 @@ be found under the main instructions for Zivid samples.
 
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
 
 namespace
 {
@@ -44,6 +45,7 @@ namespace
             case RotationConvention::zyxIntrinsic: return "zyxIntrinsic";
             case RotationConvention::zyxExtrinsic: return "zyxExtrinsic";
             case RotationConvention::nofROT: break;
+            default: throw std::runtime_error{ "Unhandled rotation convention " };
         }
 
         throw std::invalid_argument("Invalid RotationConvention");
@@ -80,6 +82,7 @@ namespace
                         * Eigen::AngleAxisf(rollPitchYaw[0], Eigen::Vector3f::UnitX()))
                     .matrix();
             case RotationConvention::nofROT: break;
+            default: throw std::runtime_error{ "Unhandled rotation convention" };
         }
 
         throw std::invalid_argument("Invalid orientation");
@@ -117,6 +120,7 @@ namespace
             case RotationConvention::xyzExtrinsic: return rotationMatrix.eulerAngles(2, 1, 0).reverse();
             case RotationConvention::zyxIntrinsic: return rotationMatrix.eulerAngles(2, 1, 0);
             case RotationConvention::nofROT: break;
+            default: throw std::runtime_error{ "Unhandled rotation convention" };
         }
 
         throw std::invalid_argument("Invalid rotation");

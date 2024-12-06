@@ -113,9 +113,26 @@ namespace
 
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
-            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return 2.47;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return 2.47;
+
+            default: throw std::runtime_error("Unhandled enum value '" + cameraInfo.model().toString() + "'");
         }
         throw std::invalid_argument("Invalid camera model");
+    }
+
+    Zivid::Settings2D::Sampling::Color getColorSettingsForCamera(const Zivid::Camera &camera)
+    {
+        auto model = camera.info().model();
+        if(model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
+           || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
+           || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60)
+        {
+            return Zivid::Settings2D::Sampling::Color::grayscale;
+        }
+        return Zivid::Settings2D::Sampling::Color::rgb;
     }
 
     cv::Point findMarker(
@@ -179,12 +196,17 @@ namespace
                                          Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 } };
         settings.set(processing);
         settings.set(Zivid::Settings::Sampling::Pixel::all);
+        settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::all);
 
         // We must limit Brightness to a *maximum* of 2.2, when using `all` mode.
         // This code can be removed by changing the Config.yml option 'Camera/Power/Limit'.
         for(auto &a : settings.acquisitions())
         {
             a.set(Zivid::Settings::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
+        }
+        for(auto &a : settings.color().value().acquisitions())
+        {
+            a.set(Zivid::Settings2D::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
         }
 
         return camera.capture(settings);
@@ -234,15 +256,17 @@ int main()
 
         const auto settings2DZeroBrightness =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
-                Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 40000 } },
-                Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } } };
+                                   Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                                   Zivid::Settings2D::Acquisition::Aperture{ 2.38 } } },
+                               Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
         const auto settings2DMaxBrightness =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
-                Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 40000 } },
-                Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } } };
+                                   Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                                   Zivid::Settings2D::Acquisition::Aperture{ 2.38 } } },
+                               Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
         std::cout << "Capture a 2D frame with the marker" << std::endl;
         const auto projectedMarkerFrame2D = projectedImageHandle.capture(settings2DZeroBrightness);

@@ -19,15 +19,43 @@ namespace
 {
     using std::chrono::microseconds;
 
+    void setSamplingPixel(Zivid::Settings &settings, const Zivid::Camera &camera)
+    {
+        const auto model = camera.info().model();
+        switch(model.value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                settings.set(Zivid::Settings::Sampling::Pixel::by2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+            {
+                throw std::runtime_error("Unsupported camera model '" + model.toString() + "'");
+            }
+            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
+        }
+    }
+
     std::tuple<std::vector<double>, std::vector<double>, std::vector<microseconds>, std::vector<double>>
     getExposureValues(const Zivid::Camera &camera)
     {
         const auto model = camera.info().model();
         switch(model.value())
         {
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
             {
@@ -51,6 +79,22 @@ namespace
                 const std::vector<double> brightnesses{ 2.2, 2.2, 2.2 };
                 return { apertures, gains, exposureTimes, brightnesses };
             }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                const std::vector<double> apertures{ 5.66, 2.8, 2.37 };
+                const std::vector<double> gains{ 1.0, 1.0, 1.0 };
+                const std::vector<microseconds> exposureTimes{ microseconds{ 900 },
+                                                               microseconds{ 1500 },
+                                                               microseconds{ 20000 } };
+                const std::vector<double> brightnesses{ 2.5, 2.5, 2.5 };
+                return { apertures, gains, exposureTimes, brightnesses };
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
         }
         throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
     }
@@ -69,7 +113,6 @@ int main()
         Zivid::Settings settings{
             Zivid::Settings::Engine::phase,
             Zivid::Settings::Sampling::Color::rgb,
-            Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -104,6 +147,7 @@ int main()
             Zivid::Settings::Processing::Color::Gamma{ 1.0 },
             Zivid::Settings::Processing::Color::Experimental::Mode::automatic
         };
+        setSamplingPixel(settings, camera);
         std::cout << settings << std::endl;
 
         std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;

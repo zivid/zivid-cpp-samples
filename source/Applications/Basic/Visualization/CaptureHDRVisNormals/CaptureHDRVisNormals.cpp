@@ -36,7 +36,7 @@ namespace
         viewer.addPointCloudNormals<pcl::PointXYZRGBNormal>(
             pointCloudWithNormals, normalsSkipped, 1, "normals", viewNormals);
 
-        viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
+        viewer.setCameraPosition(0, 0, -100, 0, 0, 1000, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;

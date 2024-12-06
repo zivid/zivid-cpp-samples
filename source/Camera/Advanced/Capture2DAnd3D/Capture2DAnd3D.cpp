@@ -20,6 +20,52 @@ Then use color from 2D when visualizing the 3D point cloud.
 
 namespace
 {
+    std::tuple<Zivid::Settings2D, Zivid::Settings> get2DAnd3DSettings(const Zivid::Camera &camera)
+    {
+        auto settings2D = Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
+        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+
+        auto model = camera.info().model();
+        switch(model.value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Pixel::all);
+                settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
+                settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2);
+                settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample4x4);
+                settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Pixel::by2x2);
+                settings.set(Zivid::Settings::Sampling::Pixel::by4x4);
+                settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                break;
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
+            {
+                throw std::runtime_error("Unsupported camera model '" + model.toString() + "'");
+            }
+            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
+        }
+
+        return { settings2D, settings };
+    }
+
     void displayPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &bgra)
     {
         const auto xyz = pointCloud.copyData<Zivid::PointXYZ>();
@@ -46,7 +92,7 @@ namespace
         viewer.addText("Cloud RGB", 0, 0, "Mapped RGB", viewRgb);
         viewer.addPointCloud<pcl::PointXYZRGB>(pclPointCloud.makeShared(), "cloud", viewRgb);
 
-        viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
+        viewer.setCameraPosition(0, 0, -100, 0, 0, 1000, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
@@ -67,32 +113,8 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring 2D settings" << std::endl;
-        const auto settings2D = Zivid::Settings2D{
-            Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
-            Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2,
-        };
-
-        std::cout << "Configuring 3D settings" << std::endl;
-        auto settings = Zivid::Settings{
-            Zivid::Settings::Engine::phase,
-            Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-            Zivid::Settings::Sampling::Pixel::blueSubsample4x4,
-            Zivid::Settings::Sampling::Color::disabled,
-            Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
-        };
-
-        if((camera.info().model() == Zivid::CameraInfo::Model::zividTwo)
-           || (camera.info().model() == Zivid::CameraInfo::Model::zividTwoL100))
-        {
-            std::cout
-                << camera.info().modelName()
-                << " does not support 4x4 subsampling. This sample is written to show how combinations of Sampling::Pixel and Processing::Resampling::Mode."
-                << std::endl;
-            settings = settings.copyWith(
-                Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
-                Zivid::Settings::Processing::Resampling::Mode::disabled);
-        }
+        std::cout << "Configuring 2D and 3D settings" << std::endl;
+        const auto [settings2D, settings] = get2DAnd3DSettings(camera);
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture(settings2D);
