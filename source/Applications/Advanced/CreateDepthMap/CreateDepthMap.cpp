@@ -73,8 +73,8 @@ namespace
         const auto points = pointCloud.copyPointsZ();
 
         // Getting min and max values for X, Y, Z images
-        const auto *maxZ = std::max_element(points.data(), points.data() + pointCloud.size(), isLesserOrNan);
-        const auto *minZ = std::max_element(points.data(), points.data() + pointCloud.size(), isGreaterOrNaN);
+        const auto *maxZ = std::max_element(points.begin(), points.end(), isLesserOrNan);
+        const auto *minZ = std::max_element(points.begin(), points.end(), isGreaterOrNaN);
 
         // Filling in OpenCV matrix with the cloud data
         for(size_t i = 0; i < pointCloud.height(); i++)

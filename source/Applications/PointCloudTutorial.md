@@ -220,7 +220,7 @@ frame or, e.g., [scale the point cloud by transforming it from mm to
 m](https://support.zivid.com/latest//academy/applications/transform/transform-millimeters-to-meters.html).
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L234))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp#L236))
 
 ``` sourceCode cpp
 pointCloud.transform(baseToCameraTransform);
@@ -238,11 +238,11 @@ the point cloud.
 
 Note:
 
-> [Monochrome
-> Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html)
-> is a hardware-based subsample method that reduces the resolution of
-> the point cloud during capture while also reducing the acquisition and
-> capture time.
+> [Sampling
+> (3D)](https://support.zivid.com/latest/reference-articles/settings/sampling.html)
+> describes a hardware-based sub-/downsample method that reduces the
+> resolution of the point cloud during capture while also reducing the
+> acquisition and capture time.
 
 -----
 
@@ -340,7 +340,7 @@ manipulate it, transform it, and visualize it.
 
 ## Version History
 
-| SDK    | Changes                                                                                                                                                             |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2.11.0 | Added support for SRGB color space.                                                                                                                                 |
-| 2.10.0 | [Monochrome Capture](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`. |
+| SDK    | Changes                                                                                                                                                   |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.11.0 | Added support for SRGB color space.                                                                                                                       |
+| 2.10.0 | [:orphan:](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`. |

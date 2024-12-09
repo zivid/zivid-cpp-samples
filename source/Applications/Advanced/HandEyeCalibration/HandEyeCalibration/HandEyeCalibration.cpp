@@ -10,6 +10,7 @@ Perform Hand-Eye calibration.
 #include <Zivid/Zivid.h>
 
 #include <iostream>
+#include <stdexcept>
 
 namespace
 {
@@ -184,6 +185,7 @@ namespace
                     std::cout << "Error: Unknown command" << std::endl;
                     break;
                 }
+                default: throw std::runtime_error{ "Unhandled command type" };
             }
         } while(!calibrate);
         return handEyeInput;

@@ -8,18 +8,27 @@ Capture 2D image with gamma correction.
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include <clipp.h>
+
 #include <iostream>
 
 namespace
 {
     double readGamma(int argc, char **argv)
     {
-        if(argc < 2)
+        double gamma{};
+        auto cli = clipp::group(clipp::value("gamma", gamma).doc("Gamma correction value"));
+        if(!parse(argc, argv, cli))
         {
-            throw std::runtime_error("Gamma is not provided");
+            auto fmt = clipp::doc_formatting{};
+            std::cout << "SYNOPSIS:" << std::endl;
+            std::cout << clipp::usage_lines(cli, "GammaCorrection", fmt) << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << clipp::documentation(cli) << std::endl;
+            throw std::runtime_error{ "Gamma is not provided" };
         }
 
-        return std::stod(argv[1]);
+        return gamma;
     }
 
     cv::Mat captureBGRAImage(Zivid::Camera &camera, const double gamma)

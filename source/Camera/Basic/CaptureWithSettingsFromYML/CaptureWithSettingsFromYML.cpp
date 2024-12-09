@@ -12,16 +12,23 @@ namespace
 {
     std::string settingsFolder(const Zivid::Camera &camera)
     {
-        const auto modelName = camera.info().modelName().value();
-        if(modelName.find("Zivid 2+") == 0)
+        switch(camera.info().model().value())
         {
-            return "zivid2Plus";
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return "zivid2";
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return "zivid2Plus";
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return "zivid2Plus/R";
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
         }
-        if(modelName.find("Zivid 2") == 0)
-        {
-            return "zivid2";
-        }
-        throw std::runtime_error("Unhandled model '" + modelName + "'");
+        throw std::invalid_argument("Invalid camera model");
     }
 } // namespace
 

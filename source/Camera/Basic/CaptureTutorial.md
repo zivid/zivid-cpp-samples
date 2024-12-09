@@ -248,14 +248,13 @@ for(const auto aperture : { 11.31, 5.66, 2.83 })
 Fully configured settings are demonstrated below.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L68-L132))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L112-L176))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings settings{
 	Zivid::Settings::Engine::phase,
 	Zivid::Settings::Sampling::Color::rgb,
-	Zivid::Settings::Sampling::Pixel::blueSubsample2x2,
 	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
 	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
 	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
@@ -290,6 +289,7 @@ Zivid::Settings settings{
 	Zivid::Settings::Processing::Color::Gamma{ 1.0 },
 	Zivid::Settings::Processing::Color::Experimental::Mode::automatic
 };
+setSamplingPixel(settings, camera);
 std::cout << settings << std::endl;
 std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
 const auto baseAcquisition = Zivid::Settings::Acquisition{};
@@ -323,13 +323,13 @@ It is possible to only capture a 2D image. This is faster than a 3D
 capture. 2D settings are configured as follows.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L21-L29))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L37-L45))
 
 ``` sourceCode cpp
 const auto settings2D =
 	Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-						Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 30000 } },
-						Zivid::Settings2D::Acquisition::Aperture{ 11.31 },
+						Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+						Zivid::Settings2D::Acquisition::Aperture{ 9.51 },
 						Zivid::Settings2D::Acquisition::Brightness{ 1.80 },
 						Zivid::Settings2D::Acquisition::Gain{ 2.0 } } },
 					Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
@@ -347,7 +347,7 @@ Check out
 for recommended .yml files tuned for your application.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L149))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L188-L193))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -360,7 +360,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L144-L146))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L188-L190))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -411,7 +411,7 @@ If we only want to capture a 2D image, which is faster than 3D, we can
 do so via the 2D API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L32))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L48))
 
 ``` sourceCode cpp
 const auto frame2D = camera.capture(settings2D);
@@ -455,6 +455,8 @@ frame.save(dataFilePLY);
 
 We can get 2D color image from a 3D capture.
 
+([go to source]())
+
 ``` sourceCode cpp
 const auto image = pointCloud.copyImageRGBA();
 ```
@@ -462,7 +464,7 @@ const auto image = pointCloud.copyImageRGBA();
 2D captures also produce 2D color images.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L35))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L51))
 
 ``` sourceCode cpp
 const auto image = frame2D.imageRGBA();
@@ -471,11 +473,11 @@ const auto image = frame2D.imageRGBA();
 Then, we can save the 2D image.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L44-L46))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture2D/Capture2D.cpp#L60-L62))
 
 ``` sourceCode cpp
-const auto imageFile = "Image.png";
-std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
+const auto imageFile = "ImageRGB.png";
+std::cout << "Saving 2D color image (linear RGB color space) to file: " << imageFile << std::endl;
 image.save(imageFile);
 ```
 

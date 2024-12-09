@@ -7,7 +7,7 @@ BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 source /etc/os-release || exit
 if [[ $VERSION_ID == "20.04" ]]; then
-    OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=ON -DUSE_OPENCV=ON -DUSE_ARUCO=ON"
+    OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=ON -DUSE_OPENCV=ON -DUSE_ARUCO=ON -DUSE_GENTL=ON"
     EIGEN3_INCLUDE_DIR="/usr/include/eigen3"
 else
     echo "ERROR: found $VERSION_ID. Expected 20.04"

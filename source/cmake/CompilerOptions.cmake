@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Warnings are disabled by default to ensure that the samples are as portable as possible across compiler versions. It
@@ -29,6 +29,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             # Expected to happen a lot in these samples and would complicate them too much to handle manually
             conversion
             double-promotion # We are not concerned about the potential performance hit from this.
+            # All values should be explicit handled AND the default case should throw an exception.
+            covered-switch-default # We don't want this warning, because we want the default labels for safety.
         )
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-${WARNING}")
@@ -55,6 +57,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     if(WARNINGS)
         if(WARNINGS_AS_ERRORS)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /WX")
         endif()
 
         set(WARNINGS_THAT_SHOULD_BE_IGNORED # WHY it is ok to ignore
@@ -68,7 +71,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         endforeach()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 
-        if(CMAKE_VERSION VERSION_LESS 3.24 OR CMAKE_${lang}_COMPILER_VERSION VERSION_LESS 19.29.30036.3)
+        if(CMAKE_VERSION VERSION_LESS 3.24 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.29.30036.3)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /experimental:external /external:anglebrackets /external:W0")
         endif()
     else()
