@@ -14,7 +14,8 @@ tutorial see:
 [**Connect**](#Connect) |
 [**Configure**](#Configure) |
 [**Capture**](#Capture) |
-[**Save**](#Save)
+[**Save**](#Save) |
+[**Utilize**](#Utilize)
 
 ---
 
@@ -24,9 +25,6 @@ tutorial see:
 
 This tutorial describes the most basic way to use the Zivid SDK to
 capture point clouds.
-
-For MATLAB see [Zivid Quick Capture Tutorial for
-MATLAB](https://github.com/zivid/zivid-matlab-samples/blob/master/source/Camera/Basic/QuickCaptureTutorial.md)
 
 **Prerequisites**
 
@@ -59,45 +57,62 @@ auto camera = zivid.connectCamera();
 ## Configure
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureAssistant/CaptureAssistant.cpp#L19-L25))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L48))
 
 ``` sourceCode cpp
-const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-	Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-	Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
-};
-std::cout << "Running Capture Assistant with parameters:\n" << suggestSettingsParameters << std::endl;
-auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
+const auto settings = Zivid::Settings(settingsFile);
 ```
 
 ## Capture
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L25))
 
 ``` sourceCode cpp
-const auto frame = camera.capture(settings);
+const auto frame = camera.capture2D3D(settings);
 ```
 
 ## Save
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L24-L26))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L32-L34))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";
 frame.save(dataFile);
+.. tab-item:: Export
 ```
 
-The API detects which format to use. See [Point
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L36-L38))
+
+``` sourceCode cpp
+const auto dataFilePLY = "PointCloud.ply";
+frame.save(dataFilePLY);
+```
+
+For other exporting options, see [Point
 Cloud](https://support.zivid.com/latest//reference-articles/point-cloud-structure-and-output-formats.html)
-for a list of supported formats.
+for a list of supported formats
+
+## Utilize
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L22-L23))
+
+``` sourceCode cpp
+const auto pointCloud = frame.pointCloud();
+const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+```
 
 -----
 
 Tip:
 
-You can open and view `Frame.zdf` file in [Zivid
+1.  You can export Preset settings to YML from [Zivid
+    Studio](https://support.zivid.com/latest//getting-started/studio-guide.html)
+
+\#. You can open and view `Frame.zdf` file in [Zivid
 Studio](https://support.zivid.com/latest//getting-started/studio-guide.html).
 .. rubric:: Conclusion
 
