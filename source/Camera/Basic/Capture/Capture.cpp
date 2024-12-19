@@ -1,5 +1,5 @@
 /*
-Capture point clouds, with color, from the Zivid camera.
+Capture colored point cloud, save 2D image, save 3D ZDF, and export PLY, using the Zivid camera.
 */
 
 #include <Zivid/Zivid.h>
@@ -16,10 +16,18 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Creating default capture settings" << std::endl;
-        const auto settings = Zivid::Settings(Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} });
+        const auto settings = Zivid::Settings(
+            Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+            Zivid::Settings::Color(
+                Zivid::Settings2D(Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} })));
 
         std::cout << "Capturing frame" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture2D3D(settings);
+
+        const auto imageRGBA = frame.frame2D().value().imageRGBA();
+        const auto imageFile = "ImageRGB.png";
+        std::cout << "Saving 2D color image (linear RGB color space) to file: " << imageFile << std::endl;
+        imageRGBA.save(imageFile);
 
         const auto dataFile = "Frame.zdf";
         std::cout << "Saving frame to file: " << dataFile << std::endl;
