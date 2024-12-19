@@ -22,11 +22,8 @@ option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
 set(SAMPLES
     Camera/Basic/Capture
-    Camera/Basic/Capture2D
-    Camera/Basic/CaptureAssistant
     Camera/Basic/CaptureFromFileCamera
     Camera/Basic/CaptureWithSettingsFromYML
-    Camera/Basic/CaptureHDR
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Advanced/Capture2DAnd3D
     Camera/Advanced/CaptureHDRLoop

@@ -55,10 +55,10 @@ compute device memory) and the capture and camera information.
 When you capture with Zivid, you get a frame in return.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L22))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L25))
 
 ``` sourceCode cpp
-const auto frame = camera.capture(settings);
+const auto frame = camera.capture2D3D(settings);
 ```
 
 Check
