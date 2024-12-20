@@ -110,49 +110,73 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring settings for capture:" << std::endl;
+        Zivid::Settings2D settings2D{
+            Zivid::Settings2D::Sampling::Color::rgb,
+            Zivid::Settings2D::Sampling::Pixel::all,
+
+            Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 },
+            Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
+            Zivid::Settings2D::Processing::Color::Balance::Red{ 1.0 },
+            Zivid::Settings2D::Processing::Color::Gamma{ 1.0 },
+
+            Zivid::Settings2D::Processing::Color::Experimental::Mode::automatic,
+        };
+
         Zivid::Settings settings{
+            Zivid::Settings::Color{ settings2D },
+
             Zivid::Settings::Engine::phase,
-            Zivid::Settings::Sampling::Color::rgb,
+
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::PointB{ -1000, 1000, 1000 },
             Zivid::Settings::RegionOfInterest::Box::Extents{ -1000, 1000 },
+
             Zivid::Settings::RegionOfInterest::Depth::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Depth::Range{ 200, 2000 },
-            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
-            Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
-            Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+
             Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
             Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
-            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
-            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
-            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
-            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+
             Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
             Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
             Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
+
+            Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
+
+            Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
+
+            Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
+
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
+
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
+            Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+
             Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
-            Zivid::Settings::Processing::Color::Balance::Red{ 1.0 },
-            Zivid::Settings::Processing::Color::Balance::Green{ 1.0 },
-            Zivid::Settings::Processing::Color::Balance::Blue{ 1.0 },
-            Zivid::Settings::Processing::Color::Gamma{ 1.0 },
-            Zivid::Settings::Processing::Color::Experimental::Mode::automatic
+
+            Zivid::Settings::Diagnostics::Enabled::no,
         };
+
         setSamplingPixel(settings, camera);
         std::cout << settings << std::endl;
 
         std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
         const auto baseAcquisition = Zivid::Settings::Acquisition{};
         std::cout << baseAcquisition << std::endl;
+        const auto baseAquisition2D = Zivid::Settings2D::Acquisition{};
 
         std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
         auto exposureValues = getExposureValues(camera);
@@ -174,9 +198,15 @@ int main()
                 Zivid::Settings::Acquisition::Brightness{ brightness.at(i) });
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
+        const auto acquisitionSettings2D = baseAquisition2D.copyWith(
+            Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
+            Zivid::Settings2D::Acquisition::ExposureTime{ microseconds{ 10000 } },
+            Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
+            Zivid::Settings2D::Acquisition::Gain{ 1.0 });
+        settings.color().value().acquisitions().emplaceBack(acquisitionSettings2D);
 
         std::cout << "Capturing frame (HDR)" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture2D3D(settings);
 
         std::cout << "Complete settings used:" << std::endl;
         std::cout << frame.settings() << std::endl;
