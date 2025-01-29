@@ -1,23 +1,22 @@
 /*
-Automatically set the IP addresses of any number of cameras to be in the same subnet as the provided IP address of the network interface.
-*/
+ * Automatically configure the IP addresses of connected cameras to match the network of the user's PC.
+ * 
+ * Usage:
+ * - By default, the program applies the new configuration directly to the cameras.
+ * - Use the [--display-only] argument to simulate the configuration and display the
+ *   proposed IP addresses without making actual changes.
+ */
 
 #include <Zivid/Zivid.h>
 #include <clipp.h>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 namespace
 {
-    void assertUserInput(const std::string &ipAddress, const std::string &subnetMask)
-    {
-        (void)Zivid::NetworkConfiguration::IPV4::Address{ ipAddress };
-        (void)Zivid::NetworkConfiguration::IPV4::SubnetMask{ subnetMask };
-    }
-
-    std::vector<std::string> splitUserInput(const std::string &str, char delimiter)
+    std::vector<std::string> splitIpAddress(const std::string &str, char delimiter)
     {
         std::vector<std::string> parts;
         std::istringstream userInput(str);
@@ -28,28 +27,43 @@ namespace
         return parts;
     }
 
-    std::tuple<std::string, std::string> parseOptions(int argc, char **argv)
+    struct UserNetworkInfo
     {
-        std::string ipAddress;
-        std::string subnetMask = "255.255.255.0";
+        std::string address;
+        std::string mask;
+    };
 
-        auto cli = clipp::group(
-            clipp::required("--interface-ipv4") & clipp::value("IP address of the PC network interface", ipAddress),
-            clipp::option("--subnet-mask") & clipp::value("Network subnet mask (default: 255.255.255.0)", subnetMask));
+    UserNetworkInfo getUsersLocalInterfaceNetworkConfiguration(const Zivid::Camera &camera)
+    {
+        Zivid::CameraState::Network::LocalInterfaces localInterfaces = camera.state().network().localInterfaces();
 
-        if(!clipp::parse(argc, argv, cli))
+        if(localInterfaces.isEmpty())
         {
-            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
-            std::cout << "SYNOPSIS:" << std::endl;
-            std::cout << clipp::usage_lines(cli, argv[0], fmt) << std::endl;
-            std::cout << "OPTIONS:" << std::endl;
-            std::cout << clipp::documentation(cli) << std::endl;
-            throw std::runtime_error("Command-line parsing failed");
+            throw std::runtime_error(
+                "No user local interface detected from the camera " + camera.info().serialNumber().toString());
         }
 
-        assertUserInput(ipAddress, subnetMask);
+        if(localInterfaces.size() > 1)
+        {
+            throw std::runtime_error(
+                "More than one local interface detected from the camera " + camera.info().serialNumber().toString()
+                + ". Please, reorganize your network.");
+        }
 
-        return std::make_tuple(ipAddress, subnetMask);
+        if(localInterfaces.at(0).ipv4().subnets().isEmpty())
+        {
+            throw std::runtime_error("No valid subnets found for camera " + camera.info().serialNumber().toString());
+        }
+
+        if(localInterfaces.at(0).ipv4().subnets().size() > 1)
+        {
+            throw std::runtime_error(
+                "More than one ip address found for the local interface from the camera "
+                + camera.info().serialNumber().toString());
+        }
+
+        auto subnet = localInterfaces.at(0).ipv4().subnets().at(0);
+        return { subnet.address().toString(), subnet.mask().toString() };
     }
 } // namespace
 
@@ -57,45 +71,92 @@ int main(int argc, char **argv)
 {
     try
     {
-        std::tuple<std::string, std::string> options = parseOptions(argc, argv);
-        std::string ipAddress = std::get<0>(options);
-        std::string subnetMask = std::get<1>(options);
+        bool displayOnly = false;
 
-        assertUserInput(ipAddress, subnetMask);
+        auto cli = clipp::group(
+            clipp::option("--display-only").set(displayOnly)
+            % "Only display the new network configurations of the camera(s) without applying changes");
 
-        auto ipAddressOctets = splitUserInput(ipAddress, '.');
+        // Parse arguments
+        if(!clipp::parse(argc, argv, cli))
+        {
+            // Formatting for CLI documentation
+            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
+            std::cout << "USAGE:" << std::endl;
+            std::cout << clipp::usage_lines(cli, argv[0], fmt) << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << clipp::documentation(cli) << std::endl;
+            throw std::runtime_error("Command-line parsing failed.");
+        }
 
         Zivid::Application zivid;
         auto cameras = zivid.cameras();
+
         if(cameras.empty())
         {
             throw std::runtime_error("Failed to connect to camera. No cameras found.");
         }
 
-        int lastIpAddressOctet = std::stoi(ipAddressOctets[3]);
-        std::string remainingIpAddressOctets = ipAddressOctets[0] + "." + ipAddressOctets[1] + "." + ipAddressOctets[2];
-
-        // defines the last octet of the ip address of the first Zivid camera. Eg.: x.x.x.2
-        int nextIpAddressLastOctet = 2;
+        std::map<std::string, std::vector<Zivid::Camera>> localInterfaceIpToCameras;
 
         for(auto &camera : cameras)
         {
-            if(nextIpAddressLastOctet == lastIpAddressOctet)
+            try
             {
-                nextIpAddressLastOctet += 1;
+                const auto [localInterfaceIpAddress, localInterfaceSubnetMask] =
+                    getUsersLocalInterfaceNetworkConfiguration(camera);
+
+                auto ipAddressOctets = splitIpAddress(localInterfaceIpAddress, '.');
+
+                int nextIpAddressLastOctet = std::stoi(ipAddressOctets.back());
+
+                // Identifying the last octet of the new ip address for the current camera
+                if(localInterfaceIpToCameras.find(localInterfaceIpAddress) == localInterfaceIpToCameras.end())
+                {
+                    nextIpAddressLastOctet += 1;
+                }
+                else
+                {
+                    nextIpAddressLastOctet += localInterfaceIpToCameras[localInterfaceIpAddress].size() + 1;
+                }
+
+                localInterfaceIpToCameras[localInterfaceIpAddress].push_back(camera);
+
+                const std::string remainingIpAddressOctets =
+                    ipAddressOctets[0] + "." + ipAddressOctets[1] + "." + ipAddressOctets[2];
+
+                const Zivid::NetworkConfiguration newConfig(Zivid::NetworkConfiguration::IPV4(
+                    Zivid::NetworkConfiguration::IPV4::Mode::manual,
+                    Zivid::NetworkConfiguration::IPV4::Address(
+                        remainingIpAddressOctets + "." + std::to_string(nextIpAddressLastOctet)),
+                    Zivid::NetworkConfiguration::IPV4::SubnetMask(localInterfaceSubnetMask)));
+
+                if(displayOnly)
+                {
+                    std::cout << "Current camera serial number : " << camera.info().serialNumber() << "\n"
+                              << "Current camera " << camera.networkConfiguration()
+                              << "Current local interface detected: " << localInterfaceIpAddress
+                              << "\nSimulated new camera address ip: " << remainingIpAddressOctets << "."
+                              << std::to_string(nextIpAddressLastOctet) << "\n\n"
+                              << std::endl;
+                }
+                else
+                {
+                    std::cout << "Applying network configuration to camera with serial number: "
+                              << camera.info().serialNumber() << "\n"
+                              << "Current local interface detected: " << localInterfaceIpAddress << std::endl;
+
+                    camera.applyNetworkConfiguration(newConfig);
+
+                    std::cout << "New camera network configuration: " << camera.networkConfiguration() << "\n\n"
+                              << std::endl;
+                }
             }
-
-            Zivid::NetworkConfiguration newConfig(Zivid::NetworkConfiguration::IPV4(
-                Zivid::NetworkConfiguration::IPV4::Mode::manual,
-                Zivid::NetworkConfiguration::IPV4::Address(
-                    remainingIpAddressOctets + "." + std::to_string(nextIpAddressLastOctet)),
-                Zivid::NetworkConfiguration::IPV4::SubnetMask(subnetMask)));
-
-            nextIpAddressLastOctet += 1;
-
-            std::cout << "Applying network configuration to camera " << camera.info().serialNumber() << std::endl;
-            camera.applyNetworkConfiguration(newConfig);
-            std::cout << "New " << camera.networkConfiguration() << "\n" << std::endl;
+            catch(const std::exception &e)
+            {
+                std::cerr << "Error when configuring camera: " << camera.networkConfiguration() << " " << e.what()
+                          << std::endl;
+            }
         }
     }
     catch(const std::exception &e)
