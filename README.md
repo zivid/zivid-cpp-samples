@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.14.0. For
+This repository contains cpp code samples for Zivid SDK v2.14.1. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -68,9 +68,8 @@ from the camera can be used.
           - [MultiCameraCaptureSequentiallyWithInterleavedProcessing](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing/MultiCameraCaptureSequentiallyWithInterleavedProcessing.cpp) - Capture point clouds with multiple cameras sequentially
             with interleaved processing.
       - **InfoUtilOther**
-          - [AutomaticNetworkConfigurationForCameras](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras/AutomaticNetworkConfigurationForCameras.cpp) - Automatically set the IP addresses of any number of
-            cameras to be in the same subnet as the provided IP address
-            of the network interface.
+          - [AutomaticNetworkConfigurationForCameras](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras/AutomaticNetworkConfigurationForCameras.cpp) - \* Automatically configure the IP addresses of connected
+            cameras to match the network of the user's PC.
           - [CameraInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CameraInfo/CameraInfo.cpp) - List connected cameras and print camera version and state
             information for each connected camera.
           - [CameraUserData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp) - Store user data on the Zivid camera.
