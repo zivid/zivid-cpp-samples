@@ -1,5 +1,21 @@
 cmake_minimum_required(VERSION 3.5...3.29 FATAL_ERROR)
 
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Platform-specific compiler flags
+if(NOT MSVC)  # For GCC/Clang (Linux/macOS)
+    add_compile_options(
+        -std=c++17
+        -march=native
+        -ftree-vectorize
+    )
+else()  # For MSVC (Windows)
+    add_compile_options(/std:c++17 /O2 /arch:AVX2)  # /O2 for optimizations
+endif()
+
 project(ZividCppSamples)
 
 set(CMAKE_MODULE_PATH
@@ -12,19 +28,25 @@ include(CompilerOptions)
 set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL "MinSizeRel;Release;")
 set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RelWithDebInfo;Release;")
 
-set(ZIVID_VERSION 2.13.0)
+set(ZIVID_VERSION 2.14.1)
 
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
+if(NOT WIN32)
+    option(USE_TBB "Use TBB for parallelized for loops" ON)
+else()
+    option(USE_TBB "Use TBB for parallelized for loops" OFF)
+endif()
 
 set(SAMPLES
     Camera/Basic/Capture
     Camera/Basic/CaptureFromFileCamera
     Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDRCompleteSettings
+    Camera/Advanced/CaptureAgainBasedOnCoverage
     Camera/Advanced/Capture2DAnd3D
     Camera/Advanced/CaptureHDRLoop
     Camera/Advanced/CaptureHDRPrintNormals
@@ -95,6 +117,7 @@ set(PCL_DEPENDING
     StitchByTransformationFromZDF
 )
 set(OpenCV_DEPENDING
+    CaptureAgainBasedOnCoverage
     Capture2DAnd3D
     CaptureUndistort2D
     CreateDepthMap
@@ -134,6 +157,7 @@ set(Clipp_DEPENDING
     CaptureWritePCLVis3D
     GammaCorrection
     Warmup
+    CaptureAgainBasedOnCoverage
 )
 set(GenTL_DEPENDING CaptureViaGenICam)
 set(Thread_DEPENDING
@@ -146,6 +170,9 @@ set(Thread_DEPENDING
 set(Halcon_DEPENDING
     CaptureHalconViaGenICam
     CaptureHalconViaZivid
+)
+set(TBB_DEPENDING
+    CaptureAgainBasedOnCoverage
 )
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
@@ -162,6 +189,20 @@ macro(disable_samples DEPENDENCY_NAME)
         endif()
     endforeach()
 endmacro()
+
+if(USE_TBB)
+    find_package(TBB REQUIRED)
+    if(NOT TBB_FOUND)
+        message(
+            FATAL_ERROR
+            "TBB not found. Please install, e.g. `sudo apt-get install libtbb-dev`"
+        )
+    endif()
+else()
+    if(NOT WIN32)
+        disable_samples("TBB")
+    endif()
+endif()
 
 if(USE_EIGEN3)
     set(EIGEN3_INCLUDE_DIR
@@ -299,6 +340,12 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Threads::Threads)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST TBB_DEPENDING)
+        if(NOT WIN32)
+            target_link_libraries(${SAMPLE_NAME} TBB::tbb)
+        endif()
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Halcon_DEPENDING)
