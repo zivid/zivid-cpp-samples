@@ -38,7 +38,10 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Creating settings" << std::endl;
-        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+        const auto settings =
+            Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                             Zivid::Settings::Color{ Zivid::Settings2D{
+                                 Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
 
         std::cout << "Getting camera resolution" << std::endl;
         const auto resolution = Zivid::Experimental::SettingsInfo::resolution(camera.info(), settings);
@@ -54,7 +57,7 @@ int main()
         auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
 
         std::cout << "Capturing frame" << std::endl;
-        auto frame = camera.capture(settings);
+        auto frame = camera.capture2D3D(settings);
         auto pointCloud = frame.pointCloud();
 
         std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
@@ -68,11 +71,10 @@ int main()
         // Copy selected data from GPU to system memory (Zivid-allocated)
 
         std::cout << "Capturing frame" << std::endl;
-        frame = camera.capture(settings);
-        pointCloud = frame.pointCloud();
+        frame = camera.capture2D3D(settings);
 
         std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-        auto colors = pointCloud.copyColorsBGRA();
+        auto colors = frame.frame2D().value().imageBGRA();
 
         std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
                   << std::endl;

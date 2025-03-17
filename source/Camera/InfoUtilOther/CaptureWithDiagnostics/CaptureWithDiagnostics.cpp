@@ -54,7 +54,7 @@ int main()
         settings.set(Zivid::Settings::Diagnostics::Enabled::yes);
 
         std::cout << "Capturing frame" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture2D3D(settings);
 
         const auto dataFile = "FrameWithDiagnostics.zdf";
         std::cout << "Saving frame with diagnostic data to file: " << dataFile << std::endl;

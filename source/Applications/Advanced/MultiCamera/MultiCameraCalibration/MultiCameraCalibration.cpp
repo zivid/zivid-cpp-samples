@@ -18,7 +18,7 @@ namespace
             Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
         };
         const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture(settings);
+        return camera.capture2D3D(settings);
     }
 
     std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)

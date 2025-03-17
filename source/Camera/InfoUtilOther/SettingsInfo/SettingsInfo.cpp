@@ -24,18 +24,28 @@ int main()
         auto defaultSettings = Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings>(cameraInfo);
         defaultSettings.acquisitions().emplaceBack(
             Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings::Acquisition>(cameraInfo));
+
+        defaultSettings.set(Zivid::Settings::Color{
+            Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D>(cameraInfo)
+                .copyWith(Zivid::Settings2D::Acquisitions{
+                    Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D::Acquisition>(cameraInfo) }) });
+
         std::cout << defaultSettings << std::endl;
 
         std::cout << "Default camera (e.g., Aperture) setting value:" << std::endl;
         const auto defaultSettingValue =
             Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings::Acquisition::Aperture>(cameraInfo);
-        std::cout << defaultSettingValue << std::endl;
+        const auto defaultSettingValue2D =
+            Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D::Acquisition::Aperture>(cameraInfo);
+        std::cout << "  3D: " << defaultSettingValue << "\n  2D: " << defaultSettingValue2D << std::endl;
 
         std::cout << "Valid camera (e.g., Aperture) setting range (for settings of types double and duration):"
                   << std::endl;
         const auto validSettingRange =
             Zivid::Experimental::SettingsInfo::validRange<Zivid::Settings::Acquisition::Aperture>(cameraInfo);
-        std::cout << validSettingRange << std::endl;
+        const auto validSettingRange2D =
+            Zivid::Experimental::SettingsInfo::validRange<Zivid::Settings2D::Acquisition::Aperture>(cameraInfo);
+        std::cout << "  3D: " << validSettingRange << "\n  2D: " << validSettingRange2D << std::endl;
 
         std::cout << "Valid camera (e.g., Reflection Filter) setting values (for settings of types bool and enum):"
                   << std::endl;
@@ -48,18 +58,18 @@ int main()
 
         std::cout << "Camera resolution for default settings:" << std::endl;
         const auto resolution = Zivid::Experimental::SettingsInfo::resolution(cameraInfo, defaultSettings);
-        std::cout << "Height: " << resolution.height() << std::endl;
-        std::cout << "Width: " << resolution.width() << std::endl;
+        std::cout << "  Height: " << resolution.height() << std::endl;
+        std::cout << "  Width: " << resolution.width() << std::endl;
 
         std::cout << "Point cloud (GPU memory) resolution:" << std::endl;
-        const auto pointCloud = camera.capture(defaultSettings).pointCloud();
-        std::cout << "Height: " << pointCloud.height() << std::endl;
-        std::cout << "Width: " << pointCloud.width() << std::endl;
+        const auto pointCloud = camera.capture2D3D(defaultSettings).pointCloud();
+        std::cout << "  Height: " << pointCloud.height() << std::endl;
+        std::cout << "  Width: " << pointCloud.width() << std::endl;
 
         std::cout << "Point cloud (CPU memory) resolution:" << std::endl;
         const auto data = pointCloud.copyPointsXYZColorsRGBA();
-        std::cout << "Height: " << data.height() << std::endl;
-        std::cout << "Width: " << data.width() << std::endl;
+        std::cout << "  Height: " << data.height() << std::endl;
+        std::cout << "  Width: " << data.width() << std::endl;
     }
     catch(const std::exception &e)
     {

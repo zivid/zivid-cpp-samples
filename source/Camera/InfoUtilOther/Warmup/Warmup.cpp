@@ -15,20 +15,18 @@ using Duration = std::chrono::nanoseconds;
 
 namespace
 {
-    Zivid::Settings loadOrSuggestSettings(Zivid::Camera &camera, const std::string &settingsPath)
+    Zivid::Settings loadOrDefaultSettings(const std::string &settingsPath)
     {
         if(!settingsPath.empty())
         {
             std::cout << "Loading settings from file" << std::endl;
             return Zivid::Settings(settingsPath);
         }
-        std::cout << "Getting camera settings from capture assistant" << std::endl;
-        const auto maxCaptureTime = std::chrono::milliseconds(1000);
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ maxCaptureTime }
-        };
-        return Zivid::CaptureAssistant::suggestSettings(camera, parameters);
+
+        std::cout << "Using default 3D settings" << std::endl;
+        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+
+        return settings;
     }
 } // namespace
 
@@ -59,7 +57,7 @@ int main(int argc, char **argv)
 
         const auto warmupTime = std::chrono::minutes(10);
         const auto captureCycle = std::chrono::seconds{ captureCycleSeconds };
-        const auto settings = loadOrSuggestSettings(camera, settingsPath);
+        const auto settings = loadOrDefaultSettings(settingsPath);
 
         std::cout << "Starting warm up for: " << warmupTime.count() << " minutes" << std::endl;
 
@@ -68,7 +66,11 @@ int main(int argc, char **argv)
         while(SteadyClock::now() - beforeWarmup < warmupTime)
         {
             const auto beforeCapture = SteadyClock::now();
-            camera.capture(settings);
+
+            // Use the same capture method as you would use in production
+            // to get the most accurate results from warmup
+            camera.capture3D(settings);
+
             const auto afterCapture = SteadyClock::now();
             const auto captureTime = afterCapture - beforeCapture;
             if(captureTime < captureCycle)

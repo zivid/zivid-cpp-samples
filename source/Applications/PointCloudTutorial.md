@@ -159,14 +159,13 @@ If you are only concerned about e.g. RGB color data of the point cloud,
 you can copy only that data to the CPU memory.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L70-L93))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L73-L95))
 
 ``` sourceCode cpp
 std::cout << "Capturing frame" << std::endl;
-frame = camera.capture(settings);
-pointCloud = frame.pointCloud();
+frame = camera.capture2D3D(settings);
 std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-auto colors = pointCloud.copyColorsBGRA();
+auto colors = frame.frame2D().value().imageBGRA();
 
 std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
 		<< std::endl;
@@ -192,14 +191,14 @@ cv::waitKey(0);
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L52-L66))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp#L55-L69))
 
 ``` sourceCode cpp
 std::cout << "Allocating the necessary storage with OpenCV API based on resolution info before any capturing"
 		<< std::endl;
 auto bgraUserAllocated = cv::Mat(resolution.height(), resolution.width(), CV_8UC4);
 std::cout << "Capturing frame" << std::endl;
-auto frame = camera.capture(settings);
+auto frame = camera.capture2D3D(settings);
 auto pointCloud = frame.pointCloud();
 
 std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
@@ -294,7 +293,7 @@ The size of normals is equal to the size of the input point cloud.
 Having the frame allows you to visualize the point cloud.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp#L26-L35))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp#L29-L38))
 
 ``` sourceCode cpp
 std::cout << "Setting up visualization" << std::endl;

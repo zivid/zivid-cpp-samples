@@ -80,7 +80,7 @@ int main()
         std::cout << "Press enter to stop projecting by performing a 3D capture" << std::endl;
         std::cin.get();
         const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition() } };
-        camera.capture(settings);
+        camera.capture3D(settings);
 
         std::cout << "Press enter to exit" << std::endl;
         std::cin.get();

@@ -97,9 +97,11 @@ int main()
         std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
         auto camera = zivid.createFileCamera(fileCamera);
 
-        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
+        Zivid::Settings settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                                  Zivid::Settings::Color{ settings2D } };
 
-        const auto originalFrame = camera.capture(settings);
+        const auto originalFrame = camera.capture2D3D(settings);
         auto pointCloud = originalFrame.pointCloud();
 
         std::cout << "Displaying the original point cloud" << std::endl;
@@ -144,7 +146,7 @@ int main()
             Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
             Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
 
-        const auto roiFrame = camera.capture(settings);
+        const auto roiFrame = camera.capture2D3D(settings);
 
         std::cout << "Displaying the ROI-filtered point cloud" << std::endl;
         visualizeZividPointCloud(roiFrame);

@@ -79,14 +79,10 @@ int main()
         HalconCpp::SetFramegrabberParam(framegrabber, "add_objectmodel3d_overlay_attrib", "enable");
         HalconCpp::SetFramegrabberParam(framegrabber, "AcquisitionMode", "SingleFrame");
 
-        HalconCpp::SetFramegrabberParam(framegrabber, "Aperture", 5.66);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ExposureTime", 8333);
-        HalconCpp::SetFramegrabberParam(framegrabber, "Gain", 2);
-        HalconCpp::SetFramegrabberParam(framegrabber, "Brightness", 1.0);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ProcessingFiltersOutlierRemovalEnabled", 1);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ProcessingFiltersOutlierRemovalThreshold", 5);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ProcessingFiltersSmoothingGaussianEnabled", 1);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ProcessingFiltersSmoothingGaussianSigma", 1.5);
+        HalconCpp::SetFramegrabberParam(framegrabber, "Aperture", 2.83);
+        HalconCpp::SetFramegrabberParam(framegrabber, "ExposureTime", 5000);
+        HalconCpp::SetFramegrabberParam(framegrabber, "Gain", 1);
+        HalconCpp::SetFramegrabberParam(framegrabber, "Brightness", 1.8);
 
         std::cout << "Capturing frame" << std::endl;
         auto region = HalconCpp::HRegion();

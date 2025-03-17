@@ -26,7 +26,7 @@ namespace
             Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
         };
         const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture(settings);
+        return camera.capture2D3D(settings);
     }
 
     class TransformationMatrixAndCameraMap
@@ -124,8 +124,8 @@ int main(int argc, char **argv)
                  % "List of YAML files containing the transformation matrix.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
              clipp::required("-o", "--output-file").set(saveStitched)
-                 & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
-                       % "Save the stitched point cloud to a file with this name. (.ply)");
+                 % "Save the stitched point cloud to a file with this name. (.ply)")
+            & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName);
 
         if(!parse(argc, argv, cli))
         {

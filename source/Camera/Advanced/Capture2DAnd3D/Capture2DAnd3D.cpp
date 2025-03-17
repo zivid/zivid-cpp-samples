@@ -1,8 +1,7 @@
 /*
-Capture 2D and 3D separately with the Zivid camera.
+Capture 2D and 3D with the Zivid camera.
 
-Capture separate 2D image with subsampling2x2. Then capture 3D with subsampling4x4
-and upsampling2x2 to match resolution  of 2D.
+Capture separate 2D and 3D with different sampling modes based on camera model.
 Then use color from 2D when visualizing the 3D point cloud.
 */
 
@@ -20,10 +19,11 @@ Then use color from 2D when visualizing the 3D point cloud.
 
 namespace
 {
-    std::tuple<Zivid::Settings2D, Zivid::Settings> get2DAnd3DSettings(const Zivid::Camera &camera)
+    Zivid::Settings get2DAnd3DSettings(const Zivid::Camera &camera)
     {
-        auto settings2D = Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
-        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                                         Zivid::Settings::Color{ Zivid::Settings2D{
+                                             Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
 
         auto model = camera.info().model();
         switch(model.value())
@@ -31,27 +31,27 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
             {
-                settings2D.set(Zivid::Settings2D::Sampling::Pixel::all);
                 settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
                 settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::all);
                 break;
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
             {
-                settings2D.set(Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2);
                 settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample4x4);
                 settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2);
                 break;
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
             {
-                settings2D.set(Zivid::Settings2D::Sampling::Pixel::by2x2);
                 settings.set(Zivid::Settings::Sampling::Pixel::by4x4);
                 settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);
+                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::by2x2);
                 break;
             }
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
@@ -63,7 +63,7 @@ namespace
             default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
         }
 
-        return { settings2D, settings };
+        return settings;
     }
 
     void displayPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &bgra)
@@ -114,22 +114,22 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring 2D and 3D settings" << std::endl;
-        const auto [settings2D, settings] = get2DAnd3DSettings(camera);
+        const auto settings = get2DAnd3DSettings(camera);
 
-        std::cout << "Capturing 2D frame" << std::endl;
-        const auto frame2D = camera.capture(settings2D);
+        std::cout << "Capturing 2D+3D" << std::endl;
+        const auto frame = camera.capture2D3D(settings);
+
         std::cout << "Getting BGRA image" << std::endl;
-        const auto image = frame2D.imageBGRA();
+        const auto image = frame.frame2D().value().imageBGRA();
         const cv::Mat bgra(
             image.height(),
             image.width(),
             CV_8UC4, // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
             const_cast<void *>(static_cast<const void *>(image.data())));
 
-        std::cout << "Capturing frame" << std::endl;
-
-        const auto frame = camera.capture(settings);
+        std::cout << "Getting point cloud" << std::endl;
         const auto pointCloud = frame.pointCloud();
+
         std::cout << "Visualizing point cloud" << std::endl;
         displayPointCloud(pointCloud, bgra);
     }
