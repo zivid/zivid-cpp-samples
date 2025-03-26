@@ -53,7 +53,7 @@ int main()
             std::cout << settings << std::endl;
 
             std::cout << "Capturing frame (HDR)" << std::endl;
-            const auto frame = camera.capture(settings);
+            const auto frame = camera.capture2D3D(settings);
 
             std::stringstream dataFile;
             dataFile << "Frame0" << i << ".zdf";

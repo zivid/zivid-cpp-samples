@@ -209,7 +209,7 @@ namespace
             a.set(Zivid::Settings2D::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
         }
 
-        return camera.capture(settings);
+        return camera.capture2D3D(settings);
     }
 
 } // namespace
@@ -254,28 +254,36 @@ int main()
         std::cout << "Press enter to continue...";
         std::cin.get();
 
+        // Fine tune 2D settings until the "ProjectedMarker.png" image is well exposed if the projected marker well is not detected in ImageWithMarker.png.
+        const auto exposureTime = std::chrono::microseconds{ 20000 };
+        const auto aperture = 2.83;
+        const auto gain = 1.0;
+
         const auto settings2DZeroBrightness =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
                                    Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
-                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-                                   Zivid::Settings2D::Acquisition::Aperture{ 2.38 } } },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ exposureTime },
+                                   Zivid::Settings2D::Acquisition::Aperture{ aperture },
+                                   Zivid::Settings2D::Acquisition::Gain{ gain } } },
                                Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
         const auto settings2DMaxBrightness =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
                                    Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
-                                   Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-                                   Zivid::Settings2D::Acquisition::Aperture{ 2.38 } } },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ exposureTime },
+                                   Zivid::Settings2D::Acquisition::Aperture{ aperture },
+                                   Zivid::Settings2D::Acquisition::Gain{ gain } } },
                                Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
         std::cout << "Capture a 2D frame with the marker" << std::endl;
         const auto projectedMarkerFrame2D = projectedImageHandle.capture(settings2DZeroBrightness);
+        projectedMarkerFrame2D.imageRGBA().save("ProjectedMarker.png");
 
         std::cout << "Capture a 2D frame of the scene illuminated with the projector" << std::endl;
-        const auto illuminatedSceneFrame2D = camera.capture(settings2DMaxBrightness);
+        const auto illuminatedSceneFrame2D = camera.capture2D(settings2DMaxBrightness);
 
         std::cout << "Capture a 2D frame of scene without projector illumination" << std::endl;
-        const auto nonIlluminatedSceneFrame2D = camera.capture(settings2DZeroBrightness);
+        const auto nonIlluminatedSceneFrame2D = camera.capture2D(settings2DZeroBrightness);
 
         std::cout << "Locating marker in the 2D image:" << std::endl;
         const auto markerLocation = findMarker(

@@ -207,10 +207,10 @@ We can create settings for a single acquisition capture.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L19-L22))
 
 ``` sourceCode cpp
-const auto settings = Zivid::Settings(
-	Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-	Zivid::Settings::Color(
-		Zivid::Settings2D(Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} })));
+const auto settings =
+	Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+					Zivid::Settings::Color{ Zivid::Settings2D{
+						Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
 ```
 
 #### Multi Acquisition HDR
@@ -223,7 +223,7 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Ad
 
 ``` sourceCode cpp
 Zivid::Settings settings;
-for(const auto aperture : { 9.57, 4.76, 2.59 })
+for(const auto aperture : { 5.66, 4.00, 2.59 })
 {
 	std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
 	const auto acquisitionSettings = Zivid::Settings::Acquisition{

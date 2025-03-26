@@ -106,8 +106,9 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring settings" << std::endl;
-        Zivid::Settings settings;
-        for(const auto aperture : { 9.57, 4.76, 2.59 })
+        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
+        Zivid::Settings settings{ Zivid::Settings::Color{ settings2D } };
+        for(const auto aperture : { 5.66, 4.00, 2.59 })
         {
             std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
             const auto acquisitionSettings = Zivid::Settings::Acquisition{
@@ -117,7 +118,7 @@ int main()
         }
 
         std::cout << "Capturing frame (HDR)" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture2D3D(settings);
         const auto pointCloud = frame.pointCloud();
 
         std::cout << "Creating PCL point cloud structure" << std::endl;

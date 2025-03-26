@@ -64,12 +64,11 @@ int main()
         for(auto &camera : connectedCameras)
         {
             std::cout << "Capturing frame with camera: " << camera.info().serialNumber() << std::endl;
-            const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-                Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-                Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-            };
-            const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-            const auto frame = camera.capture(settings);
+            const auto settings =
+                Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                                 Zivid::Settings::Color{ Zivid::Settings2D{
+                                     Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
+            const auto frame = camera.capture2D3D(settings);
 
             std::cout << "Starting to process and save (in a separate thread) the frame captured with camera: "
                       << frame.cameraInfo().serialNumber().value() << std::endl;

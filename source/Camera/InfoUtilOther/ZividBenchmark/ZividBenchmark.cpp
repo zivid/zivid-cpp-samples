@@ -956,7 +956,7 @@ namespace
         printSaveHeader(numFrames);
 
         const auto frame =
-            camera.capture(Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } });
+            camera.capture3D(Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } });
         frame.pointCloud();
 
         std::vector<Duration> allDurations;

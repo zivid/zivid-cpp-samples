@@ -41,17 +41,21 @@ int main(int argc, char **argv)
         auto camera = zivid.createFileCamera(fileCamera);
 
         std::cout << "Configuring settings" << std::endl;
-        const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-                                               Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-                                               Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
-                                               Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-                                               Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
-                                               Zivid::Settings::Processing::Color::Balance::Red{ 1 },
-                                               Zivid::Settings::Processing::Color::Balance::Green{ 1 },
-                                               Zivid::Settings::Processing::Color::Balance::Blue{ 1 } };
+        Zivid::Settings2D settings2D{
+            Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
+            Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 },
+            Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
+            Zivid::Settings2D::Processing::Color::Balance::Red{ 1.0 },
+        };
+        Zivid::Settings settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                                  Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+                                  Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+                                  Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+                                  Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+                                  Zivid::Settings::Color{ settings2D } };
 
         std::cout << "Capturing frame" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture2D3D(settings);
 
         std::cout << "Setting up visualization" << std::endl;
         Zivid::Visualization::Visualizer visualizer;

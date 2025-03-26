@@ -11,19 +11,6 @@ information about the system that captured the frame, and the time stamp of the 
 #include <chrono>
 #include <iostream>
 
-namespace
-{
-    Zivid::Frame assistedCapture(Zivid::Camera &camera)
-    {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture(settings);
-    }
-} // namespace
-
 int main()
 {
     try
@@ -34,7 +21,12 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Capturing frame" << std::endl;
-        const auto frame = assistedCapture(camera);
+        const auto settings =
+            Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+                             Zivid::Settings::Color{ Zivid::Settings2D{
+                                 Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
+
+        const auto frame = camera.capture2D3D(settings);
 
         const auto frameInfo = frame.info();
 

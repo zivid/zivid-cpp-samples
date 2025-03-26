@@ -85,8 +85,10 @@ namespace
 
     Zivid::Settings subsampledSettingsForCamera(const Zivid::Camera &camera)
     {
-        auto settingsSubsampled = Zivid::Settings{ Zivid::Settings::Engine::phase,
-                                                   Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } };
+        auto settingsSubsampled = Zivid::Settings(
+            Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+            Zivid::Settings::Color(
+                Zivid::Settings2D(Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} })));
 
         auto model = camera.info().model();
         switch(model.value())
@@ -98,6 +100,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
             {
                 settingsSubsampled.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
+                settingsSubsampled.color().value().set(Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2);
                 break;
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
@@ -105,6 +108,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
             {
                 settingsSubsampled.set(Zivid::Settings::Sampling::Pixel::by2x2);
+                settingsSubsampled.color().value().set(Zivid::Settings2D::Sampling::Pixel::by2x2);
                 break;
             }
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
@@ -145,15 +149,15 @@ int main()
             << "Difference between fixed intrinsics and estimated intrinsics for different apertures and temperatures:"
             << std::endl;
 
-        for(const auto aperture : { 11.31, 5.66, 2.83 })
+        for(const auto aperture : { 5.66, 4.00, 2.83 })
         {
-            const auto settings =
-                Zivid::Settings{ Zivid::Settings::Engine::phase,
-                                 Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{
-                                     Zivid::Settings::Acquisition::Aperture{ aperture } } },
-                                 Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
-                                 Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 } };
-            const auto frame = camera.capture(settings);
+            const auto settings = Zivid::Settings{
+                Zivid::Settings::Acquisitions{
+                    Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ aperture } } },
+                Zivid::Settings::Color{ Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{
+                    Zivid::Settings2D::Acquisition{ Zivid::Settings2D::Acquisition::Aperture{ aperture } } } } }
+            };
+            const auto frame = camera.capture2D3D(settings);
             const auto estimated_intrinsics = Zivid::Experimental::Calibration::estimateIntrinsics(frame);
             const auto temperature = frame.state().temperature().lens().value();
             std::cout << std::endl
@@ -169,7 +173,7 @@ int main()
         const auto fixedIntrinsicsForSubsampledSettings =
             Zivid::Experimental::Calibration::intrinsics(camera, settingsSubsampled);
         fixedIntrinsicsForSubsampledSettings.save(fixedIntrinsicsForSubsampledSettingsPath);
-        const auto frame = camera.capture(settingsSubsampled);
+        const auto frame = camera.capture2D3D(settingsSubsampled);
         const auto estimatedIntrinsicsForSubsampledSettings =
             Zivid::Experimental::Calibration::estimateIntrinsics(frame);
         const auto estimatedIntrinsicsForSubsampledSettingsPath = "EstimatedIntrinsicsFromSubsampled2x2Capture.yml";

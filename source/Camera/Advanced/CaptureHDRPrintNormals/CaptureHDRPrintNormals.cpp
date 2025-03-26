@@ -37,7 +37,7 @@ int main()
 
         std::cout << "Configuring settings" << std::endl;
         Zivid::Settings settings;
-        for(const auto aperture : { 9.57, 4.76, 2.59 })
+        for(const auto aperture : { 5.66, 4.00, 2.59 })
         {
             std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
             const auto acquisitionSettings = Zivid::Settings::Acquisition{
@@ -47,7 +47,7 @@ int main()
         }
 
         std::cout << "Capturing frame (HDR)" << std::endl;
-        const auto frame = camera.capture(settings);
+        const auto frame = camera.capture3D(settings);
         const auto pointCloud = frame.pointCloud();
 
         std::cout << "Computing normals and copying them to CPU memory" << std::endl;
