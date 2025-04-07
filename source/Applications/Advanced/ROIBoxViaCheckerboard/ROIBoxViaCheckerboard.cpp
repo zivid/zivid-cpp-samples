@@ -130,6 +130,13 @@ int main()
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(originalFrame);
+
+        if(!detectionResult.valid())
+        {
+            std::cout << "Detection failed. " << detectionResult.statusDescription() << std::endl;
+            return EXIT_FAILURE;
+        }
+
         const auto transformCameraToCheckerboard = detectionResult.pose().toMatrix();
 
         std::cout << "Transforming the ROI base frame points to the camera frame" << std::endl;

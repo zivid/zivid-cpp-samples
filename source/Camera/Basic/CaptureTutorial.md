@@ -367,7 +367,7 @@ If we only want to capture 3D, the points cloud without color, we can do
 so via the `capture3D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L72))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L74))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);
@@ -440,7 +440,7 @@ We can get the 2D color image from `Frame2D`, which is part of the
 ([go to source]())
 
 ``` sourceCode cpp
-const auto image2D = frame.frame2D().value().imageBGRA();
+const auto image2D = frame.frame2D().value().imageBGRA_SRGB();
 ```
 
 We can get 2D color image directly from the point cloud. This image will
@@ -450,7 +450,7 @@ have the same resolution as the point cloud.
 
 ``` sourceCode cpp
 const auto pointCloud = frame.pointCloud();
-const auto image2DInPointCloudResolution = pointCloud.copyImageRGBA();
+const auto image2DInPointCloudResolution = pointCloud.copyImageRGBA_SRGB();
 ```
 
 2D captures also produce 2D color images in linear RGB and sRGB color
@@ -460,7 +460,7 @@ space.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L27))
 
 ``` sourceCode cpp
-const auto imageRGBA = frame.frame2D().value().imageRGBA();
+const auto imageRGBA = frame.frame2D().value().imageRGBA_SRGB();
 .. tab-item:: sRGB
 ```
 
@@ -478,7 +478,7 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Ba
 
 ``` sourceCode cpp
 const auto imageFile = "ImageRGB.png";
-std::cout << "Saving 2D color image (linear RGB color space) to file: " << imageFile << std::endl;
+std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;
 imageRGBA.save(imageFile);
 .. tab-item:: sRGB
 ```

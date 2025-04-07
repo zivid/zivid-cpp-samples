@@ -40,6 +40,10 @@ int main()
         // Gather data
         std::cout << "Capturing calibration board" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
+        if(!detectionResult.valid())
+        {
+            throw std::runtime_error("Detection failed! Feedback: " + detectionResult.statusDescription());
+        }
 
         // Prepare data and check that it is appropriate for infield verification
         const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };

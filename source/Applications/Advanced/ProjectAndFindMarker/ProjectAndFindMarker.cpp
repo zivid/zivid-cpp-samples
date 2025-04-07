@@ -55,7 +55,7 @@ namespace
 
     cv::Mat cvMatFromFrame2D(const Zivid::Frame2D &frame2D)
     {
-        const auto image = frame2D.imageRGBA();
+        const auto image = frame2D.imageRGBA_SRGB();
 
         // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
         // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
@@ -276,8 +276,8 @@ int main()
                                Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
         std::cout << "Capture a 2D frame with the marker" << std::endl;
-        const auto projectedMarkerFrame2D = projectedImageHandle.capture(settings2DZeroBrightness);
-        projectedMarkerFrame2D.imageRGBA().save("ProjectedMarker.png");
+        const auto projectedMarkerFrame2D = projectedImageHandle.capture2D(settings2DZeroBrightness);
+        projectedMarkerFrame2D.imageRGBA_SRGB().save("ProjectedMarker.png");
 
         std::cout << "Capture a 2D frame of the scene illuminated with the projector" << std::endl;
         const auto illuminatedSceneFrame2D = camera.capture2D(settings2DMaxBrightness);

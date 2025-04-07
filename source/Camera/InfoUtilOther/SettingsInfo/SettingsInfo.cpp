@@ -67,7 +67,7 @@ int main()
         std::cout << "  Width: " << pointCloud.width() << std::endl;
 
         std::cout << "Point cloud (CPU memory) resolution:" << std::endl;
-        const auto data = pointCloud.copyPointsXYZColorsRGBA();
+        const auto data = pointCloud.copyPointsXYZColorsRGBA_SRGB();
         std::cout << "  Height: " << data.height() << std::endl;
         std::cout << "  Width: " << data.width() << std::endl;
     }

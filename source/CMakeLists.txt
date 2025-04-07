@@ -315,6 +315,14 @@ foreach(SAMPLE ${SAMPLES})
                 include
         )
     endif()
+
+    if(WARNINGS AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${SAMPLE_NAME}" STREQUAL "CaptureViaGenICam")
+        # The CaptureViaGenICam sample increments raw pointers into buffers with known lengths
+        # This warning was added in clang version 16.
+        if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 16)
+            target_compile_options(CaptureViaGenICam PRIVATE "-Wno-unsafe-buffer-usage")
+        endif()
+    endif()
 endforeach()
 
 target_compile_definitions(ZividBenchmark PRIVATE OS_NAME=\"${CMAKE_SYSTEM_NAME}\")

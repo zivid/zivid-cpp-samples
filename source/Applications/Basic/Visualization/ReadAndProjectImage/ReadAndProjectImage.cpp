@@ -123,11 +123,11 @@ int main()
             const auto settings2D = makeSettings2D(camera);
 
             std::cout << "Capturing a 2D image with the projected image" << std::endl;
-            const auto frame2D = projectedImageHandle.capture(settings2D);
+            const auto frame2D = projectedImageHandle.capture2D(settings2D);
 
             const std::string capturedImageFile = "CapturedImage.png";
             std::cout << "Saving the captured image: " << capturedImageFile << std::endl;
-            frame2D.imageBGRA().save(capturedImageFile);
+            frame2D.imageBGRA_SRGB().save(capturedImageFile);
 
             std::cout << "Press enter to stop projecting..." << std::endl;
             std::cin.get();

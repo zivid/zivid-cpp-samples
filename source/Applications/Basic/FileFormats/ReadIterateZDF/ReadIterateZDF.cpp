@@ -20,7 +20,7 @@ int main()
 
         std::cout << "Getting point cloud from frame" << std::endl;
         const auto pointCloud = frame.pointCloud();
-        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
         const auto snr = pointCloud.copySNRs();
 
         std::cout << "Point cloud information:" << std::endl;

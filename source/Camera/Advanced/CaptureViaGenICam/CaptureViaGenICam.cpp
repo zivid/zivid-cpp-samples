@@ -67,6 +67,15 @@ namespace
         return stream.str();
     }
 
+    uint32_t getAcqusitionMode(size_t numOfApertures)
+    {
+        if(numOfApertures == 1)
+        {
+            return 0; // SingleAcquisitionFrame
+        }
+        return 3; // MultiAcquisitionFrame
+    }
+
     template<typename T>
     void setZividRegister(GenTL::PORT_HANDLE remDevHandle, uint64_t iAddress, T registerValue)
     {
@@ -375,8 +384,9 @@ int main()
         checkedTLCall(
             GenTL::GCRegisterEvent, "Failed to register event.", dsHandle, GenTL::EVENT_NEW_BUFFER, &newBufferEvent);
 
+        const uint32_t acqusitionMode = getAcqusitionMode(apertures.size());
+        setZividRegister(remDevHandle, AcquisitionControl::acquisitionMode, acqusitionMode);
         uint64_t numImages{ 1 };
-        setZividRegister(remDevHandle, AcquisitionControl::acquisitionMode, apertures.size());
         checkedTLCall(
             GenTL::DSStartAcquisition,
             "Failed to start acquisition loop.",

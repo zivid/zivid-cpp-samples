@@ -257,11 +257,11 @@ namespace
         printResults({ "   copyData<PointXYZ>: " }, durations[0]);
         printResults({ "  copyData<PointXYZW>: " }, durations[1]);
         printResults({ "     copyData<PointZ>: " }, durations[2]);
-        printResults({ "  copyData<ColorRGBA>: " }, durations[3]);
+        printResults({ "  copyData<ColorRGBA_SRGB>: " }, durations[3]);
         printResults({ "        copyData<SNR>: " }, durations[4]);
-        printResults({ "  copyData<ColorRGBA>: " }, durations[5]);
-        printResults({ "  copyData<ColorBGRA>: " }, durations[6]);
-        printResults({ "      copyImageRGBA(): " }, durations[7]);
+        printResults({ "  copyData<ColorRGBA_SRGB>: " }, durations[5]);
+        printResults({ "  copyData<ColorBGRA_SRGB>: " }, durations[6]);
+        printResults({ "      copyImageRGBA_SRGB(): " }, durations[7]);
         printResults({ "  copyData<NormalXYZ>: " }, durations[8]);
     }
 
@@ -402,7 +402,7 @@ namespace
     {
         const auto before = SteadyClock::now();
         const auto pointCloud = frame.pointCloud();
-        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
         const auto after = SteadyClock::now();
         return (after - before);
     }
@@ -411,7 +411,7 @@ namespace
     Duration useFrame<Zivid::Frame2D>(const Zivid::Frame2D &frame2D)
     {
         const auto before = SteadyClock::now();
-        const auto image = frame2D.imageRGBA();
+        const auto image = frame2D.imageRGBA_SRGB();
         const auto after = SteadyClock::now();
         return (after - before);
     }
@@ -668,10 +668,10 @@ namespace
             const auto afterCapture2D = SteadyClock::now();
             const auto frame = camera.capture3D(settings2D3D);
             const auto afterCapture = SteadyClock::now();
-            const auto image = frame2D.imageRGBA();
+            const auto image = frame2D.imageRGBA_SRGB();
             const auto afterProcess2D = SteadyClock::now();
             const auto pointCloud = frame.pointCloud();
-            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
             const auto afterProcess = SteadyClock::now();
 
             captureDurations2D.push_back(afterCapture2D - beforeCapture2D);
@@ -731,9 +731,9 @@ namespace
             const auto frame2D = camera.capture2D(settings2D3D.color().value());
             const auto afterCapture2D = SteadyClock::now();
             const auto pointCloud = frame.pointCloud();
-            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
             const auto afterProcess = SteadyClock::now();
-            const auto image = frame2D.imageRGBA();
+            const auto image = frame2D.imageRGBA_SRGB();
             const auto afterProcess2D = SteadyClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
@@ -772,7 +772,7 @@ namespace
 
         for(size_t i = 0; i < 5; i++) // setup time
         {
-            const auto data = camera.capture3D(settings2D3D).pointCloud().copyData<Zivid::PointXYZColorRGBA>();
+            const auto data = camera.capture3D(settings2D3D).pointCloud().copyData<Zivid::PointXYZColorRGBA_SRGB>();
         }
 
         std::vector<Duration> captureDurations;
@@ -786,7 +786,7 @@ namespace
             const auto frame = camera.capture3D(settings2D3D);
             const auto afterCapture = SteadyClock::now();
             const auto pointCloud = frame.pointCloud();
-            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+            const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
             const auto afterProcess = SteadyClock::now();
 
             captureDurations.push_back(afterCapture - beforeCapture);
@@ -899,7 +899,7 @@ namespace
         const auto beforeCopyData = SteadyClock::now();
         // The method to get the image from the Frame2D object returns the image right away.
         // The image object holds a handle to the image data in CPU memory.
-        frame2D.imageRGBA();
+        frame2D.imageRGBA_SRGB();
         const auto afterCopyData = SteadyClock::now();
         return afterCopyData - beforeCopyData;
     }
@@ -919,10 +919,10 @@ namespace
         copyDataTime<Zivid::PointXYZ>(warmupFrame);
         copyDataTime<Zivid::PointXYZW>(warmupFrame);
         copyDataTime<Zivid::PointZ>(warmupFrame);
-        copyDataTime<Zivid::ColorRGBA>(warmupFrame);
+        copyDataTime<Zivid::ColorRGBA_SRGB>(warmupFrame);
         copyDataTime<Zivid::SNR>(warmupFrame);
-        copyDataTime<Zivid::PointXYZColorRGBA>(warmupFrame);
-        copyDataTime<Zivid::PointXYZColorBGRA>(warmupFrame);
+        copyDataTime<Zivid::PointXYZColorRGBA_SRGB>(warmupFrame);
+        copyDataTime<Zivid::PointXYZColorBGRA_SRGB>(warmupFrame);
         copyDataTime(warmupFrame2D);
         copyDataTime<Zivid::NormalXYZ>(warmupFrame);
 
@@ -934,10 +934,10 @@ namespace
             copyDataDurations[0].push_back(copyDataTime<Zivid::PointXYZ>(frame));
             copyDataDurations[1].push_back(copyDataTime<Zivid::PointXYZW>(frame));
             copyDataDurations[2].push_back(copyDataTime<Zivid::PointZ>(frame));
-            copyDataDurations[3].push_back(copyDataTime<Zivid::ColorRGBA>(frame));
+            copyDataDurations[3].push_back(copyDataTime<Zivid::ColorRGBA_SRGB>(frame));
             copyDataDurations[4].push_back(copyDataTime<Zivid::SNR>(frame));
-            copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA>(frame));
-            copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA>(frame));
+            copyDataDurations[5].push_back(copyDataTime<Zivid::PointXYZColorRGBA_SRGB>(frame));
+            copyDataDurations[6].push_back(copyDataTime<Zivid::PointXYZColorBGRA_SRGB>(frame));
             copyDataDurations[7].push_back(copyDataTime(frame2D));
             copyDataDurations[8].push_back(copyDataTime<Zivid::NormalXYZ>(frame));
         }

@@ -58,6 +58,8 @@ int main()
 
             // More information about linear RGB and sRGB color spaces is available at:
             // https://support.zivid.com/en/latest/reference-articles/color-spaces-and-output-formats.html#color-spaces
+            // To get linear RGB image, use the following line instead:
+            // const auto imageLinearRGB = frame2D.imageRGBA();
 
             const auto pixelRow = 100;
             const auto pixelCol = 50;

@@ -39,7 +39,7 @@ namespace
 
         std::cout << "Capturing 2D frame" << std::endl;
         const auto frame2D = camera.capture2D(settings2D);
-        const auto image = frame2D.imageBGRA();
+        const auto image = frame2D.imageBGRA_SRGB();
 
         auto imageDataPointer = const_cast<void *>(static_cast<const void *>(image.data()));
 

@@ -72,7 +72,7 @@ namespace
 
         const auto pointsXYZ = pointCloud.copyPointsXYZ();
         const auto normalsXYZ = pointCloud.copyNormalsXYZ();
-        const auto colorsRGBA = frame.frame2D().value().imageRGBA();
+        const auto colorsRGBA = frame.frame2D().value().imageRGBA_SRGB();
 
         if(colorsRGBA.height() != height || colorsRGBA.width() != width)
         {

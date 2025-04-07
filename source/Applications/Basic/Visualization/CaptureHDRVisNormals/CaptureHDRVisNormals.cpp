@@ -48,7 +48,7 @@ namespace
     }
 
 
-    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data)
     {
         auto pointCloud = pcl::PointCloud<pcl::PointXYZRGB>();
         pointCloud.width = data.width();
@@ -68,7 +68,7 @@ namespace
     }
 
     pcl::PointCloud<pcl::PointXYZRGBNormal> convertToPCLVisualizationNormals(
-        const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data,
+        const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data,
         const Zivid::Array2D<Zivid::NormalXYZ> &normals)
     {
         auto pointCloudWithNormals = pcl::PointCloud<pcl::PointXYZRGBNormal>();
@@ -122,7 +122,7 @@ int main()
         const auto pointCloud = frame.pointCloud();
 
         std::cout << "Creating PCL point cloud structure" << std::endl;
-        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
         const auto pointCloudPCL = convertToPCLPointCloud(data);
 
         std::cout << "Computing point cloud normals" << std::endl;

@@ -120,7 +120,7 @@ int main()
         const auto frame = camera.capture2D3D(settings);
 
         std::cout << "Getting BGRA image" << std::endl;
-        const auto image = frame.frame2D().value().imageBGRA();
+        const auto image = frame.frame2D().value().imageBGRA_SRGB();
         const cv::Mat bgra(
             image.height(),
             image.width(),

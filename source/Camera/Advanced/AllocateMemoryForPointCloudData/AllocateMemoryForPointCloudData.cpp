@@ -17,15 +17,15 @@ notice.
 #include <iostream>
 
 template<>
-struct cv::DataType<Zivid::ColorBGRA>
+struct cv::DataType<Zivid::ColorBGRA_SRGB>
 {
-    using channel_type = Zivid::ColorBGRA::ValueType;
+    using channel_type = Zivid::ColorBGRA_SRGB::ValueType;
 };
 
 template<>
-struct cv::traits::Type<Zivid::ColorBGRA>
+struct cv::traits::Type<Zivid::ColorBGRA_SRGB>
 {
-    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA_SRGB>::channel_type>::value, 4);
 };
 
 int main()
@@ -62,7 +62,7 @@ int main()
 
         std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
                   << std::endl;
-        pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA>()));
+        pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA_SRGB>()));
 
         std::cout << "Displaying image" << std::endl;
         cv::imshow("BGRA image User Allocated", bgraUserAllocated);
@@ -74,7 +74,7 @@ int main()
         frame = camera.capture2D3D(settings);
 
         std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-        auto colors = frame.frame2D().value().imageBGRA();
+        auto colors = frame.frame2D().value().imageBGRA_SRGB();
 
         std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
                   << std::endl;
@@ -86,7 +86,7 @@ int main()
         auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
 
         std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
-                  << "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
+                  << "Zivid::ColorBGRA_SRGB exactly matches the layout of CV_8UC4. No copying occurs in this step."
                   << std::endl;
         const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
 

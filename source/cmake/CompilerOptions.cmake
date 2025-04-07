@@ -32,6 +32,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             # All values should be explicit handled AND the default case should throw an exception.
             covered-switch-default # We don't want this warning, because we want the default labels for safety.
         )
+
+        if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS_EQUAL 12 AND "${CMAKE_CXX_STANDARD}" EQUAL 20)
+            # Bug in Clang when translating operator<() into spaceship operator:
+            # https://github.com/llvm/llvm-project/issues/43670
+            list(APPEND WARNINGS_THAT_SHOULD_BE_IGNORED zero-as-null-pointer-constant)
+        endif()
+
         foreach(WARNING ${WARNINGS_THAT_SHOULD_BE_IGNORED})
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-${WARNING}")
         endforeach()

@@ -61,7 +61,7 @@ namespace
         return settings2D;
     }
 
-    cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorBGRA> &image)
+    cv::Mat imageToBGR(const Zivid::Image<Zivid::ColorBGRA_SRGB> &image)
     {
         // The cast for image.data() is required because the cv::Mat constructor requires non-const void *.
         // It does not actually mutate the data, it only adds an OpenCV header to the matrix. We then protect
@@ -97,7 +97,7 @@ namespace
         visualizer.run();
 
         std::cout << "Converting to OpenCV BGRA image" << std::endl;
-        const auto image = frame.pointCloud().copyImageBGRA();
+        const auto image = frame.pointCloud().copyImageBGRA_SRGB();
 
         const auto imageFile = "Image.png";
         std::cout << "Saving 2D color image to file: " << imageFile << std::endl;
@@ -114,7 +114,7 @@ namespace
         const auto frame2D = camera.capture2D(settings);
 
         std::cout << "Getting RGBA image" << std::endl;
-        const auto image = frame2D.imageBGRA();
+        const auto image = frame2D.imageBGRA_SRGB();
 
         std::cout << "Converting to OpenCV BGR image" << std::endl;
 

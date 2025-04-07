@@ -104,9 +104,7 @@ namespace
             }
             else
             {
-                std::cout
-                    << "Failed to detect calibration board, ensure that the entire board is in the view of the camera"
-                    << std::endl;
+                std::cout << "Failed to detect calibration board. " << detectionResult.statusDescription() << std::endl;
             }
         }
         else if(calibrationObject == "m")
