@@ -18,7 +18,7 @@ Capture point clouds, with color, from the Zivid camera, save it to PCD file for
 namespace
 {
     template<typename T>
-    pcl::PointCloud<T> addDataToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    pcl::PointCloud<T> addDataToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data)
     {
         auto pointCloud = pcl::PointCloud<T>();
 
@@ -38,13 +38,13 @@ namespace
         return pointCloud;
     }
 
-    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data)
+    pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data)
     {
         return addDataToPCLPointCloud<pcl::PointXYZRGB>(data);
     }
 
     pcl::PointCloud<pcl::PointXYZRGBNormal> convertToPCLPointCloud(
-        const Zivid::Array2D<Zivid::PointXYZColorRGBA> &data,
+        const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data,
         const Zivid::Array2D<Zivid::NormalXYZ> &normals)
     {
         auto pointCloud = addDataToPCLPointCloud<pcl::PointXYZRGBNormal>(data);
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);
         const auto pointCloud = frame.pointCloud();
-        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
 
         if(useNormals)
         {

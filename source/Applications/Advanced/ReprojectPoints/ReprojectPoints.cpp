@@ -121,7 +121,7 @@ int main()
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
         if(!detectionResult.valid())
         {
-            throw std::runtime_error("Calibration board not detected!");
+            throw std::runtime_error("Calibration board not detected! " + detectionResult.statusDescription());
         }
 
         std::cout << "Estimating checkerboard pose" << std::endl;
@@ -173,11 +173,11 @@ int main()
             const auto settings2D = get2DCaptureSettings(camera);
 
             std::cout << "Capturing a 2D image with the projected image" << std::endl;
-            const auto frame2D = projectedImageHandle.capture(settings2D);
+            const auto frame2D = projectedImageHandle.capture2D(settings2D);
 
             const std::string capturedImageFile = "CapturedImage.png";
             std::cout << "Saving the captured image: " << capturedImageFile << std::endl;
-            frame2D.imageBGRA().save(capturedImageFile);
+            frame2D.imageBGRA_SRGB().save(capturedImageFile);
 
             std::cout << "Press enter to stop projecting..." << std::endl;
             std::cin.get();

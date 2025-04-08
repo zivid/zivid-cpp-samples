@@ -15,23 +15,23 @@ The ZDF file for this sample can be found under the main instructions for Zivid 
 #include <iostream>
 
 template<>
-struct cv::DataType<Zivid::ColorBGRA>
+struct cv::DataType<Zivid::ColorBGRA_SRGB>
 {
     using channel_type = Zivid::ColorBGRA::ValueType;
 };
 
 template<>
-struct cv::traits::Type<Zivid::ColorBGRA>
+struct cv::traits::Type<Zivid::ColorBGRA_SRGB>
 {
-    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA_SRGB>::channel_type>::value, 4);
 };
 
 namespace
 {
-    cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToColorBGRA_SRGB(const Zivid::PointCloud &pointCloud)
     {
         auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA>()));
+        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA_SRGB>()));
 
         return bgra;
     }
@@ -92,7 +92,7 @@ int main()
         }
 
         std::cout << "Converting to OpenCV image format" << std::endl;
-        const auto bgraImage = pointCloudToColorBGRA(pointCloud);
+        const auto bgraImage = pointCloudToColorBGRA_SRGB(pointCloud);
 
         std::cout << "Displaying detected ArUco marker" << std::endl;
         const auto bgr = drawDetectedMarker(bgraImage, detectionResult);

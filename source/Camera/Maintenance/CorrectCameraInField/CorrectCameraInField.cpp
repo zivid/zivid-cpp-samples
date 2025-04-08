@@ -57,17 +57,25 @@ namespace
             {
                 std::cout << "Capturing calibration board" << std::endl;
                 const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
-                const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
-
-                if(input.valid())
+                if(detectionResult.valid())
                 {
-                    dataset.emplace_back(input);
-                    std::cout << "Valid measurement at: " << input.detectionResult().centroid() << std::endl;
+                    const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
+
+                    if(input.valid())
+                    {
+                        dataset.emplace_back(input);
+                        std::cout << "Valid measurement at: " << input.detectionResult().centroid() << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "****Invalid Input****" << std::endl;
+                        std::cout << "Feedback: " << input.statusDescription() << std::endl;
+                    }
                 }
                 else
                 {
-                    std::cout << "****INVALID****" << std::endl;
-                    std::cout << "Feedback: " << input.statusDescription() << std::endl;
+                    std::cout << "****Failed Detection****" << std::endl;
+                    std::cout << "Feedback: " << detectionResult.statusDescription() << std::endl;
                 }
                 std::cout << printLine << std::endl;
             }

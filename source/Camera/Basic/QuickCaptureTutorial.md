@@ -102,7 +102,7 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applicati
 
 ``` sourceCode cpp
 const auto pointCloud = frame.pointCloud();
-const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
 ```
 
 -----

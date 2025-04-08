@@ -172,7 +172,7 @@ int main(int argc, char **argv)
             pointCloud.transform(transformsMappedToCameras.at(i).mTransformationMatrix);
 
             // Stitch, and add color
-            const auto rgba = pointCloud.copyColorsRGBA();
+            const auto rgba = pointCloud.copyColorsRGBA_SRGB();
             const auto xyz = pointCloud.copyPointsXYZ();
             for(size_t j = 0; j < pointCloud.size(); j++)
             {

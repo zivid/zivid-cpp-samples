@@ -91,7 +91,7 @@ namespace
 
     pcl::PointCloud<pcl::PointXYZRGB> maskPointCloud(const Zivid::PointCloud &pointCloud, const cv::Mat &mask)
     {
-        const auto data = pointCloud.copyPointsXYZColorsRGBA();
+        const auto data = pointCloud.copyPointsXYZColorsRGBA_SRGB();
         const int height = data.height();
         const int width = data.width();
 
@@ -141,7 +141,7 @@ namespace
 
     pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
     {
-        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
 
         // Creating PCL point cloud structure
         pcl::PointCloud<pcl::PointXYZRGB> pointCloudPCL;

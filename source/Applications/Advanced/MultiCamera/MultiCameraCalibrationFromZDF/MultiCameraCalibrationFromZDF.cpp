@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
             std::cout << "Detecting checkerboard in point cloud..." << std::endl;
             const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
-            if(detectionResult)
+            if(detectionResult.valid())
             {
                 detectionResults.push_back(detectionResult);
                 serialNumbers.push_back(serial);
@@ -56,7 +56,8 @@ int main(int argc, char **argv)
             else
             {
                 throw std::runtime_error(
-                    "Could not detect checkerboard. Please ensure it is visible from all cameras.");
+                    "Could not detect checkerboard. Please ensure it is visible from all cameras. "
+                    + detectionResult.statusDescription());
             }
         }
 

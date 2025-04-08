@@ -64,7 +64,7 @@ const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
 We may, at this point, verify that the capture had good enough quality. `detectionResult` is of a type that can be tested directly. It overloads the bool operator to provide this information. When it passes the quality test, we save the detection result and the serial number of the camera used ([go to source][verify_checkerboard_capture_quality-url]).
 
 ```cpp
-if(detectionResult)
+if(detectionResult.valid())
 {
     detectionResults.push_back(detectionResult);
     serialNumbers.push_back(serial);
@@ -72,7 +72,8 @@ if(detectionResult)
 else
 {
     throw std::runtime_error(
-        "Could not detect checkerboard. Please ensure it is visible from all cameras.");
+        "Could not detect checkerboard. Please ensure it is visible from all cameras. "
+        + detectionResult.statusDescription());
 }
 ```
 
@@ -231,7 +232,7 @@ We can get points and color for the frame from GPU as follows ([go to source][st
 
 ```cpp
 const auto xyz = pointCloud.copyPointsXYZ();
-const auto rgba = pointCloud.copyColorsRGBA();
+const auto rgba = pointCloud.copyColorsRGBA_SRGB();
 ```
 
 We can then use this to associate color with XYZ when we copy data into the PCL point cloud ([go to source][stitch_by_transform_stitch_and_color-url]).
@@ -242,7 +243,7 @@ Note:
 
 ```cpp
 // Stitch, and add color
-const auto rgba = pointCloud.copyColorsRGBA();
+const auto rgba = pointCloud.copyColorsRGBA_SRGB();
 const auto xyz = pointCloud.copyPointsXYZ();
 for(size_t j = 0; j < pointCloud.size(); j++)
 {

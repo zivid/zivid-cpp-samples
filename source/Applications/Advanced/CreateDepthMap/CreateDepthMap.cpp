@@ -17,15 +17,15 @@ ZDF file for this sample can be found under the main instructions for Zivid samp
 #include <iostream>
 
 template<>
-struct cv::DataType<Zivid::ColorBGRA>
+struct cv::DataType<Zivid::ColorBGRA_SRGB>
 {
-    using channel_type = Zivid::ColorBGRA::ValueType;
+    using channel_type = Zivid::ColorBGRA_SRGB::ValueType;
 };
 
 template<>
-struct cv::traits::Type<Zivid::ColorBGRA>
+struct cv::traits::Type<Zivid::ColorBGRA_SRGB>
 {
-    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA_SRGB>::channel_type>::value, 4);
 };
 
 namespace
@@ -116,11 +116,11 @@ namespace
     }
 
 
-    cv::Mat pointCloudToCvBGRA(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToCvBGRA_SRGB(const Zivid::PointCloud &pointCloud)
 
     {
         auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA>()));
+        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA_SRGB>()));
 
         return bgra;
     }
@@ -141,7 +141,7 @@ int main()
         visualizePointCloud(pointCloud);
 
         std::cout << "Converting point cloud to BGRA image in OpenCV format" << std::endl;
-        cv::Mat bgra = pointCloudToCvBGRA(pointCloud);
+        cv::Mat bgra = pointCloudToCvBGRA_SRGB(pointCloud);
 
         const auto bgraImageFile = "Image.png";
         std::cout << "Visualizing and saving BGR image to file: " << bgraImageFile << std::endl;

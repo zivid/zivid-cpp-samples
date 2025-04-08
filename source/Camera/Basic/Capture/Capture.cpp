@@ -24,9 +24,9 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);
 
-        const auto imageRGBA = frame.frame2D().value().imageRGBA();
+        const auto imageRGBA = frame.frame2D().value().imageRGBA_SRGB();
         const auto imageFile = "ImageRGB.png";
-        std::cout << "Saving 2D color image (linear RGB color space) to file: " << imageFile << std::endl;
+        std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;
         imageRGBA.save(imageFile);
 
         const auto dataFile = "Frame.zdf";

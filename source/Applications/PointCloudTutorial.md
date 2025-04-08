@@ -140,7 +140,7 @@ Here is an example of how to copy data.
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp#L23))
 
 ``` sourceCode cpp
-const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
 ```
 
 #### Memory allocation options
@@ -165,14 +165,14 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Ad
 std::cout << "Capturing frame" << std::endl;
 frame = camera.capture2D3D(settings);
 std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-auto colors = frame.frame2D().value().imageBGRA();
+auto colors = frame.frame2D().value().imageBGRA_SRGB();
 
 std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
 		<< std::endl;
 auto *dataPtrZividAllocated = const_cast<void *>(static_cast<const void *>(colors.data()));
 
 std::cout << "Wrapping this block of data in an OpenCV matrix. This is possible since the layout of \n"
-		<< "Zivid::ColorBGRA exactly matches the layout of CV_8UC4. No copying occurs in this step."
+		<< "Zivid::ColorBGRA_SRGB exactly matches the layout of CV_8UC4. No copying occurs in this step."
 		<< std::endl;
 const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataPtrZividAllocated);
 
@@ -203,7 +203,7 @@ auto pointCloud = frame.pointCloud();
 
 std::cout << "Copying data with Zivid API from the GPU into the memory location allocated by OpenCV"
 		<< std::endl;
-pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA>()));
+pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA_SRGB>()));
 
 std::cout << "Displaying image" << std::endl;
 cv::imshow("BGRA image User Allocated", bgraUserAllocated);

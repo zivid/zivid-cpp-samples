@@ -18,15 +18,15 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 #include <iostream>
 
 template<>
-struct cv::DataType<Zivid::ColorBGRA>
+struct cv::DataType<Zivid::ColorBGRA_SRGB>
 {
-    using channel_type = Zivid::ColorBGRA::ValueType;
+    using channel_type = Zivid::ColorBGRA_SRGB::ValueType;
 };
 
 template<>
-struct cv::traits::Type<Zivid::ColorBGRA>
+struct cv::traits::Type<Zivid::ColorBGRA_SRGB>
 {
-    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA>::channel_type>::value, 4);
+    static constexpr auto value = CV_MAKETYPE(DataDepth<cv::DataType<Zivid::ColorBGRA_SRGB>::channel_type>::value, 4);
 };
 
 namespace
@@ -39,10 +39,10 @@ namespace
         cv::Point2d zAxisPoint;
     };
 
-    cv::Mat pointCloudToColorBGRA(const Zivid::PointCloud &pointCloud)
+    cv::Mat pointCloudToColorBGRA_SRGB(const Zivid::PointCloud &pointCloud)
     {
         auto bgra = cv::Mat(pointCloud.height(), pointCloud.width(), CV_8UC4);
-        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA>()));
+        pointCloud.copyData(&(*bgra.begin<Zivid::ColorBGRA_SRGB>()));
 
         return bgra;
     }
@@ -178,14 +178,14 @@ int main()
         std::cout << checkerboardToCameraTransform << std::endl;
 
         const auto transformFile = "CheckerboardToCameraTransform.yaml";
-        std::cout << "Saving a YAML file with Inverted checkerboard pose to file: " << transformFile << std::endl;
+        std::cout << "Saving camera pose in checkerboard frame to file: " << transformFile << std::endl;
         checkerboardToCameraTransform.save(transformFile);
 
-        std::cout << "Transforming point cloud from camera frame to Checkerboard frame" << std::endl;
+        std::cout << "Transforming point cloud from camera frame to checkerboard frame" << std::endl;
         pointCloud.transform(checkerboardToCameraTransform);
 
         std::cout << "Converting to OpenCV image format" << std::endl;
-        const auto bgraImage = pointCloudToColorBGRA(pointCloud);
+        const auto bgraImage = pointCloudToColorBGRA_SRGB(pointCloud);
 
         std::cout << "Visualizing checkerboard with coordinate system" << std::endl;
         drawCoordinateSystem(frame, cameraToCheckerboardTransform, bgraImage);
@@ -194,6 +194,10 @@ int main()
         const auto checkerboardTransformedFile = "CalibrationBoardInCheckerboardOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << checkerboardTransformedFile << std::endl;
         frame.save(checkerboardTransformedFile);
+
+        std::cout << "Reading applied transformation matrix to the point cloud:" << std::endl;
+        const auto transformationMatrix = pointCloud.transformationMatrix();
+        std::cout << transformationMatrix << std::endl;
     }
     catch(const std::exception &e)
     {

@@ -12,10 +12,10 @@ Capture point clouds with multiple cameras sequentially with interleaved process
 
 namespace
 {
-    Zivid::Array2D<Zivid::PointXYZColorRGBA> processAndSaveInThread(const Zivid::Frame &frame)
+    Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> processAndSaveInThread(const Zivid::Frame &frame)
     {
         const auto pointCloud = frame.pointCloud();
-        auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+        auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA_SRGB>();
 
         // This is where you should run your processing
 
@@ -59,7 +59,7 @@ int main()
 
         auto connectedCameras = connectToAllAvailableCameras(cameras);
 
-        std::vector<std::future<Zivid::Array2D<Zivid::PointXYZColorRGBA>>> futureData;
+        std::vector<std::future<Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB>>> futureData;
 
         for(auto &camera : connectedCameras)
         {
@@ -77,7 +77,7 @@ int main()
 
         // This is where the scene can move relative to the cameras
 
-        std::vector<Zivid::Array2D<Zivid::PointXYZColorRGBA>> allData;
+        std::vector<Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB>> allData;
 
         for(size_t i = 0; i < cameras.size(); ++i)
         {
