@@ -11,16 +11,6 @@ Use captures of a calibration object to generate transformation matrices to a si
 
 namespace
 {
-    Zivid::Frame assistedCapture(Zivid::Camera &camera)
-    {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture2D3D(settings);
-    }
-
     std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
     {
         std::vector<Zivid::Camera> connectedCameras;
@@ -40,6 +30,81 @@ namespace
         }
         return connectedCameras;
     }
+
+    struct Detection
+    {
+        std::string serialNumber;
+        Zivid::Calibration::DetectionResult detectionResult;
+
+        Detection(std::string serial, Zivid::Calibration::DetectionResult result)
+            : serialNumber(std::move(serial))
+            , detectionResult(std::move(result))
+        {}
+    };
+
+    // Detect checkerboard feature points from each camera capture
+    std::vector<Detection> getDetections(const std::vector<Zivid::Camera> &connectedCameras)
+    {
+        auto detectionsList = std::vector<Detection>();
+
+        for(auto camera : connectedCameras)
+        {
+            const auto serial = camera.info().serialNumber().toString();
+            std::cout << "Capturing frame with camera: " << serial << std::endl;
+            const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
+            std::cout << "Detecting checkerboard in point cloud" << std::endl;
+            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+            if(detectionResult)
+            {
+                Detection currentDetection(serial, detectionResult);
+                detectionsList.push_back(currentDetection);
+            }
+            else
+            {
+                throw std::runtime_error(
+                    "Could not detect checkerboard. Please ensure it is visible from all cameras.");
+            }
+        }
+
+        return detectionsList;
+    }
+
+    // Perform multi-camera calibration
+    void runMultiCameraCalibration(
+        std::vector<Detection> detectionsList,
+        const std::string &transformationMatricesSavePath)
+    {
+        std::vector<Zivid::Calibration::DetectionResult> detectionResultsList;
+        detectionResultsList.reserve(detectionsList.size());
+
+        for(const auto &detection : detectionsList)
+        {
+            detectionResultsList.emplace_back(detection.detectionResult);
+        }
+
+        const auto results = Zivid::Calibration::calibrateMultiCamera(detectionResultsList);
+
+        if(results)
+        {
+            std::cout << "Multi-camera calibration OK." << std::endl;
+            const auto &transforms = results.transforms();
+            const auto &residuals = results.residuals();
+            for(size_t i = 0; i < transforms.size(); ++i)
+            {
+                transforms[i].save(transformationMatricesSavePath + "/" + detectionsList[i].serialNumber + ".yaml");
+
+                std::cout << "Pose of camera " << detectionsList[i].serialNumber << " in first camera "
+                          << detectionsList[0].serialNumber << " frame:\n"
+                          << transforms[i] << std::endl;
+
+                std::cout << residuals[i] << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "Multi-camera calibration FAILED." << std::endl;
+        }
+    }
 } // namespace
 
 int main(int argc, char **argv)
@@ -53,7 +118,7 @@ int main(int argc, char **argv)
         clipp::group cli;
         cli.push_back(
             clipp::values("Path to YAML files", transformationMatricesSavePath)
-            % "Path where transformation matrix YAML files will be saved");
+            % "Path where the transformation matrices YAML files will be saved");
 
         if(!parse(argc, argv, cli))
         {
@@ -76,47 +141,11 @@ int main(int argc, char **argv)
         }
         std::cout << "Number of connected cameras: " << connectedCameras.size() << std::endl;
 
-        auto detectionResults = std::vector<Zivid::Calibration::DetectionResult>();
-        auto serialNumbers = std::vector<std::string>();
-        for(auto &camera : connectedCameras)
-        {
-            const auto serial = camera.info().serialNumber().toString();
-            std::cout << "Capturing frame with camera: " << serial << std::endl;
-            const auto frame = assistedCapture(camera);
-            std::cout << "Detecting checkerboard in point cloud" << std::endl;
-            const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
-            if(detectionResult.valid())
-            {
-                detectionResults.push_back(detectionResult);
-                serialNumbers.push_back(serial);
-            }
-            else
-            {
-                throw std::runtime_error(
-                    "Could not detect checkerboard. Please ensure it is visible from all cameras. "
-                    + detectionResult.statusDescription());
-            }
-        }
+        // detect checkerboard feature points from Capture for each camera
+        const auto detections = getDetections(connectedCameras);
 
-        std::cout << "Performing Multi-camera calibration" << std::endl;
-        const auto results = Zivid::Calibration::calibrateMultiCamera(detectionResults);
-        if(results)
-        {
-            std::cout << "Multi-camera calibration OK" << std::endl;
-            const auto &transforms = results.transforms();
-            const auto &residuals = results.residuals();
-            for(size_t i = 0; i < transforms.size(); ++i)
-            {
-                transforms[i].save(transformationMatricesSavePath + "/" + serialNumbers[i] + ".yaml");
-
-                std::cout << transforms[i] << std::endl;
-                std::cout << residuals[i] << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "Multi-camera calibration FAILED" << std::endl;
-        }
+        // Perform multi-camera calibration
+        runMultiCameraCalibration(detections, transformationMatricesSavePath);
     }
     catch(const std::exception &e)
     {

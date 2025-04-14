@@ -29,24 +29,12 @@ namespace
         return camera.capture2D3D(settings);
     }
 
-    class TransformationMatrixAndCameraMap
-    {
-    public:
-        TransformationMatrixAndCameraMap(Zivid::Matrix4x4 transformationMatrix, Zivid::Camera &camera)
-            : mTransformationMatrix(transformationMatrix)
-            , mCamera(camera)
-        {}
-
-        const Zivid::Matrix4x4 mTransformationMatrix;
-        Zivid::Camera &mCamera;
-    };
-
-    std::vector<TransformationMatrixAndCameraMap> getTransformationMatricesFromYAML(
+    std::map<std::string, Zivid::Matrix4x4> getTransformationMatricesFromYAML(
         const std::vector<std::string> &transformationMatricesfileList,
         std::vector<Zivid::Camera> &cameras)
     {
-        auto transformsMappedToCameras = std::vector<TransformationMatrixAndCameraMap>{};
-        for(auto &camera : cameras)
+        std::map<std::string, Zivid::Matrix4x4> transformsMappedToCameras;
+        for(const auto &camera : cameras)
         {
             const auto serialNumber = camera.info().serialNumber().toString();
             for(const auto &fileName : transformationMatricesfileList)
@@ -57,7 +45,7 @@ namespace
                        (fileName.find_last_of('.')) - (fileName.find_last_of("\\/") + 1)))
                 {
                     Zivid::Matrix4x4 transformationMatrixZivid(fileName);
-                    transformsMappedToCameras.emplace_back(transformationMatrixZivid, camera);
+                    transformsMappedToCameras[serialNumber] = transformationMatrixZivid;
                     break;
                 }
                 if(transformationMatricesfileList.back() == fileName)
@@ -121,7 +109,7 @@ int main(int argc, char **argv)
         auto saveStitched = false;
         auto cli =
             (clipp::values("File Names", transformationMatricesfileList)
-                 % "List of YAML files containing the transformation matrix.",
+                 % "List of YAML files containing the corresponding transformation matrices.",
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
              clipp::required("-o", "--output-file").set(saveStitched)
                  % "Save the stitched point cloud to a file with this name. (.ply)")
@@ -146,17 +134,17 @@ int main(int argc, char **argv)
         // Capture from all cameras
         auto frames = std::vector<Zivid::Frame>();
         auto maxNumberOfPoints = 0;
-        for(const auto &transformAndCamera : transformsMappedToCameras)
+
+        for(auto &camera : connectedCameras)
         {
-            std::cout << "Imaging from camera: " << transformAndCamera.mCamera.info().serialNumber() << std::endl;
-            const auto frame = assistedCapture(transformAndCamera.mCamera);
-            const auto resolution =
-                Zivid::Experimental::SettingsInfo::resolution(transformAndCamera.mCamera.info(), frame.settings());
+            std::cout << "Imaging from camera: " << camera.info().serialNumber() << std::endl;
+            const auto frame = assistedCapture(camera);
+            const auto resolution = Zivid::Experimental::SettingsInfo::resolution(camera.info(), frame.settings());
             maxNumberOfPoints += resolution.size();
             frames.push_back(frame);
         }
 
-        // Stitch frames
+        // Stitch the frames
         // Creating a PointCloud structure
         pcl::PointCloud<pcl::PointXYZRGB> stitchedPointCloud;
 
@@ -164,12 +152,14 @@ int main(int argc, char **argv)
         stitchedPointCloud.points.resize(maxNumberOfPoints);
 
         size_t validPoints = 0;
-        for(size_t i = 0; i < transformsMappedToCameras.size(); i++)
+        int i = 0;
+
+        for(const auto &camera : connectedCameras)
         {
             auto pointCloud = frames.at(i).pointCloud();
 
             // Transform point cloud
-            pointCloud.transform(transformsMappedToCameras.at(i).mTransformationMatrix);
+            pointCloud.transform(transformsMappedToCameras.at(camera.info().serialNumber().toString()));
 
             // Stitch, and add color
             const auto rgba = pointCloud.copyColorsRGBA_SRGB();
@@ -200,6 +190,7 @@ int main(int argc, char **argv)
                     validPoints++;
                 }
             }
+            ++i;
         }
         // Remove unused memory (would have been occupied by NaNs)
         stitchedPointCloud.points.resize(validPoints);

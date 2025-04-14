@@ -16,59 +16,47 @@ Use transformation matrices from Multi-Camera calibration to transform point clo
 
 namespace
 {
-    class TransformationMatrixAndFrameMap
-    {
-    public:
-        TransformationMatrixAndFrameMap(Zivid::Matrix4x4 transformationMatrix, Zivid::Frame frame)
-            : mTransformationMatrix(transformationMatrix)
-            , mFrame(std::move(frame))
-        {}
-
-        const Zivid::Matrix4x4 mTransformationMatrix;
-        const Zivid::Frame mFrame;
-    };
-
-    std::vector<TransformationMatrixAndFrameMap> getTransformationMatricesAndFramesFromZDF(
-        const std::vector<std::string> &transformationMatricesfileList)
+    std::vector<Zivid::PointCloud> getTransformedPointClouds(
+        const std::vector<std::string> &zdfFileList,
+        const std::vector<std::string> &transformationMatrixFilesList)
     {
         std::string fileExtension;
         std::string serialNumber;
 
-        auto transformsMappedToFrames = std::vector<TransformationMatrixAndFrameMap>{};
-        for(const auto &zdfFileName : transformationMatricesfileList)
+        std::vector<Zivid::PointCloud> transformedPointCloudList;
+        for(const auto &zdfFileName : zdfFileList)
         {
-            fileExtension = zdfFileName.substr(zdfFileName.find_last_of('.') + 1);
-            if(fileExtension == "zdf")
+            const auto frame = Zivid::Frame(zdfFileName);
+            serialNumber = frame.cameraInfo().serialNumber().toString();
+            std::cout << "Searching in " << zdfFileName << std::endl;
+
+            for(const auto &yamlFileName : transformationMatrixFilesList)
             {
-                const auto frame = Zivid::Frame(zdfFileName);
-                serialNumber = frame.cameraInfo().serialNumber().toString();
-                for(const auto &yamlFileName : transformationMatricesfileList)
+                if(serialNumber
+                   == yamlFileName.substr(
+                       yamlFileName.find_last_of("\\/") + 1,
+                       (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of("\\/") + 1)))
                 {
-                    std::cout << "Searching in " << yamlFileName << std::endl;
-                    if(serialNumber
-                       == yamlFileName.substr(
-                           yamlFileName.find_last_of("\\/") + 1,
-                           (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of("\\/") + 1)))
-                    {
-                        Zivid::Matrix4x4 transformationMatrixZivid(yamlFileName);
-                        transformsMappedToFrames.emplace_back(transformationMatrixZivid, frame);
-                        break;
-                    }
-                    if(transformationMatricesfileList.back() == yamlFileName)
-                    {
-                        throw std::runtime_error("You are missing a YAML file named " + serialNumber + ".yaml!");
-                    }
+                    Zivid::Matrix4x4 transformationMatrixZivid(yamlFileName);
+                    Zivid::PointCloud currentPointCloud = frame.pointCloud();
+
+                    transformedPointCloudList.push_back(currentPointCloud.transform(transformationMatrixZivid));
+                    break;
+                }
+                if(transformationMatrixFilesList.back() == yamlFileName)
+                {
+                    throw std::runtime_error("You are missing a YAML file named " + serialNumber + ".yaml!");
                 }
             }
         }
-        if(transformsMappedToFrames.size() < 2)
+        if(transformedPointCloudList.size() < 2)
         {
             throw std::runtime_error(
                 "Require minimum two matching transformation and frames, got "
-                + std::to_string(transformsMappedToFrames.size()));
+                + std::to_string(transformedPointCloudList.size()));
         }
 
-        return transformsMappedToFrames;
+        return transformedPointCloudList;
     }
 
     const auto rgbList = std::array<std::uint32_t, 16>{
@@ -98,13 +86,19 @@ int main(int argc, char **argv)
         Zivid::Application zivid;
 
         std::string stitchedPointCloudFileName;
-        auto transformationMatricesAndZdfFileList = std::vector<std::string>{};
+        auto zdfFileList = std::vector<std::string>{};
+        auto transformationMatrixFilesList = std::vector<std::string>{};
         auto useRGB = true;
         auto saveStitched = false;
         auto cli =
-            (clipp::values("File Names", transformationMatricesAndZdfFileList)
-                 % "List of ZDF files to stitch and list of YAML files containing the transformation matrix.",
+            (clipp::required("-zdf") & clipp::values("ZDF filenames", zdfFileList) % "List of ZDF files to stitch.",
+
+             clipp::required("-yaml")
+                 & clipp::values("YAML filenames", transformationMatrixFilesList)
+                       % "List of YAML files containing the corresponding transformation matrices.",
+
              clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
+
              clipp::required("-o", "--output-file").set(saveStitched)
                  & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
                        % "Save the stitched point cloud to a file with this name. (.ply)");
@@ -119,17 +113,16 @@ int main(int argc, char **argv)
             throw std::runtime_error("No file provided.");
         }
 
-        const auto transformsMappedToFrames =
-            getTransformationMatricesAndFramesFromZDF(transformationMatricesAndZdfFileList);
+        const auto transformedPointCloudsList = getTransformedPointClouds(zdfFileList, transformationMatrixFilesList);
 
-        // Loop through frames to find final size
+        // Loop through pointClouds to find final size
         auto maxNumberOfPoints = 0;
-        for(const auto &frameMap : transformsMappedToFrames)
+        for(const auto &pointCloud : transformedPointCloudsList)
         {
-            maxNumberOfPoints += frameMap.mFrame.pointCloud().width() * frameMap.mFrame.pointCloud().height();
+            maxNumberOfPoints += pointCloud.width() * pointCloud.height();
         }
 
-        // Stitch frames
+        // Stitch the point clouds
         // Creating a PointCloud structure
         pcl::PointCloud<pcl::PointXYZRGB> stitchedPointCloud;
 
@@ -137,17 +130,14 @@ int main(int argc, char **argv)
         stitchedPointCloud.points.resize(maxNumberOfPoints);
 
         size_t validPoints = 0;
-        for(size_t i = 0; i < transformsMappedToFrames.size(); i++)
+
+        for(size_t i = 0; i < transformedPointCloudsList.size(); i++)
         {
-            auto pointCloud = transformsMappedToFrames.at(i).mFrame.pointCloud();
-
-            // Transform point cloud
-            pointCloud.transform(transformsMappedToFrames.at(i).mTransformationMatrix);
-
             // Stitch, and add color
-            const auto rgba = pointCloud.copyColorsRGBA_SRGB();
-            const auto xyz = pointCloud.copyPointsXYZ();
-            for(size_t j = 0; j < pointCloud.size(); j++)
+            const auto rgba = transformedPointCloudsList.at(i).copyColorsRGBA();
+            const auto xyz = transformedPointCloudsList.at(i).copyPointsXYZ();
+
+            for(size_t j = 0; j < transformedPointCloudsList.at(i).size(); j++)
             {
                 if(!std::isnan(xyz(j).x))
                 {
