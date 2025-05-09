@@ -367,7 +367,7 @@ If we only want to capture 3D, the points cloud without color, we can do
 so via the `capture3D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L74))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L117))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);
@@ -379,7 +379,7 @@ If we only want to capture a 2D image, which is faster than 3D, we can
 do so via the `capture2D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L52))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L80))
 
 ``` sourceCode cpp
 const auto frame2D = camera.capture2D(settings);
@@ -434,17 +434,51 @@ const auto frame = Zivid::Frame(dataFile);
 
 ### Save 2D
 
-We can get the 2D color image from `Frame2D`, which is part of the
-`Frame` object, obtained from `capture2D3D()`.
+From a `capture2D()` you get a `Frame2D`. There are two color spaces
+available for 2D images: linear RGB and sRGB. The `imageRGBA()` will
+return an image in the linear RGB color space. If you append `_SRGB` to
+the function name then the returned image will be in the sRGB color
+space
 
-([go to source]())
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L87))
 
 ``` sourceCode cpp
-const auto image2D = frame.frame2D().value().imageBGRA_SRGB();
+const auto imageRGBA = frame2D.imageRGBA();
+.. tab-item:: sRGB
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L101))
+
+``` sourceCode cpp
+const auto imageSRGB = frame2D.imageRGBA_SRGB();
+```
+
+Then, we can save the 2D image in linear RGB or sRGB color space.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L88-L90))
+
+``` sourceCode cpp
+const auto imageFile = "ImageRGBA_linear.png";
+std::cout << "Saving 2D color image (Linear RGB) to file: " << imageFile << std::endl;
+imageRGBA.save(imageFile);
+.. tab-item:: sRGB
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L102-L104))
+
+``` sourceCode cpp
+const auto imageFile = "ImageRGBA_sRGB.png";
+std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;
+imageSRGB.save(imageFile);
 ```
 
 We can get 2D color image directly from the point cloud. This image will
-have the same resolution as the point cloud.
+have the same resolution as the point cloud and it will be in the sRGB
+color space.
 
 ([go to source]())
 
@@ -453,43 +487,14 @@ const auto pointCloud = frame.pointCloud();
 const auto image2DInPointCloudResolution = pointCloud.copyImageRGBA_SRGB();
 ```
 
-2D captures also produce 2D color images in linear RGB and sRGB color
-space.
+We can get the 2D color image from `Frame2D`, which is part of the
+`Frame` object, obtained from `capture2D3D()`. This image will have the
+resolution given by the 2D settings inside the 2D3D settings.
 
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L27))
-
-``` sourceCode cpp
-const auto imageRGBA = frame.frame2D().value().imageRGBA_SRGB();
-.. tab-item:: sRGB
-```
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L54))
+([go to source]())
 
 ``` sourceCode cpp
-const auto imageSRGB = frame2D.imageSRGB();
-```
-
-Then, we can save the 2D image in linear RGB or sRGB color space.
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L28-L30))
-
-``` sourceCode cpp
-const auto imageFile = "ImageRGB.png";
-std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;
-imageRGBA.save(imageFile);
-.. tab-item:: sRGB
-```
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L55-L57))
-
-``` sourceCode cpp
-const auto imageFile = "ImageSRGB.png";
-std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;
-imageSRGB.save(imageFile);
+const auto image2D = frame.frame2D().value().imageBGRA_SRGB();
 ```
 
 ## Multithreading
