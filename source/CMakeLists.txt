@@ -122,6 +122,7 @@ set(Visualization_DEPENDING
 set(Clipp_DEPENDING
     AutomaticNetworkConfigurationForCameras
     CameraUserData
+    CaptureWithSettingsFromYML
     MultiCameraCalibrationFromZDF
     StitchByTransformation
     StitchByTransformationFromZDF
