@@ -46,7 +46,7 @@ from the camera can be used.
             camera.
           - [CaptureHDRCompleteSettings](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp) - Capture point clouds, with color, from the Zivid camera
             with fully configured settings.
-          - [CaptureWithSettingsFromYML](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp) - Capture images and point clouds, with or without color,
+          - [CaptureWithSettingsFromYML](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp) - Capture images and point clouds, with and without color,
             from the Zivid camera with settings from YML file.
       - **Advanced**
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
