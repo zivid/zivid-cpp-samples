@@ -52,13 +52,34 @@ compute device memory) and the capture and camera information.
 
 ### Capture
 
-When you capture with Zivid, you get a frame in return.
+When you capture with Zivid, you get a frame in return. The point cloud
+is stored in the frame, and the frame is stored in the GPU memory. The
+capture can contain color or not, depending of the method that you call.
+For more information see this `table with different capture
+modes<capture-mode-table>`.
+
+#### Capture with color
+
+If you want to capture a point cloud with color, you can use the
+`Zivid::Camera::capture2D3D()` method.
 
 ([go to
 source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L25))
 
 ``` sourceCode cpp
 const auto frame = camera.capture2D3D(settings);
+```
+
+#### Capture without color
+
+If you want to capture a point cloud without color, you can use the
+`Zivid::Camera::capture3D()` method.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L117))
+
+``` sourceCode cpp
+const auto frame3D = camera.capture3D(settings);
 ```
 
 Check
@@ -103,13 +124,13 @@ from GPU memory.
 
 Note:
 
-`Zivid::Camera::capture()` method returns at some moment in time after
-the camera completes capturing raw images. The handle from
-`Zivid::Frame::pointCloud()` is available instantly. However, the actual
-point cloud data becomes available only after the processing on the GPU
-is finished. Any calls to data-copy functions (section below) will block
-and wait for processing to finish before proceeding with the requested
-copy operation.
+`Zivid::Camera::capture2D3D()` and `Zivid::Camera::capture3D()` methods
+return at some moment in time after the camera completes capturing raw
+images. The handle from `Zivid::Frame::pointCloud()` is available
+instantly. However, the actual point cloud data becomes available only
+after the processing on the GPU is finished. Any calls to data-copy
+functions (section below) will block and wait for processing to finish
+before proceeding with the requested copy operation.
 
 For detailed explanation, see [Point Cloud Capture
 Process](https://support.zivid.com/latest/academy/camera/point-cloud-capture-process.html).
