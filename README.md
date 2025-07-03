@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.15.0. For
+This repository contains cpp code samples for Zivid SDK v2.16.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -79,6 +79,9 @@ from the camera can be used.
           - [FrameInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/FrameInfo/FrameInfo.cpp) - Read frame info from the Zivid camera.
           - [GetCameraIntrinsics](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/GetCameraIntrinsics/GetCameraIntrinsics.cpp) - Read intrinsic parameters from the Zivid camera (OpenCV
             model) or estimate them from the point cloud.
+          - [MeasureSceneConditions](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/MeasureSceneConditions/MeasureSceneConditions.cpp) - Measure ambient light conditions in the scene and output
+            the measured flickering frequency of the ambient light if
+            flickering is detected.
           - [NetworkConfiguration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/NetworkConfiguration/NetworkConfiguration.cpp) - Uses Zivid API to change the IP address of the Zivid
             camera.
           - [SettingsInfo](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/SettingsInfo/SettingsInfo.cpp) - Read settings info from the Zivid camera.
@@ -121,8 +124,8 @@ from the camera can be used.
             format, extract depth map and visualize it.
           - [ProjectAndFindMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ProjectAndFindMarker/ProjectAndFindMarker.cpp) - Show a marker using the projector, capture a set of 2D
             images to find the marker coordinates (2D and 3D).
-          - [ReprojectPoints](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ReprojectPoints/ReprojectPoints.cpp) - Illuminate checkerboard (Zivid Calibration Board) corners
-            by getting checkerboard pose
+          - [ReprojectPoints](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ReprojectPoints/ReprojectPoints.cpp) - Illuminate checkerboard (Zivid Calibration Board) centers
+            by getting the checkerboard feature points
           - [ROIBoxViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp) - Filter the point cloud based on a ROI box given relative
             to the ArUco marker on a Zivid Calibration Board.
           - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
@@ -200,10 +203,10 @@ make -j
 ```
 
 Some of the samples depend on external libraries, in particular Eigen 3,
-OpenCV, PCL, or HALCON. If you don't want to install those, you can
-disable the samples depending on them by passing the following options,
-respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`,
-`-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
+OpenCV, PCL, Open3D or HALCON. If you don't want to install those, you
+can disable the samples depending on them by passing the following
+options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`,
+`-DUSE_OPENCV=OFF`, `-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
 
 If you do want to use them:
 
@@ -214,8 +217,24 @@ If you do want to use them:
     your system, these should just work. If not, set `-DPCL_DIR=<path>`
     / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing
     `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
+  - **Open3D**: If a recent enough version is installed on your system,
+    these should just work. If not, set `-DCMAKE_INSTALL_PREFIX=<path>`
+    where `<path>` is the directory where Open3D was extracted.
   - **HALCON**: If a recent enough version is installed on your system,
     these should just work.
+
+-----
+
+Note:
+
+Open3D does not support multi-configuration builds. While you can
+install both release and debug configurations at the same time, you must
+choose which to configure for by setting either `Open3D_DIR` or
+`-DCMAKE_INSTALL_PREFIX`. In addition the correct binary folder for
+Open3D must be added to the `PATH` environment variable before running
+the samples.
+
+-----
 
 The samples can now be run from the build directory, for instance like
 this:

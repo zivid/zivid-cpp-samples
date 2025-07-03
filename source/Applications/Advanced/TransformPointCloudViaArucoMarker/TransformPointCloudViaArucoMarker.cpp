@@ -40,7 +40,7 @@ namespace
     {
         cv::namedWindow(bgrName, cv::WINDOW_AUTOSIZE);
         cv::imshow(bgrName, bgr);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
 
     cv::Mat drawDetectedMarker(
