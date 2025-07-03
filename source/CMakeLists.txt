@@ -14,9 +14,14 @@ set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RelWithDebInfo;Release;")
 
 set(ZIVID_VERSION 2.13.0)
 
+if(MSVC)
+    add_compile_options("/utf-8")
+endif()
+
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
+option(USE_OPEN3D "Enable samples which depend on Open3D" ON)
 option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
@@ -46,6 +51,7 @@ set(SAMPLES
     Camera/InfoUtilOther/FrameInfo
     Camera/InfoUtilOther/ZividBenchmark
     Camera/InfoUtilOther/Warmup
+    Camera/InfoUtilOther/MeasureSceneConditions
     Camera/Maintenance/VerifyCameraInField
     Camera/Maintenance/VerifyCameraInFieldFromZDF
     Camera/Maintenance/CorrectCameraInField
@@ -84,6 +90,7 @@ set(Eigen3_DEPENDING
     PoseConversions
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
+    StitchByTransformationFromZDF
 )
 set(PCL_DEPENDING
     Capture2DAnd3D
@@ -91,8 +98,6 @@ set(PCL_DEPENDING
     ReadPCLVis3D
     CaptureWritePCLVis3D
     CaptureHDRVisNormals
-    StitchByTransformation
-    StitchByTransformationFromZDF
 )
 set(OpenCV_DEPENDING
     Capture2DAnd3D
@@ -107,6 +112,10 @@ set(OpenCV_DEPENDING
     ProjectAndFindMarker
     ReprojectPoints
     ReadAndProjectImage
+)
+set(Open3D_DEPENDING
+    StitchByTransformation
+    StitchByTransformationFromZDF
 )
 set(Visualization_DEPENDING
     CaptureVis3D
@@ -199,6 +208,18 @@ else()
     disable_samples("PCL")
 endif()
 
+if(USE_OPEN3D)
+    find_package(Open3D REQUIRED)
+    if(NOT Open3D_FOUND)
+        message(
+            FATAL_ERROR
+            "Open3D not found. Please point Open3D_DIR to the directory of your Open3D installation (containing the file Open3DConfig.cmake), or disable the Open3D samples with -DUSE_O3D=OFF."
+        )
+    endif()
+else()
+    disable_samples("Open3D")
+endif()
+
 if(USE_OPENCV)
     set(OPENCV_COMMON_MODULES
         core
@@ -287,6 +308,15 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST OpenCV_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} ${OpenCV_LIBS})
+
+        # Due to a known bug in OpenCV (https://github.com/opencv/opencv/issues/20822) we use this to set timeout for
+        # calls to cv::waitKey(). Intended to be used by automated tests.
+        set(CI_WAITKEY_TIMEOUT_IN_MS "0" CACHE STRING "Timeout for cv::waitKey() in milliseconds")
+        target_compile_definitions(${SAMPLE_NAME} PRIVATE "CI_WAITKEY_TIMEOUT_IN_MS=${CI_WAITKEY_TIMEOUT_IN_MS}")
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST Open3D_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} Open3D::Open3D)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)

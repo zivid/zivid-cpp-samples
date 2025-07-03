@@ -69,21 +69,23 @@ namespace
         throw std::invalid_argument("Invalid camera model");
     }
 
-    Zivid::Settings2D makeSettings2D(const Zivid::Camera &camera)
+    bool cameraSupportsProjectionBrightnessBoost(const Zivid::Camera &camera)
     {
         const auto model = camera.info().model().value();
-        const auto colorMode = (model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
-                                || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
-                                || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60)
-                                   ? Zivid::Settings2D::Sampling::Color::grayscale
-                                   : Zivid::Settings2D::Sampling::Color::rgb;
 
+        return model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
+               || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60
+               || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110;
+    }
+
+    Zivid::Settings2D makeSettings2D()
+    {
         return Zivid::Settings2D{
             Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
+                Zivid::Settings2D::Acquisition::Brightness{ 2.5 },
                 Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
                 Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } },
-            colorMode
+            Zivid::Settings2D::Sampling::Color::grayscale
         };
     }
 } // namespace
@@ -120,7 +122,12 @@ int main()
 
             auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
-            const auto settings2D = makeSettings2D(camera);
+            auto settings2D = makeSettings2D();
+            if(!cameraSupportsProjectionBrightnessBoost(camera))
+            {
+                settings2D.set(Zivid::Settings2D::Sampling::Color::rgb);
+                settings2D.acquisitions().at(0).set(Zivid::Settings2D::Acquisition::Brightness(0.0));
+            }
 
             std::cout << "Capturing a 2D image with the projected image" << std::endl;
             const auto frame2D = projectedImageHandle.capture2D(settings2D);

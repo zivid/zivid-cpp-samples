@@ -1,11 +1,10 @@
 /*
-Illuminate checkerboard (Zivid Calibration Board) corners by getting checkerboard pose
-from the API and transforming the desired points to projector pixel coordinates.
+Illuminate checkerboard (Zivid Calibration Board) centers by getting the checkerboard feature points
+and illuminating them with the projector.
 
-The checkerboard pose is determined first and then used to estimate the coordinates of corners
-in the camera frame. These points are then passed to the API to get the corresponding projector pixels.
-The projector pixel coordinates are then used to draw markers at the correct locations before displaying
-the image using the projector.
+The checkerboard feature points are first found through the API. These points are then used to get the
+corresponding projector pixels. The projector pixel coordinates are then used to draw markers at the
+correct locations before displaying the image using the projector.
 */
 
 #include <Zivid/Application.h>
@@ -21,40 +20,9 @@ the image using the projector.
 
 namespace
 {
-    std::vector<cv::Matx41f> checkerboardGrid()
-    {
-        std::vector<cv::Matx41f> points;
-        for(int x = 0; x < 7; x++)
-        {
-            for(int y = 0; y < 6; y++)
-            {
-                const float xPos = x * 30.0F;
-                const float yPos = y * 30.0F;
-                points.emplace_back(xPos, yPos, 0.0F, 1.0F);
-            }
-        }
-        return points;
-    }
-
-
-    std::vector<Zivid::PointXYZ> transformGridToCameraFrame(
-        const std::vector<cv::Matx41f> &grid,
-        const Zivid::Matrix4x4 &cameraToCheckerboardTransform)
-    {
-        std::vector<Zivid::PointXYZ> pointsInCameraFrame;
-        const auto transformationMatrix = cv::Matx44f{ cameraToCheckerboardTransform.data() };
-        for(const auto &point : grid)
-        {
-            const auto transformedPoint = transformationMatrix * point;
-            pointsInCameraFrame.emplace_back(transformedPoint(0, 0), transformedPoint(1, 0), transformedPoint(2, 0));
-        }
-        return pointsInCameraFrame;
-    }
-
-
     void drawFilledCircles(
         cv::Mat image,
-        const std::vector<Zivid::PointXY> &positions,
+        const Zivid::Array2D<Zivid::PointXY> &positions,
         int circleSizeInPixels,
         const cv::Scalar &circleColor)
     {
@@ -117,27 +85,18 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Capturing and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
+        std::cout << "Capturing and detecting feature points of the Zivid checkerboard" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
+
         if(!detectionResult.valid())
         {
             throw std::runtime_error("Calibration board not detected! " + detectionResult.statusDescription());
         }
 
-        std::cout << "Estimating checkerboard pose" << std::endl;
-        const auto cameraToCheckerboardTransform = detectionResult.pose().toMatrix();
-        std::cout << cameraToCheckerboardTransform << std::endl;
+        const auto featurePoints = detectionResult.featurePoints();
 
-        std::cout << "Creating a grid of 7 x 6 points (3D) with 30 mm spacing to match checkerboard corners"
-                  << std::endl;
-        const auto gridInCheckerboardFrame = checkerboardGrid();
-
-        std::cout << "Transforming the grid to the camera frame" << std::endl;
-        const auto pointsInCameraFrame =
-            transformGridToCameraFrame(gridInCheckerboardFrame, cameraToCheckerboardTransform);
-
-        std::cout << "Getting projector pixels (2D) corresponding to points (3D) in the camera frame" << std::endl;
-        const auto projectorPixels = Zivid::Projection::pixelsFrom3DPoints(camera, pointsInCameraFrame);
+        std::cout << "Getting projector pixels (2D) corresponding to points (3D)" << std::endl;
+        const auto projectorPixels = Zivid::Projection::pixelsFrom3DPoints(camera, featurePoints);
 
         std::cout << "Retrieving the projector resolution that the camera supports" << std::endl;
         const auto projectorResolution = Zivid::Projection::projectorResolution(camera);

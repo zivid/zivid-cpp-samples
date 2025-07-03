@@ -136,7 +136,7 @@ namespace
         // Visualizing Depth map
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zColorMap);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
 
     pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::PointCloud &pointCloud)
