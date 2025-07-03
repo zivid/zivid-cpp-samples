@@ -14,6 +14,7 @@ tutorial see:
 [**Point**](#Point-Cloud) |
 [**Transform**](#Transform) |
 [**Downsample**](#Downsample) |
+[**Voxel**](#Voxel-downsample) |
 [**Normals**](#Normals) |
 [**Visualize**](#Visualize) |
 [**Conclusion**](#Conclusion) |
@@ -137,10 +138,36 @@ Process](https://support.zivid.com/latest/academy/camera/point-cloud-capture-pro
 
 -----
 
+### Unorganized point cloud
+
+It is possible to convert the organized point cloud to an unorganized
+point cloud. While doing so, all NaN values are removed, and the point
+cloud is flattened to a 1D array.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L180))
+
+``` sourceCode cpp
+const auto unorganizedPointCloud = frame.pointCloud().toUnorganizedPointCloud();
+```
+
+#### Combining multiple unorganized point clouds
+
+The unorganized point cloud can be extended with additional unorganized
+point clouds.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L46))
+
+``` sourceCode cpp
+stitchedPointCloud.extend(currentPointCloud.transform(transformationMatrixZivid));
+```
+
 ### Copy from GPU to CPU memory
 
 You can now selectively copy data based on what is required. This is the
 complete list of output data formats and how to copy them from the GPU.
+Most of these APIs also applies to the unorganized point cloud.
 
 | Return type                                | Copy functions                                                                         | Data per pixel | Total data |
 | ------------------------------------------ | -------------------------------------------------------------------------------------- | -------------- | ---------- |
@@ -199,7 +226,7 @@ const cv::Mat bgraZividAllocated(colors.height(), colors.width(), CV_8UC4, dataP
 
 std::cout << "Displaying image" << std::endl;
 cv::imshow("BGRA image Zivid Allocated", bgraZividAllocated);
-cv::waitKey(0);
+cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
   .. rubric:: Copy selected data from GPU to CPU memory (user-allocated)
 
   In the above example, ownership of the data was held by the returned :code:`Zivid::Array2D<>` objects.
@@ -228,8 +255,40 @@ pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA_SRGB>()));
 
 std::cout << "Displaying image" << std::endl;
 cv::imshow("BGRA image User Allocated", bgraUserAllocated);
-cv::waitKey(0);
+cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
+  .. rubric:: Copy unorganized point cloud data from GPU to CPU memory (Open3D-tensor)
 ```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L90-L115))
+
+``` sourceCode cpp
+open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
+{
+	auto device = open3d::core::Device("CPU:0");
+	auto xyzTensor =
+		open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+	auto rgbTensor =
+		open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
+
+// Open3D does not store colors in 8-bit
+auto *rgbPtr = rgbTensor.GetDataPtr<float>();
+auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
+for(size_t i = 0; i < pointCloud.size(); ++i)
+{
+	rgbPtr[3 * i] = static_cast<float>(rgbaColors(i).r) / 255.0f;
+	rgbPtr[3 * i + 1] = static_cast<float>(rgbaColors(i).g) / 255.0f;
+	rgbPtr[3 * i + 2] = static_cast<float>(rgbaColors(i).b) / 255.0f;
+}
+
+open3d::t::geometry::PointCloud cloud(device);
+cloud.SetPointPositions(xyzTensor);
+cloud.SetPointColors(rgbTensor);
+return cloud;
+```
+
+> }
 
 ## Transform
 
@@ -244,6 +303,38 @@ source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applicati
 
 ``` sourceCode cpp
 pointCloud.transform(baseToCameraTransform);
+```
+
+Transformation can be done in-place:
+
+  - `Zivid::PointCloud::transform()`
+  - `Zivid::UnorganizedPointCloud::transform()`
+
+or by creating a new instance:
+
+  - `Zivid::PointCloud::transformed()`
+  - `Zivid::UnorganizedPointCloud::transformed()`
+
+The following example shows how create a new instance of
+`Zivid::UnorganizedPointCloud` with a transformation applied to it. Note
+that in this sample is is not necessary to create a new instance, as the
+untransformed point cloud is not used after the transformation.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L182))
+
+``` sourceCode cpp
+const auto transformedUnorganizedPointCloud = unorganizedPointCloud.transformed(transformationMatrix);
+```
+
+Even the in-place API returns the transformed point cloud, so you can
+use it directly, as in the example below.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformationFromZDF/StitchByTransformationFromZDF.cpp#L46))
+
+``` sourceCode cpp
+stitchedPointCloud.extend(currentPointCloud.transform(transformationMatrixZivid));
 ```
 
 ## Downsample
@@ -263,6 +354,15 @@ Note:
 > describes a hardware-based sub-/downsample method that reduces the
 > resolution of the point cloud during capture while also reducing the
 > acquisition and capture time.
+
+-----
+
+-----
+
+Note:
+
+`Zivid::UnorganizedPointCloud` does not support downsampling, but it
+does support voxel downsampling, see `voxel_downsample`.
 
 -----
 
@@ -289,6 +389,43 @@ auto downsampledPointCloud = pointCloud.downsampled(Zivid::PointCloud::Downsampl
 Zivid SDK supports the following downsampling rates: `by2x2`, `by3x3`,
 and `by4x4`, with the possibility to perform downsampling multiple
 times.
+
+## Voxel downsample
+
+`Zivid::UnorganizedPointCloud` supports voxel downsampling. The API
+takes two arguments:
+
+1.  `voxelSize` - the size of the voxel in millimeters.
+2.  `minPointsPerVoxel` - the minimum number of points per voxel to keep
+    it.
+
+Voxel downsampling subdivides 3D space into a grid of cubic voxels with
+a given size. If a given voxel contains a number of points at or above
+the given limit, all those source points are replaced with a single
+point with the following properties:
+
+  - Position (XYZ) is an SNR-weighted average of the source points'
+    positions, i.e. a high-confidence source point will have a greater
+    influence on the resulting position than a low-confidence one.
+  - Color (RGBA) is the average of the source points' colors.
+  - Signal-to-noise ratio (SNR) is sqrt(sum(SNR^2)) of the source
+    points' SNR values, i.e. the SNR of a new point will increase with
+    both the number and the confidence of the source points that were
+    used to compute its position.
+
+Using minPointsPerVoxel \> 1 is particularly useful for removing noise
+and artifacts from unorganized point clouds that are a combination of
+point clouds captured from different angles. This is because a given
+artifact is most likely only present in one of the captures, and
+minPointsPerVoxel can be used to only fill voxels that both captures
+"agree" on.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L187))
+
+``` sourceCode cpp
+const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);
+```
 
 ## Normals
 
@@ -360,7 +497,8 @@ manipulate it, transform it, and visualize it.
 
 ## Version History
 
-| SDK    | Changes                                                                                                                                                   |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2.11.0 | Added support for SRGB color space.                                                                                                                       |
-| 2.10.0 | [:orphan:](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`. |
+| SDK    | Changes                                                                                                                                                           |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.16.0 | Added support for `Zivid::UnorganizedPointCloud`. `transformed` is added as a function to `Zivid::PointCloud` (also available in `Zivid::UnorganizedPointCloud`). |
+| 2.11.0 | Added support for SRGB color space.                                                                                                                               |
+| 2.10.0 | [:orphan:](https://support.zivid.com/latest/academy/camera/monochrome-capture.html) introduces a faster alternative to `downsample_point_cloud_tutorial`.         |

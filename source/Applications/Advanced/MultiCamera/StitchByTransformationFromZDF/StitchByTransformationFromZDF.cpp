@@ -1,14 +1,15 @@
 /*
 Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from a ZDF files.
+
+Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
+#include <Zivid/Experimental/PointCloudExport.h>
 #include <Zivid/Zivid.h>
 
+#include <Eigen/Core>
 #include <clipp.h>
-
-#include <pcl/io/pcd_io.h>
-#include <pcl/io/ply_io.h>
-#include <pcl/visualization/cloud_viewer.h>
+#include <open3d/Open3D.h>
 
 #include <cmath>
 #include <iostream>
@@ -16,14 +17,16 @@ Use transformation matrices from Multi-Camera calibration to transform point clo
 
 namespace
 {
-    std::vector<Zivid::PointCloud> getTransformedPointClouds(
+    Zivid::UnorganizedPointCloud getTransformedPointClouds(
         const std::vector<std::string> &zdfFileList,
         const std::vector<std::string> &transformationMatrixFilesList)
     {
         std::string fileExtension;
         std::string serialNumber;
 
-        std::vector<Zivid::PointCloud> transformedPointCloudList;
+        Zivid::UnorganizedPointCloud stitchedPointCloud;
+        auto numberOfPointClouds = 0;
+
         for(const auto &zdfFileName : zdfFileList)
         {
             const auto frame = Zivid::Frame(zdfFileName);
@@ -38,9 +41,10 @@ namespace
                        (yamlFileName.find_last_of('.')) - (yamlFileName.find_last_of("\\/") + 1)))
                 {
                     Zivid::Matrix4x4 transformationMatrixZivid(yamlFileName);
-                    Zivid::PointCloud currentPointCloud = frame.pointCloud();
+                    Zivid::UnorganizedPointCloud currentPointCloud = frame.pointCloud().toUnorganizedPointCloud();
 
-                    transformedPointCloudList.push_back(currentPointCloud.transform(transformationMatrixZivid));
+                    stitchedPointCloud.extend(currentPointCloud.transform(transformationMatrixZivid));
+                    numberOfPointClouds++;
                     break;
                 }
                 if(transformationMatrixFilesList.back() == yamlFileName)
@@ -49,34 +53,62 @@ namespace
                 }
             }
         }
-        if(transformedPointCloudList.size() < 2)
+        if(numberOfPointClouds < 2)
         {
             throw std::runtime_error(
-                "Require minimum two matching transformation and frames, got "
-                + std::to_string(transformedPointCloudList.size()));
+                "Require minimum two matching transformation and frames, got " + std::to_string(numberOfPointClouds));
         }
 
-        return transformedPointCloudList;
+        return stitchedPointCloud;
     }
 
-    const auto rgbList = std::array<std::uint32_t, 16>{
-        0xFFB300, // Vivid Yellow
-        0x803E75, // Strong Purple
-        0xFF6800, // Vivid Orange
-        0xA6BDD7, // Very Light Blue
-        0xC10020, // Vivid Red
-        0x007D34, // Vivid Green
-        0x00538A, // Strong Blue
-        0x232C16, // Dark Olive Green
-        0x53377A, // Strong Violet
-        0xFF8E00, // Vivid Orange Yellow
-        0xB32851, // Strong Purplish Red
-        0xF4C800, // Vivid Greenish Yellow
-        0x93AA00, // Vivid Yellowish Green
-        0x593315, // Deep Yellowish Brown
-        0xF13A13, // Vivid Reddish Orange
-        0x7F180D, // Strong Reddish Brown
-    };
+    open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
+    {
+        auto device = open3d::core::Device("CPU:0");
+        auto xyzTensor =
+            open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+        auto rgbTensor =
+            open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+
+        pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
+
+        // Open3D does not store colors in 8-bit
+        auto *rgbPtr = rgbTensor.GetDataPtr<float>();
+        auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
+        for(size_t i = 0; i < pointCloud.size(); ++i)
+        {
+            rgbPtr[3 * i] = static_cast<float>(rgbaColors(i).r) / 255.0f;
+            rgbPtr[3 * i + 1] = static_cast<float>(rgbaColors(i).g) / 255.0f;
+            rgbPtr[3 * i + 2] = static_cast<float>(rgbaColors(i).b) / 255.0f;
+        }
+
+        open3d::t::geometry::PointCloud cloud(device);
+        cloud.SetPointPositions(xyzTensor);
+        cloud.SetPointColors(rgbTensor);
+        return cloud;
+    }
+
+    void visualizePointCloud(const open3d::t::geometry::PointCloud &cloud)
+    {
+        open3d::visualization::Visualizer visualizer;
+        visualizer.CreateVisualizerWindow("Open3D Viewer", 1024, 768);
+
+        visualizer.AddGeometry(std::make_shared<open3d::geometry::PointCloud>(cloud.ToLegacy()));
+
+        auto &renderOption = visualizer.GetRenderOption();
+        renderOption.background_color_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+        renderOption.point_size_ = 1.0;
+        renderOption.show_coordinate_frame_ = true;
+
+        auto &viewControl = visualizer.GetViewControl();
+        viewControl.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0));
+        viewControl.SetUp(Eigen::Vector3d(0.0, -1.0, 0.0));
+
+        std::cout << "Press h to access the help menu" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
+        visualizer.Run(); // Block until window closed
+        visualizer.DestroyVisualizerWindow();
+    }
 } // namespace
 
 int main(int argc, char **argv)
@@ -88,7 +120,6 @@ int main(int argc, char **argv)
         std::string stitchedPointCloudFileName;
         auto zdfFileList = std::vector<std::string>{};
         auto transformationMatrixFilesList = std::vector<std::string>{};
-        auto useRGB = true;
         auto saveStitched = false;
         auto cli =
             (clipp::required("-zdf") & clipp::values("ZDF filenames", zdfFileList) % "List of ZDF files to stitch.",
@@ -96,8 +127,6 @@ int main(int argc, char **argv)
              clipp::required("-yaml")
                  & clipp::values("YAML filenames", transformationMatrixFilesList)
                        % "List of YAML files containing the corresponding transformation matrices.",
-
-             clipp::option("-m", "--mono-chrome").set(useRGB, false) % "Color each point cloud with unique color.",
 
              clipp::required("-o", "--output-file").set(saveStitched)
                  & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
@@ -113,78 +142,27 @@ int main(int argc, char **argv)
             throw std::runtime_error("No file provided.");
         }
 
-        const auto transformedPointCloudsList = getTransformedPointClouds(zdfFileList, transformationMatrixFilesList);
+        const auto stitchedPointCloud = getTransformedPointClouds(zdfFileList, transformationMatrixFilesList);
 
-        // Loop through pointClouds to find final size
-        auto maxNumberOfPoints = 0;
-        for(const auto &pointCloud : transformedPointCloudsList)
-        {
-            maxNumberOfPoints += pointCloud.width() * pointCloud.height();
-        }
+        std::cout << "Voxel-downsampling the stitched point cloud" << std::endl;
+        const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);
 
-        // Stitch the point clouds
-        // Creating a PointCloud structure
-        pcl::PointCloud<pcl::PointXYZRGB> stitchedPointCloud;
+        std::cout << "Copying the stitched point cloud to Open3D" << std::endl;
+        const auto pointCloudOpen3D = copyToOpen3D(finalPointCloud);
 
-        // Filling in the cloud data, unorganized skipping NaNs
-        stitchedPointCloud.points.resize(maxNumberOfPoints);
+        std::cout << "Visualizing the stitched point cloud (" << pointCloudOpen3D.GetPointPositions().GetLength()
+                  << " data points)" << std::endl;
+        visualizePointCloud(pointCloudOpen3D);
 
-        size_t validPoints = 0;
-
-        for(size_t i = 0; i < transformedPointCloudsList.size(); i++)
-        {
-            // Stitch, and add color
-            const auto rgba = transformedPointCloudsList.at(i).copyColorsRGBA();
-            const auto xyz = transformedPointCloudsList.at(i).copyPointsXYZ();
-
-            for(size_t j = 0; j < transformedPointCloudsList.at(i).size(); j++)
-            {
-                if(!std::isnan(xyz(j).x))
-                {
-                    stitchedPointCloud.points[validPoints].x =
-                        xyz(j).x; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    stitchedPointCloud.points[validPoints].y =
-                        xyz(j).y; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    stitchedPointCloud.points[validPoints].z =
-                        xyz(j).z; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    if(useRGB)
-                    {
-                        stitchedPointCloud.points[validPoints].r =
-                            rgba(j).r; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                        stitchedPointCloud.points[validPoints].g =
-                            rgba(j).g; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                        stitchedPointCloud.points[validPoints].b =
-                            rgba(j).b; // NOLINT(cppcoreguidelines-pro-type-union-access)
-                    }
-                    else
-                    {
-                        stitchedPointCloud.points[validPoints].rgb = rgbList.at(i);
-                    }
-                    validPoints++;
-                }
-            }
-        }
-        // Remove unused memory (would have been occupied by NaNs)
-        stitchedPointCloud.points.resize(validPoints);
-        std::cout << "Got " << validPoints << " out of " << maxNumberOfPoints << " points" << std::endl;
-
-        // Simple Cloud Visualization
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudPTR(new pcl::PointCloud<pcl::PointXYZRGB>);
-        *cloudPTR = stitchedPointCloud;
-
-        std::cout << "Run the PCL visualizer. Block until window closes" << std::endl;
-        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        viewer.showCloud(cloudPTR);
-        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to me exit the viewer application" << std::endl;
-        while(!viewer.wasStopped())
-        {
-        }
         if(saveStitched)
         {
-            std::cerr << "Saving " << stitchedPointCloud.points.size()
-                      << " data points to " + stitchedPointCloudFileName << std::endl;
-            pcl::io::savePLYFileBinary(stitchedPointCloudFileName, stitchedPointCloud);
+            const std::string &fileName = stitchedPointCloudFileName;
+            std::cout << "Saving " << finalPointCloud.size() << " data points to " << fileName << std::endl;
+
+            using PLY = Zivid::Experimental::PointCloudExport::FileFormat::PLY;
+            const auto colorSpace = Zivid::Experimental::PointCloudExport::ColorSpace::sRGB;
+            Zivid::Experimental::PointCloudExport::exportUnorganizedPointCloud(
+                finalPointCloud, PLY{ fileName, PLY::Layout::unordered, colorSpace });
         }
     }
     catch(const std::exception &e)

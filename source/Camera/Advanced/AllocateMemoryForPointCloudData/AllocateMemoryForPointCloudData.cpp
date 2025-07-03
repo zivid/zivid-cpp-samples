@@ -66,7 +66,7 @@ int main()
 
         std::cout << "Displaying image" << std::endl;
         cv::imshow("BGRA image User Allocated", bgraUserAllocated);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
 
         // Copy selected data from GPU to system memory (Zivid-allocated)
 
@@ -92,7 +92,7 @@ int main()
 
         std::cout << "Displaying image" << std::endl;
         cv::imshow("BGRA image Zivid Allocated", bgraZividAllocated);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
     catch(const std::exception &e)
     {

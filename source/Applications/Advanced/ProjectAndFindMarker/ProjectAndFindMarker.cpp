@@ -123,12 +123,38 @@ namespace
         throw std::invalid_argument("Invalid camera model");
     }
 
-    Zivid::Settings2D::Sampling::Color getColorSettingsForCamera(const Zivid::Camera &camera)
+    bool cameraSupportsProjectionBrightnessBoost(const Zivid::Camera &camera)
     {
         auto model = camera.info().model();
-        if(model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
-           || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
-           || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60)
+        return model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
+               || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
+               || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60;
+    }
+
+    double findMaxProjectorBrightness(const Zivid::Camera &camera)
+    {
+        switch(camera.info().model().value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return 1.8;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return 2.2;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return 2.5;
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
+    }
+
+    Zivid::Settings2D::Sampling::Color getColorSettingsForCamera(const Zivid::Camera &camera)
+    {
+        if(cameraSupportsProjectionBrightnessBoost(camera))
         {
             return Zivid::Settings2D::Sampling::Color::grayscale;
         }
@@ -211,7 +237,6 @@ namespace
 
         return camera.capture2D3D(settings);
     }
-
 } // namespace
 
 int main()
@@ -269,20 +294,30 @@ int main()
 
         const auto settings2DMaxBrightness =
             Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                                   Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
+                                   Zivid::Settings2D::Acquisition::Brightness{ findMaxProjectorBrightness(camera) },
                                    Zivid::Settings2D::Acquisition::ExposureTime{ exposureTime },
                                    Zivid::Settings2D::Acquisition::Aperture{ aperture },
                                    Zivid::Settings2D::Acquisition::Gain{ gain } } },
                                Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
 
-        std::cout << "Capture a 2D frame with the marker" << std::endl;
-        const auto projectedMarkerFrame2D = projectedImageHandle.capture2D(settings2DZeroBrightness);
+        const auto settings2DProjection =
+            Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                                   Zivid::Settings2D::Acquisition::Brightness{ findMaxProjectorBrightness(camera) },
+                                   Zivid::Settings2D::Acquisition::ExposureTime{ exposureTime },
+                                   Zivid::Settings2D::Acquisition::Aperture{ aperture },
+                                   Zivid::Settings2D::Acquisition::Gain{ gain } } },
+                               Zivid::Settings2D::Sampling::Color{ getColorSettingsForCamera(camera) } };
+
+        std::cout << "Capturing a 2D frame with the marker" << std::endl;
+
+        const auto projectedMarkerFrame2D = projectedImageHandle.capture2D(
+            !cameraSupportsProjectionBrightnessBoost(camera) ? settings2DZeroBrightness : settings2DProjection);
         projectedMarkerFrame2D.imageRGBA_SRGB().save("ProjectedMarker.png");
 
-        std::cout << "Capture a 2D frame of the scene illuminated with the projector" << std::endl;
+        std::cout << "Capturing a 2D frame of the scene illuminated with the projector" << std::endl;
         const auto illuminatedSceneFrame2D = camera.capture2D(settings2DMaxBrightness);
 
-        std::cout << "Capture a 2D frame of scene without projector illumination" << std::endl;
+        std::cout << "Capturing a 2D frame of scene without projector illumination" << std::endl;
         const auto nonIlluminatedSceneFrame2D = camera.capture2D(settings2DZeroBrightness);
 
         std::cout << "Locating marker in the 2D image:" << std::endl;

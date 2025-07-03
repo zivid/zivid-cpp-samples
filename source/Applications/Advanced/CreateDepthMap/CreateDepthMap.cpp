@@ -1,5 +1,5 @@
 /*
-Convert point cloud from a ZDF file to OpenCV format, extract depth map and visualize it. 
+Convert point cloud from a ZDF file to OpenCV format, extract depth map and visualize it.
 
 This example shows how to convert point cloud from a ZDF file to OpenCV format, then extract and visualize depth map. The
 ZDF file for this sample can be found under the main instructions for Zivid samples.
@@ -147,7 +147,7 @@ int main()
         std::cout << "Visualizing and saving BGR image to file: " << bgraImageFile << std::endl;
         cv::namedWindow("BGR image", cv::WINDOW_AUTOSIZE);
         cv::imshow("BGR image", bgra);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
         cv::imwrite(bgraImageFile, bgra);
 
         std::cout << "Converting to Depth map in OpenCV format" << std::endl;
@@ -157,7 +157,7 @@ int main()
         std::cout << "Visualizing and saving Depth map to file: " << depthMapFile << std::endl;
         cv::namedWindow("Depth map", cv::WINDOW_AUTOSIZE);
         cv::imshow("Depth map", zColorMap);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
         cv::imwrite(depthMapFile, zColorMap);
     }
     catch(const std::exception &e)

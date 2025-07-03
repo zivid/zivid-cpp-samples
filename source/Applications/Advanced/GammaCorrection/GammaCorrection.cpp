@@ -68,7 +68,7 @@ namespace
         cv::namedWindow(bgraName, cv::WINDOW_NORMAL);
         cv::imshow(bgraName, bgra);
         std::cout << "Press any key to continue" << std::endl;
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
 
 } // namespace

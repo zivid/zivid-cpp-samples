@@ -51,7 +51,7 @@ namespace
     {
         cv::namedWindow(bgraName, cv::WINDOW_AUTOSIZE);
         cv::imshow(bgraName, bgra);
-        cv::waitKey(0);
+        cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
 
     void coordinateSystemLine(
