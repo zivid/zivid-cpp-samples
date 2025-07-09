@@ -80,6 +80,8 @@ set(SAMPLES
     Applications/Advanced/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/ROIBoxViaArucoMarker
     Applications/Advanced/ROIBoxViaCheckerboard
+    Applications/Advanced/StitchViaLocalPointCloudRegistration
+    Applications/Advanced/StitchContinuouslyRotatingObject
     Applications/Advanced/GammaCorrection
     Applications/Advanced/ProjectAndFindMarker
     Applications/Advanced/ReprojectPoints
@@ -91,6 +93,8 @@ set(Eigen3_DEPENDING
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
     StitchByTransformationFromZDF
+    StitchViaLocalPointCloudRegistration
+    StitchContinuouslyRotatingObject
 )
 set(PCL_DEPENDING
     Capture2DAnd3D
@@ -116,6 +120,8 @@ set(OpenCV_DEPENDING
 set(Open3D_DEPENDING
     StitchByTransformation
     StitchByTransformationFromZDF
+    StitchViaLocalPointCloudRegistration
+    StitchContinuouslyRotatingObject
 )
 set(Visualization_DEPENDING
     CaptureVis3D
@@ -135,6 +141,7 @@ set(Clipp_DEPENDING
     MultiCameraCalibrationFromZDF
     StitchByTransformation
     StitchByTransformationFromZDF
+    StitchContinuouslyRotatingObject
     MultiCameraCalibration
     Capture2DAnd3D
     ZividBenchmark
