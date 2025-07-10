@@ -130,6 +130,12 @@ from the camera can be used.
             to the ArUco marker on a Zivid Calibration Board.
           - [ROIBoxViaCheckerboard](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ROIBoxViaCheckerboard/ROIBoxViaCheckerboard.cpp) - Filter the point cloud based on a ROI box given relative
             to the Zivid Calibration Board.
+          - [StitchContinuouslyRotatingObject](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/StitchContinuouslyRotatingObject/StitchContinuouslyRotatingObject.cpp) - Stitch point clouds from a continuously rotating object
+            without pre-alignment using Local Point Cloud Registration
+            and apply Voxel Downsample.
+          - [StitchViaLocalPointCloudRegistration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/StitchViaLocalPointCloudRegistration/StitchViaLocalPointCloudRegistration.cpp) - Stitch two point clouds using a transformation estimated
+            by Local Point Cloud Registration and apply Voxel
+            Downsample.
           - [TransformPointCloudFromMillimetersToMeters](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp) - Transform point cloud data from millimeters to meters.
           - [TransformPointCloudViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp) - Transform a point cloud from camera to ArUco marker
             coordinate frame by estimating the marker's pose from the
@@ -208,33 +214,10 @@ can disable the samples depending on them by passing the following
 options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`,
 `-DUSE_OPENCV=OFF`, `-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
 
-If you do want to use them:
-
-  - **Eigen 3**: Set `-DEIGEN3_INCLUDE_DIR=<path>` where `<path>` is the
-    root directory of your Eigen3 installation (the folder containing
-    Eigen/Core, Eigen/Dense etc.)
-  - **PCL** and **OpenCV**: If a recent enough version is installed on
-    your system, these should just work. If not, set `-DPCL_DIR=<path>`
-    / `-DOpenCV_DIR=<path>` where `<path>` is the directory containing
-    `PCLConfig.cmake` and `OpenCVConfig.cmake`, respectively.
-  - **Open3D**: If a recent enough version is installed on your system,
-    these should just work. If not, set `-DCMAKE_INSTALL_PREFIX=<path>`
-    where `<path>` is the directory where Open3D was extracted.
-  - **HALCON**: If a recent enough version is installed on your system,
-    these should just work.
-
------
-
-Note:
-
-Open3D does not support multi-configuration builds. While you can
-install both release and debug configurations at the same time, you must
-choose which to configure for by setting either `Open3D_DIR` or
-`-DCMAKE_INSTALL_PREFIX`. In addition the correct binary folder for
-Open3D must be added to the `PATH` environment variable before running
-the samples.
-
------
+See [Configure C++ Samples With Optional
+Dependencies](https://support.zivid.com/latest/api-reference/samples/cpp/configure-cpp-samples-with-optional-dependencies.html)
+for instructions on how to install the optional dependencies and
+configure the samples to use them.
 
 The samples can now be run from the build directory, for instance like
 this:
