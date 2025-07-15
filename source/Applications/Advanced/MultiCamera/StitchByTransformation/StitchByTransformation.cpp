@@ -14,6 +14,8 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 
 #include <cmath>
 #include <iostream>
+#include <map>
+#include <string>
 #include <vector>
 
 namespace
@@ -89,22 +91,21 @@ namespace
 
     open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
     {
-        auto device = open3d::core::Device("CPU:0");
-        auto xyzTensor =
-            open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
-        auto rgbTensor =
-            open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+        using namespace open3d::core;
+        auto device = Device("CPU:0");
+        auto xyzTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
+        auto rgbTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
 
         pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
 
         // Open3D does not store colors in 8-bit
-        auto *rgbPtr = rgbTensor.GetDataPtr<float>();
-        auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
+        const auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
         for(size_t i = 0; i < pointCloud.size(); ++i)
         {
-            rgbPtr[3 * i] = static_cast<float>(rgbaColors(i).r) / 255.0f;
-            rgbPtr[3 * i + 1] = static_cast<float>(rgbaColors(i).g) / 255.0f;
-            rgbPtr[3 * i + 2] = static_cast<float>(rgbaColors(i).b) / 255.0f;
+            const auto r = static_cast<float>(rgbaColors(i).r) / 255.0f;
+            const auto g = static_cast<float>(rgbaColors(i).g) / 255.0f;
+            const auto b = static_cast<float>(rgbaColors(i).b) / 255.0f;
+            rgbTensor.SetItem(TensorKey::Index(i), Tensor::Init({ r, g, b }));
         }
 
         open3d::t::geometry::PointCloud cloud(device);
