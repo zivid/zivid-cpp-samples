@@ -145,7 +145,7 @@ point cloud. While doing so, all NaN values are removed, and the point
 cloud is flattened to a 1D array.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L180))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L181))
 
 ``` sourceCode cpp
 const auto unorganizedPointCloud = frame.pointCloud().toUnorganizedPointCloud();
@@ -260,26 +260,25 @@ cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L90-L115))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L92-L116))
 
 ``` sourceCode cpp
 open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
 {
-	auto device = open3d::core::Device("CPU:0");
-	auto xyzTensor =
-		open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
-	auto rgbTensor =
-		open3d::core::Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, open3d::core::Dtype::Float32, device);
+	using namespace open3d::core;
+	auto device = Device("CPU:0");
+	auto xyzTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
+	auto rgbTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
 pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
 
 // Open3D does not store colors in 8-bit
-auto *rgbPtr = rgbTensor.GetDataPtr<float>();
-auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
+const auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
 for(size_t i = 0; i < pointCloud.size(); ++i)
 {
-	rgbPtr[3 * i] = static_cast<float>(rgbaColors(i).r) / 255.0f;
-	rgbPtr[3 * i + 1] = static_cast<float>(rgbaColors(i).g) / 255.0f;
-	rgbPtr[3 * i + 2] = static_cast<float>(rgbaColors(i).b) / 255.0f;
+	const auto r = static_cast<float>(rgbaColors(i).r) / 255.0f;
+	const auto g = static_cast<float>(rgbaColors(i).g) / 255.0f;
+	const auto b = static_cast<float>(rgbaColors(i).b) / 255.0f;
+	rgbTensor.SetItem(TensorKey::Index(i), Tensor::Init({ r, g, b }));
 }
 
 open3d::t::geometry::PointCloud cloud(device);
@@ -321,7 +320,7 @@ that in this sample is is not necessary to create a new instance, as the
 untransformed point cloud is not used after the transformation.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L182))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L183))
 
 ``` sourceCode cpp
 const auto transformedUnorganizedPointCloud = unorganizedPointCloud.transformed(transformationMatrix);
@@ -421,7 +420,7 @@ minPointsPerVoxel can be used to only fill voxels that both captures
 "agree" on.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L187))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L188))
 
 ``` sourceCode cpp
 const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);

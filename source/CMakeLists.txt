@@ -92,6 +92,7 @@ set(Eigen3_DEPENDING
     PoseConversions
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
+    StitchByTransformation
     StitchByTransformationFromZDF
     StitchViaLocalPointCloudRegistration
     StitchContinuouslyRotatingObject
