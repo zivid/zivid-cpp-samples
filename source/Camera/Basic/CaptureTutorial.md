@@ -367,7 +367,7 @@ If we only want to capture 3D, the points cloud without color, we can do
 so via the `capture3D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L117))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L116))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);
@@ -379,7 +379,7 @@ If we only want to capture a 2D image, which is faster than 3D, we can
 do so via the `capture2D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L80))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L79))
 
 ``` sourceCode cpp
 const auto frame2D = camera.capture2D(settings);
@@ -441,7 +441,7 @@ the function name then the returned image will be in the sRGB color
 space
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L87))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L86))
 
 ``` sourceCode cpp
 const auto imageRGBA = frame2D.imageRGBA();
@@ -449,7 +449,7 @@ const auto imageRGBA = frame2D.imageRGBA();
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L101))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L100))
 
 ``` sourceCode cpp
 const auto imageSRGB = frame2D.imageRGBA_SRGB();
@@ -458,7 +458,7 @@ const auto imageSRGB = frame2D.imageRGBA_SRGB();
 Then, we can save the 2D image in linear RGB or sRGB color space.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L88-L90))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L87-L89))
 
 ``` sourceCode cpp
 const auto imageFile = "ImageRGBA_linear.png";
@@ -468,7 +468,7 @@ imageRGBA.save(imageFile);
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L102-L104))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L101-L103))
 
 ``` sourceCode cpp
 const auto imageFile = "ImageRGBA_sRGB.png";

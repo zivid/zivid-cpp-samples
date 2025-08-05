@@ -1,8 +1,16 @@
 /*
 Stitch two point clouds using a transformation estimated by Local Point Cloud Registration and apply Voxel Downsample.
 
-The ZDF files for this sample can be found in Zivid's Sample Data, under the main instructions for Zivid samples.
-Zivid's Sample Data can be downloaded from  https://support.zivid.com/en/latest/api-reference/samples/sample-data.html.
+Dataset: https://support.zivid.com/en/latest/api-reference/samples/sample-data.html
+
+Extract the content into:
+    - Windows:   %ProgramData%/Zivid/StitchingPointClouds/
+    - Linux:     /usr/share/Zivid/data/StitchingPointClouds/
+
+StitchingPointClouds/
+    └── BlueObject/
+
+The folder must contain two ZDF files used for this sample.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 
@@ -77,10 +85,27 @@ int main()
     {
         Zivid::Application app;
 
-        std::cout << "Reading point clouds from files" << std::endl;
-        const auto dataPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/StitchingPointClouds/BlueObject/";
-        const auto frame1 = Zivid::Frame(dataPath + "BlueObject.zdf");
-        const auto frame2 = Zivid::Frame(dataPath + "BlueObjectSlightlyMoved.zdf");
+        // Ensure the dataset is extracted to the correct location depending on the operating system:
+        //   - Windows:   %ProgramData%/Zivid/StitchingPointClouds/
+        //   - Linux:     /usr/share/Zivid/data/StitchingPointClouds/
+        //  StitchingPointClouds/
+        //      └── BlueObject/
+        std::cout << "Reading point clouds from ZDF files" << std::endl;
+        const auto directory = std::filesystem::path(ZIVID_SAMPLE_DATA_DIR) / "StitchingPointClouds" / "BlueObject";
+
+        if(!std::filesystem::exists(directory))
+        {
+            std::ostringstream oss;
+            oss << "Missing dataset folders.\n"
+                << "Make sure 'StitchingPointClouds/BlueObject/' exist at " << ZIVID_SAMPLE_DATA_DIR << ".\n\n"
+                << "You can download the dataset (StitchingPointClouds.zip) from:\n"
+                << "https://support.zivid.com/en/latest/api-reference/samples/sample-data.html";
+
+            throw std::runtime_error(oss.str());
+        }
+
+        const auto frame1 = Zivid::Frame((directory / "BlueObject.zdf").string());
+        const auto frame2 = Zivid::Frame((directory / "BlueObjectSlightlyMoved.zdf").string());
 
         std::cout << "Converting organized point clouds to unorganized point clouds and voxel downsampling"
                   << std::endl;
