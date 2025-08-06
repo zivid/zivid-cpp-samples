@@ -82,6 +82,7 @@ set(SAMPLES
     Applications/Advanced/ROIBoxViaCheckerboard
     Applications/Advanced/StitchViaLocalPointCloudRegistration
     Applications/Advanced/StitchContinuouslyRotatingObject
+    Applications/Advanced/StitchUsingRobotMountedCamera
     Applications/Advanced/GammaCorrection
     Applications/Advanced/ProjectAndFindMarker
     Applications/Advanced/ReprojectPoints
@@ -96,6 +97,7 @@ set(Eigen3_DEPENDING
     StitchByTransformationFromZDF
     StitchViaLocalPointCloudRegistration
     StitchContinuouslyRotatingObject
+    StitchUsingRobotMountedCamera
 )
 set(PCL_DEPENDING
     Capture2DAnd3D
@@ -123,6 +125,7 @@ set(Open3D_DEPENDING
     StitchByTransformationFromZDF
     StitchViaLocalPointCloudRegistration
     StitchContinuouslyRotatingObject
+    StitchUsingRobotMountedCamera
 )
 set(Visualization_DEPENDING
     CaptureVis3D
@@ -138,11 +141,13 @@ set(Visualization_DEPENDING
 set(Clipp_DEPENDING
     AutomaticNetworkConfigurationForCameras
     CameraUserData
+    CaptureViaGenICam
     CaptureWithSettingsFromYML
     MultiCameraCalibrationFromZDF
     StitchByTransformation
     StitchByTransformationFromZDF
     StitchContinuouslyRotatingObject
+    StitchUsingRobotMountedCamera
     MultiCameraCalibration
     Capture2DAnd3D
     ZividBenchmark

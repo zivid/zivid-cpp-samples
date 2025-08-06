@@ -65,13 +65,12 @@ int main(int argc, char *argv[])
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Loading settings from file " << std::endl;
         if(settingsPath.empty())
         {
-            const auto settingsFile =
+            settingsPath =
                 std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + settingsFolder(camera) + "/Settings01.yml";
-            settingsPath = settingsFile;
         }
+        std::cout << "Loading settings from file " << settingsPath << std::endl;
 
         const auto settings = Zivid::Settings(settingsPath);
 

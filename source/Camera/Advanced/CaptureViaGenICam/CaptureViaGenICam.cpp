@@ -4,6 +4,8 @@ Capture using the GenICam interface.
 
 #include <Zivid/GenTLAddresses.h>
 #include <Zivid/Zivid.h>
+#include <clipp.h>
+#include <string>
 
 #include <GenTL.h>
 
@@ -67,15 +69,6 @@ namespace
         return stream.str();
     }
 
-    uint32_t getAcqusitionMode(size_t numOfApertures)
-    {
-        if(numOfApertures == 1)
-        {
-            return 0; // SingleAcquisitionFrame
-        }
-        return 3; // MultiAcquisitionFrame
-    }
-
     template<typename T>
     void setZividRegister(GenTL::PORT_HANDLE remDevHandle, uint64_t iAddress, T registerValue)
     {
@@ -89,30 +82,37 @@ namespace
             &registerValueSize);
     }
 
-    double brightnessFromCameraFamily(GenTL::PORT_HANDLE remDevHandle)
+    std::string settingsFolder(GenTL::PORT_HANDLE remDevHandle)
     {
-        std::array<char, 1024> modelNameBuffer{};
-        size_t modelNameBufferSize = sizeof(modelNameBuffer);
+        auto cameraModelValue = Zivid::CameraInfo::Model{}.value();
+        auto cameraModelSize = sizeof(cameraModelValue);
         checkedTLCall(
             GenTL::GCReadPort,
-            "Failed to read device model name.",
+            "Failed to read CameraInfoModel.",
             remDevHandle,
-            DeviceControl::deviceModelName,
-            &modelNameBuffer,
-            &modelNameBufferSize);
+            ZividGenTL::RegisterAddresses::DeviceControl::cameraInfoModel,
+            &cameraModelValue,
+            &cameraModelSize);
 
-        auto modelName = static_cast<std::string>(modelNameBuffer.data());
-        if(modelName.find("Zivid 2+") != std::string::npos && modelName.find('R') == std::string::npos)
+        switch(cameraModelValue)
         {
-            // Zivid 2+ M130/L110/M60 needs additional configuration to go above 2.2
-            // See https://support.zivid.com/en/latest/api-reference/zivid-config-files.html
-            return 2.2;
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return "zivid2";
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return "zivid2Plus";
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return "zivid2Plus/R";
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+
+            default:
+                throw std::runtime_error(
+                    "Unhandled enum value '" + Zivid::CameraInfo::Model{ cameraModelValue }.toString() + "'");
         }
-        if(modelName.find("Zivid 2") != std::string::npos)
-        {
-            return 1.8;
-        }
-        return 2.5;
+        throw std::invalid_argument("Invalid camera model");
     }
 
     template<typename T>
@@ -222,12 +222,42 @@ namespace
 
         return rgba;
     }
+
+    void loadSettingsFromFile(GenTL::PORT_HANDLE remDevHandle, const std::string &settingsFile)
+    {
+        size_t settingsFileSize = settingsFile.size();
+        checkedTLCall(
+            GenTL::GCWritePort,
+            "Failed to load settings from file.",
+            remDevHandle,
+            ZividGenTL::RegisterAddresses::SettingsControl::loadSettingsFromFile,
+            settingsFile.data(),
+            &settingsFileSize);
+    }
 } // namespace
 
-int main()
+int main(int argc, char *argv[])
 {
     try
     {
+        std::string settingsPath;
+        bool showHelp = false;
+
+        auto cli =
+            (clipp::option("-h", "--help").set(showHelp) % "Show help message",
+             clipp::option("--settings-path")
+                 & clipp::value("path", settingsPath) % "Path to the camera settings YML file");
+
+        if(!clipp::parse(argc, argv, cli) || showHelp)
+        {
+            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
+            std::cout << "USAGE:" << std::endl;
+            std::cout << clipp::usage_lines(cli, argv[0], fmt) << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << clipp::documentation(cli) << std::endl;
+            return showHelp ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
+
         std::cout << "Initializing GenTL interface" << std::endl;
         checkedTLCall(GenTL::GCInitLib, "Failed to initialize GenTL library.");
         GenTL::TL_HANDLE tlHandle{};
@@ -248,11 +278,15 @@ int main()
         checkedTLCall(GenTL::TLOpenInterface, "Failed opening interface.", tlHandle, idBuffer.data(), &ifHandle);
 
         std::cout << "Connecting to camera" << std::endl;
-        uint64_t deviceTimeout{ 100 };
+        auto deviceTimeout = std::chrono::seconds{ 100 };
         bool8_t changedDeviceList{ false };
         uint32_t numDevices{ 0 };
         checkedTLCall(
-            GenTL::IFUpdateDeviceList, "Failed updating device list.", ifHandle, &changedDeviceList, deviceTimeout);
+            GenTL::IFUpdateDeviceList,
+            "Failed updating device list.",
+            ifHandle,
+            &changedDeviceList,
+            std::chrono::milliseconds(deviceTimeout).count());
         checkedTLCall(GenTL::IFGetNumDevices, "Failed getting number of devices.", ifHandle, &numDevices);
         if(!changedDeviceList || numDevices <= 0)
         {
@@ -275,76 +309,13 @@ int main()
             &devHandle);
         checkedTLCall(GenTL::DevGetPort, "Failed opening remote device.", devHandle, &remDevHandle);
 
-        setZividRegister(remDevHandle, MultiAcquisitionFrameControl::resetAcquisitions, 1);
-
-        std::cout << "Setting up HDR settings" << std::endl;
-        std::vector<double> apertures = { 11.31, 5.66, 2.83 };
-        for(double aperture : apertures)
+        if(settingsPath.empty())
         {
-            setZividRegister(remDevHandle, AcquisitionSettingsControl::aperture, aperture);
-            setZividRegister(
-                remDevHandle, AcquisitionSettingsControl::brightness, brightnessFromCameraFamily(remDevHandle));
-            setZividRegister(remDevHandle, MultiAcquisitionFrameControl::addAcquisition, 1);
+            settingsPath =
+                std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + settingsFolder(remDevHandle) + "/Settings01.yml";
         }
-
-        // Showing all available capture settings
-        setZividRegister(remDevHandle, SettingsControl::engine, Zivid::Settings::Engine::phase.value());
-        setZividRegister(remDevHandle, SettingsControl::samplingColor, Zivid::Settings::Sampling::Color::rgb.value());
-        setZividRegister(remDevHandle, SettingsControl::samplingPixel, Zivid::Settings::Sampling::Pixel::all.value());
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointOX, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointOY, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointOZ, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointAX, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointAY, -1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointAZ, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointBX, -1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointBY, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxPointBZ, 1000.0F);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxExtentsMin, -1000.0);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestBoxExtentsMax, 1000.0);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestDepthEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestDepthRangeMin, 200.0);
-        setZividRegister(remDevHandle, SettingsControl::regionOfInterestDepthRangeMax, 2000.0);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersSmoothingGaussianEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersSmoothingGaussianSigma, 1.5);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersNoiseRemovalEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersNoiseRemovalThreshold, 7.0);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersNoiseSuppressionEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersNoiseRepairEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersOutlierRemovalEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersOutlierRemovalThreshold, 5.0);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersReflectionRemovalEnabled, true);
-        setZividRegister(
-            remDevHandle,
-            SettingsControl::processingFiltersReflectionRemovalMode,
-            Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global.value());
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersClusterRemovalEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersClusterRemovalMaxNeighborDistance, 10.0);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersClusterRemovalMinArea, 100.0);
-        setZividRegister(
-            remDevHandle, SettingsControl::processingFiltersExperimentalContrastDistortionCorrectionEnabled, true);
-        setZividRegister(
-            remDevHandle, SettingsControl::processingFiltersExperimentalContrastDistortionCorrectionStrength, 0.4);
-        setZividRegister(
-            remDevHandle, SettingsControl::processingFiltersExperimentalContrastDistortionRemovalEnabled, false);
-        setZividRegister(
-            remDevHandle, SettingsControl::processingFiltersExperimentalContrastDistortionRemovalThreshold, 0.5);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersHoleRepairEnabled, true);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersHoleRepairHoleSize, 0.2);
-        setZividRegister(remDevHandle, SettingsControl::processingFiltersHoleRepairStrictness, 1);
-        setZividRegister(
-            remDevHandle,
-            SettingsControl::processingResamplingMode,
-            Zivid::Settings::Processing::Resampling::Mode::disabled.value());
-        setZividRegister(remDevHandle, SettingsControl::processingColorBalanceRed, 1.0);
-        setZividRegister(remDevHandle, SettingsControl::processingColorBalanceGreen, 1.0);
-        setZividRegister(remDevHandle, SettingsControl::processingColorBalanceBlue, 1.0);
-        setZividRegister(remDevHandle, SettingsControl::processingColorGamma, 1.0);
-        setZividRegister(
-            remDevHandle,
-            SettingsControl::processingColorExperimentalMode,
-            Zivid::Settings::Processing::Color::Experimental::Mode::automatic.value());
+        std::cout << "Loading settings from file " << settingsPath << std::endl;
+        loadSettingsFromFile(remDevHandle, settingsPath);
 
         std::array<char, 1024> dataStreamIdBuffer{};
         size_t dataStreamBufferSize = sizeof(dataStreamIdBuffer);
@@ -384,8 +355,6 @@ int main()
         checkedTLCall(
             GenTL::GCRegisterEvent, "Failed to register event.", dsHandle, GenTL::EVENT_NEW_BUFFER, &newBufferEvent);
 
-        const uint32_t acqusitionMode = getAcqusitionMode(apertures.size());
-        setZividRegister(remDevHandle, AcquisitionControl::acquisitionMode, acqusitionMode);
         uint64_t numImages{ 1 };
         checkedTLCall(
             GenTL::DSStartAcquisition,
@@ -394,7 +363,7 @@ int main()
             GenTL::ACQ_START_FLAGS_DEFAULT,
             numImages);
 
-        std::cout << "Capturing MultiAcquisitionFrame" << std::endl;
+        std::cout << "Capturing..." << std::endl;
         setZividRegister(remDevHandle, AcquisitionControl::acquisitionStart, true);
 
         GenTL::EVENT_NEW_BUFFER_DATA newBufferData{};

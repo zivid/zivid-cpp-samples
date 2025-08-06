@@ -77,7 +77,7 @@ If you want to capture a point cloud without color, you can use the
 `Zivid::Camera::capture3D()` method.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L117))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L116))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);

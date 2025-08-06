@@ -133,6 +133,8 @@ from the camera can be used.
           - [StitchContinuouslyRotatingObject](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/StitchContinuouslyRotatingObject/StitchContinuouslyRotatingObject.cpp) - Stitch point clouds from a continuously rotating object
             without pre-alignment using Local Point Cloud Registration
             and apply Voxel Downsample.
+          - [StitchUsingRobotMountedCamera](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/StitchUsingRobotMountedCamera/StitchUsingRobotMountedCamera.cpp) - Stitch multiple point clouds captured with a robot mounted
+            camera.
           - [StitchViaLocalPointCloudRegistration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/StitchViaLocalPointCloudRegistration/StitchViaLocalPointCloudRegistration.cpp) - Stitch two point clouds using a transformation estimated
             by Local Point Cloud Registration and apply Voxel
             Downsample.
