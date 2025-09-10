@@ -272,7 +272,7 @@ The following HALCON versions have been tested and confirmed to work
 with Zivid cameras:
 
   - 19.05 Progress, 20.05 Progress, 21.11 Progress, 24.05 Progress,
-    24.11 Progress-Steady
+    24.11 Progress-Steady, 25.05 Progress
 
 We recommend using one of the HALCON versions we have tested.
 
