@@ -1,6 +1,5 @@
 /*
 Capture Zivid point clouds, with color and normals, and visualize it in 3D and as a normal map.
-For scenes with high dynamic range we combine multiple acquisitions to get an HDR point cloud.
 */
 
 #include <Zivid/Zivid.h>
@@ -105,19 +104,14 @@ int main()
         std::cout << "Connecting to camera" << std::endl;
         auto camera = zivid.connectCamera();
 
-        std::cout << "Configuring settings" << std::endl;
-        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
-        Zivid::Settings settings{ Zivid::Settings::Color{ settings2D } };
-        for(const auto aperture : { 5.66, 4.00, 2.59 })
-        {
-            std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
-            const auto acquisitionSettings = Zivid::Settings::Acquisition{
-                Zivid::Settings::Acquisition::Aperture{ aperture },
-            };
-            settings.acquisitions().emplaceBack(acquisitionSettings);
-        }
+        std::cout << "Creating settings" << std::endl;
+        Zivid::Settings settings = Zivid::Settings{
+            Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition{} } },
+            Zivid::Settings::Color{
+                Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } }
+        };
 
-        std::cout << "Capturing frame (HDR)" << std::endl;
+        std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);
         const auto pointCloud = frame.pointCloud();
 

@@ -146,12 +146,13 @@ int main()
             transformCameraToCheckerboard);
 
         std::cout << "Setting the ROI" << std::endl;
-        settings.set(Zivid::Settings::RegionOfInterest{
-            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
-            Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
-            Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
-            Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
-            Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
+        settings.set(
+            Zivid::Settings::RegionOfInterest{
+                Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+                Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
+                Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
+                Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
+                Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
 
         const auto roiFrame = camera.capture2D3D(settings);
 

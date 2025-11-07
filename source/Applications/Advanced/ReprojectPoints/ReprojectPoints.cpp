@@ -41,7 +41,7 @@ namespace
         Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
             Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
             Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-            Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } } };
+            Zivid::Settings2D::Acquisition::Aperture{ 3.00 } } } };
 
         auto model = camera.info().model();
         switch(model.value())
@@ -58,6 +58,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
                 settings2D.set(Zivid::Settings2D::Sampling::Color::grayscale);
                 break;

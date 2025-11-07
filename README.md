@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.16.0. For
+This repository contains cpp code samples for Zivid SDK v2.17.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
@@ -52,16 +52,13 @@ from the camera can be used.
           - [AllocateMemoryForPointCloudData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp) - Two methods to copy point cloud data from GPU memory to
             CPU memory, to be consumed by OpenCV.
           - [Capture2DAnd3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp) - Capture 2D and 3D with the Zivid camera.
+          - [CaptureAndPrintNormals](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureAndPrintNormals/CaptureAndPrintNormals.cpp) - Capture Zivid point clouds, compute normals and print a
+            subset.
           - [CaptureHalconViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaGenICam/CaptureHalconViaGenICam.cpp) - Capture and save a point cloud, with colors, using GenICam
             interface and Halcon C++ SDK.
           - [CaptureHalconViaZivid](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHalconViaZivid/CaptureHalconViaZivid.cpp) - Capture a point cloud, with colors, using Zivid SDK,
             transform it to a Halcon point cloud and save it using
             Halcon C++ SDK.
-          - [CaptureHDRLoop](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHDRLoop/CaptureHDRLoop.cpp) - Cover the same dynamic range in a scene with different
-            acquisition settings to optimize for quality, speed, or to
-            find a compromise.
-          - [CaptureHDRPrintNormals](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp) - Capture Zivid point clouds, compute normals and print a
-            subset.
           - [CaptureViaGenICam](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureViaGenICam/CaptureViaGenICam.cpp) - Capture using the GenICam interface.
           - [MultiCameraCaptureInParallel](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureInParallel/MultiCameraCaptureInParallel.cpp) - Capture point clouds with multiple cameras in parallel.
           - [MultiCameraCaptureSequentially](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/MultiCameraCaptureSequentially/MultiCameraCaptureSequentially.cpp) - Capture point clouds with multiple cameras sequentially.
@@ -98,22 +95,22 @@ from the camera can be used.
   - **Applications**
       - **Basic**
           - **Visualization**
+              - [CaptureAndVisualizeNormals](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/CaptureAndVisualizeNormals/CaptureAndVisualizeNormals.cpp) - Capture Zivid point clouds, with color and normals,
+                and visualize it in 3D and as a normal map.
               - [CaptureFromFileCameraVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/CaptureFromFileCameraVis3D/CaptureFromFileCameraVis3D.cpp) - Capture point clouds, with color, with the Zivid file
                 camera and visualize them.
-              - [CaptureHDRVisNormals](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/CaptureHDRVisNormals/CaptureHDRVisNormals.cpp) - Capture Zivid point clouds, with color and normals,
-                and visualize it in 3D and as a normal map.
               - [CaptureVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/CaptureVis3D/CaptureVis3D.cpp) - Capture point clouds, with color, from the Zivid
                 camera, and visualize it.
               - [CaptureWritePCLVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/CaptureWritePCLVis3D/CaptureWritePCLVis3D.cpp) - Capture point clouds, with color, from the Zivid
                 camera, save it to PCD file format, and visualize it.
               - [ProjectImageStartAndStop](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/ProjectImageStartAndStop/ProjectImageStartAndStop.cpp) - Start the Image Projection and Stop it.
-              - [ReadAndProjectImage](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/ReadAndProjectImage/ReadAndProjectImage.cpp) - Read a 2D image from file and project it using the
-                camera projector.
               - [ReadPCLVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp) - Read point cloud from PCL file and visualize it.
           - **FileFormats**
               - [ReadIterateZDF](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp) - Read point cloud data from a ZDF file, iterate through
                 it, and extract individual points.
       - **Advanced**
+          - [BarcodeDetector](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/BarcodeDetector/BarcodeDetector.cpp) - Detect and decode linear and matrix barcodes from a 2D
+            capture.
           - [CaptureUndistort2D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/CaptureUndistort2D/CaptureUndistort2D.cpp) - Use camera intrinsics to undistort a 2D image.
           - [CreateDepthMap](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp) - Convert point cloud from a ZDF file to OpenCV format,
             extract depth map and visualize it.
@@ -124,6 +121,8 @@ from the camera can be used.
             format, extract depth map and visualize it.
           - [ProjectAndFindMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ProjectAndFindMarker/ProjectAndFindMarker.cpp) - Show a marker using the projector, capture a set of 2D
             images to find the marker coordinates (2D and 3D).
+          - [ReadProjectAndCaptureImage](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ReadProjectAndCaptureImage/ReadProjectAndCaptureImage.cpp) - Read a 2D image from file and project it using the camera
+            projector.
           - [ReprojectPoints](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ReprojectPoints/ReprojectPoints.cpp) - Illuminate checkerboard (Zivid Calibration Board) centers
             by getting the checkerboard feature points
           - [ROIBoxViaArucoMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ROIBoxViaArucoMarker/ROIBoxViaArucoMarker.cpp) - Filter the point cloud based on a ROI box given relative
@@ -211,10 +210,10 @@ make -j
 ```
 
 Some of the samples depend on external libraries, in particular Eigen 3,
-OpenCV, PCL, Open3D or HALCON. If you don't want to install those, you
-can disable the samples depending on them by passing the following
-options, respectively, to `cmake`: `-DUSE_EIGEN3=OFF`,
-`-DUSE_OPENCV=OFF`, `-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
+OpenCV, PCL or HALCON. If you don't want to install those, you can
+disable the samples depending on them by passing the following options,
+respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`,
+`-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
 
 See [Configure C++ Samples With Optional
 Dependencies](https://support.zivid.com/latest/api-reference/samples/cpp/configure-cpp-samples-with-optional-dependencies.html)

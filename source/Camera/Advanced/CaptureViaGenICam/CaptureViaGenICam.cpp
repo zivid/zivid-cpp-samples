@@ -82,7 +82,7 @@ namespace
             &registerValueSize);
     }
 
-    std::string settingsFolder(GenTL::PORT_HANDLE remDevHandle)
+    std::string findPresetSettingsPath(GenTL::PORT_HANDLE remDevHandle)
     {
         auto cameraModelValue = Zivid::CameraInfo::Model{}.value();
         auto cameraModelSize = sizeof(cameraModelValue);
@@ -94,16 +94,46 @@ namespace
             &cameraModelValue,
             &cameraModelSize);
 
+        const std::string presetsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings";
+
         switch(cameraModelValue)
         {
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
-            case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return "zivid2";
+            {
+                return presetsPath + "/Zivid_Two_M70_ManufacturingSpecular.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            {
+                return presetsPath + "/Zivid_Two_L100_ManufacturingSpecular.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_M130_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
-            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110: return "zivid2Plus";
+            {
+                return presetsPath + "/Zivid_Two_Plus_M60_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                return presetsPath + "/Zivid_Two_Plus_L110_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR130_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
-            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return "zivid2Plus/R";
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR60_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                return presetsPath + "/Zivid_Two_Plus_LR110_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+            {
+                return presetsPath + "/Zivid_Three_XL250_DepalletizationQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
@@ -311,8 +341,7 @@ int main(int argc, char *argv[])
 
         if(settingsPath.empty())
         {
-            settingsPath =
-                std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + settingsFolder(remDevHandle) + "/Settings01.yml";
+            settingsPath = findPresetSettingsPath(remDevHandle);
         }
         std::cout << "Loading settings from file " << settingsPath << std::endl;
         loadSettingsFromFile(remDevHandle, settingsPath);

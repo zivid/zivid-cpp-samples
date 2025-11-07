@@ -297,9 +297,14 @@ namespace
         throw std::runtime_error("At least one camera needs to be available");
     }
 
-    std::chrono::microseconds getMinExposureTime()
+    std::chrono::microseconds getExposureTimeForAllModels()
     {
         return std::chrono::microseconds{ 1677 };
+    }
+
+    double getApertureForAllModels()
+    {
+        return 3.0;
     }
 
     bool doesNotSupportColorWithoutProjector(const Zivid::CameraInfo::Model model)
@@ -307,7 +312,8 @@ namespace
         return (
             model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
             || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
-            || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60);
+            || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60
+            || model.value() == Zivid::CameraInfo::Model::ValueType::zivid3XL250);
     }
 
     Zivid::Settings makeSettings3D(
@@ -332,12 +338,13 @@ namespace
         };
         for(size_t i = 0; i < apertures.size(); ++i)
         {
-            settings3D.acquisitions().emplaceBack(Zivid::Settings::Acquisition{
-                Zivid::Settings::Acquisition::ExposureTime{ exposureTimes.at(i) },
-                Zivid::Settings::Acquisition::Aperture{ apertures.at(i) },
-                Zivid::Settings::Acquisition::Brightness{ 1.0 },
-                Zivid::Settings::Acquisition::Gain{ 1.0 },
-            });
+            settings3D.acquisitions().emplaceBack(
+                Zivid::Settings::Acquisition{
+                    Zivid::Settings::Acquisition::ExposureTime{ exposureTimes.at(i) },
+                    Zivid::Settings::Acquisition::Aperture{ apertures.at(i) },
+                    Zivid::Settings::Acquisition::Brightness{ 1.0 },
+                    Zivid::Settings::Acquisition::Gain{ 1.0 },
+                });
         }
 
         return settings3D;
@@ -911,7 +918,7 @@ namespace
         std::array<std::vector<Duration>, numData> allDurations;
 
         const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
-        const std::vector<double> twoApertures{ 8.0, 4.0 };
+        const std::vector<double> twoApertures{ 3.0, 3.0 };
         const auto settings2D3D = makeSettings(camera, twoApertures, twoExposureTimes, exposureTime, false, false);
         auto warmupFrame = camera.capture2D3D(settings2D3D);
         auto warmupFrame2D = warmupFrame.frame2D().value();
@@ -1011,14 +1018,15 @@ int main(int argc, char **argv)
         const size_t numFramesSave = 10;
         const size_t numCopies = 10;
 
-        const std::chrono::microseconds exposureTime = getMinExposureTime();
+        const std::chrono::microseconds exposureTime = getExposureTimeForAllModels();
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
         const std::vector<std::chrono::microseconds> twoExposureTimes{ exposureTime, exposureTime };
         const std::vector<std::chrono::microseconds> threeExposureTimes{ exposureTime, exposureTime, exposureTime };
 
-        const std::vector<double> oneAperture{ 5.66 };
-        const std::vector<double> twoApertures{ 8.0, 4.0 };
-        const std::vector<double> threeApertures{ 11.31, 5.66, 2.83 };
+        const double aperture = getApertureForAllModels();
+        const std::vector<double> oneAperture{ aperture };
+        const std::vector<double> twoApertures{ aperture, aperture };
+        const std::vector<double> threeApertures{ aperture, aperture, aperture };
 
         auto settings2D3D = settingsFromYML
                                 ? Zivid::Settings(settingsFile)

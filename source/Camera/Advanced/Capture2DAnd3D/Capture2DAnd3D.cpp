@@ -48,6 +48,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
                 settings.set(Zivid::Settings::Sampling::Pixel::by4x4);
                 settings.set(Zivid::Settings::Processing::Resampling::Mode::upsample2x2);

@@ -49,6 +49,11 @@ int main()
         std::cout
             << std::chrono::duration_cast<std::chrono::milliseconds>(frameInfo.metrics().captureTime().value()).count()
             << " ms" << std::endl;
+
+        std::cout << "Thermal throttling time:" << std::endl;
+        std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(frameInfo.metrics().throttlingTime().value())
+                         .count()
+                  << " ms" << std::endl;
     }
     catch(const std::exception &e)
     {

@@ -1,6 +1,14 @@
 /*
 Read a 2D image from file and project it using the camera projector.
 
+This sample is divided into two parts:
+1) Reading a 2D image of an arbitrary resolution.
+   Resizing it to match the projector resolution.
+   Projecting it using the camera projector.
+   Capturing a 2D image of the projected image.
+2) Reading a 2D image with a resolution that matches the projector resolution.
+   Projecting it using the camera projector.
+
 The image for this sample can be found under the main instructions for Zivid samples.
 */
 
@@ -59,6 +67,8 @@ namespace
                 // intentional fallthrough
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
                 return std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividLogoZivid2PlusProjectorResolution.png";
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+                return std::string(ZIVID_SAMPLE_DATA_DIR) + "/ZividLogoZivid3ProjectorResolution.png";
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
                 // intentional fallthrough
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
@@ -69,25 +79,61 @@ namespace
         throw std::invalid_argument("Invalid camera model");
     }
 
-    bool cameraSupportsProjectionBrightnessBoost(const Zivid::Camera &camera)
+    Zivid::Settings2D makeSettings2D(const Zivid::Camera &camera)
     {
         const auto model = camera.info().model().value();
+        switch(model)
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+                // intentional fallthrough;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 0.0 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 2.38 } } },
+                    Zivid::Settings2D::Sampling::Color::rgb
+                };
 
-        return model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
-               || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60
-               || model == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110;
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 2.5 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } },
+                    Zivid::Settings2D::Sampling::Color::grayscale
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 3.0 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 3.00 },
+                        Zivid::Settings2D::Acquisition::Gain{ 3.00 } } },
+                    Zivid::Settings2D::Sampling::Color::grayscale
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
     }
 
-    Zivid::Settings2D makeSettings2D()
-    {
-        return Zivid::Settings2D{
-            Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
-                Zivid::Settings2D::Acquisition::Brightness{ 2.5 },
-                Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
-                Zivid::Settings2D::Acquisition::Aperture{ 2.83 } } },
-            Zivid::Settings2D::Sampling::Color::grayscale
-        };
-    }
 } // namespace
 
 int main()
@@ -122,12 +168,7 @@ int main()
 
             auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
 
-            auto settings2D = makeSettings2D();
-            if(!cameraSupportsProjectionBrightnessBoost(camera))
-            {
-                settings2D.set(Zivid::Settings2D::Sampling::Color::rgb);
-                settings2D.acquisitions().at(0).set(Zivid::Settings2D::Acquisition::Brightness(0.0));
-            }
+            auto settings2D = makeSettings2D(camera);
 
             std::cout << "Capturing a 2D image with the projected image" << std::endl;
             const auto frame2D = projectedImageHandle.capture2D(settings2D);

@@ -18,7 +18,7 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 */
 
 #include <Zivid/Calibration/Detector.h>
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
+#include <Zivid/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <iomanip>
@@ -54,7 +54,7 @@ int main()
         std::cout << "Detecting calibration board" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(loadedFrame);
 
-        const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
+        const auto input = Zivid::Calibration::InfieldCorrectionInput{ detectionResult };
         if(!input.valid())
         {
             throw std::runtime_error(
@@ -62,7 +62,7 @@ int main()
         }
 
         std::cout << "Successful measurement at " << detectionResult.centroid() << std::endl;
-        const auto verification = Zivid::Experimental::Calibration::verifyCamera(input);
+        const auto verification = Zivid::Calibration::verifyCamera(input);
         std::cout << "Estimated dimension trueness error at measured position: " << std::setprecision(2) << std::fixed
                   << verification.localDimensionTrueness() * 100.0F << "%" << std::endl;
     }

@@ -79,7 +79,7 @@ int main()
         HalconCpp::SetFramegrabberParam(framegrabber, "add_objectmodel3d_overlay_attrib", "enable");
         HalconCpp::SetFramegrabberParam(framegrabber, "AcquisitionMode", "SingleFrame");
 
-        HalconCpp::SetFramegrabberParam(framegrabber, "Aperture", 2.83);
+        HalconCpp::SetFramegrabberParam(framegrabber, "Aperture", 3.0);
         HalconCpp::SetFramegrabberParam(framegrabber, "ExposureTime", 5000);
         HalconCpp::SetFramegrabberParam(framegrabber, "Gain", 1);
         HalconCpp::SetFramegrabberParam(framegrabber, "Brightness", 1.8);

@@ -107,16 +107,15 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
-
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100: return 1.52;
-
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return 2.47;
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250: return 6.58;
 
             default: throw std::runtime_error("Unhandled enum value '" + cameraInfo.model().toString() + "'");
         }
@@ -128,7 +127,8 @@ namespace
         auto model = camera.info().model();
         return model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130
                || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110
-               || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60;
+               || model.value() == Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60
+               || model.value() == Zivid::CameraInfo::Model::ValueType::zivid3XL250;
     }
 
     double findMaxProjectorBrightness(const Zivid::Camera &camera)
@@ -143,6 +143,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110: return 2.5;
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250: return 3.0;
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
@@ -191,6 +192,57 @@ namespace
         return brightestLocation + cv::Point{ 0, croppedRows };
     }
 
+    Zivid::Settings loadPresetSettingsFromYML(const Zivid::Camera &camera)
+    {
+        const std::string presetsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings";
+
+        switch(camera.info().model().value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_M70_ManufacturingSpecular.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_L100_ManufacturingSpecular.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_M130_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_M60_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_L110_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_MR130_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_MR60_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Two_Plus_LR110_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+            {
+                return Zivid::Settings(presetsPath + "/Zivid_Three_XL250_ManufacturingSmallFeatures.yml");
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
+    }
+
     cv::Mat annotate(const Zivid::Frame2D &frame2D, const cv::Point &location)
     {
         auto image = cvMatFromFrame2D(frame2D);
@@ -206,36 +258,6 @@ namespace
         cv::line(image, topRightLocation, bottomLeftLocation, markerColor, 2);
 
         return image;
-    }
-
-    Zivid::Frame captureWithCaptureAssistant(Zivid::Camera &camera)
-    {
-        const auto suggestSettingsParameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 1200 } }
-        };
-        auto settings = Zivid::CaptureAssistant::suggestSettings(camera, suggestSettingsParameters);
-        const auto processing =
-            Zivid::Settings::Processing{ Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-                                         Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
-                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-                                         Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 } };
-        settings.set(processing);
-        settings.set(Zivid::Settings::Sampling::Pixel::all);
-        settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::all);
-
-        // We must limit Brightness to a *maximum* of 2.2, when using `all` mode.
-        // This code can be removed by changing the Config.yml option 'Camera/Power/Limit'.
-        for(auto &a : settings.acquisitions())
-        {
-            a.set(Zivid::Settings::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
-        }
-        for(auto &a : settings.color().value().acquisitions())
-        {
-            a.set(Zivid::Settings2D::Acquisition::Brightness(std::min(a.brightness().value(), 2.2)));
-        }
-
-        return camera.capture2D3D(settings);
     }
 } // namespace
 
@@ -281,7 +303,8 @@ int main()
 
         // Fine tune 2D settings until the "ProjectedMarker.png" image is well exposed if the projected marker well is not detected in ImageWithMarker.png.
         const auto exposureTime = std::chrono::microseconds{ 20000 };
-        const auto aperture = 2.83;
+        auto aperture =
+            3.00; // Do not modify aperture for Zivid 3 camera because it does not have an adjustable aperture.
         const auto gain = 1.0;
 
         const auto settings2DZeroBrightness =
@@ -329,8 +352,9 @@ int main()
             camera.info());
         std::cout << markerLocation << std::endl;
 
-        std::cout << "Capturing a point-cloud using Capture Assistant" << std::endl;
-        const auto frame = captureWithCaptureAssistant(camera);
+        std::cout << "Capturing frame" << std::endl;
+        const auto settings = loadPresetSettingsFromYML(camera);
+        const auto frame = camera.capture3D(settings);
 
         std::cout << "Looking up 3D coordinate based on the marker position in the 2D image:" << std::endl;
         const auto pointsXYZ = frame.pointCloud().copyPointsXYZ();

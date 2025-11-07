@@ -77,7 +77,7 @@ If you want to capture a point cloud without color, you can use the
 `Zivid::Camera::capture3D()` method.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L116))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L145))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);
@@ -145,7 +145,7 @@ point cloud. While doing so, all NaN values are removed, and the point
 cloud is flattened to a 1D array.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L181))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L146))
 
 ``` sourceCode cpp
 const auto unorganizedPointCloud = frame.pointCloud().toUnorganizedPointCloud();
@@ -256,38 +256,7 @@ pointCloud.copyData(&(*bgraUserAllocated.begin<Zivid::ColorBGRA_SRGB>()));
 std::cout << "Displaying image" << std::endl;
 cv::imshow("BGRA image User Allocated", bgraUserAllocated);
 cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
-  .. rubric:: Copy unorganized point cloud data from GPU to CPU memory (Open3D-tensor)
 ```
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L92-L116))
-
-``` sourceCode cpp
-open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
-{
-	using namespace open3d::core;
-	auto device = Device("CPU:0");
-	auto xyzTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
-	auto rgbTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
-pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
-
-// Open3D does not store colors in 8-bit
-const auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
-for(size_t i = 0; i < pointCloud.size(); ++i)
-{
-	const auto r = static_cast<float>(rgbaColors(i).r) / 255.0f;
-	const auto g = static_cast<float>(rgbaColors(i).g) / 255.0f;
-	const auto b = static_cast<float>(rgbaColors(i).b) / 255.0f;
-	rgbTensor.SetItem(TensorKey::Index(i), Tensor::Init({ r, g, b }));
-}
-
-open3d::t::geometry::PointCloud cloud(device);
-cloud.SetPointPositions(xyzTensor);
-cloud.SetPointColors(rgbTensor);
-return cloud;
-```
-
-> }
 
 ## Transform
 
@@ -320,7 +289,7 @@ that in this sample is is not necessary to create a new instance, as the
 untransformed point cloud is not used after the transformation.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L183))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L148))
 
 ``` sourceCode cpp
 const auto transformedUnorganizedPointCloud = unorganizedPointCloud.transformed(transformationMatrix);
@@ -420,7 +389,7 @@ minPointsPerVoxel can be used to only fill voxels that both captures
 "agree" on.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L188))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L153))
 
 ``` sourceCode cpp
 const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);
@@ -433,7 +402,7 @@ Some applications require computing
 from the point cloud.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp#L53-L54))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureAndPrintNormals/CaptureAndPrintNormals.cpp#L47-L48))
 
 ``` sourceCode cpp
 std::cout << "Computing normals and copying them to CPU memory" << std::endl;

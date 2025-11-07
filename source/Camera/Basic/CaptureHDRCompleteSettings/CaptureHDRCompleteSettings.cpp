@@ -36,6 +36,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
                 settings.set(Zivid::Settings::Sampling::Pixel::by2x2);
                 break;
@@ -91,6 +92,14 @@ namespace
                 const std::vector<double> brightnesses{ 2.5, 2.5, 2.5 };
                 return { apertures, gains, exposureTimes, brightnesses };
             }
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+            {
+                const std::vector<double> apertures{ 3.00, 3.00 };
+                const std::vector<double> gains{ 1.0, 1.0 };
+                const std::vector<microseconds> exposureTimes{ microseconds{ 1000 }, microseconds{ 7000 } };
+                const std::vector<double> brightnesses{ 3.0, 3.0 };
+                return { apertures, gains, exposureTimes, brightnesses };
+            }
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
@@ -98,6 +107,68 @@ namespace
         }
         throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
     }
+
+    Zivid::Settings2D makeSettings2D(const Zivid::Camera &camera)
+    {
+        const auto model = camera.info().model().value();
+        switch(model)
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 2.38 },
+                        Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 2.2 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 2.59 },
+                        Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 2.5 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 20000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
+                        Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+                return Zivid::Settings2D{
+                    Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{
+                        Zivid::Settings2D::Acquisition::Brightness{ 3.0 },
+                        Zivid::Settings2D::Acquisition::ExposureTime{ std::chrono::microseconds{ 5000 } },
+                        Zivid::Settings2D::Acquisition::Aperture{ 3.00 },
+                        Zivid::Settings2D::Acquisition::Gain{ 1.0 } } },
+                };
+
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+                // intentional fallthrough
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
+    }
+
 } // namespace
 
 int main()
@@ -113,6 +184,8 @@ int main()
         Zivid::Settings2D settings2D{
             Zivid::Settings2D::Sampling::Color::rgb,
             Zivid::Settings2D::Sampling::Pixel::all,
+            Zivid::Settings2D::Sampling::Interval::Enabled::no,
+            Zivid::Settings2D::Sampling::Interval::Duration{ microseconds{ 10000 } },
 
             Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 },
             Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
@@ -125,7 +198,7 @@ int main()
         Zivid::Settings settings{
             Zivid::Settings::Color{ settings2D },
 
-            Zivid::Settings::Engine::phase,
+            Zivid::Settings::Engine::stripe,
 
             Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
             Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
@@ -173,12 +246,9 @@ int main()
         setSamplingPixel(settings, camera);
         std::cout << settings << std::endl;
 
-        std::cout << "Configuring base acquisition with settings same for all HDR acquisition:" << std::endl;
+        std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
         const auto baseAcquisition = Zivid::Settings::Acquisition{};
         std::cout << baseAcquisition << std::endl;
-        const auto baseAquisition2D = Zivid::Settings2D::Acquisition{};
-
-        std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
         auto exposureValues = getExposureValues(camera);
         const std::vector<double> aperture = std::get<0>(exposureValues);
         const std::vector<double> gain = std::get<1>(exposureValues);
@@ -198,12 +268,9 @@ int main()
                 Zivid::Settings::Acquisition::Brightness{ brightness.at(i) });
             settings.acquisitions().emplaceBack(acquisitionSettings);
         }
-        const auto acquisitionSettings2D = baseAquisition2D.copyWith(
-            Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
-            Zivid::Settings2D::Acquisition::ExposureTime{ microseconds{ 10000 } },
-            Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
-            Zivid::Settings2D::Acquisition::Gain{ 1.0 });
-        settings.color().value().acquisitions().emplaceBack(acquisitionSettings2D);
+
+        const auto aquisitionSettings2D = makeSettings2D(camera).acquisitions();
+        settings.color().value().set(aquisitionSettings2D);
 
         std::cout << "Capturing frame (HDR)" << std::endl;
         const auto frame = camera.capture2D3D(settings);

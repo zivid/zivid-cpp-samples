@@ -125,11 +125,12 @@ int main(int argc, char **argv)
                 const std::string remainingIpAddressOctets =
                     ipAddressOctets[0] + "." + ipAddressOctets[1] + "." + ipAddressOctets[2];
 
-                const Zivid::NetworkConfiguration newConfig(Zivid::NetworkConfiguration::IPV4(
-                    Zivid::NetworkConfiguration::IPV4::Mode::manual,
-                    Zivid::NetworkConfiguration::IPV4::Address(
-                        remainingIpAddressOctets + "." + std::to_string(nextIpAddressLastOctet)),
-                    Zivid::NetworkConfiguration::IPV4::SubnetMask(localInterfaceSubnetMask)));
+                const Zivid::NetworkConfiguration newConfig(
+                    Zivid::NetworkConfiguration::IPV4(
+                        Zivid::NetworkConfiguration::IPV4::Mode::manual,
+                        Zivid::NetworkConfiguration::IPV4::Address(
+                            remainingIpAddressOctets + "." + std::to_string(nextIpAddressLastOctet)),
+                        Zivid::NetworkConfiguration::IPV4::SubnetMask(localInterfaceSubnetMask)));
 
                 if(displayOnly)
                 {
