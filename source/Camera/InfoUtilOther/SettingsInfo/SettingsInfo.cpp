@@ -25,10 +25,13 @@ int main()
         defaultSettings.acquisitions().emplaceBack(
             Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings::Acquisition>(cameraInfo));
 
-        defaultSettings.set(Zivid::Settings::Color{
-            Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D>(cameraInfo)
-                .copyWith(Zivid::Settings2D::Acquisitions{
-                    Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D::Acquisition>(cameraInfo) }) });
+        defaultSettings.set(
+            Zivid::Settings::Color{
+                Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D>(cameraInfo)
+                    .copyWith(
+                        Zivid::Settings2D::Acquisitions{
+                            Zivid::Experimental::SettingsInfo::defaultValue<Zivid::Settings2D::Acquisition>(
+                                cameraInfo) }) });
 
         std::cout << defaultSettings << std::endl;
 

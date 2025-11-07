@@ -7,18 +7,11 @@ The ZFC file for this sample can be downloaded from https://support.zivid.com/en
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
-#include <algorithm>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 #include <Eigen/Core>
-#include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 #include <cmath>
 #include <iostream>
-#include <thread>
 
 namespace
 {
@@ -151,12 +144,13 @@ int main()
             cameraToMarkerTransform);
 
         std::cout << "Setting the ROI" << std::endl;
-        settings.set(Zivid::Settings::RegionOfInterest{
-            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
-            Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
-            Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
-            Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
-            Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
+        settings.set(
+            Zivid::Settings::RegionOfInterest{
+                Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+                Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
+                Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
+                Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
+                Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
 
         const auto roiFrame = camera.capture2D3D(settings);
 

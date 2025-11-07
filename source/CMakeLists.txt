@@ -21,7 +21,6 @@ endif()
 option(USE_EIGEN3 "Enable samples which depend on Eigen 3" ON)
 option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
-option(USE_OPEN3D "Enable samples which depend on Open3D" ON)
 option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
@@ -31,8 +30,7 @@ set(SAMPLES
     Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Advanced/Capture2DAnd3D
-    Camera/Advanced/CaptureHDRLoop
-    Camera/Advanced/CaptureHDRPrintNormals
+    Camera/Advanced/CaptureAndPrintNormals
     Camera/Advanced/MultiCameraCaptureSequentially
     Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing
     Camera/Advanced/MultiCameraCaptureInParallel
@@ -60,9 +58,8 @@ set(SAMPLES
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/Visualization/ProjectImageStartAndStop
-    Applications/Basic/Visualization/ReadAndProjectImage
     Applications/Basic/Visualization/CaptureWritePCLVis3D
-    Applications/Basic/Visualization/CaptureHDRVisNormals
+    Applications/Basic/Visualization/CaptureAndVisualizeNormals
     Applications/Basic/FileFormats/ReadIterateZDF
     Applications/Advanced/CaptureUndistort2D
     Applications/Advanced/Downsample
@@ -85,7 +82,9 @@ set(SAMPLES
     Applications/Advanced/StitchUsingRobotMountedCamera
     Applications/Advanced/GammaCorrection
     Applications/Advanced/ProjectAndFindMarker
+    Applications/Advanced/ReadProjectAndCaptureImage
     Applications/Advanced/ReprojectPoints
+    Applications/Advanced/BarcodeDetector
 )
 
 set(Eigen3_DEPENDING
@@ -104,7 +103,7 @@ set(PCL_DEPENDING
     MaskPointCloud
     ReadPCLVis3D
     CaptureWritePCLVis3D
-    CaptureHDRVisNormals
+    CaptureAndVisualizeNormals
 )
 set(OpenCV_DEPENDING
     Capture2DAnd3D
@@ -114,18 +113,10 @@ set(OpenCV_DEPENDING
     TransformPointCloudViaArucoMarker
     TransformPointCloudViaCheckerboard
     AllocateMemoryForPointCloudData
-    ROIBoxViaArucoMarker
     GammaCorrection
     ProjectAndFindMarker
     ReprojectPoints
-    ReadAndProjectImage
-)
-set(Open3D_DEPENDING
-    StitchByTransformation
-    StitchByTransformationFromZDF
-    StitchViaLocalPointCloudRegistration
-    StitchContinuouslyRotatingObject
-    StitchUsingRobotMountedCamera
+    ReadProjectAndCaptureImage
 )
 set(Visualization_DEPENDING
     CaptureVis3D
@@ -137,6 +128,11 @@ set(Visualization_DEPENDING
     CreateDepthMap
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
+    StitchByTransformation
+    StitchByTransformationFromZDF
+    StitchViaLocalPointCloudRegistration
+    StitchContinuouslyRotatingObject
+    StitchUsingRobotMountedCamera
 )
 set(Clipp_DEPENDING
     AutomaticNetworkConfigurationForCameras
@@ -219,18 +215,6 @@ if(USE_PCL)
     endif()
 else()
     disable_samples("PCL")
-endif()
-
-if(USE_OPEN3D)
-    find_package(Open3D REQUIRED)
-    if(NOT Open3D_FOUND)
-        message(
-            FATAL_ERROR
-            "Open3D not found. Please point Open3D_DIR to the directory of your Open3D installation (containing the file Open3DConfig.cmake), or disable the Open3D samples with -DUSE_O3D=OFF."
-        )
-    endif()
-else()
-    disable_samples("Open3D")
 endif()
 
 if(USE_OPENCV)
@@ -326,10 +310,6 @@ foreach(SAMPLE ${SAMPLES})
         # calls to cv::waitKey(). Intended to be used by automated tests.
         set(CI_WAITKEY_TIMEOUT_IN_MS "0" CACHE STRING "Timeout for cv::waitKey() in milliseconds")
         target_compile_definitions(${SAMPLE_NAME} PRIVATE "CI_WAITKEY_TIMEOUT_IN_MS=${CI_WAITKEY_TIMEOUT_IN_MS}")
-    endif()
-
-    if(${SAMPLE_NAME} IN_LIST Open3D_DEPENDING)
-        target_link_libraries(${SAMPLE_NAME} Open3D::Open3D)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Clipp_DEPENDING)

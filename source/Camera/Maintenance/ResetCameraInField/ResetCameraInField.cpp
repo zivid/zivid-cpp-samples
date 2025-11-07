@@ -4,7 +4,7 @@ Reset infield correction on a camera.
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 */
 
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
+#include <Zivid/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <iomanip>
@@ -20,7 +20,7 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Reset infield correction on the camera" << std::endl;
-        Zivid::Experimental::Calibration::resetCameraCorrection(camera);
+        Zivid::Calibration::resetCameraCorrection(camera);
     }
     catch(const std::exception &e)
     {

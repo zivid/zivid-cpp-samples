@@ -57,7 +57,7 @@ auto camera = zivid.connectCamera();
 ## Configure
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L75))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L104))
 
 ``` sourceCode cpp
 const auto settings = Zivid::Settings(settingsPath);

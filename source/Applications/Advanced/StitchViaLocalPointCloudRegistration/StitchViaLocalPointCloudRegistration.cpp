@@ -18,65 +18,28 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 
 #include <Zivid/Experimental/LocalPointCloudRegistrationParameters.h>
 #include <Zivid/Experimental/Toolbox/PointCloudRegistration.h>
+#include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <Eigen/Core>
-#include <open3d/Open3D.h>
 
 #include <cmath>
+#include <filesystem>
 #include <iostream>
-#include <vector>
 
 namespace
 {
-    open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
+    void visualizePointCloud(const Zivid::UnorganizedPointCloud &unorganizedPointCloud)
     {
-        using namespace open3d::core;
-        auto device = Device("CPU:0");
-        auto xyzTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
-        auto rgbTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
+        Zivid::Visualization::Visualizer visualizer;
 
-        pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
+        visualizer.showMaximized();
+        visualizer.show(unorganizedPointCloud);
+        visualizer.resetToFit();
 
-        // Open3D does not store colors in 8-bit
-        const auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
-        for(size_t i = 0; i < pointCloud.size(); ++i)
-        {
-            const auto r = static_cast<float>(rgbaColors(i).r) / 255.0f;
-            const auto g = static_cast<float>(rgbaColors(i).g) / 255.0f;
-            const auto b = static_cast<float>(rgbaColors(i).b) / 255.0f;
-            rgbTensor.SetItem(TensorKey::Index(i), Tensor::Init({ r, g, b }));
-        }
-
-        open3d::t::geometry::PointCloud cloud(device);
-        cloud.SetPointPositions(xyzTensor);
-        cloud.SetPointColors(rgbTensor);
-        return cloud;
+        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
+        visualizer.run();
     }
-
-
-    void visualizePointCloud(const open3d::t::geometry::PointCloud &cloud)
-    {
-        open3d::visualization::Visualizer visualizer;
-        visualizer.CreateVisualizerWindow("Open3D Viewer", 1024, 768);
-
-        visualizer.AddGeometry(std::make_shared<open3d::geometry::PointCloud>(cloud.ToLegacy()));
-
-        auto &renderOption = visualizer.GetRenderOption();
-        renderOption.background_color_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-        renderOption.point_size_ = 2.0;
-        renderOption.show_coordinate_frame_ = true;
-
-        auto &viewControl = visualizer.GetViewControl();
-        viewControl.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0));
-        viewControl.SetUp(Eigen::Vector3d(0.0, -1.0, 0.0));
-
-        std::cout << "Press h to access the help menu" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
-        visualizer.Run();
-        visualizer.DestroyVisualizerWindow();
-    }
-
 } // namespace
 
 int main()
@@ -116,8 +79,7 @@ int main()
         Zivid::UnorganizedPointCloud unorganizedNotStitchedPointCloud;
         unorganizedNotStitchedPointCloud.extend(unorganizedPointCloud1);
         unorganizedNotStitchedPointCloud.extend(unorganizedPointCloud2);
-        const auto unorganizedNotStitchedPointCloudOpen3D = copyToOpen3D(unorganizedNotStitchedPointCloud);
-        visualizePointCloud(unorganizedNotStitchedPointCloudOpen3D);
+        visualizePointCloud(unorganizedNotStitchedPointCloud);
 
         std::cout << "Estimating transformation between point clouds" << std::endl;
         const auto unorganizedPointCloud1LPCR = unorganizedPointCloud1.voxelDownsampled(1.0, 3);
@@ -132,21 +94,24 @@ int main()
         }
 
         const auto pointCloud1ToPointCloud2Transform = localPointCloudRegistrationResult.transform();
-
-        std::cout << "Stitching and displaying point clouds" << std::endl;
-        Zivid::UnorganizedPointCloud finalPointCloud;
-        finalPointCloud.extend(unorganizedPointCloud1);
         const auto unorganizedPointCloud2Transformed =
             unorganizedPointCloud2.transformed(pointCloud1ToPointCloud2Transform.toMatrix());
+
+        std::cout << "Stitching and displaying painted point clouds to evaluate stitching quality" << std::endl;
+        Zivid::UnorganizedPointCloud finalPointCloud;
+        finalPointCloud.extend(unorganizedPointCloud1);
         finalPointCloud.extend(unorganizedPointCloud2Transformed);
-        const auto stitchedPointCloudOpen3D = copyToOpen3D(finalPointCloud);
-        visualizePointCloud(stitchedPointCloudOpen3D);
+
+        Zivid::UnorganizedPointCloud paintedFinalPointCloud;
+        paintedFinalPointCloud.extend(unorganizedPointCloud1.paintedUniformColor(Zivid::ColorRGBA{ 255, 0, 0, 255 }));
+        paintedFinalPointCloud.extend(
+            unorganizedPointCloud2Transformed.paintedUniformColor(Zivid::ColorRGBA{ 0, 255, 0, 255 }));
+        visualizePointCloud(paintedFinalPointCloud);
 
         std::cout << "Voxel-downsampling the stitched point cloud" << std::endl;
         finalPointCloud = finalPointCloud.voxelDownsampled(2.0, 1);
-        std::cout << "visualize the overllaped point clouds" << std::endl;
-        const auto stitchedDownampledPointCloudOpen3D = copyToOpen3D(finalPointCloud);
-        visualizePointCloud(stitchedDownampledPointCloudOpen3D);
+        std::cout << "Visualize the overlapped point clouds" << std::endl;
+        visualizePointCloud(finalPointCloud);
     }
     catch(const std::exception &e)
     {

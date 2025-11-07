@@ -133,11 +133,11 @@ int main(int argc, char **argv)
         auto camera = zivid.connectCamera();
 
         std::cout << "Creating settings" << std::endl;
-        const auto settings =
-            Zivid::Settings{ Zivid::Settings::Acquisitions{
-                                 Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 } } },
-                             Zivid::Settings::Color{ Zivid::Settings2D{
-                                 Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
+        const auto settings = Zivid::Settings{
+            Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition{} } },
+            Zivid::Settings::Color{
+                Zivid::Settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } }
+        };
 
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);

@@ -106,6 +106,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
                 settingsSubsampled.set(Zivid::Settings::Sampling::Pixel::by2x2);
                 settingsSubsampled.color().value().set(Zivid::Settings2D::Sampling::Pixel::by2x2);
@@ -149,7 +150,13 @@ int main()
             << "Difference between fixed intrinsics and estimated intrinsics for different apertures and temperatures:"
             << std::endl;
 
-        for(const auto aperture : { 5.66, 4.00, 2.83 })
+        std::vector<double> apertures = { 5.66, 4.00, 2.83 };
+        if(camera.info().model().value() == Zivid::CameraInfo::Model::ValueType::zivid3XL250)
+        {
+            apertures = { 3.00, 3.00, 3.00 };
+        }
+
+        for(const auto aperture : apertures)
         {
             const auto settings = Zivid::Settings{
                 Zivid::Settings::Acquisitions{

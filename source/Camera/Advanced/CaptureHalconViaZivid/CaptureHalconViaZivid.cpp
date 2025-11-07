@@ -38,6 +38,7 @@ namespace
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
                 settings.set(Zivid::Settings::Sampling::Pixel::by2x2);
                 settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::by2x2);

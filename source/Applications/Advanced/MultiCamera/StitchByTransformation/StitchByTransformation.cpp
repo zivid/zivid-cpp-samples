@@ -5,12 +5,11 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 */
 
 #include <Zivid/Experimental/PointCloudExport.h>
-#include <Zivid/Experimental/SettingsInfo.h>
+#include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
 #include <Eigen/Core>
 #include <clipp.h>
-#include <open3d/Open3D.h>
 
 #include <cmath>
 #include <iostream>
@@ -33,6 +32,7 @@ namespace
             case Model::zivid2PlusMR130: return "Zivid_Two_Plus_MR130";
             case Model::zivid2PlusMR60: return "Zivid_Two_Plus_MR60";
             case Model::zivid2PlusLR110: return "Zivid_Two_Plus_LR110";
+            case Model::zivid3XL250: return "Zivid_Three_XL250";
             case Model::zividOnePlusSmall: return "Zivid_One_Plus_Small";
             case Model::zividOnePlusMedium: return "Zivid_One_Plus_Medium";
             case Model::zividOnePlusLarge: return "Zivid_One_Plus_Large";
@@ -89,53 +89,18 @@ namespace
         return connectedCameras;
     }
 
-    open3d::t::geometry::PointCloud copyToOpen3D(const Zivid::UnorganizedPointCloud &pointCloud)
+    void visualizePointCloud(const Zivid::UnorganizedPointCloud &unorganizedPointCloud)
     {
-        using namespace open3d::core;
-        auto device = Device("CPU:0");
-        auto xyzTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
-        auto rgbTensor = Tensor({ static_cast<int64_t>(pointCloud.size()), 3 }, Dtype::Float32, device);
+        Zivid::Visualization::Visualizer visualizer;
 
-        pointCloud.copyData(reinterpret_cast<Zivid::PointXYZ *>(xyzTensor.GetDataPtr<float>()));
+        visualizer.showMaximized();
+        visualizer.show(unorganizedPointCloud);
+        visualizer.resetToFit();
 
-        // Open3D does not store colors in 8-bit
-        const auto rgbaColors = pointCloud.copyColorsRGBA_SRGB();
-        for(size_t i = 0; i < pointCloud.size(); ++i)
-        {
-            const auto r = static_cast<float>(rgbaColors(i).r) / 255.0f;
-            const auto g = static_cast<float>(rgbaColors(i).g) / 255.0f;
-            const auto b = static_cast<float>(rgbaColors(i).b) / 255.0f;
-            rgbTensor.SetItem(TensorKey::Index(i), Tensor::Init({ r, g, b }));
-        }
-
-        open3d::t::geometry::PointCloud cloud(device);
-        cloud.SetPointPositions(xyzTensor);
-        cloud.SetPointColors(rgbTensor);
-        return cloud;
+        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
+        visualizer.run();
     }
 
-
-    void visualizePointCloud(const open3d::t::geometry::PointCloud &cloud)
-    {
-        open3d::visualization::Visualizer visualizer;
-        visualizer.CreateVisualizerWindow("Open3D Viewer", 1024, 768);
-
-        visualizer.AddGeometry(std::make_shared<open3d::geometry::PointCloud>(cloud.ToLegacy()));
-
-        auto &renderOption = visualizer.GetRenderOption();
-        renderOption.background_color_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-        renderOption.point_size_ = 1.0;
-        renderOption.show_coordinate_frame_ = true;
-
-        auto &viewControl = visualizer.GetViewControl();
-        viewControl.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0));
-        viewControl.SetUp(Eigen::Vector3d(0.0, -1.0, 0.0));
-
-        std::cout << "Press h to access the help menu" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
-        visualizer.Run(); // Block until window closed
-        visualizer.DestroyVisualizerWindow();
-    }
 } // namespace
 
 int main(int argc, char **argv)
@@ -187,12 +152,8 @@ int main(int argc, char **argv)
         std::cout << "Voxel-downsampling the stitched point cloud" << std::endl;
         const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);
 
-        std::cout << "Copying the stitched point cloud to Open3D" << std::endl;
-        const auto pointCloudOpen3D = copyToOpen3D(finalPointCloud);
-
-        std::cout << "Visualizing the stitched point cloud (" << pointCloudOpen3D.GetPointPositions().GetLength()
-                  << " data points)" << std::endl;
-        visualizePointCloud(pointCloudOpen3D);
+        std::cout << "Visualizing the stitched point cloud (" << finalPointCloud.size() << " data points)" << std::endl;
+        visualizePointCloud(finalPointCloud);
 
         if(saveStitched)
         {

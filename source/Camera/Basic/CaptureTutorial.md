@@ -15,6 +15,7 @@ tutorial see:
 [**Configure**](#Configure) |
 [**Capture**](#Capture-2D3D) |
 [**Save**](#Save) |
+[**File**](#File-Camera) |
 [**Multithreading**](#Multithreading) |
 [**Conclusion**](#Conclusion)
 
@@ -100,56 +101,6 @@ for(auto &camera : cameras)
 }
 ```
 
-### File Camera
-
-The file camera option allows you to experiment with the SDK without
-access to a physical camera. The file cameras can be found in [Sample
-Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html)
-where there are multiple file cameras to choose from. Each file camera
-demonstrates a use case within one of the main applications of the
-respective camera model. The example below shows how to create a file
-camera using the Zivid 2 M70 file camera from [Sample
-Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html).
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L36-L37))
-
-``` sourceCode cpp
-const auto fileCamera =
-	userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZivid2PlusMR60.zfc";
-```
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L40))
-
-``` sourceCode cpp
-auto camera = zivid.createFileCamera(fileCamera);
-```
-
-The acquisition settings should be initialized like shown below, but you
-are free to alter the processing settings.
-
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L43-L55))
-
-``` sourceCode cpp
-Zivid::Settings settings{
-	Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
-	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
-	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
-	Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
-};
-Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
-							Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
-							Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
-							Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
-settings.color() = Zivid::Settings::Color{ settings2D };
-```
-
-You can read more about the file camera option in [File
-Camera](https://support.zivid.com/latest/academy/camera/file-camera.html).
-
 ## Configure
 
 As with all cameras there are settings that can be configured.
@@ -170,7 +121,7 @@ You can export camera settings to .yml files from Zivid Studio. These
 can be loaded and applied in the API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L218-L223))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L285-L290))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -183,7 +134,7 @@ const auto settingsFromFile = Zivid::Settings(settingsFile);
 You can also save settings to .yml file.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L218-L220))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L285-L287))
 
 ``` sourceCode cpp
 const auto settingsFile = "Settings.yml";
@@ -215,34 +166,39 @@ const auto settings =
 
 #### Multi Acquisition HDR
 
-We may also create settings to be used in a multi-acquisition HDR
+We may also create settings with multiple acquisitions for an HDR
 capture.
 
-([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Advanced/CaptureHDRPrintNormals/CaptureHDRPrintNormals.cpp#L39-L47))
+([go to source]())
 
 ``` sourceCode cpp
+using std::chrono::microseconds;
 Zivid::Settings settings;
-for(const auto aperture : { 5.66, 4.00, 2.59 })
+for(const auto exposure : { microseconds{ 1000 }, microseconds{ 10000 } })
 {
-	std::cout << "Adding acquisition with aperture = " << aperture << std::endl;
+	std::cout << "Adding acquisition with exposure time of " << exposure.count() << " microseconds "
+			<< std::endl;
 	const auto acquisitionSettings = Zivid::Settings::Acquisition{
-		Zivid::Settings::Acquisition::Aperture{ aperture },
+		Zivid::Settings::Acquisition::ExposureTime{ exposure },
 	};
 	settings.acquisitions().emplaceBack(acquisitionSettings);
 }
 ```
 
-Fully configured settings are demonstrated below.
+#### Fully Configured Settings
+
+2D Settings, such as color balance and gamma, configured manually:
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L112-L206))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L183-L196))
 
 ``` sourceCode cpp
 std::cout << "Configuring settings for capture:" << std::endl;
 Zivid::Settings2D settings2D{
 	Zivid::Settings2D::Sampling::Color::rgb,
 	Zivid::Settings2D::Sampling::Pixel::all,
+	Zivid::Settings2D::Sampling::Interval::Enabled::no,
+	Zivid::Settings2D::Sampling::Interval::Duration{ microseconds{ 10000 } },
 Zivid::Settings2D::Processing::Color::Balance::Blue{ 1.0 },
 Zivid::Settings2D::Processing::Color::Balance::Green{ 1.0 },
 Zivid::Settings2D::Processing::Color::Balance::Red{ 1.0 },
@@ -252,97 +208,97 @@ Zivid::Settings2D::Processing::Color::Experimental::Mode::automatic,
 ```
 
 > };
-> 
->   - Zivid::Settings settings{  
->     Zivid::Settings::Color{ settings2D },
->     
->     Zivid::Settings::Engine::phase,
->     
->     Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
->     Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000
->     }, Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000,
->     1000 }, Zivid::Settings::RegionOfInterest::Box::PointB{ -1000,
->     1000, 1000 }, Zivid::Settings::RegionOfInterest::Box::Extents{
->     -1000, 1000 },
->     
->     Zivid::Settings::RegionOfInterest::Depth::Enabled::yes,
->     Zivid::Settings::RegionOfInterest::Depth::Range{ 200, 2000 },
->     
->     Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{
->     10 },
->     Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{
->     100 },
->     
->     Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2
->     }, Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{
->     1 },
->     
->     Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{
->     7.0 },
->     
->     Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
->     
->     Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{
->     5.0 },
->     
->     Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
->     
->     Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{
->     1.5 },
->     
->     Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
->     Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{
->     0.4 },
->     
->     Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
->     Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{
->     0.5 },
->     
->     Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
->     
->     Zivid::Settings::Diagnostics::Enabled::no,
-> 
-> };
-> 
-> setSamplingPixel(settings, camera); std::cout \<\< settings \<\<
-> std::endl; std::cout \<\< "Configuring base acquisition with settings
-> same for all HDR acquisition:" \<\< std::endl; const auto
-> baseAcquisition = Zivid::Settings::Acquisition{}; std::cout \<\<
-> baseAcquisition \<\< std::endl; const auto baseAquisition2D =
-> Zivid::Settings2D::Acquisition{};
-> 
-> std::cout \<\< "Configuring acquisition settings different for all HDR
-> acquisitions" \<\< std::endl; auto exposureValues =
-> getExposureValues(camera); const std::vector\<double\> aperture =
-> std::get\<0\>(exposureValues); const std::vector\<double\> gain =
-> std::get\<1\>(exposureValues); const
-> std::vector\<std::chrono::microseconds\> exposureTime =
-> std::get\<2\>(exposureValues); const std::vector\<double\> brightness
-> = std::get\<3\>(exposureValues); for(size\_t i = 0; i \<
-> aperture.size(); ++i) { std::cout \<\< "Acquisition " \<\< i + 1 \<\<
-> ":" \<\< std::endl; std::cout \<\< " Exposure Time: " \<\<
-> exposureTime.at(i).count() \<\< std::endl; std::cout \<\< " Aperture:
-> " \<\< aperture.at(i) \<\< std::endl; std::cout \<\< " Gain: " \<\<
-> gain.at(i) \<\< std::endl; std::cout \<\< " Brightness: " \<\<
-> brightness.at(i) \<\< std::endl; const auto acquisitionSettings =
-> baseAcquisition.copyWith( Zivid::Settings::Acquisition::Aperture{
-> aperture.at(i) }, Zivid::Settings::Acquisition::Gain{ gain.at(i) },
-> Zivid::Settings::Acquisition::ExposureTime{ exposureTime.at(i) },
-> Zivid::Settings::Acquisition::Brightness{ brightness.at(i) });
-> settings.acquisitions().emplaceBack(acquisitionSettings); } const auto
-> acquisitionSettings2D = baseAquisition2D.copyWith(
-> Zivid::Settings2D::Acquisition::Aperture{ 2.83 },
-> Zivid::Settings2D::Acquisition::ExposureTime{ microseconds{ 10000 } },
-> Zivid::Settings2D::Acquisition::Brightness{ 1.8 },
-> Zivid::Settings2D::Acquisition::Gain{ 1.0 });
-> settings.color().value().acquisitions().emplaceBack(acquisitionSettings2D);
+
+Manually configured 3D settings such as engine, region of interest,
+filter settings and more:
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L197-L247))
+
+``` sourceCode cpp
+Zivid::Settings settings{
+	Zivid::Settings::Color{ settings2D },
+
+	Zivid::Settings::Engine::stripe,
+
+	Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+	Zivid::Settings::RegionOfInterest::Box::PointO{ 1000, 1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::PointA{ 1000, -1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::PointB{ -1000, 1000, 1000 },
+	Zivid::Settings::RegionOfInterest::Box::Extents{ -1000, 1000 },
+
+	Zivid::Settings::RegionOfInterest::Depth::Enabled::yes,
+	Zivid::Settings::RegionOfInterest::Depth::Range{ 200, 2000 },
+
+	Zivid::Settings::Processing::Filters::Cluster::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Cluster::Removal::MaxNeighborDistance{ 10 },
+	Zivid::Settings::Processing::Filters::Cluster::Removal::MinArea{ 100 },
+
+	Zivid::Settings::Processing::Filters::Hole::Repair::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Hole::Repair::HoleSize{ 0.2 },
+	Zivid::Settings::Processing::Filters::Hole::Repair::Strictness{ 1 },
+
+	Zivid::Settings::Processing::Filters::Noise::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Noise::Removal::Threshold{ 7.0 },
+
+	Zivid::Settings::Processing::Filters::Noise::Suppression::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Noise::Repair::Enabled::yes,
+
+	Zivid::Settings::Processing::Filters::Outlier::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Outlier::Removal::Threshold{ 5.0 },
+
+	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+
+	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+
+	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Correction::Strength{ 0.4 },
+
+	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Enabled::no,
+	Zivid::Settings::Processing::Filters::Experimental::ContrastDistortion::Removal::Threshold{ 0.5 },
+
+	Zivid::Settings::Processing::Resampling::Mode::upsample2x2,
+
+	Zivid::Settings::Diagnostics::Enabled::no,
+};
+
+setSamplingPixel(settings, camera);
+std::cout << settings << std::endl;
+```
+
+Different values per acquisition are also possible:
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp#L249-L273))
+
+``` sourceCode cpp
+std::cout << "Configuring acquisition settings different for all HDR acquisitions" << std::endl;
+const auto baseAcquisition = Zivid::Settings::Acquisition{};
+std::cout << baseAcquisition << std::endl;
+auto exposureValues = getExposureValues(camera);
+const std::vector<double> aperture = std::get<0>(exposureValues);
+const std::vector<double> gain = std::get<1>(exposureValues);
+const std::vector<std::chrono::microseconds> exposureTime = std::get<2>(exposureValues);
+const std::vector<double> brightness = std::get<3>(exposureValues);
+for(size_t i = 0; i < aperture.size(); ++i)
+{
+	std::cout << "Acquisition " << i + 1 << ":" << std::endl;
+	std::cout << "  Exposure Time: " << exposureTime.at(i).count() << std::endl;
+	std::cout << "  Aperture: " << aperture.at(i) << std::endl;
+	std::cout << "  Gain: " << gain.at(i) << std::endl;
+	std::cout << "  Brightness: " << brightness.at(i) << std::endl;
+	const auto acquisitionSettings = baseAcquisition.copyWith(
+		Zivid::Settings::Acquisition::Aperture{ aperture.at(i) },
+		Zivid::Settings::Acquisition::Gain{ gain.at(i) },
+		Zivid::Settings::Acquisition::ExposureTime{ exposureTime.at(i) },
+		Zivid::Settings::Acquisition::Brightness{ brightness.at(i) });
+	settings.acquisitions().emplaceBack(acquisitionSettings);
+}
+const auto aquisitionSettings2D = makeSettings2D(camera).acquisitions();
+settings.color().value().set(aquisitionSettings2D);
+```
 
 ## Capture 2D3D
 
@@ -367,7 +323,7 @@ If we only want to capture 3D, the points cloud without color, we can do
 so via the `capture3D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L116))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L145))
 
 ``` sourceCode cpp
 const auto frame3D = camera.capture3D(settings);
@@ -379,7 +335,7 @@ If we only want to capture a 2D image, which is faster than 3D, we can
 do so via the `capture2D` API.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L79))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L108))
 
 ``` sourceCode cpp
 const auto frame2D = camera.capture2D(settings);
@@ -441,7 +397,7 @@ the function name then the returned image will be in the sRGB color
 space
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L86))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L115))
 
 ``` sourceCode cpp
 const auto imageRGBA = frame2D.imageRGBA();
@@ -449,7 +405,7 @@ const auto imageRGBA = frame2D.imageRGBA();
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L100))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L129))
 
 ``` sourceCode cpp
 const auto imageSRGB = frame2D.imageRGBA_SRGB();
@@ -458,7 +414,7 @@ const auto imageSRGB = frame2D.imageRGBA_SRGB();
 Then, we can save the 2D image in linear RGB or sRGB color space.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L87-L89))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L116-L118))
 
 ``` sourceCode cpp
 const auto imageFile = "ImageRGBA_linear.png";
@@ -468,7 +424,7 @@ imageRGBA.save(imageFile);
 ```
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L101-L103))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp#L130-L132))
 
 ``` sourceCode cpp
 const auto imageFile = "ImageRGBA_sRGB.png";
@@ -496,6 +452,54 @@ resolution given by the 2D settings inside the 2D3D settings.
 ``` sourceCode cpp
 const auto image2D = frame.frame2D().value().imageBGRA_SRGB();
 ```
+
+## File Camera
+
+A [file
+camera](https://support.zivid.com/latest//academy/camera/file-camera.html)
+allows you to experiment with the SDK without access to a physical
+camera. The file cameras can be found in [Sample
+Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html)
+where there are multiple file cameras to choose from.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L36-L37))
+
+``` sourceCode cpp
+const auto fileCamera =
+	userInput ? fileCameraPath : std::string(ZIVID_SAMPLE_DATA_DIR) + "/FileCameraZivid2PlusMR60.zfc";
+```
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L40))
+
+``` sourceCode cpp
+auto camera = zivid.createFileCamera(fileCamera);
+```
+
+The acquisition settings should be initialized like shown below, but you
+are free to alter the processing settings.
+
+([go to
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp#L43-L55))
+
+``` sourceCode cpp
+Zivid::Settings settings{
+	Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
+	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Smoothing::Gaussian::Sigma{ 1.5 },
+	Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
+	Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
+};
+Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
+							Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
+							Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
+							Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
+settings.color() = Zivid::Settings::Color{ settings2D };
+```
+
+You can read more about the file camera option in [File
+Camera](https://support.zivid.com/latest/academy/camera/file-camera.html).
 
 ## Multithreading
 

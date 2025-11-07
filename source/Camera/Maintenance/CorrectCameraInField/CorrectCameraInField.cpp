@@ -13,7 +13,7 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 */
 
 #include <Zivid/Calibration/Detector.h>
-#include <Zivid/Experimental/Calibration/InfieldCorrection.h>
+#include <Zivid/Calibration/InfieldCorrection.h>
 #include <Zivid/Zivid.h>
 
 #include <algorithm>
@@ -44,9 +44,9 @@ namespace
         }
     }
 
-    std::vector<Zivid::Experimental::Calibration::InfieldCorrectionInput> collectDataset(Zivid::Camera &camera)
+    std::vector<Zivid::Calibration::InfieldCorrectionInput> collectDataset(Zivid::Camera &camera)
     {
-        std::vector<Zivid::Experimental::Calibration::InfieldCorrectionInput> dataset;
+        std::vector<Zivid::Calibration::InfieldCorrectionInput> dataset;
         std::cout << "Please point the camera at a Zivid infield calibration board. " << std::endl;
 
         const std::string printLine = "------------------------------------------------------------------------";
@@ -59,7 +59,7 @@ namespace
                 const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(camera);
                 if(detectionResult.valid())
                 {
-                    const auto input = Zivid::Experimental::Calibration::InfieldCorrectionInput{ detectionResult };
+                    const auto input = Zivid::Calibration::InfieldCorrectionInput{ detectionResult };
 
                     if(input.valid())
                     {
@@ -107,7 +107,7 @@ int main()
         // Calculate infield correction
         std::cout << "Collected " << dataset.size() << " valid measurements." << std::endl;
         std::cout << "Computing new camera correction..." << std::endl;
-        const auto correction = Zivid::Experimental::Calibration::computeCameraCorrection(dataset);
+        const auto correction = Zivid::Calibration::computeCameraCorrection(dataset);
         const auto accuracyEstimate = correction.accuracyEstimate();
         std::cout
             << "If written to the camera, this correction can be expected to yield a dimension accuracy error of "
@@ -121,7 +121,7 @@ int main()
         if(yesNoPrompt("Save to camera?"))
         {
             std::cout << "Writing camera correction..." << std::endl;
-            Zivid::Experimental::Calibration::writeCameraCorrection(camera, correction);
+            Zivid::Calibration::writeCameraCorrection(camera, correction);
             std::cout << "Success" << std::endl;
         }
     }
