@@ -153,6 +153,7 @@ set(Clipp_DEPENDING
     CaptureWritePCLVis3D
     GammaCorrection
     Warmup
+    HandEyeCalibration
 )
 set(GenTL_DEPENDING CaptureViaGenICam)
 set(Thread_DEPENDING
