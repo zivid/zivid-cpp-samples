@@ -9,11 +9,63 @@ Perform Hand-Eye calibration.
 #include <Zivid/Exception.h>
 #include <Zivid/Zivid.h>
 
+#include <clipp.h>
 #include <iostream>
 #include <stdexcept>
 
 namespace
 {
+    std::string presetPath(const Zivid::Camera &camera)
+    {
+        const std::string presetsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings";
+
+        switch(camera.info().model().value())
+        {
+            case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            {
+                return presetsPath + "/Zivid_Two_M70_ManufacturingSpecular.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
+            {
+                return presetsPath + "/Zivid_Two_L100_ManufacturingSpecular.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_M130_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            {
+                return presetsPath + "/Zivid_Two_Plus_M60_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
+            {
+                return presetsPath + "/Zivid_Two_Plus_L110_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR130_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR60_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                return presetsPath + "/Zivid_Two_Plus_LR110_ConsumerGoodsQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
+            {
+                return presetsPath + "/Zivid_Three_XL250_DepalletizationQuality.yml";
+            }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
+
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
+    }
+
     enum class CommandType
     {
         AddPose,
@@ -62,16 +114,6 @@ namespace
         return robotPose;
     }
 
-    Zivid::Frame assistedCapture(Zivid::Camera &camera)
-    {
-        const auto parameters = Zivid::CaptureAssistant::SuggestSettingsParameters{
-            Zivid::CaptureAssistant::SuggestSettingsParameters::AmbientLightFrequency::none,
-            Zivid::CaptureAssistant::SuggestSettingsParameters::MaxCaptureTime{ std::chrono::milliseconds{ 800 } }
-        };
-        const auto settings = Zivid::CaptureAssistant::suggestSettings(camera, parameters);
-        return camera.capture2D3D(settings);
-    }
-
     std::string markersToString(const std::vector<int> &markerIds)
     {
         std::ostringstream oss;
@@ -86,14 +128,15 @@ namespace
         size_t &currentPoseId,
         std::vector<Zivid::Calibration::HandEyeInput> &handEyeInput,
         Zivid::Camera &camera,
-        const std::string &calibrationObject)
+        const std::string &calibrationObject,
+        const Zivid::Settings &settings)
     {
         const auto robotPose = enterRobotPose(currentPoseId);
 
         std::cout << "Detecting calibration object in point cloud" << std::endl;
         if(calibrationObject == "c")
         {
-            const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
+            const auto frame = camera.capture2D3D(settings);
             const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
 
             if(detectionResult.valid())
@@ -109,7 +152,7 @@ namespace
         }
         else if(calibrationObject == "m")
         {
-            const auto frame = assistedCapture(camera);
+            const auto frame = camera.capture2D3D(settings);
 
             auto markerDictionary = Zivid::Calibration::MarkerDictionary::aruco4x4_50;
             std::vector<int> markerIds = { 1, 2, 3 };
@@ -133,7 +176,9 @@ namespace
         }
     }
 
-    std::vector<Zivid::Calibration::HandEyeInput> readHandEyeInputs(Zivid::Camera &camera)
+    std::vector<Zivid::Calibration::HandEyeInput> readHandEyeInputs(
+        Zivid::Camera &camera,
+        const Zivid::Settings &settings)
     {
         size_t currentPoseId{ 0 };
         bool calibrate{ false };
@@ -164,7 +209,7 @@ namespace
                 {
                     try
                     {
-                        handleAddPose(currentPoseId, handEyeInput, camera, calibrationObject);
+                        handleAddPose(currentPoseId, handEyeInput, camera, calibrationObject, settings);
                     }
                     catch(const std::exception &e)
                     {
@@ -215,16 +260,40 @@ namespace
     }
 } // namespace
 
-int main()
+int main(int argc, char *argv[])
 {
     try
     {
+        std::string settingsPath;
+        bool showHelp = false;
+
+        auto cli =
+            (clipp::option("-h", "--help").set(showHelp) % "Show help message",
+             clipp::option("--settings-path")
+                 & clipp::value("path", settingsPath) % "Path to the camera settings YML file");
+
+        if(!clipp::parse(argc, argv, cli) || showHelp)
+        {
+            auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
+            std::cout << "USAGE:" << std::endl;
+            std::cout << clipp::usage_lines(cli, argv[0], fmt) << std::endl;
+            std::cout << "OPTIONS:" << std::endl;
+            std::cout << clipp::documentation(cli) << std::endl;
+            return showHelp ? EXIT_SUCCESS : EXIT_FAILURE;
+        }
+
         Zivid::Application zivid;
 
         std::cout << "Connecting to camera" << std::endl;
         auto camera{ zivid.connectCamera() };
 
-        const auto handEyeInput{ readHandEyeInputs(camera) };
+        if(settingsPath.empty())
+        {
+            settingsPath = presetPath(camera);
+        }
+        const auto settings = Zivid::Settings(settingsPath);
+
+        const auto handEyeInput{ readHandEyeInputs(camera, settings) };
 
         const auto calibrationResult{ performCalibration(handEyeInput) };
 
