@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.17.1. For
+This repository contains cpp code samples for Zivid SDK v2.17.2. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying
 releases](https://github.com/zivid/zivid-cpp-samples/tree/master/../../releases).
