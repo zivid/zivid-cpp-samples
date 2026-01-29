@@ -5,8 +5,43 @@ Capture and save a point cloud, with colors, using GenICam interface and Halcon 
 #include <Zivid/Zivid.h>
 #include <halconcpp/HalconCpp.h>
 
-#include <chrono>
 #include <iostream>
+
+std::string presetPath(const std::string &model)
+{
+    const std::string presetsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings";
+
+    if(model.find("zividTwoL100") != std::string::npos)
+        return presetsPath + "/Zivid_Two_L100_ManufacturingSpecular.yml";
+
+    if(model.find("zividTwo") != std::string::npos) return presetsPath + "/Zivid_Two_M70_ManufacturingSpecular.yml";
+
+    if(model.find("zivid2PlusM130") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_M130_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid2PlusM60") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_M60_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid2PlusL110") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_L110_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid2PlusMR130") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_MR130_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid2PlusMR60") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_MR60_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid2PlusLR110") != std::string::npos)
+        return presetsPath + "/Zivid_Two_Plus_LR110_ConsumerGoodsQuality.yml";
+
+    if(model.find("zivid3XL250") != std::string::npos)
+        return presetsPath + "/Zivid_Three_XL250_DepalletizationQuality.yml";
+
+    if(model.find("zividOnePlus") != std::string::npos)
+        throw std::runtime_error("Unsupported Zivid One+ model: " + model);
+
+    throw std::invalid_argument("Invalid camera model: " + model);
+}
 
 void savePointCloud(const HalconCpp::HObjectModel3D &model, const std::string &fileName)
 {
@@ -77,12 +112,14 @@ int main()
         std::cout << "Configuring settings" << std::endl;
         HalconCpp::SetFramegrabberParam(framegrabber, "create_objectmodel3d", "enable");
         HalconCpp::SetFramegrabberParam(framegrabber, "add_objectmodel3d_overlay_attrib", "enable");
-        HalconCpp::SetFramegrabberParam(framegrabber, "AcquisitionMode", "SingleFrame");
 
-        HalconCpp::SetFramegrabberParam(framegrabber, "Aperture", 3.0);
-        HalconCpp::SetFramegrabberParam(framegrabber, "ExposureTime", 5000);
-        HalconCpp::SetFramegrabberParam(framegrabber, "Gain", 1);
-        HalconCpp::SetFramegrabberParam(framegrabber, "Brightness", 1.8);
+        HalconCpp::HTuple modelTuple;
+        HalconCpp::GetFramegrabberParam(framegrabber, "CameraInfoModel", &modelTuple);
+
+        const std::string modelName = modelTuple.ToString().Text();
+        const HalconCpp::HString settingFile(presetPath(modelName).c_str());
+
+        HalconCpp::SetFramegrabberParam(framegrabber, "LoadSettingsFromFile", settingFile);
 
         std::cout << "Capturing frame" << std::endl;
         auto region = HalconCpp::HRegion();

@@ -6,54 +6,59 @@ Capture a point cloud, with colors, using Zivid SDK, transform it to a Halcon po
 #include <halconcpp/HalconCpp.h>
 
 #include <algorithm>
-#include <chrono>
 #include <iostream>
 
 namespace
 {
-    Zivid::Settings get2DAnd3DSettings(const Zivid::Camera &camera)
+    std::string presetPath(const Zivid::Camera &camera)
     {
-        auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-                                         Zivid::Settings::Color{ Zivid::Settings2D{
-                                             Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
+        const std::string presetsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings";
 
-        auto model = camera.info().model();
-        switch(model.value())
+        switch(camera.info().model().value())
         {
             case Zivid::CameraInfo::Model::ValueType::zividTwo:
+            {
+                return presetsPath + "/Zivid_Two_M70_ManufacturingSpecular.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zividTwoL100:
             {
-                settings.set(Zivid::Settings::Sampling::Pixel::all);
-                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::all);
-                break;
+                return presetsPath + "/Zivid_Two_L100_ManufacturingSpecular.yml";
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_M130_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusM60:
+            {
+                return presetsPath + "/Zivid_Two_Plus_M60_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusL110:
             {
-                settings.set(Zivid::Settings::Sampling::Pixel::blueSubsample2x2);
-                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::blueSubsample2x2);
-                break;
+                return presetsPath + "/Zivid_Two_Plus_L110_ConsumerGoodsQuality.yml";
             }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR130:
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR130_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusMR60:
+            {
+                return presetsPath + "/Zivid_Two_Plus_MR60_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid2PlusLR110:
+            {
+                return presetsPath + "/Zivid_Two_Plus_LR110_ConsumerGoodsQuality.yml";
+            }
             case Zivid::CameraInfo::Model::ValueType::zivid3XL250:
             {
-                settings.set(Zivid::Settings::Sampling::Pixel::by2x2);
-                settings.color().value().set(Zivid::Settings2D::Sampling::Pixel::by2x2);
-                break;
+                return presetsPath + "/Zivid_Three_XL250_DepalletizationQuality.yml";
             }
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusSmall:
             case Zivid::CameraInfo::Model::ValueType::zividOnePlusMedium:
-            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge:
-            {
-                throw std::runtime_error("Unsupported camera model '" + model.toString() + "'");
-            }
-            default: throw std::runtime_error("Unhandled enum value '" + model.toString() + "'");
-        }
+            case Zivid::CameraInfo::Model::ValueType::zividOnePlusLarge: break;
 
-        return settings;
+            default: throw std::runtime_error("Unhandled enum value '" + camera.info().model().toString() + "'");
+        }
+        throw std::invalid_argument("Invalid camera model");
     }
 
     void savePointCloud(const HalconCpp::HObjectModel3D &model, const std::string &fileName)
@@ -77,7 +82,7 @@ namespace
 
         if(colorsRGBA.height() != height || colorsRGBA.width() != width)
         {
-            throw std::runtime_error("Color image size does not match point cloud size");
+            throw std::runtime_error("the 2D image resolution must match the 3D point cloud resolution");
         }
 
         int numberOfValidPoints =
@@ -175,7 +180,8 @@ int main()
         auto camera = zivid.connectCamera();
 
         std::cout << "Configuring capture settings" << std::endl;
-        const auto settings = get2DAnd3DSettings(camera);
+        const auto settingsPath = presetPath(camera);
+        const auto settings = Zivid::Settings(settingsPath);
 
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);
