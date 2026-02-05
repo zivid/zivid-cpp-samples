@@ -1,0 +1,13 @@
+[package]
+name = "zivid"
+version = "0.1.0"
+edition = "2021"
+authors = ["Zivid"]
+description = "Rust wrapper for Zivid C API"
+license = "BSD-3-Clause"
+
+[dependencies]
+
+[[bin]]
+name = "single_capture"
+path = "src/bin/single_capture.rs"
