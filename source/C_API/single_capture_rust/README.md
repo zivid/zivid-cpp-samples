@@ -7,6 +7,9 @@ built in [../../../../build/C_API/CoreCAPI/]
 
 ## Building and running the Rust Wrapper
 
+Make sure you have the [latest sample data](https://support.zivid.com/en/latest/api-reference/samples/sample-data.html)
+then from this folder run:
+
 ```shell
 cd zivid
 LD_LIBRARY_PATH=../../../../build/C_API/CoreCAPI/ cargo run
