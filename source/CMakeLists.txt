@@ -23,6 +23,7 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
+option(BUILD_C_API "Build the C API" ON)
 
 set(SAMPLES
     Camera/Basic/Capture
@@ -265,6 +266,11 @@ if(USE_HALCON)
     find_package(HDevEngine REQUIRED)
 else()
     disable_samples("Halcon")
+endif()
+
+
+if(BUILD_C_API)
+    add_subdirectory(C_API)
 endif()
 
 message(STATUS "All samples: ${SAMPLES}")

@@ -1,0 +1,2 @@
+add_subdirectory(CoreCAPI)
+add_subdirectory(SingleCaptureCAPI)

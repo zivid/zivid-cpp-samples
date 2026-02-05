@@ -1,0 +1,13 @@
+project(SingleCaptureCAPI LANGUAGES C)
+
+set(SOURCES SingleCaptureCAPI.c)
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} PRIVATE CoreCAPI)
+if(WIN32)
+    set(ZIVID_SAMPLE_DATA_DIR "C:/ProgramData/Zivid")
+elseif(UNIX)
+    set(ZIVID_SAMPLE_DATA_DIR "/usr/share/Zivid/data")
+else()
+    message(FATAL_ERROR "Unsupported operating system")
+endif()
+target_compile_definitions(${PROJECT_NAME} PRIVATE ZIVID_SAMPLE_DATA_DIR="${ZIVID_SAMPLE_DATA_DIR}")
