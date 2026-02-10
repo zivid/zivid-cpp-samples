@@ -24,6 +24,10 @@ namespace
         using Model = Zivid::CameraInfo::Model::ValueType;
         switch(camera.info().model().value())
         {
+            // Not using [[fallthrough]] because of clang-tidy bug: https://github.com/llvm/llvm-project/issues/47588
+            case Model::zividOnePlusSmall:  // intentional fallthrough
+            case Model::zividOnePlusMedium: // intentional fallthrough
+            case Model::zividOnePlusLarge: throw std::invalid_argument("Invalid camera model");
             case Model::zividTwo: return "Zivid_Two_M70";
             case Model::zividTwoL100: return "Zivid_Two_L100";
             case Model::zivid2PlusM130: return "Zivid_Two_Plus_M130";
@@ -33,9 +37,6 @@ namespace
             case Model::zivid2PlusMR60: return "Zivid_Two_Plus_MR60";
             case Model::zivid2PlusLR110: return "Zivid_Two_Plus_LR110";
             case Model::zivid3XL250: return "Zivid_Three_XL250";
-            case Model::zividOnePlusSmall: return "Zivid_One_Plus_Small";
-            case Model::zividOnePlusMedium: return "Zivid_One_Plus_Medium";
-            case Model::zividOnePlusLarge: return "Zivid_One_Plus_Large";
 
             default: throw std::runtime_error("Unhandled camera model: " + camera.info().model().toString());
         }
@@ -107,25 +108,38 @@ int main(int argc, char **argv)
 {
     try
     {
-        Zivid::Application zivid;
-
+        bool showHelp = false;
         auto transformationMatricesfileList = std::vector<std::string>{};
         std::string stitchedPointCloudFileName;
-        auto saveStitched = false;
-        auto cli = (clipp::values("File Names", transformationMatricesfileList)
-                        % "List of YAML files containing the corresponding transformation matrices.",
-                    clipp::required("-o", "--output-file").set(saveStitched)
-                        % "Save the stitched point cloud to a file with this name. (.ply)")
-                   & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName);
+        std::string settingsPath;
+        auto cli =
+            (clipp::option("-h", "--help").set(showHelp) % "Show help message",
+             clipp::values("File Names", transformationMatricesfileList)
+                 % "List of YAML files containing the corresponding transformation matrices",
+             clipp::option("-o", "--output-file")
+                 & clipp::value("Output point cloud (PLY) file name", stitchedPointCloudFileName)
+                       % "Save the stitched point cloud to a file with this name (.ply)",
+             clipp::option("--settings-path")
+                 & clipp::value("path", settingsPath) % "Path to the camera settings YML file");
 
-        if(!parse(argc, argv, cli))
+        if(!parse(argc, argv, cli) || showHelp)
         {
             std::cout << "SYNOPSIS:" << std::endl;
             std::cout << clipp::usage_lines(cli, "StitchByTransformation") << std::endl;
             std::cout << "OPTIONS:" << std::endl;
             std::cout << clipp::documentation(cli) << std::endl;
-            throw std::runtime_error("No file provided.");
+            if(showHelp)
+            {
+                return EXIT_SUCCESS;
+            }
+
+            throw std::runtime_error("No path provided.");
         }
+
+        Zivid::Application zivid;
+
+        bool pathNotProvided = settingsPath.empty();
+        bool saveStitched = !stitchedPointCloudFileName.empty();
 
         auto cameras = zivid.cameras();
         std::cout << "Number of cameras found: " << cameras.size() << std::endl;
@@ -139,8 +153,12 @@ int main(int argc, char **argv)
 
         for(auto &camera : connectedCameras)
         {
-            const auto settingsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + sanitizedModelName(camera)
-                                      + "_ManufacturingSpecular.yml";
+            if(pathNotProvided)
+            {
+                settingsPath = std::string(ZIVID_SAMPLE_DATA_DIR) + "/Settings/" + sanitizedModelName(camera)
+                               + "_ManufacturingSpecular.yml";
+            }
+
             std::cout << "Imaging from camera: " << camera.info().serialNumber() << std::endl;
             const auto frame = camera.capture2D3D(Zivid::Settings(settingsPath));
             const auto unorganizedPointCloud = frame.pointCloud().toUnorganizedPointCloud();

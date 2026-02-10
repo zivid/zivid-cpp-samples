@@ -92,11 +92,9 @@ int main(int argc, char **argv)
 {
     try
     {
-        Zivid::Application zivid;
-
+        auto zdfFileList = std::vector<std::string>{};
         std::string transformationMatricesSavePath;
 
-        auto zdfFileList = std::vector<std::string>{};
         auto cli =
             (clipp::required("-zdf")
                  & clipp::values("ZDF filenames", zdfFileList)
@@ -116,6 +114,7 @@ int main(int argc, char **argv)
             throw std::runtime_error("No files provided.");
         }
 
+        Zivid::Application zivid;
         // Read from ZDF and detect checkerboard feature
         const auto detections = getDetectionsFromZDF(zdfFileList);
 

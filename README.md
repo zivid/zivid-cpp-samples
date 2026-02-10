@@ -106,6 +106,8 @@ from the camera can be used.
               - [ProjectImageStartAndStop](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/ProjectImageStartAndStop/ProjectImageStartAndStop.cpp) - Start the Image Projection and Stop it.
               - [ReadPCLVis3D](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/Visualization/ReadPCLVis3D/ReadPCLVis3D.cpp) - Read point cloud from PCL file and visualize it.
           - **FileFormats**
+              - [ConvertZDF](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/FileFormats/ConvertZDF/ConvertZDF.cpp) - Convert point cloud data from a ZDF file to your
+                preferred format
               - [ReadIterateZDF](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Basic/FileFormats/ReadIterateZDF/ReadIterateZDF.cpp) - Read point cloud data from a ZDF file, iterate through
                 it, and extract individual points.
       - **Advanced**
