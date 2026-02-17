@@ -25,70 +25,70 @@ option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 
 set(SAMPLES
-    Camera/Basic/Capture
-    Camera/Basic/CaptureFromFileCamera
-    Camera/Basic/CaptureWithSettingsFromYML
-    Camera/Basic/CaptureHDRCompleteSettings
-    Camera/Advanced/Capture2DAnd3D
-    Camera/Advanced/CaptureAndPrintNormals
-    Camera/Advanced/MultiCameraCaptureSequentially
-    Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing
-    Camera/Advanced/MultiCameraCaptureInParallel
-    Camera/Advanced/AllocateMemoryForPointCloudData
-    Camera/Advanced/CaptureHalconViaGenICam
-    Camera/Advanced/CaptureHalconViaZivid
-    Camera/Advanced/CaptureViaGenICam
-    Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras
-    Camera/InfoUtilOther/CameraUserData
-    Camera/InfoUtilOther/CaptureWithDiagnostics
-    Camera/InfoUtilOther/GetCameraIntrinsics
-    Camera/InfoUtilOther/FirmwareUpdater
-    Camera/InfoUtilOther/NetworkConfiguration
-    Camera/InfoUtilOther/CameraInfo
-    Camera/InfoUtilOther/SettingsInfo
-    Camera/InfoUtilOther/FrameInfo
-    Camera/InfoUtilOther/ZividBenchmark
-    Camera/InfoUtilOther/Warmup
-    Camera/InfoUtilOther/MeasureSceneConditions
-    Camera/Maintenance/VerifyCameraInField
-    Camera/Maintenance/VerifyCameraInFieldFromZDF
-    Camera/Maintenance/CorrectCameraInField
-    Camera/Maintenance/ResetCameraInField
+    Applications/Basic/Visualization/CaptureAndVisualizeNormals
     Applications/Basic/Visualization/CaptureFromFileCameraVis3D
     Applications/Basic/Visualization/CaptureVis3D
-    Applications/Basic/Visualization/ReadPCLVis3D
-    Applications/Basic/Visualization/ProjectImageStartAndStop
     Applications/Basic/Visualization/CaptureWritePCLVis3D
-    Applications/Basic/Visualization/CaptureAndVisualizeNormals
+    Applications/Basic/Visualization/ProjectImageStartAndStop
+    Applications/Basic/Visualization/ReadPCLVis3D
+    Applications/Basic/FileFormats/ConvertZDF
     Applications/Basic/FileFormats/ReadIterateZDF
+    Applications/Advanced/BarcodeDetector
     Applications/Advanced/CaptureUndistort2D
-    Applications/Advanced/Downsample
-    Applications/Advanced/MaskPointCloud
-    Applications/Advanced/HandEyeCalibration/HandEyeCalibration
-    Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
-    Applications/Advanced/HandEyeCalibration/PoseConversions
     Applications/Advanced/CreateDepthMap
-    Applications/Advanced/MultiCamera/MultiCameraCalibration
-    Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
-    Applications/Advanced/MultiCamera/StitchByTransformation
-    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
-    Applications/Advanced/TransformPointCloudViaArucoMarker
-    Applications/Advanced/TransformPointCloudViaCheckerboard
-    Applications/Advanced/TransformPointCloudFromMillimetersToMeters
+    Applications/Advanced/Downsample
+    Applications/Advanced/GammaCorrection
+    Applications/Advanced/MaskPointCloud
+    Applications/Advanced/ProjectAndFindMarker
+    Applications/Advanced/ReadProjectAndCaptureImage
+    Applications/Advanced/ReprojectPoints
     Applications/Advanced/ROIBoxViaArucoMarker
     Applications/Advanced/ROIBoxViaCheckerboard
     Applications/Advanced/StitchViaLocalPointCloudRegistration
     Applications/Advanced/StitchContinuouslyRotatingObject
     Applications/Advanced/StitchUsingRobotMountedCamera
-    Applications/Advanced/GammaCorrection
-    Applications/Advanced/ProjectAndFindMarker
-    Applications/Advanced/ReadProjectAndCaptureImage
-    Applications/Advanced/ReprojectPoints
-    Applications/Advanced/BarcodeDetector
+    Applications/Advanced/TransformPointCloudViaArucoMarker
+    Applications/Advanced/TransformPointCloudViaCheckerboard
+    Applications/Advanced/TransformPointCloudFromMillimetersToMeters
+    Applications/Advanced/HandEyeCalibration/HandEyeCalibration
+    Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
+    Applications/Advanced/HandEyeCalibration/PoseConversions
+    Applications/Advanced/MultiCamera/MultiCameraCalibration
+    Applications/Advanced/MultiCamera/MultiCameraCalibrationFromZDF
+    Applications/Advanced/MultiCamera/StitchByTransformation
+    Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
+    Camera/Basic/Capture
+    Camera/Basic/CaptureFromFileCamera
+    Camera/Basic/CaptureWithSettingsFromYML
+    Camera/Basic/CaptureHDRCompleteSettings
+    Camera/Advanced/AllocateMemoryForPointCloudData
+    Camera/Advanced/Capture2DAnd3D
+    Camera/Advanced/CaptureAndPrintNormals
+    Camera/Advanced/CaptureHalconViaGenICam
+    Camera/Advanced/CaptureHalconViaZivid
+    Camera/Advanced/CaptureViaGenICam
+    Camera/Advanced/MultiCameraCaptureSequentially
+    Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing
+    Camera/Advanced/MultiCameraCaptureInParallel
+    Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras
+    Camera/InfoUtilOther/CameraInfo
+    Camera/InfoUtilOther/CameraUserData
+    Camera/InfoUtilOther/CaptureWithDiagnostics
+    Camera/InfoUtilOther/FirmwareUpdater
+    Camera/InfoUtilOther/FrameInfo
+    Camera/InfoUtilOther/GetCameraIntrinsics
+    Camera/InfoUtilOther/MeasureSceneConditions
+    Camera/InfoUtilOther/NetworkConfiguration
+    Camera/InfoUtilOther/SettingsInfo
+    Camera/InfoUtilOther/Warmup
+    Camera/InfoUtilOther/ZividBenchmark
+    Camera/Maintenance/CorrectCameraInField
+    Camera/Maintenance/ResetCameraInField
+    Camera/Maintenance/VerifyCameraInField
+    Camera/Maintenance/VerifyCameraInFieldFromZDF
 )
 
 set(Eigen3_DEPENDING
-    UtilizeHandEyeCalibration
     PoseConversions
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
@@ -97,63 +97,65 @@ set(Eigen3_DEPENDING
     StitchViaLocalPointCloudRegistration
     StitchContinuouslyRotatingObject
     StitchUsingRobotMountedCamera
+    UtilizeHandEyeCalibration
 )
 set(PCL_DEPENDING
     Capture2DAnd3D
+    CaptureAndVisualizeNormals
+    CaptureWritePCLVis3D
     MaskPointCloud
     ReadPCLVis3D
-    CaptureWritePCLVis3D
-    CaptureAndVisualizeNormals
 )
 set(OpenCV_DEPENDING
+    AllocateMemoryForPointCloudData
     Capture2DAnd3D
     CaptureUndistort2D
     CreateDepthMap
-    MaskPointCloud
-    TransformPointCloudViaArucoMarker
-    TransformPointCloudViaCheckerboard
-    AllocateMemoryForPointCloudData
     GammaCorrection
+    MaskPointCloud
     ProjectAndFindMarker
     ReprojectPoints
     ReadProjectAndCaptureImage
+    TransformPointCloudViaArucoMarker
+    TransformPointCloudViaCheckerboard
 )
 set(Visualization_DEPENDING
-    CaptureVis3D
-    CaptureLiveVis3D
-    CaptureFromFileCameraVis3D
-    Downsample
-    CaptureWritePCLVis3D
-    CaptureUndistort2D
     CreateDepthMap
+    CaptureFromFileCameraVis3D
+    CaptureLiveVis3D
+    CaptureUndistort2D
+    CaptureVis3D
+    CaptureWritePCLVis3D
+    Downsample
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
     StitchByTransformation
     StitchByTransformationFromZDF
-    StitchViaLocalPointCloudRegistration
     StitchContinuouslyRotatingObject
+    StitchViaLocalPointCloudRegistration
     StitchUsingRobotMountedCamera
 )
 set(Clipp_DEPENDING
     AutomaticNetworkConfigurationForCameras
     CameraUserData
+    Capture2DAnd3D
+    CaptureFromFileCamera
+    CaptureFromFileCameraVis3D
     CaptureViaGenICam
     CaptureWithSettingsFromYML
+    CaptureWritePCLVis3D
+    ConvertZDF
+    GammaCorrection
+    HandEyeCalibration
+    MultiCameraCalibration
     MultiCameraCalibrationFromZDF
+    ReadPCLVis3D
     StitchByTransformation
     StitchByTransformationFromZDF
     StitchContinuouslyRotatingObject
     StitchUsingRobotMountedCamera
-    MultiCameraCalibration
-    Capture2DAnd3D
-    ZividBenchmark
-    CaptureFromFileCamera
-    CaptureFromFileCameraVis3D
-    ReadPCLVis3D
-    CaptureWritePCLVis3D
-    GammaCorrection
     Warmup
-    HandEyeCalibration
+    ZividBenchmark
 )
 set(GenTL_DEPENDING CaptureViaGenICam)
 set(Thread_DEPENDING

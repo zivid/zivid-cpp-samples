@@ -145,7 +145,7 @@ point cloud. While doing so, all NaN values are removed, and the point
 cloud is flattened to a 1D array.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L146))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L164))
 
 ``` sourceCode cpp
 const auto unorganizedPointCloud = frame.pointCloud().toUnorganizedPointCloud();
@@ -289,7 +289,7 @@ that in this sample is is not necessary to create a new instance, as the
 untransformed point cloud is not used after the transformation.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L148))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L166))
 
 ``` sourceCode cpp
 const auto transformedUnorganizedPointCloud = unorganizedPointCloud.transformed(transformationMatrix);
@@ -389,7 +389,7 @@ minPointsPerVoxel can be used to only fill voxels that both captures
 "agree" on.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L153))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Applications/Advanced/MultiCamera/StitchByTransformation/StitchByTransformation.cpp#L171))
 
 ``` sourceCode cpp
 const auto finalPointCloud = stitchedPointCloud.voxelDownsampled(0.5, 1);

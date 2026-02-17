@@ -43,7 +43,9 @@ namespace
     };
 
     // Detect checkerboard feature points from each camera capture
-    std::vector<Detection> getDetections(const std::vector<Zivid::Camera> &connectedCameras)
+    std::vector<Detection> getDetections(
+        const std::vector<Zivid::Camera> &connectedCameras,
+        const std::string &settingsPath)
     {
         auto detectionsList = std::vector<Detection>();
 
@@ -51,6 +53,15 @@ namespace
         {
             const auto serial = camera.info().serialNumber().toString();
             std::cout << "Capturing frame with camera: " << serial << std::endl;
+            if(settingsPath.empty())
+            {
+                const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
+            }
+            else
+            {
+                const auto settings = Zivid::Settings(settingsPath);
+                const auto frame = camera.capture2D3D(settings);
+            }
             const auto frame = Zivid::Calibration::captureCalibrationBoard(camera);
             std::cout << "Detecting checkerboard in point cloud" << std::endl;
             const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
@@ -111,24 +122,30 @@ int main(int argc, char **argv)
 {
     try
     {
-        Zivid::Application zivid;
-
+        bool showHelp = false;
         std::string transformationMatricesSavePath;
-
-        clipp::group cli;
-        cli.push_back(
-            clipp::values("Path to YAML files", transformationMatricesSavePath)
-            % "Path where the transformation matrices YAML files will be saved");
-
-        if(!parse(argc, argv, cli))
+        std::string settingsPath;
+        auto cli =
+            (clipp::option("-h", "--help").set(showHelp) % "Show help message",
+             clipp::values("Path to YAML files", transformationMatricesSavePath)
+                 % "Path where the transformation matrices YAML files will be saved",
+             clipp::option("--settings-path")
+                 & clipp::value("path", settingsPath) % "Path to the camera settings YML file");
+        if(!clipp::parse(argc, argv, cli))
         {
             auto fmt = clipp::doc_formatting{}.alternatives_min_split_size(1).surround_labels("\"", "\"");
             std::cout << "SYNOPSIS:" << std::endl;
             std::cout << clipp::usage_lines(cli, "MultiCameraCalibration", fmt) << std::endl;
             std::cout << "OPTIONS:" << std::endl;
             std::cout << clipp::documentation(cli) << std::endl;
+            if(showHelp)
+            {
+                return EXIT_SUCCESS;
+            }
             throw std::runtime_error("No path provided.");
         }
+
+        Zivid::Application zivid;
 
         std::cout << "Finding cameras" << std::endl;
         auto cameras = zivid.cameras();
@@ -142,7 +159,7 @@ int main(int argc, char **argv)
         std::cout << "Number of connected cameras: " << connectedCameras.size() << std::endl;
 
         // detect checkerboard feature points from Capture for each camera
-        const auto detections = getDetections(connectedCameras);
+        const auto detections = getDetections(connectedCameras, settingsPath);
 
         // Perform multi-camera calibration
         runMultiCameraCalibration(detections, transformationMatricesSavePath);
