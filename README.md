@@ -227,6 +227,9 @@ this:
 ./CaptureFromFileCameraVis3D
 ```
 
+### Rust 
+To run the Rust sample, follow the instructions found here: [source/C_API/single_capture_rust/README.md].
+
 ### HALCON
 
 Zivid offers two ways of interfacing with HALCON:
