@@ -2,7 +2,7 @@
 
 Follow the instructions in the public samples
 [README](https://github.com/zivid/zivid-cpp-samples/blob/master/README.md#installation) for how to build the rust sample. This project assumes the library `libCoreCAPI.so` is
-built in [build/C_API/CoreCAPI/], and uses the [C bindings](source/C_API/CoreCAPI/).
+built in `build/C_API/CoreCAPI/`, and uses the [C bindings](https://github.com/zivid/zivid-cpp-samples/blob/rust-wrapper-through-c-api/source/C_API/).
 
 ## Running the Rust Wrapper Sample
 

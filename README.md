@@ -228,7 +228,7 @@ this:
 ```
 
 ### Rust 
-To run the Rust sample, follow the instructions found here: [source/C_API/single_capture_rust/README.md].
+To run the Rust sample, follow the instructions found here: [source/C_API/single_capture_rust/README.md](https://github.com/zivid/zivid-cpp-samples/blob/rust-wrapper-through-c-api/source/C_API/single_capture_rust/README.md).
 
 ### HALCON
 
