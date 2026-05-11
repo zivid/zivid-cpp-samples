@@ -73,6 +73,10 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         frame = camera.capture2D3D(settings);
 
+        if(!frame.frame2D().has_value())
+        {
+            throw std::runtime_error("Captured frame does not contain a 2D image.");
+        }
         std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
         auto colors = frame.frame2D().value().imageBGRA_SRGB();
 

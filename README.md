@@ -117,10 +117,10 @@ from the camera can be used.
           - [CreateDepthMap](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp) - Convert point cloud from a ZDF file to OpenCV format,
             extract depth map and visualize it.
           - [Downsample](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Downsample/Downsample.cpp) - Downsample point cloud from a ZDF file.
+          - [ExploreSettingsMetaData](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ExploreSettingsMetaData/ExploreSettingsMetaData.cpp) - Recursively iterates through all leaf parameters in a
+            Zivid camera’s settings.
           - [GammaCorrection](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/GammaCorrection/GammaCorrection.cpp) - Capture 2D image with gamma correction.
           - [HandEyeCalibration](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp) - Perform Hand-Eye calibration.
-          - [MaskPointCloud](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp) - Mask point cloud from a ZDF file and convert to PCL
-            format, extract depth map and visualize it.
           - [ProjectAndFindMarker](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ProjectAndFindMarker/ProjectAndFindMarker.cpp) - Show a marker using the projector, capture a set of 2D
             images to find the marker coordinates (2D and 3D).
           - [ReadProjectAndCaptureImage](https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/ReadProjectAndCaptureImage/ReadProjectAndCaptureImage.cpp) - Read a 2D image from file and project it using the camera
@@ -169,9 +169,9 @@ from the camera can be used.
 ## Installation
 
 1.  [Install Zivid
-    Software](https://support.zivid.com/latest//getting-started/software-installation.html)
+    Software](https://support.zivid.com/en/latest//camera/getting-started/software-installation.html)
 2.  [Download Zivid Sample
-    Data](https://support.zivid.com/latest//api-reference/samples/sample-data.html)
+    Data](https://support.zivid.com/en/latest//camera/api-reference/samples/sample-data.html)
 
 **Windows**
 
@@ -188,7 +188,7 @@ git clone https://github.com/zivid/zivid-cpp-samples
 Configure the sample solution with CMake, open it in Visual Studio,
 build it, run it. For more information see [Configure C++ Samples With
 CMake and Build Them in Visual Studio in
-Windows](https://support.zivid.com/latest/api-reference/samples/cpp/configure-cpp-samples-with-cmake-and-build-them-in-visual-studio-on-windows.html).
+Windows](https://support.zivid.com/en/latest/camera/api-reference/samples/cpp/configure-cpp-samples-with-cmake-and-build-them-in-visual-studio-on-windows.html).
 
 **Ubuntu**
 
@@ -218,7 +218,7 @@ respectively, to `cmake`: `-DUSE_EIGEN3=OFF`, `-DUSE_OPENCV=OFF`,
 `-DUSE_PCL=OFF`, `-DUSE_HALCON=OFF`.
 
 See [Configure C++ Samples With Optional
-Dependencies](https://support.zivid.com/latest/api-reference/samples/cpp/configure-cpp-samples-with-optional-dependencies.html)
+Dependencies](https://support.zivid.com/en/latest/camera/api-reference/samples/cpp/configure-cpp-samples-with-optional-dependencies.html)
 for instructions on how to install the optional dependencies and
 configure the samples to use them.
 
@@ -235,12 +235,12 @@ Zivid offers two ways of interfacing with HALCON:
 
 1.  Through the Zivid SDK, utilizing the C++/C\# libraries available for
     HALCON. We provide samples for both
-    [C++](https://support.zivid.com/latest//api-reference/samples/cpp.html)
+    [C++](https://support.zivid.com/en/latest//camera/api-reference/samples/cpp.html)
     and
-    [C\#](https://support.zivid.com/latest//api-reference/samples/csharp.html).
+    [C\#](https://support.zivid.com/en/latest//camera/api-reference/samples/csharp.html).
     (**Recommended**)
 2.  Directly through a GenICam GenTL producer that comes with the [Zivid
-    Software](https://support.zivid.com/latest//getting-started/software-installation.html).
+    Software](https://support.zivid.com/en/latest//camera/getting-started/software-installation.html).
 
 Zivid and HALCON are compatible with Windows 10 and 11, and Ubuntu
 20.04, 22.04, 24.04.
@@ -257,17 +257,17 @@ To set up and use Zivid in one of these operating systems, please follow
 their respective instructions on the following pages:
 
   - [Install Zivid + HALCON for
-    Windows](https://support.zivid.com/latest/api-reference/samples/halcon/install-zivid-halcon-for-windows.html)
+    Windows](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/install-zivid-halcon-for-windows.html)
   - [Install Zivid + HALCON for
-    LINUX](https://support.zivid.com/latest/api-reference/samples/halcon/install-zivid-halcon-for-linux.html)
+    LINUX](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/install-zivid-halcon-for-linux.html)
   - [Create a HALCON "Hello World"
-    Program](https://support.zivid.com/latest/api-reference/samples/halcon/create-a-halcon-hello-world.html)
+    Program](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/create-a-halcon-hello-world.html)
   - [How to Run a HALCON
-    Sample](https://support.zivid.com/latest/api-reference/samples/halcon/how-to-run-a-halcon-sample.html)
+    Sample](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/how-to-run-a-halcon-sample.html)
   - [Debug in
-    HALCON](https://support.zivid.com/latest/api-reference/samples/halcon/halcon-debug.html)
+    HALCON](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/halcon-debug.html)
   - [HALCON Sample
-    Videos](https://support.zivid.com/latest/api-reference/samples/halcon/halcon-sample-videos.html)
+    Videos](https://support.zivid.com/en/latest/camera/api-reference/samples/halcon/halcon-sample-videos.html)
 
 The following HALCON versions have been tested and confirmed to work
 with Zivid cameras:
@@ -280,9 +280,9 @@ We recommend using one of the HALCON versions we have tested.
 ## Support
 
 For more information about the Zivid cameras, please visit our
-[Knowledge Base](https://support.zivid.com/latest). If you run into any
-issues please check out
-[Troubleshooting](https://support.zivid.com/latest/support/troubleshooting.html).
+[Knowledge Base](https://support.zivid.com/en/latest). If you run into
+any issues please check out
+[Troubleshooting](https://support.zivid.com/en/latest/camera/support/troubleshooting.html).
 
 ## License
 

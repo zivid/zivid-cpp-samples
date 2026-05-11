@@ -2,7 +2,7 @@
 
 Note\! This tutorial has been generated for use on Github. For original
 tutorial see:
-[CaptureTutorial](https://support.zivid.com/latest/academy/camera/capture-tutorial.html)
+[CaptureTutorial](https://support.zivid.com/en/latest/camera/academy/camera/capture-tutorial.html)
 
 
 
@@ -31,7 +31,7 @@ and 2D images.
 **Prerequisites**
 
   - Install [Zivid
-    Software](https://support.zivid.com/latest//getting-started/software-installation.html).
+    Software](https://support.zivid.com/en/latest//camera/getting-started/software-installation.html).
   - For Python: install
     [zivid-python](https://github.com/zivid/zivid-python#installation)
 
@@ -108,7 +108,7 @@ As with all cameras there are settings that can be configured.
 ### Presets
 
 The recommendation is to use
-[Presets](https://support.zivid.com/latest/reference-articles/presets-settings.html)
+[Presets](https://support.zivid.com/en/latest/camera/reference-articles/presets-settings.html)
 available in Zivid Studio and as .yml files (see below). Presets are
 designed to work well for most cases right away, making them a great
 starting point. If needed, you can easily fine-tune the settings for
@@ -146,9 +146,9 @@ settings.save(settingsFile);
 
 Another option is to configure settings manually. For more information
 about what each settings does, please see [Camera
-Settings](https://support.zivid.com/latest/reference-articles/camera-settings.html).
+Settings](https://support.zivid.com/en/latest/camera/reference-articles/camera-settings.html).
 Then, the next step it's [Capturing High Quality Point
-Clouds](https://support.zivid.com/latest/academy/camera/capturing-high-quality-point-clouds.html)
+Clouds](https://support.zivid.com/en/latest/camera/academy/camera/capturing-high-quality-point-clouds.html)
 
 #### Single 2D and 3D Acquisition - Default settings
 
@@ -346,7 +346,7 @@ const auto frame2D = camera.capture2D(settings);
 We can now save our results.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L32-L34))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L36-L38))
 
 ``` sourceCode cpp
 const auto dataFile = "Frame.zdf";
@@ -358,17 +358,17 @@ frame.save(dataFile);
 Tip:
 
 > You can open and view `Frame.zdf` file in [Zivid
-> Studio](https://support.zivid.com/latest//getting-started/studio-guide.html).
+> Studio](https://support.zivid.com/en/latest//camera/getting-started/studio-guide.html).
 
 ### Export
 
 In the next code example, the point cloud is exported to the .ply
 format. For other exporting options, see [Point
-Cloud](https://support.zivid.com/latest//reference-articles/point-cloud-structure-and-output-formats.html)
+Cloud](https://support.zivid.com/en/latest//camera/reference-articles/point-cloud-structure-and-output-formats.html)
 for a list of supported formats.
 
 ([go to
-source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L36-L38))
+source](https://github.com/zivid/zivid-cpp-samples/tree/master//source/Camera/Basic/Capture/Capture.cpp#L40-L42))
 
 ``` sourceCode cpp
 const auto dataFilePLY = "PointCloud.ply";
@@ -456,10 +456,10 @@ const auto image2D = frame.frame2D().value().imageBGRA_SRGB();
 ## File Camera
 
 A [file
-camera](https://support.zivid.com/latest//academy/camera/file-camera.html)
+camera](https://support.zivid.com/en/latest//camera/academy/camera/file-camera.html)
 allows you to experiment with the SDK without access to a physical
 camera. The file cameras can be found in [Sample
-Data](https://support.zivid.com/latest/api-reference/samples/sample-data.html)
+Data](https://support.zivid.com/en/latest/camera/api-reference/samples/sample-data.html)
 where there are multiple file cameras to choose from.
 
 ([go to
@@ -499,7 +499,7 @@ settings.color() = Zivid::Settings::Color{ settings2D };
 ```
 
 You can read more about the file camera option in [File
-Camera](https://support.zivid.com/latest/academy/camera/file-camera.html).
+Camera](https://support.zivid.com/en/latest/camera/academy/camera/file-camera.html).
 
 ## Multithreading
 

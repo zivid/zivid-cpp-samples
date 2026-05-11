@@ -24,6 +24,10 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         const auto frame = camera.capture2D3D(settings);
 
+        if(!frame.frame2D().has_value())
+        {
+            throw std::runtime_error("Captured frame does not contain a 2D image.");
+        }
         const auto imageRGBA = frame.frame2D().value().imageRGBA_SRGB();
         const auto imageFile = "ImageRGB.png";
         std::cout << "Saving 2D color image (sRGB color space) to file: " << imageFile << std::endl;

@@ -22,9 +22,6 @@ Available formats:
 
 namespace
 {
-    using ColorSpace = Zivid::Experimental::PointCloudExport::ColorSpace;
-    using namespace Zivid::Experimental::PointCloudExport::FileFormat;
-
     std::string toLower(std::string str)
     {
         std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
@@ -104,38 +101,46 @@ namespace
         const std::filesystem::path &filePath,
         const std::vector<std::string> &fileFormats,
         bool linearRgb,
-        bool unordered)
+        bool unordered,
+        bool includeNormals)
     {
         for(const auto &format : fileFormats)
         {
             const auto fileNameWithExtension = filePath.parent_path() / (filePath.stem().string() + "." + format);
-            const auto colorSpace = linearRgb ? ColorSpace::linearRGB : ColorSpace::sRGB;
+            const auto colorSpace = linearRgb ? Zivid::Experimental::PointCloudExport::ColorSpace::linearRGB
+                                              : Zivid::Experimental::PointCloudExport::ColorSpace::sRGB;
+            const auto includeNorm = includeNormals ? Zivid::Experimental::PointCloudExport::IncludeNormals::yes
+                                                    : Zivid::Experimental::PointCloudExport::IncludeNormals::no;
 
             std::cout << "Saving the frame to " << fileNameWithExtension << std::endl;
 
             if(format == "ply")
             {
-                const auto layout = unordered ? PLY::Layout::unordered : PLY::Layout::ordered;
+                const auto layout = unordered
+                                        ? Zivid::Experimental::PointCloudExport::FileFormat::PLY::Layout::unordered
+                                        : Zivid::Experimental::PointCloudExport::FileFormat::PLY::Layout::ordered;
+
                 Zivid::Experimental::PointCloudExport::exportFrame(
-                    frame, PLY{ fileNameWithExtension.string(), layout, colorSpace });
+                    frame,
+                    Zivid::Experimental::PointCloudExport::FileFormat::PLY{
+                        fileNameWithExtension.string(), layout, colorSpace, includeNorm });
             }
             else if(format == "pcd")
             {
-                if(!unordered)
-                {
-                    std::cout
-                        << "NOTE: If you have configured the config file for PCD, points will be ordered. "
-                        << "If not they will be unordered. See "
-                        << "https://support.zivid.com/en/latest/reference-articles/point-cloud-structure-and-output-formats.html#organized-pcd-format"
-                        << " for more information." << std::endl;
-                }
+                const auto layout = unordered
+                                        ? Zivid::Experimental::PointCloudExport::FileFormat::PCD::Layout::unorganized
+                                        : Zivid::Experimental::PointCloudExport::FileFormat::PCD::Layout::organized;
                 Zivid::Experimental::PointCloudExport::exportFrame(
-                    frame, PCD{ fileNameWithExtension.string(), colorSpace });
+                    frame,
+                    Zivid::Experimental::PointCloudExport::FileFormat::PCD{
+                        fileNameWithExtension.string(), colorSpace, includeNorm, layout });
             }
             else if(format == "xyz")
             {
                 Zivid::Experimental::PointCloudExport::exportFrame(
-                    frame, XYZ{ fileNameWithExtension.string(), colorSpace });
+                    frame,
+                    Zivid::Experimental::PointCloudExport::FileFormat::XYZ{ fileNameWithExtension.string(),
+                                                                            colorSpace });
             }
             else if(format == "csv" || format == "txt")
             {
@@ -159,7 +164,7 @@ namespace
             if(linearRgb)
             {
                 save2DImage(
-                    frame.frame2D()->imageRGBA(),
+                    frame.frame2D() ? frame.frame2D()->imageRGBA() : frame.pointCloud().copyImageRGBA(),
                     frame.pointCloud().copyImageRGBA(),
                     fileName,
                     fileNamePointCloudResolution);
@@ -167,7 +172,7 @@ namespace
             else
             {
                 save2DImage(
-                    frame.frame2D()->imageRGBA_SRGB(),
+                    frame.frame2D() ? frame.frame2D()->imageRGBA_SRGB() : frame.pointCloud().copyImageRGBA_SRGB(),
                     frame.pointCloud().copyImageRGBA_SRGB(),
                     fileName,
                     fileNamePointCloudResolution);
@@ -187,6 +192,7 @@ int main(int argc, char **argv)
         bool linearRgb = false;
         bool unordered = false;
         bool showHelp = false;
+        bool includeNormals = false;
         const std::vector<std::string> formats3D = { "ply", "pcd", "xyz", "csv", "txt" };
         const std::vector<std::string> formats2D = { "jpg", "png", "bmp" };
 
@@ -202,7 +208,9 @@ int main(int argc, char **argv)
              clipp::option("--linearRGB").set(linearRgb)
                  % "Use linear RGB color space instead of sRGB for selected format(s)",
              clipp::option("--unordered").set(unordered)
-                 % "Save point clouds as unordered instead of ordered (PLY, PCD)");
+                 % "Save point clouds as unordered instead of ordered (PLY, PCD)",
+             clipp::option("--includeNormals").set(includeNormals)
+                 % "Whether to include normals in the exported 3D files (PLY,PCD)");
 
         if(!clipp::parse(argc, argv, cli) || showHelp || inputPath.empty() || !contains(formats3D, formats3DSelected)
            || !contains(formats2D, formats2DSelected))
@@ -215,7 +223,11 @@ int main(int argc, char **argv)
             std::cout << clipp::documentation(cli) << "\n";
             std::cout << "\nExample:\n";
             std::cout << "  ConvertZDF Zivid3D.zdf --3d ply xyz csv --2d jpg png\n";
-            return showHelp ? EXIT_FAILURE : EXIT_SUCCESS;
+            if(showHelp)
+            {
+                return EXIT_SUCCESS;
+            }
+            throw std::runtime_error("Invalid command line arguments");
         }
 
         const std::filesystem::path path(inputPath);
@@ -261,7 +273,7 @@ int main(int argc, char **argv)
         {
             if(!formats3DSelected.empty())
             {
-                convertTo3D(frame, filePath, formats3DSelected, linearRgb, unordered);
+                convertTo3D(frame, filePath, formats3DSelected, linearRgb, unordered, includeNormals);
             }
 
             if(!formats2DSelected.empty())
