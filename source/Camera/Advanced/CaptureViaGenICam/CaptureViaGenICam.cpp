@@ -58,6 +58,8 @@ namespace
     template<class Function, typename... Ts>
     void checkedTLCall(Function &function, const std::string &message, Ts &&...ts)
     {
+        // Calling C API here, so passing void** without explicit cast is okay.
+        // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
         auto errorCode = function(std::forward<Ts>(ts)...);
         checkAndThrow(errorCode, message);
     }

@@ -37,8 +37,8 @@ set(SAMPLES
     Applications/Advanced/CaptureUndistort2D
     Applications/Advanced/CreateDepthMap
     Applications/Advanced/Downsample
+    Applications/Advanced/ExploreSettingsMetaData
     Applications/Advanced/GammaCorrection
-    Applications/Advanced/MaskPointCloud
     Applications/Advanced/ProjectAndFindMarker
     Applications/Advanced/ReadProjectAndCaptureImage
     Applications/Advanced/ReprojectPoints
@@ -103,7 +103,6 @@ set(PCL_DEPENDING
     Capture2DAnd3D
     CaptureAndVisualizeNormals
     CaptureWritePCLVis3D
-    MaskPointCloud
     ReadPCLVis3D
 )
 set(OpenCV_DEPENDING
@@ -112,7 +111,6 @@ set(OpenCV_DEPENDING
     CaptureUndistort2D
     CreateDepthMap
     GammaCorrection
-    MaskPointCloud
     ProjectAndFindMarker
     ReprojectPoints
     ReadProjectAndCaptureImage
@@ -169,7 +167,6 @@ set(Halcon_DEPENDING
     CaptureHalconViaGenICam
     CaptureHalconViaZivid
 )
-
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
 

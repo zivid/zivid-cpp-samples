@@ -21,7 +21,6 @@ namespace
         const std::vector<std::string> &zdfFileList,
         const std::vector<std::string> &transformationMatrixFilesList)
     {
-        std::string fileExtension;
         std::string serialNumber;
 
         Zivid::UnorganizedPointCloud stitchedPointCloud;

@@ -29,7 +29,17 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -concurrency-mt-unsafe,
   -abseil-*,
-  -google-build-using-namespace
+  -google-build-using-namespace,
+  -misc-include-cleaner,
+  -performance-avoid-endl,
+  -misc-const-correctness,
+  -llvm-prefer-static-over-anonymous-namespace,
+  -boost-use-ranges,
+  -portability-template-virtual-member-function,
+  -cppcoreguidelines-avoid-do-while,
+  -performance-enum-size,
+  -readability-math-missing-parentheses,
+  -readability-misleading-indentation,
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 CheckOptions:

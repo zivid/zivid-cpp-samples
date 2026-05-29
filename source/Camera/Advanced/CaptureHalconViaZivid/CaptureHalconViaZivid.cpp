@@ -78,6 +78,10 @@ namespace
 
         const auto pointsXYZ = pointCloud.copyPointsXYZ();
         const auto normalsXYZ = pointCloud.copyNormalsXYZ();
+        if(!frame.frame2D().has_value())
+        {
+            throw std::runtime_error("Captured frame does not contain a 2D image.");
+        }
         const auto colorsRGBA = frame.frame2D().value().imageRGBA_SRGB();
 
         if(colorsRGBA.height() != height || colorsRGBA.width() != width)
