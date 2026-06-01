@@ -208,7 +208,7 @@ Build the project:
 mkdir build
 cd build
 cmake <options, see below> ../source
-make -j
+cmake --build .
 ```
 
 Some of the samples depend on external libraries, in particular Eigen 3,
