@@ -33,23 +33,25 @@ set(SAMPLES
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/FileFormats/ConvertZDF
     Applications/Basic/FileFormats/ReadIterateZDF
-    Applications/Advanced/BarcodeDetector
+    Applications/Advanced/Barcode/BarcodeDetector
     Applications/Advanced/CaptureUndistort2D
     Applications/Advanced/CreateDepthMap
     Applications/Advanced/Downsample
-    Applications/Advanced/ExploreSettingsMetaData
+    Camera/InfoUtilOther/ExploreSettingsMetaData
     Applications/Advanced/GammaCorrection
-    Applications/Advanced/ProjectAndFindMarker
-    Applications/Advanced/ReadProjectAndCaptureImage
-    Applications/Advanced/ReprojectPoints
-    Applications/Advanced/ROIBoxViaArucoMarker
-    Applications/Advanced/ROIBoxViaCheckerboard
-    Applications/Advanced/StitchViaLocalPointCloudRegistration
-    Applications/Advanced/StitchContinuouslyRotatingObject
-    Applications/Advanced/StitchUsingRobotMountedCamera
-    Applications/Advanced/TransformPointCloudViaArucoMarker
-    Applications/Advanced/TransformPointCloudViaCheckerboard
-    Applications/Advanced/TransformPointCloudFromMillimetersToMeters
+    Applications/Advanced/Projector/ProjectAndFindMarker
+    Applications/Advanced/Projector/ReadProjectAndCaptureImage
+    Applications/Advanced/Projector/ReprojectPoints
+    Applications/Advanced/ROI/ROIBoxViaArucoMarker
+    Applications/Advanced/ROI/ROIBoxViaCheckerboard
+    Applications/Advanced/Stitching/StitchViaLocalPointCloudRegistration
+    Applications/Advanced/Stitching/StitchContinuouslyRotatingObject
+    Applications/Advanced/Stitching/StitchUsingRobotMountedCamera
+    Applications/Advanced/Transform/TransformPointCloudViaArucoMarker
+    Applications/Advanced/Transform/TransformPointCloudViaCheckerboard
+    Applications/Advanced/Transform/TransformPointCloudFromMillimetersToMeters
+    Applications/Advanced/Visualization/CaptureVis3DInLoop
+    Applications/Advanced/Visualization/CaptureVis3DInLoopWithKeypressExit
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
@@ -67,10 +69,10 @@ set(SAMPLES
     Camera/Advanced/CaptureHalconViaGenICam
     Camera/Advanced/CaptureHalconViaZivid
     Camera/Advanced/CaptureViaGenICam
-    Camera/Advanced/MultiCameraCaptureSequentially
-    Camera/Advanced/MultiCameraCaptureSequentiallyWithInterleavedProcessing
-    Camera/Advanced/MultiCameraCaptureInParallel
-    Camera/InfoUtilOther/AutomaticNetworkConfigurationForCameras
+    Camera/Advanced/MultiCamera/MultiCameraCaptureSequentially
+    Camera/Advanced/MultiCamera/MultiCameraCaptureSequentiallyWithInterleavedProcessing
+    Camera/Advanced/MultiCamera/MultiCameraCaptureInParallel
+    Camera/InfoUtilOther/Network/AutomaticNetworkConfigurationForCameras
     Camera/InfoUtilOther/CameraInfo
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/CaptureWithDiagnostics
@@ -78,7 +80,7 @@ set(SAMPLES
     Camera/InfoUtilOther/FrameInfo
     Camera/InfoUtilOther/GetCameraIntrinsics
     Camera/InfoUtilOther/MeasureSceneConditions
-    Camera/InfoUtilOther/NetworkConfiguration
+    Camera/InfoUtilOther/Network/NetworkConfiguration
     Camera/InfoUtilOther/SettingsInfo
     Camera/InfoUtilOther/Warmup
     Camera/InfoUtilOther/ZividBenchmark
@@ -120,9 +122,10 @@ set(OpenCV_DEPENDING
 set(Visualization_DEPENDING
     CreateDepthMap
     CaptureFromFileCameraVis3D
-    CaptureLiveVis3D
     CaptureUndistort2D
     CaptureVis3D
+    CaptureVis3DInLoop
+    CaptureVis3DInLoopWithKeypressExit
     CaptureWritePCLVis3D
     Downsample
     ROIBoxViaArucoMarker
@@ -158,6 +161,8 @@ set(Clipp_DEPENDING
 set(GenTL_DEPENDING CaptureViaGenICam)
 set(Thread_DEPENDING
     Capture2DAnd3D
+    CaptureVis3DInLoop
+    CaptureVis3DInLoopWithKeypressExit
     MultiCameraCaptureSequentially
     MultiCameraCaptureInParallel
     MultiCameraCaptureSequentiallyWithInterleavedProcessing

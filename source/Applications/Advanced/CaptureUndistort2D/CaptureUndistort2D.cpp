@@ -6,6 +6,9 @@ In both instances it will operate on an BGRA image. However, in the 3D case it w
 the BGRA image from the point cloud. The 2D variant is faster.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information on lens distortion and undistorting the 2D image, check out this tutorial:
+https://support.zivid.com/en/latest/camera/reference-articles/color-spaces-and-output-formats.html
 */
 
 #include <Zivid/Experimental/Calibration.h>
@@ -157,11 +160,11 @@ int main()
 
         std::cout << "Undistorting BGR image" << std::endl;
 
-        const auto cameraIntrinsticsCV =
+        const auto cameraIntrinsicsCV =
             use2D ? reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera, settings2D))
                   : reformatCameraIntrinsics(Zivid::Experimental::Calibration::intrinsics(camera, settings));
-        const auto distortionCoefficients = cameraIntrinsticsCV.distortionCoefficients;
-        const auto cameraMatrix = cameraIntrinsticsCV.cameraMatrix;
+        const auto distortionCoefficients = cameraIntrinsicsCV.distortionCoefficients;
+        const auto cameraMatrix = cameraIntrinsicsCV.cameraMatrix;
 
         const auto size = bgr.size();
         const auto optimalCameraMatrix =
@@ -178,7 +181,7 @@ int main()
         std::cout << "Visualizing and saving BGR image to file: " << imageDistortedFile << std::endl;
         cv::imwrite(imageDistortedFile, bgr);
 
-        const auto imageUndistorted = "ImageUnistorted.jpg";
+        const auto imageUndistorted = "ImageUndistorted.jpg";
         displayBGR(bgrUndistorted, "Undistorted BGR image");
         std::cout << "Visualizing and saving undistorted BGR image to file: " << imageUndistorted << std::endl;
         cv::imwrite(imageUndistorted, bgrUndistorted);
@@ -187,7 +190,7 @@ int main()
         displayBGR(bgrUndistortedFull, "Undistorted BGR image - full");
         std::cout << "Visualizing and saving undistorted BGR image (full) to file: " << imageUndistortedFull
                   << std::endl;
-        cv::imwrite(imageUndistortedFull, bgrUndistorted);
+        cv::imwrite(imageUndistortedFull, bgrUndistortedFull);
     }
     catch(const std::exception &e)
     {
