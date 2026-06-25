@@ -5,6 +5,9 @@ occurs. With the second method, the memory is allocated post-capture by Zivid SD
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without
 notice.
+
+For more information about working with point cloud data, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/point-cloud-tutorial.html
 */
 
 #include <Zivid/Experimental/SettingsInfo.h>

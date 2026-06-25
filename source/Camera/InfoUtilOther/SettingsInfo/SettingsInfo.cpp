@@ -2,6 +2,9 @@
 Read settings info from the Zivid camera.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information about camera settings, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/camera-settings.html
 */
 
 #include <Zivid/Experimental/SettingsInfo.h>

@@ -1,5 +1,8 @@
 /*
 Capture a point cloud, with colors, using Zivid SDK, transform it to a Halcon point cloud and save it using Halcon C++ SDK.
+
+For more information about interfacing Zivid with Halcon, check out this article:
+https://support.zivid.com/en/latest/camera/api-reference/samples/halcon.html#instructions
 */
 
 #include <Zivid/Zivid.h>

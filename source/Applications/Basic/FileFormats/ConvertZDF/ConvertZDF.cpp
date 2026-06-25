@@ -5,6 +5,9 @@ If a directory is provided, all ZDF files in the directory will be converted
 Available formats:
     PLY, PCD, XYZ, CSV, TXT - 3D point cloud
     PNG, JPG, BMP - 2D RGB image
+
+For more information on supported formats and options, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/point-cloud-structure-and-output-formats.html
 */
 
 #include <Zivid/Experimental/PointCloudExport.h>

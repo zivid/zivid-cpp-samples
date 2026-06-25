@@ -1,5 +1,8 @@
 /*
 Capture point clouds with multiple cameras sequentially with interleaved processing.
+
+For more information about simultaneously operating multiple cameras, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/camera/multiple-zivid-cameras.html
 */
 
 #include <Zivid/Zivid.h>

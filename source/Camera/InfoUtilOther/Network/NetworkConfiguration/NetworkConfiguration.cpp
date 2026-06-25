@@ -1,6 +1,8 @@
 /*
 Uses Zivid API to change the IP address of the Zivid camera.
 
+For more information on network configuration, check out this tutorial:
+https://support.zivid.com/en/latest/camera/getting-started/software-installation/zivid-two-network-configuration.html
 */
 
 #include <Zivid/Zivid.h>

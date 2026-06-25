@@ -1,5 +1,8 @@
 /*
 Capture and save a point cloud, with colors, using GenICam interface and Halcon C++ SDK.
+
+For more information about interfacing Zivid with Halcon, check out this article:
+https://support.zivid.com/en/latest/camera/api-reference/samples/halcon.html#instructions
 */
 
 #include <Zivid/Zivid.h>

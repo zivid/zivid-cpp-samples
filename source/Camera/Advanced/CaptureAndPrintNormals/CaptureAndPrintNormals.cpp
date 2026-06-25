@@ -1,5 +1,8 @@
 /*
 Capture Zivid point clouds, compute normals and print a subset.
+
+For more information on computing point cloud normals, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/normals.html
 */
 
 #include <Zivid/Zivid.h>

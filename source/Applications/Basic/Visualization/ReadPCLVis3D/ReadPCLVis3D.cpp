@@ -2,6 +2,9 @@
 Read point cloud from PCL file and visualize it.
 
 The PCD file for this sample can be found under the main instructions for Zivid samples.
+
+For more information on visualization, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/visualization-tutorial.html
 */
 
 #include <Zivid/Zivid.h>

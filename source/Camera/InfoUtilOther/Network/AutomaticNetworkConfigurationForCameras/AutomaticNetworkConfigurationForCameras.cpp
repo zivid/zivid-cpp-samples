@@ -1,11 +1,14 @@
 /*
- * Automatically configure the IP addresses of connected cameras to match the network of the user's PC.
- * 
- * Usage:
- * - By default, the program applies the new configuration directly to the cameras.
- * - Use the [--display-only] argument to simulate the configuration and display the
- *   proposed IP addresses without making actual changes.
- */
+Automatically configure the IP addresses of connected cameras to match the network of the user's PC.
+ 
+Usage:
+- By default, the program applies the new configuration directly to the cameras.
+- Use the [--display-only] argument to simulate the configuration and display the
+  proposed IP addresses without making actual changes.
+
+For more information on network configuration, check out this tutorial:
+https://support.zivid.com/en/latest/camera/getting-started/software-installation/zivid-two-network-configuration.html
+*/
 
 #include <Zivid/Zivid.h>
 #include <clipp.h>

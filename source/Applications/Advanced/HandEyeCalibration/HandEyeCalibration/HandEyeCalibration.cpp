@@ -1,5 +1,8 @@
 /*
 Perform Hand-Eye calibration.
+
+For more information on Hand-Eye calibration, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/hand-eye.html
 */
 
 #include <Zivid/Application.h>

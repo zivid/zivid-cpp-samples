@@ -4,6 +4,9 @@ Transform a point cloud from camera to checkerboard (Zivid Calibration Board) co
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information on transforming point clouds, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/transformations.html
 */
 
 #include <Zivid/Calibration/Detector.h>
@@ -47,10 +50,10 @@ namespace
         return bgra;
     }
 
-    void displayBGRA(const cv::Mat &bgra, const std::string &bgraName)
+    void displayBGR(const cv::Mat &bgr, const std::string &bgrName)
     {
-        cv::namedWindow(bgraName, cv::WINDOW_AUTOSIZE);
-        cv::imshow(bgraName, bgra);
+        cv::namedWindow(bgrName, cv::WINDOW_AUTOSIZE);
+        cv::imshow(bgrName, bgr);
         cv::waitKey(CI_WAITKEY_TIMEOUT_IN_MS);
     }
 
@@ -104,9 +107,9 @@ namespace
     cv::Point3d movePoint(
         const cv::Point3d &originInCameraFrame,
         const cv::Point3d &offsetInBoardFrame,
-        const Zivid::Matrix4x4 &checkerBoardPose)
+        const Zivid::Matrix4x4 &checkerboardPose)
     {
-        const cv::Matx33d rotationMatrix = zividPoseToOpenCVRotation(checkerBoardPose);
+        const cv::Matx33d rotationMatrix = zividPoseToOpenCVRotation(checkerboardPose);
         const auto offsetRotated = rotationMatrix * offsetInBoardFrame;
         return {
             originInCameraFrame.x + offsetRotated.x,
@@ -116,7 +119,7 @@ namespace
     }
 
     CoordinateSystemPoints
-    getCoordinateSystemPoints(const Zivid::Frame &frame, const Zivid::Matrix4x4 &checkerboardPose, float size_of_axis)
+    getCoordinateSystemPoints(const Zivid::Frame &frame, const Zivid::Matrix4x4 &checkerboardPose, float sizeOfAxis)
     {
         const auto intrinsics = Zivid::Experimental::Calibration::estimateIntrinsics(frame);
         const auto cvCameraMatrix = zividCameraMatrixToOpenCVCameraMatrix(intrinsics.cameraMatrix());
@@ -124,11 +127,11 @@ namespace
         const cv::Point3d originPosition = { checkerboardPose.at(0, 3),
                                              checkerboardPose.at(1, 3),
                                              checkerboardPose.at(2, 3) };
-        const cv::Point3d xAxisDirection = movePoint(originPosition, { size_of_axis, 0.0, 0.0 }, checkerboardPose);
-        const cv::Point3d yAxisDirection = movePoint(originPosition, { 0.0, size_of_axis, 0.0 }, checkerboardPose);
-        const cv::Point3d zAxizDirection = movePoint(originPosition, { 0.0, 0.0, size_of_axis }, checkerboardPose);
+        const cv::Point3d xAxisDirection = movePoint(originPosition, { sizeOfAxis, 0.0, 0.0 }, checkerboardPose);
+        const cv::Point3d yAxisDirection = movePoint(originPosition, { 0.0, sizeOfAxis, 0.0 }, checkerboardPose);
+        const cv::Point3d zAxisDirection = movePoint(originPosition, { 0.0, 0.0, sizeOfAxis }, checkerboardPose);
 
-        std::vector<cv::Point3d> pointsToProject{ originPosition, xAxisDirection, yAxisDirection, zAxizDirection };
+        std::vector<cv::Point3d> pointsToProject{ originPosition, xAxisDirection, yAxisDirection, zAxisDirection };
         std::vector<cv::Point2d> projectedPoints;
         projectedPoints.reserve(4);
         const cv::Vec3d tvec{ 0, 0, 0 };
@@ -141,9 +144,9 @@ namespace
     void
     drawCoordinateSystem(const Zivid::Frame &frame, const Zivid::Matrix4x4 &checkerboardPose, const cv::Mat &bgrImage)
     {
-        const float sizeOfAxis = 30.0; // each axis have 30[mm] of length
+        const float sizeOfAxis = 30.0; // each axis has 30[mm] of length
 
-        std::cout << "Aquiring frame points" << std::endl;
+        std::cout << "Acquiring frame points" << std::endl;
         auto framePoints = getCoordinateSystemPoints(frame, checkerboardPose, sizeOfAxis);
 
         std::cout << "Drawing Z axis" << std::endl;
@@ -171,6 +174,10 @@ int main()
 
         std::cout << "Detecting and estimating pose of the Zivid checkerboard in the camera frame" << std::endl;
         const auto detectionResult = Zivid::Calibration::detectCalibrationBoard(frame);
+        if(!detectionResult.valid())
+        {
+            throw std::runtime_error("No checkerboard detected. " + detectionResult.statusDescription());
+        }
         const auto cameraToCheckerboardTransform = detectionResult.pose().toMatrix();
         std::cout << cameraToCheckerboardTransform << std::endl;
         std::cout << "Camera pose in checkerboard frame:" << std::endl;
@@ -188,8 +195,14 @@ int main()
         const auto bgraImage = pointCloudToColorBGRA_SRGB(pointCloud);
 
         std::cout << "Visualizing checkerboard with coordinate system" << std::endl;
-        drawCoordinateSystem(frame, cameraToCheckerboardTransform, bgraImage);
-        displayBGRA(bgraImage, "Checkerboard transformation frame");
+        cv::Mat bgrCoordinateSystem;
+        cv::cvtColor(bgraImage, bgrCoordinateSystem, cv::COLOR_BGRA2BGR);
+        drawCoordinateSystem(frame, cameraToCheckerboardTransform, bgrCoordinateSystem);
+        displayBGR(bgrCoordinateSystem, "Checkerboard transformation frame");
+
+        const auto bgrImageFile = "CheckerboardCoordinateSystem.png";
+        std::cout << "Saving 2D color image with coordinate system to file: " << bgrImageFile << std::endl;
+        cv::imwrite(bgrImageFile, bgrCoordinateSystem);
 
         const auto checkerboardTransformedFile = "CalibrationBoardInCheckerboardOrigin.zdf";
         std::cout << "Saving transformed point cloud to file: " << checkerboardTransformedFile << std::endl;

@@ -9,6 +9,9 @@ this example is to demonstrate how to configure all the settings.
 This sample also demonstrates how to save and load settings from file.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information about camera settings, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/camera-settings.html
 */
 
 #include <Zivid/Zivid.h>

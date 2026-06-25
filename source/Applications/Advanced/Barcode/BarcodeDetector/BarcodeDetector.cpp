@@ -1,5 +1,8 @@
 /*
 Detect and decode linear and matrix barcodes from a 2D capture.
+
+For more information on how to use the Zivid Barcode Detector, check out the Barcode Detection tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/barcode-detection.html
 */
 
 #include <Zivid/Experimental/Toolbox/Barcode.h>

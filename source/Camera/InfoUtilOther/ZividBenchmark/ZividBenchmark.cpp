@@ -3,6 +3,9 @@ Zividbenchmark is a sample that will test the average speed of different operati
 It will provide the mean and median for connects, disconnects, single imaging, HDR and filtering.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information about capture speed, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/calculate-3d-capture-speed.html
 */
 
 #include <Zivid/Zivid.h>
