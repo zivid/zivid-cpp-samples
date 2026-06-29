@@ -5,6 +5,9 @@ and illuminating them with the projector.
 The checkerboard feature points are first found through the API. These points are then used to get the
 corresponding projector pixels. The projector pixel coordinates are then used to draw markers at the
 correct locations before displaying the image using the projector.
+
+For more information on using the projector to project 2D images, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/camera/2d-image-projection.html
 */
 
 #include <Zivid/Application.h>

@@ -2,6 +2,9 @@
 Read point cloud data from a ZDF file, iterate through it, and extract individual points.
 
 The ZDF file for this sample can be found under the main instructions for Zivid samples.
+
+For more information on supported formats and options, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/point-cloud-structure-and-output-formats.html
 */
 
 #include <Zivid/Zivid.h>

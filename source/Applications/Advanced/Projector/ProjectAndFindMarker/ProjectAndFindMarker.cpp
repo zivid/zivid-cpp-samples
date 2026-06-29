@@ -4,6 +4,9 @@ Show a marker using the projector, capture a set of 2D images to find the marker
 This example shows how a marker can be projected onto a surface using the built-in projector. A 2D capture with
 zero brightness is then used to capture an image with the marker. Finally position of the marker is detected,
 allowing us to find the 3D coordinates relative to the camera.
+
+For more information on using the projector to project 2D images, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/camera/2d-image-projection.html
 */
 #include <Zivid/Application.h>
 #include <Zivid/CaptureAssistant.h>

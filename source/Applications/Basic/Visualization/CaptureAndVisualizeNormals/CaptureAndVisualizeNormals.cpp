@@ -1,5 +1,8 @@
 /*
 Capture Zivid point clouds, with color and normals, and visualize it in 3D and as a normal map.
+
+For more information on computing point cloud normals, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/normals.html
 */
 
 #include <Zivid/Zivid.h>

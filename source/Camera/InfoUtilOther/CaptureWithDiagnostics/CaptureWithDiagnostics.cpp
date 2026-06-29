@@ -6,6 +6,9 @@ Send ZDF files with diagnostics enabled to the Zivid support team to allow more 
 Have in mind that enabling diagnostics increases the capture time and the RAM usage.
 
 The YML file for this sample can be found under the main instructions for Zivid samples.
+
+For more information on diagnostics, check out this article:
+https://support.zivid.com/en/latest/reference-articles/settings/diagnostics.html
 */
 
 #include <Zivid/Zivid.h>

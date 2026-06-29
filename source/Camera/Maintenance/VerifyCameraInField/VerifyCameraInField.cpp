@@ -6,6 +6,9 @@ If the trueness is much worse than expected, the camera may have been damaged by
 shock in shipping or handling. If so, look at the CorrectCameraInField sample.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
+
+For more information about in-field verification, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/camera/infield-correction.html
 */
 
 #include <Zivid/Calibration/Detector.h>

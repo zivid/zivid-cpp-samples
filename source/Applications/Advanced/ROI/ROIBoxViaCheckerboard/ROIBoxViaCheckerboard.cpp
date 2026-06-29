@@ -2,6 +2,9 @@
 Filter the point cloud based on a ROI box given relative to the Zivid Calibration Board.
 
 The ZFC file for this sample can be downloaded from https://support.zivid.com/en/latest/api-reference/samples/sample-data.html.
+
+For more information on Region-Of-Interest (ROI) and how to use it, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/roi.html
 */
 
 #include <Zivid/Calibration/Detector.h>

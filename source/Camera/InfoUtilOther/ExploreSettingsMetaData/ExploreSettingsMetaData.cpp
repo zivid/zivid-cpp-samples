@@ -7,6 +7,9 @@ For every parameter, it prints:
   - the current value if explicitly set,
   - otherwise the camera’s default value,
   - and any available metadata (valid ranges or discrete allowed values)
+
+For more information on camera settings, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/camera-settings.html
 */
 
 #include <Zivid/Experimental/SettingsInfo.h>

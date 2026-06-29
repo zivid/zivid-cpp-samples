@@ -2,6 +2,9 @@
 Downsample point cloud from a ZDF file.
 
 The ZDF files for this sample can be found under the main instructions for Zivid samples.
+
+For more information on downsampling point clouds, check out this tutorial:
+https://support.zivid.com/en/latest/camera/academy/applications/downsampling.html
 */
 
 #include <Zivid/Visualization/Visualizer.h>

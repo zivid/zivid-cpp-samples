@@ -4,6 +4,9 @@ Capture images and point clouds, with and without color, from the Zivid camera w
 Choose whether to get the image in the linear RGB or the sRGB color space.
 
 The YML files for this sample can be found under the main Zivid sample instructions.
+
+For more information about camera settings, check out this article:
+https://support.zivid.com/en/latest/camera/reference-articles/camera-settings.html
 */
 
 #include <Zivid/Experimental/PointCloudExport.h>
