@@ -49,7 +49,6 @@ namespace
         }
     }
 
-
     pcl::PointCloud<pcl::PointXYZRGB> convertToPCLPointCloud(const Zivid::Array2D<Zivid::PointXYZColorRGBA_SRGB> &data)
     {
         auto pointCloud = pcl::PointCloud<pcl::PointXYZRGB>();

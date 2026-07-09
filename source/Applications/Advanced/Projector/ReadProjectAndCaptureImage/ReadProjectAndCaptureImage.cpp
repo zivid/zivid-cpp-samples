@@ -48,7 +48,6 @@ namespace
         return projectorImage;
     }
 
-
     std::string getProjectorImageFileForGivenCamera(const Zivid::Camera &camera)
     {
         const auto model = camera.info().model().value();

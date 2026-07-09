@@ -23,6 +23,8 @@ option(USE_OPENCV "Enable samples which depend on OpenCV" ON)
 option(USE_PCL "Enable samples which depend on Point Cloud Library (PCL)" ON)
 option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
+option(USE_CUDA "Enable samples which depend on CUDA" OFF)
+option(USE_OPENCV_CUDA "Enable samples which depend on OpenCV CUDA extensions" OFF)
 
 set(SAMPLES
     Applications/Basic/Visualization/CaptureAndVisualizeNormals
@@ -39,6 +41,7 @@ set(SAMPLES
     Applications/Advanced/Downsample
     Camera/InfoUtilOther/ExploreSettingsMetaData
     Applications/Advanced/GammaCorrection
+    Applications/Advanced/MaskPointCloud
     Applications/Advanced/Projector/ProjectAndFindMarker
     Applications/Advanced/Projector/ReadProjectAndCaptureImage
     Applications/Advanced/Projector/ReprojectPoints
@@ -52,6 +55,7 @@ set(SAMPLES
     Applications/Advanced/Transform/TransformPointCloudFromMillimetersToMeters
     Applications/Advanced/Visualization/CaptureVis3DInLoop
     Applications/Advanced/Visualization/CaptureVis3DInLoopWithKeypressExit
+    Applications/Advanced/Cuda/CaptureAndConvertImageWithOpenCVOnCuda
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
@@ -60,9 +64,11 @@ set(SAMPLES
     Applications/Advanced/MultiCamera/StitchByTransformation
     Applications/Advanced/MultiCamera/StitchByTransformationFromZDF
     Camera/Basic/Capture
+    Camera/Basic/Connect
     Camera/Basic/CaptureFromFileCamera
     Camera/Basic/CaptureWithSettingsFromYML
     Camera/Basic/CaptureHDRCompleteSettings
+    Camera/Basic/CreateFileCameraFromZDFWithDiagnostics
     Camera/Advanced/AllocateMemoryForPointCloudData
     Camera/Advanced/Capture2DAnd3D
     Camera/Advanced/CaptureAndPrintNormals
@@ -76,6 +82,7 @@ set(SAMPLES
     Camera/InfoUtilOther/CameraInfo
     Camera/InfoUtilOther/CameraUserData
     Camera/InfoUtilOther/CaptureWithDiagnostics
+    Camera/InfoUtilOther/CheckHealth
     Camera/InfoUtilOther/FirmwareUpdater
     Camera/InfoUtilOther/FrameInfo
     Camera/InfoUtilOther/GetCameraIntrinsics
@@ -110,9 +117,11 @@ set(PCL_DEPENDING
 set(OpenCV_DEPENDING
     AllocateMemoryForPointCloudData
     Capture2DAnd3D
+    CaptureAndConvertImageWithOpenCVOnCuda
     CaptureUndistort2D
     CreateDepthMap
     GammaCorrection
+    MaskPointCloud
     ProjectAndFindMarker
     ReprojectPoints
     ReadProjectAndCaptureImage
@@ -128,6 +137,7 @@ set(Visualization_DEPENDING
     CaptureVis3DInLoopWithKeypressExit
     CaptureWritePCLVis3D
     Downsample
+    MaskPointCloud
     ROIBoxViaArucoMarker
     ROIBoxViaCheckerboard
     StitchByTransformation
@@ -172,6 +182,8 @@ set(Halcon_DEPENDING
     CaptureHalconViaGenICam
     CaptureHalconViaZivid
 )
+set(CUDA_DEPENDING CaptureAndConvertImageWithOpenCVOnCuda)
+
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
 
@@ -185,6 +197,9 @@ macro(disable_samples DEPENDENCY_NAME)
             list(REMOVE_ITEM SAMPLES ${SAMPLE})
         endif()
     endforeach()
+    if(WIN32 AND "${DEPENDENCY_NAME}" STREQUAL "CUDA")
+        message("Note: CUDA-dependent samples are not supported on Windows")
+    endif()
 endmacro()
 
 if(USE_EIGEN3)
@@ -228,6 +243,14 @@ if(USE_OPENCV)
         highgui
         calib3d
     )
+    if(USE_OPENCV_CUDA)
+        list(
+            APPEND
+            OPENCV_COMMON_MODULES
+            cudaarithm
+            cudaimgproc
+        )
+    endif()
     find_package(OpenCV 4.1.0 COMPONENTS ${OPENCV_COMMON_MODULES})
     if(NOT OpenCV_FOUND)
         message(
@@ -269,6 +292,13 @@ if(USE_HALCON)
     find_package(HDevEngine REQUIRED)
 else()
     disable_samples("Halcon")
+endif()
+
+if(USE_CUDA)
+    find_package(CUDAToolkit REQUIRED)
+    enable_language(CUDA)
+else()
+    disable_samples("CUDA")
 endif()
 
 message(STATUS "All samples: ${SAMPLES}")
@@ -328,6 +358,10 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST Thread_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} Threads::Threads)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST CUDA_DEPENDING)
+        target_link_libraries(${SAMPLE_NAME} CUDA::cudart_static)
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Halcon_DEPENDING)

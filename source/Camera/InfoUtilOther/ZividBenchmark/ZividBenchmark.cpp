@@ -924,11 +924,12 @@ namespace
         const std::vector<double> twoApertures{ 3.0, 3.0 };
         const auto settings2D3D = makeSettings(camera, twoApertures, twoExposureTimes, exposureTime, false, false);
         auto warmupFrame = camera.capture2D3D(settings2D3D);
-        if(!warmupFrame.frame2D().has_value())
+        const auto warmupFrame2DOptional = warmupFrame.frame2D();
+        if(!warmupFrame2DOptional.has_value())
         {
             throw std::runtime_error("Warmup frame does not contain 2D data");
         }
-        auto warmupFrame2D = warmupFrame.frame2D().value();
+        auto warmupFrame2D = warmupFrame2DOptional.value();
 
         copyDataTime<Zivid::PointXYZ>(warmupFrame);
         copyDataTime<Zivid::PointXYZW>(warmupFrame);
@@ -943,11 +944,12 @@ namespace
         for(size_t i = 0; i < numCopies; i++)
         {
             auto frame = camera.capture2D3D(settings2D3D);
-            if(!frame.frame2D().has_value())
+            const auto frame2DOptional = frame.frame2D();
+            if(!frame2DOptional.has_value())
             {
                 throw std::runtime_error("Captured frame does not contain 2D data");
             }
-            auto frame2D = frame.frame2D().value();
+            auto frame2D = frame2DOptional.value();
 
             copyDataDurations[0].push_back(copyDataTime<Zivid::PointXYZ>(frame));
             copyDataDurations[1].push_back(copyDataTime<Zivid::PointXYZW>(frame));

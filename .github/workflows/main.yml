@@ -15,19 +15,19 @@ jobs:
               uses: actions/checkout@v3
               with:
                   lfs: false
-            - name: Lint with Ubuntu 20.04
+            - name: Lint with Ubuntu latest
               run: |
                   docker run \
                       --volume $PWD:/host \
                       --workdir /host/continuous-integration/linux \
-                      ubuntu:20.04 \
+                      ubuntu:latest \
                       bash -c "./setup.sh && ./lint.sh"
     ubuntu:
         name: Ubuntu build
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                ubuntu-version: ["20.04"]
+                ubuntu-version: ["latest"]
         steps:
             - name: Check out code
               uses: actions/checkout@v3

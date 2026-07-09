@@ -28,7 +28,6 @@ namespace
         return projectorImage;
     }
 
-
     void projecting(Zivid::Camera &camera, const Zivid::Image<Zivid::ColorBGRA> &projectorImageFunctionScope)
     {
         auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImageFunctionScope);
@@ -36,7 +35,6 @@ namespace
         std::cout << "Press enter to stop projecting by leaving a function scope" << std::endl;
         std::cin.get();
     }
-
 
 } // namespace
 

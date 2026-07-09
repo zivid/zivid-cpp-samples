@@ -51,7 +51,6 @@ namespace
         return bgra;
     }
 
-
     cv::Mat combineImages(const cv::Mat &imageOne, const cv::Mat &imageTwo)
     {
         cv::Mat combinedImage;
@@ -64,7 +63,6 @@ namespace
 
         return combinedImage;
     }
-
 
     void displayBGRA(const cv::Mat &bgra, const std::string &bgraName)
     {

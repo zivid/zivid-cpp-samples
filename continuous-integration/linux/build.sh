@@ -6,13 +6,16 @@ SOURCE_DIR="$ROOT_DIR/source"
 BUILD_ROOT_DIR="$ROOT_DIR/build/ci"
 
 source /etc/os-release || exit
-if [[ $VERSION_ID == "20.04" ]]; then
-    OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=ON -DUSE_OPENCV=ON -DUSE_ARUCO=ON -DUSE_GENTL=ON"
-    EIGEN3_INCLUDE_DIR="/usr/include/eigen3"
-else
-    echo "ERROR: found $VERSION_ID. Expected 20.04"
-    exit 1
-fi
+case "$VERSION_ID" in
+    22.04 | 26.04)
+        OS_SPECIFIC_OPTIONS="-DUSE_PCL=ON -DUSE_EIGEN3=ON -DUSE_OPENCV=ON -DUSE_ARUCO=ON -DUSE_GENTL=ON"
+        EIGEN3_INCLUDE_DIR="/usr/include/eigen3"
+        ;;
+    *)
+        echo "ERROR: found $VERSION_ID. Expected 22.04 or 26.04"
+        exit 1
+        ;;
+esac
 
 function build() {
     COMPILER=$1

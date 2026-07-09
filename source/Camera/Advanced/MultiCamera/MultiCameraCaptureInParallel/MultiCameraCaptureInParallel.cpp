@@ -42,7 +42,6 @@ namespace
         return data;
     }
 
-
     std::vector<Zivid::Camera> connectToAllAvailableCameras(const std::vector<Zivid::Camera> &cameras)
     {
         std::vector<Zivid::Camera> connectedCameras;

@@ -124,11 +124,12 @@ int main()
         const auto frame = camera.capture2D3D(settings);
 
         std::cout << "Getting BGRA image" << std::endl;
-        if(!frame.frame2D().has_value())
+        const auto frame2D = frame.frame2D();
+        if(!frame2D.has_value())
         {
             throw std::runtime_error("Captured frame does not contain a 2D image.");
         }
-        const auto image = frame.frame2D().value().imageBGRA_SRGB();
+        const auto image = frame2D->imageBGRA_SRGB();
         const cv::Mat bgra(
             image.height(),
             image.width(),

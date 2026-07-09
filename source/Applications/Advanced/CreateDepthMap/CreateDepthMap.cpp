@@ -115,7 +115,6 @@ namespace
         return zColorMap;
     }
 
-
     cv::Mat pointCloudToCvBGRA_SRGB(const Zivid::PointCloud &pointCloud)
 
     {
@@ -124,7 +123,6 @@ namespace
 
         return bgra;
     }
-
 
 } // namespace
 

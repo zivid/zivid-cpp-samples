@@ -28,40 +28,61 @@ int main()
         const auto linearFormatFilter = LinearBarcodeFormat::code128 | LinearBarcodeFormat::code93
                                         | LinearBarcodeFormat::code39 | LinearBarcodeFormat::ean13
                                         | LinearBarcodeFormat::ean8 | LinearBarcodeFormat::upcA
-                                        | LinearBarcodeFormat::upcE;
+                                        | LinearBarcodeFormat::upcE | LinearBarcodeFormat::itf;
         const auto matrixFormatFilter = MatrixBarcodeFormat::qrcode | MatrixBarcodeFormat::dataMatrix;
 
         const auto settings2d = barcodeDetector.suggestSettings(camera);
 
-        std::cout << "Detecting barcodes ..." << std::endl;
+        std::cout << "Capturing 2D frame ..." << std::endl;
         const auto frame2d = camera.capture2D(settings2d);
 
-        const auto linearBarcodeResults = barcodeDetector.readLinearCodes(frame2d, linearFormatFilter);
-        const auto matrixBarcodeResults = barcodeDetector.readMatrixCodes(frame2d, matrixFormatFilter);
+        std::cout << "Detecting linear barcode candidates ..." << std::endl;
+        const auto detectionResults = barcodeDetector.detectLinearCodes(frame2d);
 
-        if(!linearBarcodeResults.empty())
+        const auto decodingResults = barcodeDetector.decodeLinearCodes(detectionResults, linearFormatFilter);
+
+        if(!detectionResults.empty())
         {
-            std::cout << "Detected " << linearBarcodeResults.size() << " linear barcodes:" << std::endl;
-            for(const auto &result : linearBarcodeResults)
+            std::cout << "Detected " << detectionResults.size() << " linear barcode candidates:" << std::endl;
+            for(size_t i = 0; i < detectionResults.size(); ++i)
             {
-                std::cout << "-- Detected barcode " << result.code() << " on format " << toString(result.codeFormat())
-                          << " at pixel " << result.centerPosition() << std::endl;
+                std::cout << "-- Candidate " << (i + 1) << ":" << std::endl;
+                std::cout << "   Bounding box: " << detectionResults[i].boundingBox() << std::endl;
+                const auto &decodingResult = decodingResults[i];
+                if(decodingResult.has_value())
+                {
+                    const auto &decoded = decodingResult.value();
+                    std::cout << "   Code:         " << decoded.code() << std::endl;
+                    std::cout << "   Format:       " << toString(decoded.codeFormat()) << std::endl;
+                    std::cout << "   Bounding box: " << decoded.boundingBox() << std::endl;
+                }
+                else
+                {
+                    std::cout << "   Failed to decode" << std::endl;
+                }
             }
         }
+        else
+        {
+            std::cout << "No linear barcode candidates detected" << std::endl;
+        }
+
+        std::cout << "Reading matrix barcodes ..." << std::endl;
+        const auto matrixBarcodeResults = barcodeDetector.readMatrixCodes(frame2d, matrixFormatFilter);
 
         if(!matrixBarcodeResults.empty())
         {
             std::cout << "Detected " << matrixBarcodeResults.size() << " matrix barcodes:" << std::endl;
             for(const auto &result : matrixBarcodeResults)
             {
-                std::cout << "-- Detected barcode " << result.code() << " on format " << toString(result.codeFormat())
-                          << " at pixel " << result.centerPosition() << std::endl;
+                std::cout << "-- Code:         " << result.code() << std::endl;
+                std::cout << "   Format:       " << toString(result.codeFormat()) << std::endl;
+                std::cout << "   Bounding box: " << result.boundingBox() << std::endl;
             }
         }
-
-        if(linearBarcodeResults.empty() && matrixBarcodeResults.empty())
+        else
         {
-            std::cout << "No barcodes detected" << std::endl;
+            std::cout << "No matrix barcodes detected" << std::endl;
         }
     }
     catch(const std::exception &e)

@@ -158,6 +158,7 @@ namespace
         const std::vector<std::string> &fileFormats,
         bool linearRgb)
     {
+        const auto frame2D = frame.frame2D();
         for(const auto &format : fileFormats)
         {
             const auto fileName = filePath.parent_path() / (filePath.stem().string() + "." + format);
@@ -167,7 +168,7 @@ namespace
             if(linearRgb)
             {
                 save2DImage(
-                    frame.frame2D() ? frame.frame2D()->imageRGBA() : frame.pointCloud().copyImageRGBA(),
+                    frame2D.has_value() ? frame2D->imageRGBA() : frame.pointCloud().copyImageRGBA(),
                     frame.pointCloud().copyImageRGBA(),
                     fileName,
                     fileNamePointCloudResolution);
@@ -175,7 +176,7 @@ namespace
             else
             {
                 save2DImage(
-                    frame.frame2D() ? frame.frame2D()->imageRGBA_SRGB() : frame.pointCloud().copyImageRGBA_SRGB(),
+                    frame2D.has_value() ? frame2D->imageRGBA_SRGB() : frame.pointCloud().copyImageRGBA_SRGB(),
                     frame.pointCloud().copyImageRGBA_SRGB(),
                     fileName,
                     fileNamePointCloudResolution);
