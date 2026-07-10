@@ -4,7 +4,8 @@ Automatically configure the IP addresses of connected cameras to match the netwo
 Usage:
 - By default, the program applies the new configuration directly to the cameras.
 - Use the [--display-only] argument to simulate the configuration and display the
-  proposed IP addresses without making actual changes.
+  proposed IP addresses without making actual changes. Note: camera-side Ethernet
+  link speed will also be skipped, as it requires connecting to the camera.
 
 For more information on network configuration, check out this tutorial:
 https://support.zivid.com/en/latest/camera/getting-started/software-installation/zivid-two-network-configuration.html
@@ -36,7 +37,7 @@ namespace
         std::string mask;
     };
 
-    UserNetworkInfo getUsersLocalInterfaceNetworkConfiguration(const Zivid::Camera &camera)
+    Zivid::CameraState::Network::LocalInterface getUsersLocalInterface(const Zivid::Camera &camera)
     {
         Zivid::CameraState::Network::LocalInterfaces localInterfaces = camera.state().network().localInterfaces();
 
@@ -53,20 +54,55 @@ namespace
                 + ". Please, reorganize your network.");
         }
 
-        if(localInterfaces.at(0).ipv4().subnets().isEmpty())
+        return localInterfaces.at(0);
+    }
+
+    UserNetworkInfo getUsersLocalInterfaceNetworkConfiguration(const Zivid::Camera &camera)
+    {
+        const auto localInterface = getUsersLocalInterface(camera);
+
+        if(localInterface.ipv4().subnets().isEmpty())
         {
             throw std::runtime_error("No valid subnets found for camera " + camera.info().serialNumber().toString());
         }
 
-        if(localInterfaces.at(0).ipv4().subnets().size() > 1)
+        if(localInterface.ipv4().subnets().size() > 1)
         {
             throw std::runtime_error(
                 "More than one ip address found for the local interface from the camera "
                 + camera.info().serialNumber().toString());
         }
 
-        auto subnet = localInterfaces.at(0).ipv4().subnets().at(0);
+        auto subnet = localInterface.ipv4().subnets().at(0);
         return { subnet.address().toString(), subnet.mask().toString() };
+    }
+
+    void printHostSideEthernetLinkSpeed(const Zivid::Camera &camera)
+    {
+        // Reading the host-side (local interface) Ethernet link speed does not require a connection to the camera.
+        const auto localInterface = getUsersLocalInterface(camera);
+        const auto localInterfaceLinkSpeed = localInterface.ethernet().linkSpeed();
+
+        std::cout << "Camera " << camera.info().serialNumber()
+                  << ": local interface Ethernet link speed=" << localInterfaceLinkSpeed << std::endl;
+    }
+
+    void printCameraSideEthernetLinkSpeed(Zivid::Camera &camera)
+    {
+        // Reading the camera-side Ethernet link speed requires being connected to the camera.
+        camera.connect();
+        try
+        {
+            const auto cameraLinkSpeed = camera.state().network().ethernet().linkSpeed();
+            std::cout << "Camera " << camera.info().serialNumber() << ": camera Ethernet link speed=" << cameraLinkSpeed
+                      << std::endl;
+        }
+        catch(...)
+        {
+            camera.disconnect();
+            throw;
+        }
+        camera.disconnect();
     }
 } // namespace
 
@@ -160,6 +196,23 @@ int main(int argc, char **argv)
             {
                 std::cerr << "Error when configuring camera: " << camera.networkConfiguration() << " " << e.what()
                           << std::endl;
+            }
+        }
+
+        for(auto &camera : cameras)
+        {
+            try
+            {
+                printHostSideEthernetLinkSpeed(camera);
+                if(!displayOnly)
+                {
+                    printCameraSideEthernetLinkSpeed(camera);
+                }
+            }
+            catch(const std::exception &e)
+            {
+                std::cerr << "Error when reading Ethernet link speed for camera: " << camera.info().serialNumber()
+                          << " " << e.what() << std::endl;
             }
         }
     }

@@ -3,6 +3,9 @@ Capture images and point clouds, with and without color, from the Zivid camera w
 
 Choose whether to get the image in the linear RGB or the sRGB color space.
 
+Demonstrates saving and loading a 2D frame to and from a ZDF file, and using readFrameFileType to determine
+whether a ZDF file contains a 3D Frame or a Frame2D.
+
 The YML files for this sample can be found under the main Zivid sample instructions.
 
 For more information about camera settings, check out this article:
@@ -141,6 +144,18 @@ int main(int argc, char *argv[])
                           << "  B:" << std::to_string(pixelArraySRGB.b) << "  A:" << std::to_string(pixelArraySRGB.a)
                           << std::endl;
             }
+
+            const auto dataFile2D = "Frame2D.zdf";
+            std::cout << "Saving 2D frame to file: " << dataFile2D << std::endl;
+            frame2D.save(dataFile2D);
+
+            const auto frameFileType2D = Zivid::readFrameFileType(dataFile2D);
+            std::cout << "Frame file type: " << (frameFileType2D == Zivid::FrameFileType::frame2D ? "Frame2D" : "Frame")
+                      << std::endl;
+
+            std::cout << "Loading 2D frame from file: " << dataFile2D << std::endl;
+            const auto loadedFrame2D = Zivid::Frame2D{ dataFile2D };
+            std::cout << "Loaded 2D frame: " << loadedFrame2D.toString() << std::endl;
         }
 
         std::cout << "Capturing 3D frame" << std::endl;
@@ -149,6 +164,10 @@ int main(int argc, char *argv[])
             const auto dataFile = "Frame3D.zdf";
             std::cout << "Saving frame to file: " << dataFile << std::endl;
             frame3D.save(dataFile);
+
+            const auto frameFileType = Zivid::readFrameFileType(dataFile);
+            std::cout << "Frame file type: " << (frameFileType == Zivid::FrameFileType::frame ? "Frame" : "Frame2D")
+                      << std::endl;
 
             const auto dataFilePly = "PointCloudWithoutColor.ply";
             std::cout << "Exporting point cloud (default pink colored points) to file: " << dataFilePly << std::endl;

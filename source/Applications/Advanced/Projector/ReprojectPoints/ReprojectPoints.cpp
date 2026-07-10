@@ -128,7 +128,6 @@ int main()
 
         std::cout << "Displaying the projector image" << std::endl;
 
-
         { // A Local Scope to handle the projected image lifetime
 
             auto projectedImageHandle = Zivid::Projection::showImage(camera, projectorImage);
@@ -146,7 +145,6 @@ int main()
             std::cin.get();
 
         } // projectedImageHandle now goes out of scope, thereby stopping the projection
-
 
         std::cout << "Done" << std::endl;
     }

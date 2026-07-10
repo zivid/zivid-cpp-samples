@@ -1,7 +1,8 @@
 /*
 Filter the point cloud based on a ROI box given relative to the ArUco marker on a Zivid Calibration Board.
 
-The ZFC file for this sample can be downloaded from https://support.zivid.com/en/latest/api-reference/samples/sample-data.html.
+The ZDF file for this sample can be found in Zivid Sample Data.
+See the instructions in README.md to download the Zivid Sample Data.
 
 For more information on Region-Of-Interest (ROI) and how to use it, check out this tutorial:
 https://support.zivid.com/en/latest/camera/academy/applications/roi.html
@@ -72,12 +73,12 @@ namespace
         return transformedZividPoints;
     }
 
-    void visualizeZividPointCloud(const Zivid::Frame &frame)
+    void visualizeZividPointCloud(const Zivid::PointCloud &zividObject)
     {
         Zivid::Visualization::Visualizer visualizer;
 
         visualizer.showMaximized();
-        visualizer.show(frame);
+        visualizer.show(zividObject);
         visualizer.resetToFit();
 
         std::cout << "Running visualizer. Blocking until window closes." << std::endl;
@@ -91,20 +92,19 @@ int main()
     {
         Zivid::Application zivid;
 
-        const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithCalibrationBoard.zfc";
+        const auto fileCamera = std::string(ZIVID_SAMPLE_DATA_DIR) + "/BinWithCalibrationBoard.zdf";
+        const auto loadedFrameWithDiagnostics = Zivid::Frame(fileCamera);
 
         std::cout << "Creating virtual camera using file: " << fileCamera << std::endl;
-        auto camera = zivid.createFileCamera(fileCamera);
+        auto camera = zivid.createFileCamera(loadedFrameWithDiagnostics);
 
-        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
-        Zivid::Settings settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} },
-                                  Zivid::Settings::Color{ settings2D } };
+        auto settings = loadedFrameWithDiagnostics.settings();
 
         const auto originalFrame = camera.capture2D3D(settings);
         auto pointCloud = originalFrame.pointCloud();
 
         std::cout << "Displaying the original point cloud" << std::endl;
-        visualizeZividPointCloud(originalFrame);
+        visualizeZividPointCloud(originalFrame.pointCloud());
 
         std::cout << "Configuring ROI box based on bin size and checkerboard placement" << std::endl;
         const float roiBoxLength = 545.F;
@@ -147,18 +147,26 @@ int main()
             cameraToMarkerTransform);
 
         std::cout << "Setting the ROI" << std::endl;
-        settings.set(
-            Zivid::Settings::RegionOfInterest{
-                Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
-                Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
-                Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
-                Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
-                Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight } });
+        const auto roiSettings = Zivid::Settings::RegionOfInterest::Box{
+            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Box::PointO{ roiPointsInCameraFrame[0] },
+            Zivid::Settings::RegionOfInterest::Box::PointA{ roiPointsInCameraFrame[1] },
+            Zivid::Settings::RegionOfInterest::Box::PointB{ roiPointsInCameraFrame[2] },
+            Zivid::Settings::RegionOfInterest::Box::Extents{ -10, roiBoxHeight }
+        };
+
+        const auto roiPointCloud = pointCloud.maskedByRegionOfInterest(roiSettings);
+
+        std::cout << "Displaying the ROI-filtered point cloud" << std::endl;
+        visualizeZividPointCloud(roiPointCloud);
+
+        std::cout << "Adding the ROI box to the capture settings and capturing again" << std::endl;
+        settings.set(Zivid::Settings::RegionOfInterest{ roiSettings });
 
         const auto roiFrame = camera.capture2D3D(settings);
 
-        std::cout << "Displaying the ROI-filtered point cloud" << std::endl;
-        visualizeZividPointCloud(roiFrame);
+        std::cout << "Displaying the ROI-filtered point cloud from the new capture" << std::endl;
+        visualizeZividPointCloud(roiFrame.pointCloud());
     }
     catch(const std::exception &e)
     {

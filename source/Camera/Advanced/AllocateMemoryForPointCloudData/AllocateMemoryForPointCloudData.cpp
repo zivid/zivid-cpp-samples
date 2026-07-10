@@ -76,12 +76,13 @@ int main()
         std::cout << "Capturing frame" << std::endl;
         frame = camera.capture2D3D(settings);
 
-        if(!frame.frame2D().has_value())
+        const auto frame2D = frame.frame2D();
+        if(!frame2D.has_value())
         {
             throw std::runtime_error("Captured frame does not contain a 2D image.");
         }
         std::cout << "Copying colors with Zivid API from GPU to CPU" << std::endl;
-        auto colors = frame.frame2D().value().imageBGRA_SRGB();
+        auto colors = frame2D->imageBGRA_SRGB();
 
         std::cout << "Casting the data pointer as a void*, since this is what the OpenCV matrix constructor requires."
                   << std::endl;

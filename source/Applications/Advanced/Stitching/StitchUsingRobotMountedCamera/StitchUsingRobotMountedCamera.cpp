@@ -11,6 +11,11 @@ point cloud of the object, seen from different angles, i.e, from the front, back
 The big object does not fit within the camera's field of view, so the stitching is done to extend the
 field of view of the camera, and see the object in full.
 
+Before stitching, each point cloud is transformed to the robot base frame and cropped using a
+region-of-interest (ROI) box defined in that frame. Because the ROI is applied as a post-capture
+re-processing step, a single workspace volume relative to the robot base filters out background
+from every viewpoint.
+
 The resulting stitched point cloud is voxel downsampled if the `--full-resolution` flag is not set.
 
 Dataset: https://support.zivid.com/en/latest/api-reference/samples/sample-data.html
@@ -147,7 +152,10 @@ namespace
         std::sort(poseFilePaths.begin(), poseFilePaths.end());
     }
 
-    Zivid::UnorganizedPointCloud stitchPointClouds(const std::filesystem::path &directory, const bool fullResolution)
+    Zivid::UnorganizedPointCloud stitchPointClouds(
+        const std::filesystem::path &directory,
+        const bool fullResolution,
+        const Zivid::Settings::RegionOfInterest::Box &workspaceRoiBox)
     {
         std::vector<std::filesystem::path> zdfFilePaths;
         std::vector<std::filesystem::path> poseFilePaths;
@@ -171,8 +179,10 @@ namespace
             const Zivid::Frame frame(zdfFilePaths[index].string());
 
             const auto baseToCameraTransform = eigenToZivid(zividToEigen(robotPose) * zividToEigen(handEyeTransform));
-            Zivid::UnorganizedPointCloud organizedPointCloudInBaseFrame =
-                frame.pointCloud().toUnorganizedPointCloud().voxelDownsampled(1.0, 2).transform(baseToCameraTransform);
+            auto pointCloud = frame.pointCloud();
+            pointCloud.transform(baseToCameraTransform);
+            pointCloud.maskByRegionOfInterest(workspaceRoiBox);
+            auto organizedPointCloudInBaseFrame = pointCloud.toUnorganizedPointCloud().voxelDownsampled(1.0, 2);
 
             if(index != 0)
             {
@@ -209,9 +219,11 @@ namespace
                 const Zivid::Frame frame(zdf.string());
                 RegistrationResults registrationResult = poseTransforms[index];
 
-                frame.pointCloud().transform(registrationResult.baseToCameraTransform);
+                auto pointCloud = frame.pointCloud();
+                pointCloud.transform(registrationResult.baseToCameraTransform);
+                pointCloud.maskByRegionOfInterest(workspaceRoiBox);
                 finalPointCloud.transform(registrationResult.previousToCurrentTransform.inverse());
-                finalPointCloud.extend(frame.pointCloud().toUnorganizedPointCloud());
+                finalPointCloud.extend(pointCloud.toUnorganizedPointCloud());
 
                 if(index > 0)
                 {
@@ -281,8 +293,15 @@ int main(int argc, char **argv)
 
         //Small object
         std::cout << "Stitching small object..." << std::endl;
+        const auto smallWorkspaceRoiBox = Zivid::Settings::RegionOfInterest::Box{
+            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Box::PointO{ -150, 300, 50 },
+            Zivid::Settings::RegionOfInterest::Box::PointA{ -150, 600, 50 },
+            Zivid::Settings::RegionOfInterest::Box::PointB{ 150, 300, 50 },
+            Zivid::Settings::RegionOfInterest::Box::Extents{ -75, 40 },
+        };
         const Zivid::UnorganizedPointCloud finalPointCloudSmallObject =
-            stitchPointClouds(smallObjectDir, fullResolution);
+            stitchPointClouds(smallObjectDir, fullResolution, smallWorkspaceRoiBox);
 
         visualizePointCloud(finalPointCloudSmallObject);
 
@@ -297,7 +316,15 @@ int main(int argc, char **argv)
 
         //Big object
         std::cout << "Stitching big object..." << std::endl;
-        const Zivid::UnorganizedPointCloud finalPointCloudBigObject = stitchPointClouds(bigObjectDir, fullResolution);
+        const auto bigWorkspaceRoiBox = Zivid::Settings::RegionOfInterest::Box{
+            Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+            Zivid::Settings::RegionOfInterest::Box::PointO{ -1000, 50, 50 },
+            Zivid::Settings::RegionOfInterest::Box::PointA{ -1000, 450, 50 },
+            Zivid::Settings::RegionOfInterest::Box::PointB{ 750, 350, 50 },
+            Zivid::Settings::RegionOfInterest::Box::Extents{ -150, 20 },
+        };
+        const Zivid::UnorganizedPointCloud finalPointCloudBigObject =
+            stitchPointClouds(bigObjectDir, fullResolution, bigWorkspaceRoiBox);
 
         visualizePointCloud(finalPointCloudBigObject);
 

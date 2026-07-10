@@ -19,7 +19,8 @@ BUILD_DIR="$ROOT_DIR/build/ci/tidy"
 mkdir --parents "$BUILD_DIR" || exit
 cd "$BUILD_DIR" || exit
 cmake -GNinja \
-    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy-10" \
+    -DCMAKE_CXX_COMPILER="clang++" \
+    -DCMAKE_CXX_CLANG_TIDY="/usr/bin/clang-tidy" \
     -DWARNINGS=ON \
     -DWARNINGS_AS_ERRORS=ON \
     -DUSE_PCL=ON \

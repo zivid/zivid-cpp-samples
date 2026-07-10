@@ -50,11 +50,15 @@ int main(int argc, char **argv)
             Zivid::Settings::Processing::Filters::Reflection::Removal::Enabled::yes,
             Zivid::Settings::Processing::Filters::Reflection::Removal::Mode::global,
         };
-        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} },
-                                      Zivid::Settings2D::Processing::Color::Balance::Red{ 1 },
-                                      Zivid::Settings2D::Processing::Color::Balance::Green{ 1 },
-                                      Zivid::Settings2D::Processing::Color::Balance::Blue{ 1 } };
+        settings.set(
+            Zivid::Settings::RegionOfInterest::Box{
+                Zivid::Settings::RegionOfInterest::Box::Enabled::yes,
+                Zivid::Settings::RegionOfInterest::Box::PointO{ { -266, 190, 771 } },
+                Zivid::Settings::RegionOfInterest::Box::PointA{ { 203, 207, 771 } },
+                Zivid::Settings::RegionOfInterest::Box::PointB{ { -255, -131, 771 } },
+                Zivid::Settings::RegionOfInterest::Box::Extents{ 0, 298 } });
 
+        Zivid::Settings2D settings2D{ Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } };
         settings.color() = Zivid::Settings::Color{ settings2D };
 
         std::cout << "Capturing frame" << std::endl;

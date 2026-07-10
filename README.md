@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.17.2. For
+This repository contains cpp code samples for Zivid SDK v2.18.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying releases].
 
@@ -28,13 +28,14 @@ tested compatibility with earlier SDK versions, please check out
   - **Capture**
     - [Quick Capture Tutorial]
     - [Capture Tutorial]
+    - [GPU Access Tutorial]
     - [Point Cloud Capture Process]
     - [2D Image Capture Process]
     - [2D + 3D Capture Strategy]
     - [Multiple Zivid Cameras]
     - [File Camera]
     - [Projector]
-  - **Maintenance**
+  - **Maintenance and Prevention**
     - [Infield Correction]
     - [Warm-up]
     - [Firmware Update]
@@ -73,6 +74,10 @@ from the camera can be used.
     - [CaptureWithSettingsFromYML] - Capture images and point clouds,
       with and without color, from the Zivid camera with settings from
       YML file.
+    - [Connect] - Connect to a Zivid camera using the different
+      available methods.
+    - [CreateFileCameraFromZDFWithDiagnostics] - Capture a frame with
+      diagnostics enabled and create a file camera from it.
   - **Advanced**
     - [AllocateMemoryForPointCloudData] - Two methods to copy point
       cloud data from GPU memory to CPU memory, to be consumed by
@@ -98,9 +103,11 @@ from the camera can be used.
     - [CameraInfo] - List connected cameras and print camera version and
       state information for each connected camera.
     - [CameraUserData] - Store user data on the Zivid camera.
-    - [CaptureWithDiagnostics] - Capture point clouds, with color, from
-      the Zivid camera, with settings from YML file and diagnostics
-      enabled.
+    - [CaptureWithDiagnostics] - Capture a 2D+3D frame and a 2D frame
+      from the Zivid camera with diagnostics enabled.
+    - [CheckHealth] - Poll the camera health check from a separate
+      thread while capturing in the main thread, printing the statuses
+      and values every second.
     - [ExploreSettingsMetaData] - Recursively iterates through all leaf
       parameters in a Zivid camera’s settings.
     - [FirmwareUpdater] - Update firmware on the Zivid camera.
@@ -156,12 +163,18 @@ from the camera can be used.
       format, extract depth map and visualize it.
     - [Downsample][1] - Downsample point cloud from a ZDF file.
     - [GammaCorrection] - Capture 2D image with gamma correction.
+    - [MaskPointCloud] - Mask point cloud from a ZDF file using the Mask
+      API and visualize it with Zivid::Visualizer.
     - **Visualization**
       - [CaptureVis3DInLoop] - Capture point clouds, with color, from
         the Zivid camera, and visualize them in a loop.
       - [CaptureVis3DInLoopWithKeypressExit] - Capture point clouds,
         with color, from the Zivid camera, and visualize them in a loop.
         Press 'q' to exit.
+    - **Cuda**
+      - [CaptureAndConvertImageWithOpenCVOnCuda] - Capture a 2D image
+        with the Zivid SDK and perform RGBA to grayscale conversion on a
+        CUDA device using OpenCV.
     - **Transform**
       - [TransformPointCloudFromMillimetersToMeters] - Transform point
         cloud data from millimeters to meters.
@@ -354,6 +367,7 @@ If your build hangs, try to increase the memory available to Docker.
   [image]: https://www.zivid.com/hubfs/softwarefiles/images/zivid-generic-github-header.png
   [Quick Capture Tutorial]: https://support.zivid.com/en/latest/camera/getting-started/quick-capture-tutorial.html
   [Capture Tutorial]: https://support.zivid.com/en/latest/camera/academy/camera/capture-tutorial.html
+  [GPU Access Tutorial]: https://support.zivid.com/en/latest/camera/academy/camera/gpu-access-tutorial.html
   [Point Cloud Capture Process]: https://support.zivid.com/en/latest/camera/academy/camera/point-cloud-capture-process.html
   [2D Image Capture Process]: https://support.zivid.com/en/latest/camera/academy/camera/2d-image-capture-process.html
   [2D + 3D Capture Strategy]: https://support.zivid.com/en/latest/camera/academy/camera/2d3d-capture-strategy.html
@@ -377,6 +391,8 @@ If your build hangs, try to increase the memory available to Docker.
   [CaptureFromFileCamera]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureFromFileCamera/CaptureFromFileCamera.cpp
   [CaptureHDRCompleteSettings]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureHDRCompleteSettings/CaptureHDRCompleteSettings.cpp
   [CaptureWithSettingsFromYML]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CaptureWithSettingsFromYML/CaptureWithSettingsFromYML.cpp
+  [Connect]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/Connect/Connect.cpp
+  [CreateFileCameraFromZDFWithDiagnostics]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/CreateFileCameraFromZDFWithDiagnostics/CreateFileCameraFromZDFWithDiagnostics.cpp
   [AllocateMemoryForPointCloudData]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/AllocateMemoryForPointCloudData/AllocateMemoryForPointCloudData.cpp
   [Capture2DAnd3D]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Capture2DAnd3D/Capture2DAnd3D.cpp
   [CaptureAndPrintNormals]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/CaptureAndPrintNormals/CaptureAndPrintNormals.cpp
@@ -389,6 +405,7 @@ If your build hangs, try to increase the memory available to Docker.
   [CameraInfo]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CameraInfo/CameraInfo.cpp
   [CameraUserData]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CameraUserData/CameraUserData.cpp
   [CaptureWithDiagnostics]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CaptureWithDiagnostics/CaptureWithDiagnostics.cpp
+  [CheckHealth]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/CheckHealth/CheckHealth.cpp
   [ExploreSettingsMetaData]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ExploreSettingsMetaData/ExploreSettingsMetaData.cpp
   [FirmwareUpdater]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/FirmwareUpdater/FirmwareUpdater.cpp
   [FrameInfo]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/FrameInfo/FrameInfo.cpp
@@ -415,8 +432,10 @@ If your build hangs, try to increase the memory available to Docker.
   [CreateDepthMap]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/CreateDepthMap/CreateDepthMap.cpp
   [1]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Downsample/Downsample.cpp
   [GammaCorrection]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/GammaCorrection/GammaCorrection.cpp
+  [MaskPointCloud]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/MaskPointCloud/MaskPointCloud.cpp
   [CaptureVis3DInLoop]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Visualization/CaptureVis3DInLoop/CaptureVis3DInLoop.cpp
   [CaptureVis3DInLoopWithKeypressExit]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Visualization/CaptureVis3DInLoopWithKeypressExit/CaptureVis3DInLoopWithKeypressExit.cpp
+  [CaptureAndConvertImageWithOpenCVOnCuda]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Cuda/CaptureAndConvertImageWithOpenCVOnCuda/CaptureAndConvertImageWithOpenCVOnCuda.cpp
   [TransformPointCloudFromMillimetersToMeters]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp
   [TransformPointCloudViaArucoMarker]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp
   [TransformPointCloudViaCheckerboard]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudViaCheckerboard/TransformPointCloudViaCheckerboard.cpp
