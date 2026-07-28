@@ -175,6 +175,9 @@ from the camera can be used.
       - [CaptureAndConvertImageWithOpenCVOnCuda] - Capture a 2D image
         with the Zivid SDK and perform RGBA to grayscale conversion on a
         CUDA device using OpenCV.
+      - [CaptureAndConvertToDlpackTensorOnCuda] - Capture a 2D+3D frame
+        with the Zivid SDK and build DLPack tensors directly from the
+        Zivid DeviceArrays on the CUDA device.
     - **Transform**
       - [TransformPointCloudFromMillimetersToMeters] - Transform point
         cloud data from millimeters to meters.
@@ -301,7 +304,7 @@ Zivid offers two ways of interfacing with HALCON:
     Software][Install Zivid Software].
 
 Zivid and HALCON are compatible with Windows 10 and 11, and Ubuntu
-20.04, 22.04, 24.04.
+20.04, 22.04, 24.04, 26.04.
 
 ------------------------------------------------------------------------
 
@@ -436,6 +439,7 @@ If your build hangs, try to increase the memory available to Docker.
   [CaptureVis3DInLoop]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Visualization/CaptureVis3DInLoop/CaptureVis3DInLoop.cpp
   [CaptureVis3DInLoopWithKeypressExit]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Visualization/CaptureVis3DInLoopWithKeypressExit/CaptureVis3DInLoopWithKeypressExit.cpp
   [CaptureAndConvertImageWithOpenCVOnCuda]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Cuda/CaptureAndConvertImageWithOpenCVOnCuda/CaptureAndConvertImageWithOpenCVOnCuda.cpp
+  [CaptureAndConvertToDlpackTensorOnCuda]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Cuda/CaptureAndConvertToDlpackTensorOnCuda/CaptureAndConvertToDlpackTensorOnCuda.cpp
   [TransformPointCloudFromMillimetersToMeters]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudFromMillimetersToMeters/TransformPointCloudFromMillimetersToMeters.cpp
   [TransformPointCloudViaArucoMarker]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudViaArucoMarker/TransformPointCloudViaArucoMarker.cpp
   [TransformPointCloudViaCheckerboard]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Transform/TransformPointCloudViaCheckerboard/TransformPointCloudViaCheckerboard.cpp

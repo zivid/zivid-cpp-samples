@@ -13,9 +13,12 @@ https://support.zivid.com/en/latest/camera/reference-articles/calculate-3d-captu
 #include <clipp.h>
 
 #include <algorithm>
+#include <fstream>
 #include <future>
+#include <iomanip>
 #include <iostream>
 #include <numeric>
+#include <sstream>
 #include <thread>
 
 namespace
@@ -24,6 +27,92 @@ namespace
 
     using SteadyClock = std::chrono::steady_clock;
     using Duration = std::chrono::nanoseconds;
+
+    // CSV Logger class for benchmark results
+    class CSVLogger
+    {
+    private:
+        std::ofstream csvFile;
+
+        static std::string escapeCSV(const std::string &field)
+        {
+            if(field.find(',') != std::string::npos || field.find('"') != std::string::npos
+               || field.find('\n') != std::string::npos)
+            {
+                std::string escaped = "\"";
+                for(char c : field)
+                {
+                    if(c == '"')
+                    {
+                        escaped += "\"\"";
+                    }
+                    else
+                    {
+                        escaped += c;
+                    }
+                }
+                escaped += "\"";
+                return escaped;
+            }
+            return field;
+        }
+
+        static std::string getCurrentTimestamp()
+        {
+            auto now = std::chrono::system_clock::now();
+            auto time_t = std::chrono::system_clock::to_time_t(now);
+            std::stringstream ss;
+            ss << std::put_time(std::gmtime(&time_t), "%Y-%m-%d %H:%M:%S");
+            return ss.str();
+        }
+
+    public:
+        explicit CSVLogger(const std::string &filename)
+        {
+            csvFile.open(filename, std::ios::out);
+            if(!csvFile.is_open())
+            {
+                throw std::runtime_error("Failed to open CSV file for writing: " + filename);
+            }
+            csvFile
+                << "timestamp,test_category,test_name,iteration,median_ms,mean_ms,settings,camera_model,serial_number\n";
+            csvFile.flush();
+        }
+
+        void logBenchmarkResult(
+            const std::string &category,
+            const std::string &testName,
+            int iteration,
+            double medianMs,
+            double meanMs,
+            const std::string &settings,
+            const std::string &cameraModel,
+            const std::string &serialNumber)
+        {
+            if(!csvFile.is_open())
+            {
+                throw std::runtime_error("CSV file is not open for writing");
+            }
+
+            csvFile << getCurrentTimestamp() << "," << escapeCSV(category) << "," << escapeCSV(testName) << ","
+                    << iteration << "," << std::fixed << std::setprecision(3) << medianMs << "," << std::fixed
+                    << std::setprecision(3) << meanMs << "," << escapeCSV(settings) << "," << escapeCSV(cameraModel)
+                    << "," << escapeCSV(serialNumber) << "\n";
+            csvFile.flush();
+        }
+
+        void logSystemInfo(const std::string &key, const std::string &value)
+        {
+            if(!csvFile.is_open())
+            {
+                throw std::runtime_error("CSV file is not open for writing");
+            }
+
+            csvFile << getCurrentTimestamp() << ",system_info," << escapeCSV(key) << ",0,0,0," << escapeCSV(value)
+                    << ",,\n";
+            csvFile.flush();
+        }
+    };
 
     Duration computeAverageDuration(const std::vector<Duration> &durations)
     {
@@ -91,6 +180,20 @@ namespace
             return "{ Reflection }";
         }
         return {};
+    }
+
+    std::string makeSettingsString(const Zivid::Settings &settings3D)
+    {
+        const std::string apertureStr = makeSettingList3D<Zivid::Settings::Acquisition::Aperture>(settings3D);
+        const std::string exposureStr = makeSettingList3D<Zivid::Settings::Acquisition::ExposureTime>(settings3D);
+        const std::string filtersStr = makeFilterList(settings3D);
+
+        std::string result = "Aperture: " + apertureStr + "; Exposure: " + exposureStr;
+        if(!filtersStr.empty())
+        {
+            result += "; Filters: " + filtersStr;
+        }
+        return result;
     }
 
     void printSeparationLine(const char &separator, const std::string &followingString)
@@ -175,62 +278,48 @@ namespace
         printHeaderLine("Saving point cloud ", numFrames, " times each (be patient):");
     }
 
-    void printResultLine(const std::string &name, const Duration &durationMedian, const Duration &durationMean)
+    void printResultLineWithCSV(
+        const std::string &category,
+        const std::string &name,
+        const Duration &durationMedian,
+        const Duration &durationMean,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
     {
         printFormatted({ name, formatDuration(durationMedian), formatDuration(durationMean) });
+
+        const double medianMs =
+            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(durationMedian).count();
+        const double meanMs =
+            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(durationMean).count();
+        csvLogger.logBenchmarkResult(category, name, 1, medianMs, meanMs, settings, cameraModel, serialNumber);
     }
 
-    void printResults(const std::vector<std::string> &names, const std::vector<Duration> &durations)
+    void printResultsWithCSV(
+        const std::string &category,
+        const std::vector<std::string> &names,
+        const std::vector<Duration> &durations,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
     {
         printSecondarySeparationLine();
         printFormatted({ "  Time:", "Median", "Mean" });
         for(size_t i = 0; i < names.size(); i++)
         {
-            printResultLine(names.at(i), durations.at(i + i), durations.at(i + i + 1));
+            printResultLineWithCSV(
+                category,
+                names.at(i),
+                durations.at(i + i),
+                durations.at(i + i + 1),
+                settings,
+                cameraModel,
+                serialNumber,
+                csvLogger);
         }
-    }
-
-    void printConnectResults(const std::vector<Duration> &durations)
-    {
-        printResults({ "  Connect:", "  Disconnect:" }, durations);
-    }
-
-    void printCapture3DResults(const std::vector<Duration> &durations)
-    {
-        printResults(
-            { "  3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
-            durations);
-    }
-
-    void printCapture3Dincl2DResults(const std::vector<Duration> &durations)
-    {
-        printResults(
-            { "  2D+3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
-            durations);
-    }
-
-    void printCapture2D3DResults(const std::vector<Duration> &durations)
-    {
-        printResults(
-            { "  2D image acquisition time:",
-              "  3D image acquisition time:",
-              "  2D + 3D acquisition time:",
-              "  2D image processing time:",
-              "  Point cloud processing time:",
-              "  Total 2D + 3D capture time:" },
-            durations);
-    }
-
-    void printCapture3D2DResults(const std::vector<Duration> &durations)
-    {
-        printResults(
-            { "  3D image acquisition time:",
-              "  2D image acquisition time:",
-              "  3D + 2D acquisition time:",
-              "  Point cloud processing time:",
-              "  2D image processing time:",
-              "  Total 3D + 2D capture time:" },
-            durations);
     }
 
     void printNegligibleFilters()
@@ -240,40 +329,117 @@ namespace
         printFormatted({ "  Outlier", negligible, negligible });
     }
 
-    void printFilterResults(const std::vector<Duration> &durations)
+    void printCapture3Dincl2DResultsWithCSV(
+        const std::vector<Duration> &durations,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
+    {
+        printResultsWithCSV(
+            "capture_3d_incl_2d",
+            { "  2D+3D image acquisition time:", "  Point cloud processing time:", "  Total 3D capture time:" },
+            durations,
+            settings,
+            cameraModel,
+            serialNumber,
+            csvLogger);
+    }
+
+    void printCapture2D3DResultsWithCSV(
+        const std::vector<Duration> &durations,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
+    {
+        printResultsWithCSV(
+            "capture_2d_then_3d",
+            { "  2D image acquisition time:",
+              "  3D image acquisition time:",
+              "  2D + 3D acquisition time:",
+              "  2D image processing time:",
+              "  Point cloud processing time:",
+              "  Total 2D + 3D capture time:" },
+            durations,
+            settings,
+            cameraModel,
+            serialNumber,
+            csvLogger);
+    }
+
+    void printCapture3D2DResultsWithCSV(
+        const std::vector<Duration> &durations,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
+    {
+        printResultsWithCSV(
+            "capture_3d_then_2d",
+            { "  3D image acquisition time:",
+              "  2D image acquisition time:",
+              "  3D + 2D acquisition time:",
+              "  Point cloud processing time:",
+              "  2D image processing time:",
+              "  Total 3D + 2D capture time:" },
+            durations,
+            settings,
+            cameraModel,
+            serialNumber,
+            csvLogger);
+    }
+
+    void printCopyDataResultsWithCSV(
+        std::array<std::vector<Duration>, 9> &durations,
+        const size_t numCopies,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
+    {
+        printCopyHeader(numCopies);
+        printResultsWithCSV(
+            "copy_data", { "   copyData<PointXYZ>: " }, durations[0], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "  copyData<PointXYZW>: " }, durations[1], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "     copyData<PointZ>: " }, durations[2], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "  copyData<ColorRGBA_SRGB>: " }, durations[3], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "        copyData<SNR>: " }, durations[4], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "  copyData<ColorRGBA_SRGB>: " }, durations[5], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "  copyData<ColorBGRA_SRGB>: " }, durations[6], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "      copyImageRGBA_SRGB(): " }, durations[7], "", cameraModel, serialNumber, csvLogger);
+        printResultsWithCSV(
+            "copy_data", { "  copyData<NormalXYZ>: " }, durations[8], "", cameraModel, serialNumber, csvLogger);
+    }
+
+    void printFilterResultsWithCSV(
+        const std::vector<Duration> &durations,
+        const std::string &settings,
+        const std::string &cameraModel,
+        const std::string &serialNumber,
+        CSVLogger &csvLogger)
     {
         printPrimarySeparationLine();
         std::cout << "Filter processing time:" << std::endl;
-        printResults({ "  Gaussian:", "  Reflection:", "  Gaussian and Reflection:" }, durations);
+        printResultsWithCSV(
+            "filter",
+            { "  Gaussian:", "  Reflection:", "  Gaussian and Reflection:" },
+            durations,
+            settings,
+            cameraModel,
+            serialNumber,
+            csvLogger);
         printSecondarySeparationLine();
         printNegligibleFilters();
     }
 
-    void printCapture2DResults(const std::vector<Duration> &durations)
-    {
-        printResults({ "  Total 2D capture time:" }, durations);
-    }
-
-    void printCopyDataResults(std::array<std::vector<Duration>, 9> &durations, const size_t numCopies)
-    {
-        printCopyHeader(numCopies);
-        printResults({ "   copyData<PointXYZ>: " }, durations[0]);
-        printResults({ "  copyData<PointXYZW>: " }, durations[1]);
-        printResults({ "     copyData<PointZ>: " }, durations[2]);
-        printResults({ "  copyData<ColorRGBA_SRGB>: " }, durations[3]);
-        printResults({ "        copyData<SNR>: " }, durations[4]);
-        printResults({ "  copyData<ColorRGBA_SRGB>: " }, durations[5]);
-        printResults({ "  copyData<ColorBGRA_SRGB>: " }, durations[6]);
-        printResults({ "      copyImageRGBA_SRGB(): " }, durations[7]);
-        printResults({ "  copyData<NormalXYZ>: " }, durations[8]);
-    }
-
-    void printSaveResults(const std::vector<Duration> &durations)
-    {
-        printResults({ "  Save ZDF:", "  Save PLY:", "  Save PCD:", "  Save XYZ:" }, durations);
-    }
-
-    void printZividInfo(const Zivid::Camera &camera, const Zivid::Application &zivid)
+    void printZividInfo(const Zivid::Camera &camera, const Zivid::Application &zivid, CSVLogger &csvLogger)
     {
         std::cout << "API: " << Zivid::Version::coreLibraryVersion() << std::endl;
         std::cout << "OS: " << OS_NAME << std::endl;
@@ -281,9 +447,15 @@ namespace
         std::cout << "Compute device: " << zivid.computeDevice() << std::endl;
         printPrimarySeparationLine();
         printCentered("Starting Zivid Benchmark");
+
+        csvLogger.logSystemInfo("API_Version", Zivid::Version::coreLibraryVersion());
+        csvLogger.logSystemInfo("OS", OS_NAME);
+        csvLogger.logSystemInfo("Camera_Model", camera.info().model().toString());
+        csvLogger.logSystemInfo("Serial_Number", camera.info().serialNumber().toString());
+        csvLogger.logSystemInfo("Compute_Device", zivid.computeDevice().toString());
     }
 
-    Zivid::Camera getFirstCamera(Zivid::Application &zivid)
+    Zivid::Camera getFirstCamera(Zivid::Application &zivid, CSVLogger &csvLogger)
     {
         const auto cameras = zivid.cameras();
         for(const auto &camera : cameras)
@@ -291,7 +463,7 @@ namespace
             if(camera.state().status() == Zivid::CameraState::Status::available)
             {
                 std::cout << "Available camera: " << camera.info().serialNumber() << std::endl;
-                printZividInfo(camera, zivid);
+                printZividInfo(camera, zivid, csvLogger);
                 return camera;
             }
             std::cout << "Camera " << camera.info().serialNumber() << "is not available. "
@@ -430,7 +602,8 @@ namespace
         Zivid::Camera &camera,
         const Zivid::Settings &settings2D3D,
         const size_t numFrames,
-        const bool withProjectorFor2D)
+        const bool withProjectorFor2D,
+        CSVLogger &csvLogger)
     {
         auto settings2D = settings2D3D.color().value();
         if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
@@ -494,14 +667,21 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture2D3DResults(allDurations);
+        const std::string settingsStr = makeSettingsString(settings2D3D);
+        printCapture2D3DResultsWithCSV(
+            allDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
     }
 
     void benchmarkCapture3DFirstAndThen2D(
         Zivid::Camera &camera,
         const Zivid::Settings &settings2D3D,
         const size_t numFrames,
-        const bool withProjectorFor2D)
+        const bool withProjectorFor2D,
+        CSVLogger &csvLogger)
     {
         auto settings2D = settings2D3D.color().value();
         if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
@@ -565,14 +745,21 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture3D2DResults(allDurations);
+        const std::string settingsStr = makeSettingsString(settings2D3D);
+        printCapture3D2DResultsWithCSV(
+            allDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
     }
 
     void benchmarkCapture3DIncluding2D(
         Zivid::Camera &camera,
         const Zivid::Settings &baseSettings2D3D,
         const size_t numFrames,
-        bool withProjectorFor2D)
+        bool withProjectorFor2D,
+        CSVLogger &csvLogger)
     {
         auto settings2D3D = Zivid::Settings{ baseSettings2D3D };
         if(!withProjectorFor2D && doesNotSupportColorWithoutProjector(camera.info().model())
@@ -621,12 +808,21 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture3Dincl2DResults(allDurations);
+        const std::string settingsStr = makeSettingsString(baseSettings2D3D);
+        printCapture3Dincl2DResultsWithCSV(
+            allDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
     }
 
-    void benchmarkConnect(Zivid::Camera &camera, const size_t numConnects)
+    void benchmarkConnect(Zivid::Camera &camera, const size_t numConnects, CSVLogger &csvLogger)
     {
         printConnectHeader(numConnects);
+
+        const std::string cameraModel = camera.info().model().toString();
+        const std::string serialNumber = camera.info().serialNumber().toString();
 
         std::vector<Duration> connectDurations;
         std::vector<Duration> disconnectDurations;
@@ -649,11 +845,26 @@ namespace
         allDurations.push_back(computeMedianDuration(disconnectDurations));
         allDurations.push_back(computeAverageDuration(disconnectDurations));
 
-        printConnectResults(allDurations);
+        printSecondarySeparationLine();
+        printFormatted({ "  Time:", "Median", "Mean" });
+        printResultLineWithCSV(
+            "connect", "  Connect:", allDurations.at(0), allDurations.at(1), "", cameraModel, serialNumber, csvLogger);
+        printResultLineWithCSV(
+            "connect",
+            "  Disconnect:",
+            allDurations.at(2),
+            allDurations.at(3),
+            "",
+            cameraModel,
+            serialNumber,
+            csvLogger);
     }
 
-    std::vector<Duration>
-    benchmarkCapture2D3D(Zivid::Camera &camera, const Zivid::Settings &settings2D3D, const size_t numFrames)
+    std::vector<Duration> benchmarkCapture2D3D(
+        Zivid::Camera &camera,
+        const Zivid::Settings &settings2D3D,
+        const size_t numFrames,
+        CSVLogger &csvLogger)
     {
         printCapture2DHeader(numFrames, settings2D3D.color().value());
         printCapture3DHeader(numFrames, settings2D3D);
@@ -708,13 +919,22 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture2D3DResults(allDurations);
+        const std::string settingsStr = makeSettingsString(settings2D3D);
+        printCapture2D3DResultsWithCSV(
+            allDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
 
         return totalDurations;
     }
 
-    std::vector<Duration>
-    benchmarkCapture3D2D(Zivid::Camera &camera, const Zivid::Settings &settings2D3D, const size_t numFrames)
+    std::vector<Duration> benchmarkCapture3D2D(
+        Zivid::Camera &camera,
+        const Zivid::Settings &settings2D3D,
+        const size_t numFrames,
+        CSVLogger &csvLogger)
     {
         printCapture3DHeader(numFrames, settings2D3D);
         printCapture2DHeader(numFrames, settings2D3D.color().value());
@@ -770,15 +990,28 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture3D2DResults(allDurations);
+        const std::string settingsStr = makeSettingsString(settings2D3D);
+        printCapture3D2DResultsWithCSV(
+            allDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
 
         return totalDurations;
     }
 
-    std::vector<Duration>
-    benchmarkCapture3D(Zivid::Camera &camera, const Zivid::Settings &settings2D3D, const size_t numFrames)
+    std::vector<Duration> benchmarkCapture3D(
+        Zivid::Camera &camera,
+        const Zivid::Settings &settings2D3D,
+        const size_t numFrames,
+        CSVLogger &csvLogger)
     {
         printCapture3DHeader(numFrames, settings2D3D);
+
+        const std::string cameraModel = camera.info().model().toString();
+        const std::string serialNumber = camera.info().serialNumber().toString();
+        const std::string settingsStr = makeSettingsString(settings2D3D);
 
         for(size_t i = 0; i < 5; i++) // setup time
         {
@@ -814,7 +1047,35 @@ namespace
         allDurations.push_back(computeMedianDuration(totalDurations));
         allDurations.push_back(computeAverageDuration(totalDurations));
 
-        printCapture3DResults(allDurations);
+        printSecondarySeparationLine();
+        printFormatted({ "  Time:", "Median", "Mean" });
+        printResultLineWithCSV(
+            "capture_3d",
+            "  3D image acquisition time:",
+            allDurations.at(0),
+            allDurations.at(1),
+            settingsStr,
+            cameraModel,
+            serialNumber,
+            csvLogger);
+        printResultLineWithCSV(
+            "capture_3d",
+            "  Point cloud processing time:",
+            allDurations.at(2),
+            allDurations.at(3),
+            settingsStr,
+            cameraModel,
+            serialNumber,
+            csvLogger);
+        printResultLineWithCSV(
+            "capture_3d",
+            "  Total 3D capture time:",
+            allDurations.at(4),
+            allDurations.at(5),
+            settingsStr,
+            cameraModel,
+            serialNumber,
+            csvLogger);
 
         return totalDurations;
     }
@@ -832,7 +1093,8 @@ namespace
         Zivid::Camera &camera,
         const std::vector<double> &apertures,
         const std::vector<std::chrono::microseconds> &exposureTimes,
-        const size_t numFrames3D)
+        const size_t numFrames3D,
+        CSVLogger &csvLogger)
     {
         std::vector<std::string> subtestName{
             "Without filters", "With Gaussian filter", "With Reflection filter", "With Gaussian and Reflection filter"
@@ -841,7 +1103,7 @@ namespace
         printSubtestHeader(subtestName.at(0));
 
         const std::vector<Duration> captureDurationWithoutFilter =
-            benchmarkCapture3D(camera, makeSettings3D(apertures, exposureTimes, false, false), numFrames3D);
+            benchmarkCapture3D(camera, makeSettings3D(apertures, exposureTimes, false, false), numFrames3D, csvLogger);
 
         const std::vector<bool> gaussian{ true, false, true };
         const std::vector<bool> reflection{ false, true, true };
@@ -852,7 +1114,10 @@ namespace
             printSubtestHeader(subtestName.at(i + 1));
 
             const std::vector<Duration> captureDurationWithFilter = benchmarkCapture3D(
-                camera, makeSettings3D(apertures, exposureTimes, gaussian.at(i), reflection.at(i)), numFrames3D);
+                camera,
+                makeSettings3D(apertures, exposureTimes, gaussian.at(i), reflection.at(i)),
+                numFrames3D,
+                csvLogger);
 
             const auto meanAndAverageFilterDurations =
                 benchmarkFilterProcessing(captureDurationWithoutFilter, captureDurationWithFilter);
@@ -860,12 +1125,26 @@ namespace
             filterProcessingDurations.push_back(std::get<0>(meanAndAverageFilterDurations));
             filterProcessingDurations.push_back(std::get<1>(meanAndAverageFilterDurations));
         }
-        printFilterResults(filterProcessingDurations);
+        const std::string settingsStr = makeSettingsString(makeSettings3D(apertures, exposureTimes, false, false));
+        printFilterResultsWithCSV(
+            filterProcessingDurations,
+            settingsStr,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
     }
 
-    void benchmarkCapture2D(Zivid::Camera &camera, const Zivid::Settings2D &settings2D, const size_t numFrames)
+    void benchmarkCapture2D(
+        Zivid::Camera &camera,
+        const Zivid::Settings2D &settings2D,
+        const size_t numFrames,
+        CSVLogger &csvLogger)
     {
         printCapture2DHeader(numFrames, settings2D);
+
+        const std::string cameraModel = camera.info().model().toString();
+        const std::string serialNumber = camera.info().serialNumber().toString();
+        const std::string settingsStr = "Exposure: " + settings2D.acquisitions().at(0).exposureTime().toString();
 
         for(size_t i = 0; i < 5; i++) // setup time
         {
@@ -891,7 +1170,17 @@ namespace
         allDurations.push_back(computeMedianDuration(captureDurations));
         allDurations.push_back(computeAverageDuration(captureDurations));
 
-        printCapture2DResults(allDurations);
+        printSecondarySeparationLine();
+        printFormatted({ "  Time:", "Median", "Mean" });
+        printResultLineWithCSV(
+            "capture_2d",
+            "  Total 2D capture time:",
+            allDurations.at(0),
+            allDurations.at(1),
+            settingsStr,
+            cameraModel,
+            serialNumber,
+            csvLogger);
     }
 
     template<typename DataType>
@@ -914,7 +1203,11 @@ namespace
         return afterCopyData - beforeCopyData;
     }
 
-    void benchmarkCopyData(Zivid::Camera &camera, const std::chrono::microseconds exposureTime, const size_t numCopies)
+    void benchmarkCopyData(
+        Zivid::Camera &camera,
+        const std::chrono::microseconds exposureTime,
+        const size_t numCopies,
+        CSVLogger &csvLogger)
     {
         constexpr int numData = 9;
         std::array<std::vector<Duration>, numData> copyDataDurations;
@@ -968,21 +1261,34 @@ namespace
             allDurations[i].push_back(computeAverageDuration(copyDataDurations[i]));
         }
 
-        printCopyDataResults(allDurations, numCopies);
+        printCopyDataResultsWithCSV(
+            allDurations,
+            numCopies,
+            camera.info().model().toString(),
+            camera.info().serialNumber().toString(),
+            csvLogger);
     }
 
-    void benchmarkSave(Zivid::Camera &camera, const size_t numFrames)
+    void benchmarkSave(Zivid::Camera &camera, const size_t numFrames, CSVLogger &csvLogger)
     {
         printSaveHeader(numFrames);
+
+        const std::string cameraModel = camera.info().model().toString();
+        const std::string serialNumber = camera.info().serialNumber().toString();
 
         const auto frame =
             camera.capture3D(Zivid::Settings{ Zivid::Settings::Acquisitions{ Zivid::Settings::Acquisition{} } });
         frame.pointCloud();
 
-        std::vector<Duration> allDurations;
         std::vector<std::string> dataFiles{ "Zivid3D.zdf", "Zivid3D.ply", "Zivid3D.pcd", "Zivid3D.xyz" };
-        for(const auto &dataFile : dataFiles)
+        std::vector<std::string> formatNames{ "  Save ZDF:", "  Save PLY:", "  Save PCD:", "  Save XYZ:" };
+
+        printSecondarySeparationLine();
+        printFormatted({ "  Time:", "Median", "Mean" });
+
+        for(size_t i = 0; i < dataFiles.size(); i++)
         {
+            const auto &dataFile = dataFiles[i];
             std::vector<Duration> durationsPerFormat;
             for(size_t j = 0; j < numFrames; j++)
             {
@@ -993,10 +1299,11 @@ namespace
                 durationsPerFormat.push_back(afterSave - beforeSave);
             }
 
-            allDurations.push_back(computeMedianDuration(durationsPerFormat));
-            allDurations.push_back(computeAverageDuration(durationsPerFormat));
+            const auto median = computeMedianDuration(durationsPerFormat);
+            const auto mean = computeAverageDuration(durationsPerFormat);
+
+            printResultLineWithCSV("save_data", formatNames[i], median, mean, "", cameraModel, serialNumber, csvLogger);
         }
-        printSaveResults(allDurations);
     }
 } // namespace
 
@@ -1006,13 +1313,22 @@ int main(int argc, char **argv)
     {
         bool settingsFromYML = false;
         bool settings2DFromYML = false;
+        bool extendedTests = false;
         std::string settings2DFile;
         std::string settingsFile;
+
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << "zivid_benchmark_results_" << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S") << ".csv";
+        std::string csvFilename = ss.str();
 
         auto cli =
             ((clipp::option("--settings-2d").set(settings2DFromYML, true)
               & clipp::value("settings-2d-file", settings2DFile)),
-             (clipp::option("--settings").set(settingsFromYML, true) & clipp::value("settings-file", settingsFile)));
+             (clipp::option("--settings").set(settingsFromYML, true) & clipp::value("settings-file", settingsFile)),
+             (clipp::option("--csv-output") & clipp::value("csv-filename", csvFilename)),
+             clipp::option("--extended").set(extendedTests, true));
 
         if(!parse(argc, argv, cli))
         {
@@ -1023,7 +1339,10 @@ int main(int argc, char **argv)
 
         Zivid::Application zivid;
 
-        auto camera = getFirstCamera(zivid);
+        CSVLogger csvLogger(csvFilename);
+        std::cout << "CSV logging enabled. Results will be saved to: " << csvFilename << std::endl;
+
+        auto camera = getFirstCamera(zivid, csvLogger);
 
         const size_t numConnects = 10;
         const size_t numFrames3D = 20;
@@ -1054,51 +1373,55 @@ int main(int argc, char **argv)
         }
 
         printHeader("TEST: Connect/Disconnect");
-        benchmarkConnect(camera, numConnects);
+        benchmarkConnect(camera, numConnects, csvLogger);
 
         camera.connect();
 
         if(settingsFromYML)
         {
             printHeader("TEST: 3D Capture");
-            benchmarkCapture3D(camera, settings2D3D, numFrames3D);
+            benchmarkCapture3D(camera, settings2D3D, numFrames3D, csvLogger);
         }
         else
         {
             printHeader("TEST: One Acquisition Capture");
-            benchmarkCapture3DAndFilters(camera, oneAperture, oneExposureTime, numFrames3D);
+            benchmarkCapture3DAndFilters(camera, oneAperture, oneExposureTime, numFrames3D, csvLogger);
             printHeader("TEST: Two Acquisitions (HDR) Capture");
-            benchmarkCapture3D(camera, makeSettings3D(twoApertures, twoExposureTimes, false, false), numFrames3D);
+            benchmarkCapture3D(
+                camera, makeSettings3D(twoApertures, twoExposureTimes, false, false), numFrames3D, csvLogger);
             printHeader("TEST: Three Acquisitions (HDR) Capture");
-            benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D);
+            benchmarkCapture3DAndFilters(camera, threeApertures, threeExposureTimes, numFrames3D, csvLogger);
         }
         printHeader("TEST: 2D Capture");
-        benchmarkCapture2D(camera, settings2D3D.color().value(), numFrames2D);
+        benchmarkCapture2D(camera, settings2D3D.color().value(), numFrames2D, csvLogger);
 
         printHeader("TEST: 3D + 2D Capture");
-        benchmarkCapture3D2D(camera, settings2D3D, numFrames3D);
+        benchmarkCapture3D2D(camera, settings2D3D, numFrames3D, csvLogger);
         printHeader("TEST: 2D + 3D Capture");
-        benchmarkCapture2D3D(camera, settings2D3D, numFrames3D);
+        benchmarkCapture2D3D(camera, settings2D3D, numFrames3D, csvLogger);
 
         printHeader("TEST: Copy Data");
-        benchmarkCopyData(camera, exposureTime, numCopies);
+        benchmarkCopyData(camera, exposureTime, numCopies, csvLogger);
         printHeader("TEST: Save");
-        benchmarkSave(camera, numFramesSave);
+        benchmarkSave(camera, numFramesSave, csvLogger);
 
-        printHeader("TEST: 2D without projector followed by 3D");
-        benchmarkCapture2DFirstAndThen3D(camera, settings2D3D, numFrames3D, false);
-        printHeader("TEST: 2D with projector followed by 3D");
-        benchmarkCapture2DFirstAndThen3D(camera, settings2D3D, numFrames3D, true);
+        if(extendedTests)
+        {
+            printHeader("TEST: 2D without projector followed by 3D");
+            benchmarkCapture2DFirstAndThen3D(camera, settings2D3D, numFrames3D, false, csvLogger);
+            printHeader("TEST: 2D with projector followed by 3D");
+            benchmarkCapture2DFirstAndThen3D(camera, settings2D3D, numFrames3D, true, csvLogger);
 
-        printHeader("TEST: 3D followed by 2D without projector");
-        benchmarkCapture3DFirstAndThen2D(camera, settings2D3D, numFrames3D, false);
-        printHeader("TEST: 3D followed by 2D with projector");
-        benchmarkCapture3DFirstAndThen2D(camera, settings2D3D, numFrames3D, true);
+            printHeader("TEST: 3D followed by 2D without projector");
+            benchmarkCapture3DFirstAndThen2D(camera, settings2D3D, numFrames3D, false, csvLogger);
+            printHeader("TEST: 3D followed by 2D with projector");
+            benchmarkCapture3DFirstAndThen2D(camera, settings2D3D, numFrames3D, true, csvLogger);
 
-        printHeader("TEST: 3D including 2D without projector");
-        benchmarkCapture3DIncluding2D(camera, settings2D3D, numFrames3D, false);
-        printHeader("TEST: 3D including 2D with projector");
-        benchmarkCapture3DIncluding2D(camera, settings2D3D, numFrames3D, true);
+            printHeader("TEST: 3D including 2D without projector");
+            benchmarkCapture3DIncluding2D(camera, settings2D3D, numFrames3D, false, csvLogger);
+            printHeader("TEST: 3D including 2D with projector");
+            benchmarkCapture3DIncluding2D(camera, settings2D3D, numFrames3D, true, csvLogger);
+        }
     }
     catch(const std::exception &e)
     {
