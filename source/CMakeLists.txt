@@ -25,6 +25,7 @@ option(USE_GENTL "Enable samples which depend on GenTL" OFF)
 option(USE_HALCON "Enable samples which depend on Halcon" OFF)
 option(USE_CUDA "Enable samples which depend on CUDA" OFF)
 option(USE_OPENCV_CUDA "Enable samples which depend on OpenCV CUDA extensions" OFF)
+option(USE_DLPACK "Enable samples which depend on DLPack headers" OFF)
 
 set(SAMPLES
     Applications/Basic/Visualization/CaptureAndVisualizeNormals
@@ -56,6 +57,7 @@ set(SAMPLES
     Applications/Advanced/Visualization/CaptureVis3DInLoop
     Applications/Advanced/Visualization/CaptureVis3DInLoopWithKeypressExit
     Applications/Advanced/Cuda/CaptureAndConvertImageWithOpenCVOnCuda
+    Applications/Advanced/Cuda/CaptureAndConvertToDlpackTensorOnCuda
     Applications/Advanced/HandEyeCalibration/HandEyeCalibration
     Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration
     Applications/Advanced/HandEyeCalibration/PoseConversions
@@ -182,7 +184,11 @@ set(Halcon_DEPENDING
     CaptureHalconViaGenICam
     CaptureHalconViaZivid
 )
-set(CUDA_DEPENDING CaptureAndConvertImageWithOpenCVOnCuda)
+set(CUDA_DEPENDING
+    CaptureAndConvertImageWithOpenCVOnCuda
+    CaptureAndConvertToDlpackTensorOnCuda
+)
+set(DLPACK_DEPENDING CaptureAndConvertToDlpackTensorOnCuda)
 
 find_package(Zivid ${ZIVID_VERSION} COMPONENTS Core REQUIRED)
 find_package(Threads REQUIRED)
@@ -301,6 +307,22 @@ else()
     disable_samples("CUDA")
 endif()
 
+if(USE_DLPACK)
+    set(DLPACK_INCLUDE_DIR
+        ""
+        CACHE PATH
+        "Path to the root include directory of your DLPack installation (the folder containing dlpack/dlpack.h)"
+    )
+    if(NOT DLPACK_INCLUDE_DIR OR NOT EXISTS "${DLPACK_INCLUDE_DIR}/dlpack/dlpack.h")
+        message(
+            FATAL_ERROR
+            "Please point DLPACK_INCLUDE_DIR to the root include directory of your DLPack installation (the folder containing dlpack/dlpack.h), or disable the DLPack samples (-DUSE_DLPACK=OFF)."
+        )
+    endif()
+else()
+    disable_samples("DLPACK")
+endif()
+
 message(STATUS "All samples: ${SAMPLES}")
 
 if(WIN32)
@@ -362,6 +384,10 @@ foreach(SAMPLE ${SAMPLES})
 
     if(${SAMPLE_NAME} IN_LIST CUDA_DEPENDING)
         target_link_libraries(${SAMPLE_NAME} CUDA::cudart_static)
+    endif()
+
+    if(${SAMPLE_NAME} IN_LIST DLPACK_DEPENDING)
+        target_include_directories(${SAMPLE_NAME} SYSTEM PRIVATE ${DLPACK_INCLUDE_DIR})
     endif()
 
     if(${SAMPLE_NAME} IN_LIST Halcon_DEPENDING)
