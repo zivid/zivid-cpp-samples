@@ -1,6 +1,5 @@
 /*
-Capture a 2D+3D frame with the Zivid SDK and build DLPack tensors directly from the Zivid DeviceArrays on the CUDA
-device.
+Capture a 2D+3D frame and build DLPack tensors directly from the Zivid DeviceArrays on the CUDA device.
 
 This sample captures a combined 2D+3D frame and converts two common buffers to DLPack: the point cloud (PointXYZ) and
 the color image (ColorRGBA_SRGB). It constructs a DLManagedTensor from the raw building blocks each DeviceArray exposes -

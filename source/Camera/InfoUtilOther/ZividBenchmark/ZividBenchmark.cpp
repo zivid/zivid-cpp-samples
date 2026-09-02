@@ -6,6 +6,9 @@ Note: This example uses experimental SDK features, which may be modified, moved,
 
 For more information about capture speed, check out this article:
 https://support.zivid.com/en/latest/camera/reference-articles/calculate-3d-capture-speed.html
+
+For how to run this benchmark, turn the results into a report, and share it with us, check out this tutorial:
+https://support.zivid.com/en/latest/camera/api-reference/benchmarks/benchmarking-your-system.html
 */
 
 #include <Zivid/Zivid.h>
@@ -13,13 +16,24 @@ https://support.zivid.com/en/latest/camera/reference-articles/calculate-3d-captu
 #include <clipp.h>
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <future>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <thread>
+
+#ifdef _WIN32
+#    include <process.h>
+#else
+#    include <unistd.h>
+#endif
 
 namespace
 {
@@ -29,6 +43,8 @@ namespace
     using Duration = std::chrono::nanoseconds;
 
     // CSV Logger class for benchmark results
+    constexpr double unmeasuredStddev = -1.0;
+
     class CSVLogger
     {
     private:
@@ -75,7 +91,7 @@ namespace
                 throw std::runtime_error("Failed to open CSV file for writing: " + filename);
             }
             csvFile
-                << "timestamp,test_category,test_name,iteration,median_ms,mean_ms,settings,camera_model,serial_number\n";
+                << "timestamp,test_category,test_name,iteration,median_ms,mean_ms,stddev_ms,settings,camera_model,serial_number\n";
             csvFile.flush();
         }
 
@@ -87,7 +103,8 @@ namespace
             double meanMs,
             const std::string &settings,
             const std::string &cameraModel,
-            const std::string &serialNumber)
+            const std::string &serialNumber,
+            double stddevMs = unmeasuredStddev)
         {
             if(!csvFile.is_open())
             {
@@ -96,8 +113,13 @@ namespace
 
             csvFile << getCurrentTimestamp() << "," << escapeCSV(category) << "," << escapeCSV(testName) << ","
                     << iteration << "," << std::fixed << std::setprecision(3) << medianMs << "," << std::fixed
-                    << std::setprecision(3) << meanMs << "," << escapeCSV(settings) << "," << escapeCSV(cameraModel)
-                    << "," << escapeCSV(serialNumber) << "\n";
+                    << std::setprecision(3) << meanMs << ",";
+            if(stddevMs >= 0.0)
+            {
+                csvFile << std::fixed << std::setprecision(3) << stddevMs;
+            }
+            csvFile << "," << escapeCSV(settings) << "," << escapeCSV(cameraModel) << "," << escapeCSV(serialNumber)
+                    << "\n";
             csvFile.flush();
         }
 
@@ -108,11 +130,24 @@ namespace
                 throw std::runtime_error("CSV file is not open for writing");
             }
 
-            csvFile << getCurrentTimestamp() << ",system_info," << escapeCSV(key) << ",0,0,0," << escapeCSV(value)
+            csvFile << getCurrentTimestamp() << ",system_info," << escapeCSV(key) << ",0,0,0,," << escapeCSV(value)
                     << ",,\n";
             csvFile.flush();
         }
     };
+
+    double computeStandardDeviationMs(const std::vector<Duration> &durations)
+    {
+        const auto mean = std::accumulate(durations.begin(), durations.end(), Duration{ 0 }).count()
+                          / static_cast<double>(durations.size());
+        double sumOfSquaredDeviations = 0.0;
+        for(const auto &duration : durations)
+        {
+            const auto deviation = static_cast<double>(duration.count()) - mean;
+            sumOfSquaredDeviations += deviation * deviation;
+        }
+        return std::sqrt(sumOfSquaredDeviations / static_cast<double>(durations.size())) / 1000000.0;
+    }
 
     Duration computeAverageDuration(const std::vector<Duration> &durations)
     {
@@ -138,11 +173,14 @@ namespace
         return ss.str();
     }
 
+    double durationToMilliseconds(const Duration &duration)
+    {
+        return std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(duration).count();
+    }
+
     std::string formatDuration(const Duration &duration)
     {
-        return valueToStringWithPrecision(
-                   std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(duration).count(), 3)
-               + " ms";
+        return valueToStringWithPrecision(durationToMilliseconds(duration), 3) + " ms";
     }
 
     template<typename Target>
@@ -161,21 +199,30 @@ namespace
         return settingList;
     }
 
+    template<typename EnabledSetting>
+    bool isFilterEnabled(const EnabledSetting &enabled)
+    {
+        return enabled.hasValue() && enabled.value();
+    }
+
     std::string makeFilterList(const Zivid::Settings &settings2D3D)
     {
-        if(settings2D3D.processing().filters().smoothing().gaussian().isEnabled().value())
-        {
-            std::string gaussianString;
-            gaussianString = std::string{ "Gaussian (Sigma = " }
-                             + settings2D3D.processing().filters().smoothing().gaussian().sigma().toString() + " )";
+        const auto &gaussian = settings2D3D.processing().filters().smoothing().gaussian();
+        const bool reflectionEnabled =
+            isFilterEnabled(settings2D3D.processing().filters().reflection().removal().isEnabled());
 
-            if(settings2D3D.processing().filters().reflection().removal().isEnabled().value())
+        if(isFilterEnabled(gaussian.isEnabled()))
+        {
+            const auto sigma = gaussian.sigma().hasValue() ? gaussian.sigma().toString() : "unset";
+            const std::string gaussianString = std::string{ "Gaussian (Sigma = " } + sigma + " )";
+
+            if(reflectionEnabled)
             {
                 return "{ " + gaussianString + ", Reflection }";
             }
             return "{ " + gaussianString + " }";
         }
-        if(settings2D3D.processing().filters().reflection().removal().isEnabled().value())
+        if(reflectionEnabled)
         {
             return "{ Reflection }";
         }
@@ -290,11 +337,15 @@ namespace
     {
         printFormatted({ name, formatDuration(durationMedian), formatDuration(durationMean) });
 
-        const double medianMs =
-            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(durationMedian).count();
-        const double meanMs =
-            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(durationMean).count();
-        csvLogger.logBenchmarkResult(category, name, 1, medianMs, meanMs, settings, cameraModel, serialNumber);
+        csvLogger.logBenchmarkResult(
+            category,
+            name,
+            1,
+            durationToMilliseconds(durationMedian),
+            durationToMilliseconds(durationMean),
+            settings,
+            cameraModel,
+            serialNumber);
     }
 
     void printResultsWithCSV(
@@ -439,12 +490,83 @@ namespace
         printNegligibleFilters();
     }
 
+    std::string currentProcessId()
+    {
+#ifdef _WIN32
+        return std::to_string(_getpid());
+#else
+        return std::to_string(getpid());
+#endif
+    }
+
+    std::filesystem::path zividLogDirectory()
+    {
+#ifdef _WIN32
+        const auto *const localAppData = std::getenv("LOCALAPPDATA");
+        if(localAppData == nullptr)
+        {
+            return {};
+        }
+        const std::filesystem::path cacheDirectory{ localAppData };
+#else
+        const auto *const xdgCacheHome = std::getenv("XDG_CACHE_HOME");
+        std::filesystem::path cacheDirectory;
+        if(xdgCacheHome != nullptr && *xdgCacheHome != '\0')
+        {
+            cacheDirectory = xdgCacheHome;
+        }
+        else
+        {
+            const auto *const home = std::getenv("HOME");
+            if(home == nullptr)
+            {
+                return {};
+            }
+            cacheDirectory = std::filesystem::path{ home } / ".cache";
+        }
+#endif
+        return cacheDirectory / "Zivid" / "API" / "Log";
+    }
+
+    std::string currentLogFile()
+    {
+        const auto directory = zividLogDirectory();
+        if(directory.empty() || !std::filesystem::is_directory(directory))
+        {
+            return {};
+        }
+
+        const auto suffix = "-" + currentProcessId() + ".log";
+        std::filesystem::path newest;
+        std::filesystem::file_time_type newestWriteTime{};
+        for(const auto &entry : std::filesystem::directory_iterator{ directory })
+        {
+            const auto name = entry.path().filename().string();
+            const auto isOurLog = name.rfind("Zivid-", 0) == 0 && name.size() > suffix.size()
+                                  && name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0;
+            if(!isOurLog)
+            {
+                continue;
+            }
+            const auto writeTime = entry.last_write_time();
+            if(newest.empty() || writeTime > newestWriteTime)
+            {
+                newest = entry.path();
+                newestWriteTime = writeTime;
+            }
+        }
+        return newest.string();
+    }
+
     void printZividInfo(const Zivid::Camera &camera, const Zivid::Application &zivid, CSVLogger &csvLogger)
     {
+        const auto logFile = currentLogFile();
+
         std::cout << "API: " << Zivid::Version::coreLibraryVersion() << std::endl;
         std::cout << "OS: " << OS_NAME << std::endl;
         std::cout << "Camera: " << camera << std::endl;
         std::cout << "Compute device: " << zivid.computeDevice() << std::endl;
+        std::cout << "Log file: " << (logFile.empty() ? "not found" : logFile) << std::endl;
         printPrimarySeparationLine();
         printCentered("Starting Zivid Benchmark");
 
@@ -452,7 +574,11 @@ namespace
         csvLogger.logSystemInfo("OS", OS_NAME);
         csvLogger.logSystemInfo("Camera_Model", camera.info().model().toString());
         csvLogger.logSystemInfo("Serial_Number", camera.info().serialNumber().toString());
+        csvLogger.logSystemInfo("Compute_Device_Model", zivid.computeDevice().model());
+        csvLogger.logSystemInfo("Compute_Device_Vendor", zivid.computeDevice().vendor());
         csvLogger.logSystemInfo("Compute_Device", zivid.computeDevice().toString());
+        csvLogger.logSystemInfo("Process_Id", currentProcessId());
+        csvLogger.logSystemInfo("Log_File", logFile);
     }
 
     Zivid::Camera getFirstCamera(Zivid::Application &zivid, CSVLogger &csvLogger)
@@ -1080,6 +1206,202 @@ namespace
         return totalDurations;
     }
 
+    struct NamedSettings
+    {
+        std::string name;
+        std::string file;
+        Zivid::Settings settings;
+    };
+
+    // TODO(ZIVID-13539): Read the presets through Zivid::Presets instead of parsing file
+    // names, once its header can be included from code built with -Wundefined-func-template.
+    std::string modelFileNameToken(const Zivid::CameraInfo::ModelName &modelName)
+    {
+        const std::map<std::string, std::string> spelledOut{ { "2", "Two" }, { "3", "Three" } };
+        std::string token;
+        std::istringstream words{ modelName.toString() };
+        std::string word;
+        while(words >> word)
+        {
+            const bool hasPlus = !word.empty() && word.back() == '+';
+            const auto spelledOutWord = spelledOut.find(hasPlus ? word.substr(0, word.size() - 1) : word);
+            std::string part = word;
+            if(spelledOutWord != spelledOut.end())
+            {
+                part = hasPlus ? spelledOutWord->second + "_Plus" : spelledOutWord->second;
+            }
+            token += token.empty() ? part : "_" + part;
+        }
+        return token;
+    }
+
+    bool isAmbientLightVariant(const std::string &stem)
+    {
+        const std::array<std::string, 2> endings{ "_50Hz", "_60Hz" };
+        return std::any_of(endings.begin(), endings.end(), [&stem](const std::string &ending) {
+            return stem.size() >= ending.size()
+                   && stem.compare(stem.size() - ending.size(), ending.size(), ending) == 0;
+        });
+    }
+
+    std::vector<std::filesystem::path> findInstalledPresets(const Zivid::Camera &camera, const bool allAmbientVariants)
+    {
+        const std::filesystem::path settingsDirectory = std::filesystem::path{ ZIVID_SAMPLE_DATA_DIR } / "Settings";
+        if(!std::filesystem::is_directory(settingsDirectory))
+        {
+            throw std::runtime_error(
+                "The Zivid presets are installed with the sample data, and " + settingsDirectory.string()
+                + " does not exist. Install the sample data, or pass a directory of your own settings files to "
+                  "--presets.");
+        }
+
+        const auto token = modelFileNameToken(camera.info().modelName());
+        std::vector<std::filesystem::path> presets;
+        for(const auto &entry : std::filesystem::directory_iterator{ settingsDirectory })
+        {
+            const auto name = entry.path().filename().string();
+            if(entry.path().extension() != ".yml" || name.rfind(token + "_", 0) != 0)
+            {
+                continue;
+            }
+            if(allAmbientVariants || !isAmbientLightVariant(entry.path().stem().string()))
+            {
+                presets.push_back(entry.path());
+            }
+        }
+        if(presets.empty())
+        {
+            throw std::runtime_error(
+                "Found no presets named " + token + "_* in " + settingsDirectory.string()
+                + ". The sample data may predate this camera model - pass a directory of settings files to "
+                  "--presets instead.");
+        }
+        std::sort(presets.begin(), presets.end());
+        return presets;
+    }
+
+    std::vector<std::filesystem::path> findSettingsFiles(const std::string &settingsDirectory)
+    {
+        const std::filesystem::path path{ settingsDirectory };
+
+        if(std::filesystem::is_regular_file(path))
+        {
+            return { path };
+        }
+        if(!std::filesystem::is_directory(path))
+        {
+            throw std::runtime_error("Not a file or directory: " + settingsDirectory);
+        }
+
+        std::vector<std::filesystem::path> files;
+        for(const auto &entry : std::filesystem::recursive_directory_iterator{ path })
+        {
+            if(entry.is_regular_file() && entry.path().extension() == ".yml")
+            {
+                files.push_back(entry.path());
+            }
+        }
+        if(files.empty())
+        {
+            throw std::runtime_error("No .yml settings files found in " + settingsDirectory);
+        }
+        std::sort(files.begin(), files.end());
+        return files;
+    }
+
+    std::vector<NamedSettings> loadSettingsFiles(const std::vector<std::filesystem::path> &files)
+    {
+        std::vector<NamedSettings> loaded;
+        for(const auto &file : files)
+        {
+            try
+            {
+                loaded.push_back({ file.stem().string(), file.string(), Zivid::Settings{ file.string() } });
+            }
+            catch(const std::exception &e)
+            {
+                throw std::runtime_error(
+                    "Could not read 3D settings from " + file.string() + ": " + Zivid::toString(e));
+            }
+        }
+        return loaded;
+    }
+
+    void benchmarkPresets(
+        Zivid::Camera &camera,
+        const std::vector<std::filesystem::path> &presetFiles,
+        const std::string &presetSource,
+        const size_t numFrames,
+        CSVLogger &csvLogger)
+    {
+        const std::string cameraModel = camera.info().model().toString();
+        const std::string serialNumber = camera.info().serialNumber().toString();
+
+        const auto presets = loadSettingsFiles(presetFiles);
+
+        printHeaderLine("Capturing ", numFrames, " 3D frames per preset:");
+        std::cout << "  " << presets.size() << " settings files from " << presetSource << std::endl;
+        printSecondarySeparationLine();
+        printFormatted({ "  Total 3D capture time:", "Median", "Mean" });
+
+        for(const auto &preset : presets)
+        {
+            std::vector<Duration> acquisitionDurations;
+            std::vector<Duration> processDurations;
+            std::vector<Duration> totalDurations;
+            try
+            {
+                for(size_t i = 0; i < 3; i++) // setup time
+                {
+                    const auto data =
+                        camera.capture3D(preset.settings).pointCloud().copyData<Zivid::PointXYZColorRGBA_SRGB>();
+                }
+
+                for(size_t i = 0; i < numFrames; i++)
+                {
+                    const auto beforeCapture = SteadyClock::now();
+                    const auto frame = camera.capture3D(preset.settings);
+                    const auto afterCapture = SteadyClock::now();
+                    const auto data = frame.pointCloud().copyData<Zivid::PointXYZColorRGBA_SRGB>();
+                    const auto afterProcess = SteadyClock::now();
+
+                    acquisitionDurations.push_back(afterCapture - beforeCapture);
+                    processDurations.push_back(afterProcess - afterCapture);
+                    totalDurations.push_back(afterProcess - beforeCapture);
+
+                    // Adding a small delay to simulate a real-life capture cycle where there is some pause between captures, fex. when moving the robot
+                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                }
+            }
+            catch(const std::exception &e)
+            {
+                throw std::runtime_error(
+                    "Capturing with " + preset.file + " failed on " + cameraModel + ": " + Zivid::toString(e));
+            }
+
+            const std::string settingsStr = makeSettingsString(preset.settings);
+            for(const auto &measurement : { std::make_pair(" acquisition", &acquisitionDurations),
+                                            std::make_pair(" processing", &processDurations),
+                                            std::make_pair(" total", &totalDurations) })
+            {
+                const auto median = computeMedianDuration(*measurement.second);
+                const auto mean = computeAverageDuration(*measurement.second);
+                printFormatted(
+                    { "  " + preset.name + measurement.first, formatDuration(median), formatDuration(mean) });
+                csvLogger.logBenchmarkResult(
+                    "capture_preset",
+                    preset.name + measurement.first,
+                    1,
+                    durationToMilliseconds(median),
+                    durationToMilliseconds(mean),
+                    settingsStr,
+                    cameraModel,
+                    serialNumber,
+                    computeStandardDeviationMs(*measurement.second));
+            }
+        }
+    }
+
     std::tuple<Duration, Duration> benchmarkFilterProcessing(
         const std::vector<Duration> &captureDuration,
         const std::vector<Duration> &captureDurationFilter)
@@ -1314,8 +1636,12 @@ int main(int argc, char **argv)
         bool settingsFromYML = false;
         bool settings2DFromYML = false;
         bool extendedTests = false;
+        bool presetTests = false;
+        bool settingsDirectoryTests = false;
         std::string settings2DFile;
         std::string settingsFile;
+        std::string settingsDirectory;
+        bool allAmbientVariants = false;
 
         auto now = std::chrono::system_clock::now();
         auto time_t = std::chrono::system_clock::to_time_t(now);
@@ -1328,7 +1654,11 @@ int main(int argc, char **argv)
               & clipp::value("settings-2d-file", settings2DFile)),
              (clipp::option("--settings").set(settingsFromYML, true) & clipp::value("settings-file", settingsFile)),
              (clipp::option("--csv-output") & clipp::value("csv-filename", csvFilename)),
-             clipp::option("--extended").set(extendedTests, true));
+             clipp::option("--extended").set(extendedTests, true),
+             clipp::option("--presets").set(presetTests, true),
+             clipp::option("--all-ambient-variants").set(allAmbientVariants, true),
+             (clipp::option("--settings-dir").set(settingsDirectoryTests, true)
+              & clipp::value("dir-path", settingsDirectory)));
 
         if(!parse(argc, argv, cli))
         {
@@ -1349,6 +1679,7 @@ int main(int argc, char **argv)
         const size_t numFrames2D = 50;
         const size_t numFramesSave = 10;
         const size_t numCopies = 10;
+        const size_t numFramesPreset = 10;
 
         const std::chrono::microseconds exposureTime = getExposureTimeForAllModels();
         const std::vector<std::chrono::microseconds> oneExposureTime{ exposureTime };
@@ -1399,6 +1730,24 @@ int main(int argc, char **argv)
         benchmarkCapture3D2D(camera, settings2D3D, numFrames3D, csvLogger);
         printHeader("TEST: 2D + 3D Capture");
         benchmarkCapture2D3D(camera, settings2D3D, numFrames3D, csvLogger);
+
+        if(presetTests)
+        {
+            printHeader("TEST: Zivid presets");
+            benchmarkPresets(
+                camera,
+                findInstalledPresets(camera, allAmbientVariants),
+                "the presets installed with the sample data",
+                numFramesPreset,
+                csvLogger);
+        }
+
+        if(settingsDirectoryTests)
+        {
+            printHeader("TEST: Settings files");
+            benchmarkPresets(
+                camera, findSettingsFiles(settingsDirectory), settingsDirectory, numFramesPreset, csvLogger);
+        }
 
         printHeader("TEST: Copy Data");
         benchmarkCopyData(camera, exposureTime, numCopies, csvLogger);

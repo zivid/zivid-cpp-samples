@@ -113,7 +113,7 @@ int main()
         const auto correction = Zivid::Calibration::computeCameraCorrection(dataset);
         const auto accuracyEstimate = correction.accuracyEstimate();
         std::cout
-            << "If written to the camera, this correction can be expected to yield a dimension accuracy error of "
+            << "If written to the camera, this correction can be expected to yield a dimension trueness error of "
             << std::fixed << std::setprecision(2) << 100.0F * accuracyEstimate.dimensionAccuracy()
             << "% or better in the range of z=[" << static_cast<int>(std::round(accuracyEstimate.zMin())) << ","
             << static_cast<int>(std::round(accuracyEstimate.zMax()))
