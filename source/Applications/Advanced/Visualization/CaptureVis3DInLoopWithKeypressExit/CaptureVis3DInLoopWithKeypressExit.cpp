@@ -5,7 +5,8 @@ Capture point clouds, with color, from the Zivid camera, and visualize them in a
 #include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
 
-#include <future>
+#include <atomic>
+#include <exception>
 #include <iostream>
 #include <thread>
 #ifdef _WIN32
@@ -71,70 +72,54 @@ int main()
                                  Zivid::Settings2D::Acquisitions{ Zivid::Settings2D::Acquisition{} } } } };
 
         std::cout << "Capturing frame" << std::endl;
-        auto frame = camera.capture2D3D(settings);
+        const auto frame = camera.capture2D3D(settings);
 
         std::cout << "Setting up visualization" << std::endl;
-        std::atomic_bool visualizerRunning{ false };
-        std::atomic_bool acceptEnd{ true };
-        std::atomic_bool quitRequested{ false };
-        auto visualizerPromise = std::promise<Zivid::Visualization::Visualizer *>();
-        auto visualizerFuture = visualizerPromise.get_future();
+        auto visualizer = Zivid::Visualization::Visualizer();
 
-        std::thread visualizationThread([&frame, &visualizerPromise, &visualizerRunning, &acceptEnd, &quitRequested]() {
-            auto visualizer = Zivid::Visualization::Visualizer();
+        std::cout << "Visualizing point cloud" << std::endl;
+        visualizer.showMaximized();
+        visualizer.show(frame);
+        visualizer.resetToFit();
 
-            // Pass the visualizer to the main thread
-            visualizerPromise.set_value(&visualizer);
+        std::atomic_bool visualizerRunning{ true };
+        std::exception_ptr captureException;
 
-            std::cout << "Visualizing point cloud" << std::endl;
-            visualizer.showMaximized();
-            visualizer.show(frame);
-            visualizer.resetToFit();
-
-            std::cout << "Running visualizer. Blocking until window closes." << std::endl;
-            do
+        std::thread captureThread([&camera, &settings, &visualizer, &visualizerRunning, &captureException]() {
+            try
             {
-                visualizerRunning = true;
-                visualizer.run();
-                visualizerRunning = false;
-
-                if(quitRequested)
+                std::cout << "Press 'q' in the terminal to quit " << std::endl;
+                while(visualizerRunning)
                 {
-                    break;
+                    if(getKeyNonBlocking() == 'q')
+                    {
+                        std::cout << "Closing application because user pressed 'q'" << std::endl;
+                        visualizer.close();
+                        break;
+                    }
+                    const auto newFrame = camera.capture2D3D(settings);
+                    if(visualizerRunning)
+                    {
+                        visualizer.show(newFrame);
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 }
-                std::cout << "Visualizer window closed by user. It will be reopened if we're currently capturing."
-                          << std::endl;
-
-            } while(!acceptEnd);
+            }
+            catch(...)
+            {
+                captureException = std::current_exception();
+                visualizer.close();
+            }
         });
 
-        // Get the visualizer handle in the main thread
-        auto visualizerHandle = visualizerFuture.get();
-
-        while(!visualizerRunning)
+        std::cout << "Running visualizer. Blocking until the window closes or 'q' is pressed." << std::endl;
+        visualizer.run();
+        visualizerRunning = false;
+        captureThread.join();
+        if(captureException)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::rethrow_exception(captureException);
         }
-        std::cout << "Press 'q' in the terminal to quit " << std::endl;
-        while(visualizerRunning)
-        {
-            int key = getKeyNonBlocking();
-            if(key == 'q')
-            {
-                std::cout << "Closing application because user pressed 'q'" << std::endl;
-                quitRequested = true;
-                visualizerHandle->close();
-            }
-            else
-            {
-                acceptEnd = false;
-                frame = camera.capture2D3D(settings);
-                visualizerHandle->show(frame);
-                acceptEnd = true;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-        visualizationThread.join();
         std::cout << "Visualizer closed" << std::endl;
     }
     catch(const std::exception &e)

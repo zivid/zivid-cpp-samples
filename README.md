@@ -36,6 +36,7 @@ tested compatibility with earlier SDK versions, please check out
     - [File Camera]
     - [Projector]
   - **Maintenance and Prevention**
+    - [Benchmarking Your System]
     - [Infield Correction]
     - [Warm-up]
     - [Firmware Update]
@@ -87,9 +88,8 @@ from the camera can be used.
       normals and print a subset.
     - [CaptureHalconViaGenICam] - Capture and save a point cloud, with
       colors, using GenICam interface and Halcon C++ SDK.
-    - [CaptureHalconViaZivid] - Capture a point cloud, with colors,
-      using Zivid SDK, transform it to a Halcon point cloud and save it
-      using Halcon C++ SDK.
+    - [CaptureHalconViaZivid] - Capture a colored point cloud with the
+      Zivid SDK, convert it to a HALCON point cloud and save it.
     - [CaptureViaGenICam] - Capture using the GenICam interface.
     - **MultiCamera**
       - [MultiCameraCaptureInParallel] - Capture point clouds with
@@ -106,17 +106,15 @@ from the camera can be used.
     - [CaptureWithDiagnostics] - Capture a 2D+3D frame and a 2D frame
       from the Zivid camera with diagnostics enabled.
     - [CheckHealth] - Poll the camera health check from a separate
-      thread while capturing in the main thread, printing the statuses
-      and values every second.
+      thread while capturing, printing statuses and values each second.
     - [ExploreSettingsMetaData] - Recursively iterates through all leaf
       parameters in a Zivid camera’s settings.
     - [FirmwareUpdater] - Update firmware on the Zivid camera.
     - [FrameInfo] - Read frame info from the Zivid camera.
     - [GetCameraIntrinsics] - Read intrinsic parameters from the Zivid
       camera (OpenCV model) or estimate them from the point cloud.
-    - [MeasureSceneConditions] - Measure ambient light conditions in the
-      scene and output the measured flickering frequency of the ambient
-      light if flickering is detected.
+    - [MeasureSceneConditions] - Measure ambient light in the scene and
+      report the flickering frequency when flickering is detected.
     - [SettingsInfo] - Read settings info from the Zivid camera.
     - [Warmup] - Short example of a basic way to warm up the camera with
       specified time and capture cycle.
@@ -153,7 +151,7 @@ from the camera can be used.
         it.
     - **FileFormats**
       - [ConvertZDF] - Convert point cloud data from a ZDF file to your
-        preferred format
+        preferred format.
       - [ReadIterateZDF] - Read point cloud data from a ZDF file,
         iterate through it, and extract individual points.
   - **Advanced**
@@ -176,17 +174,17 @@ from the camera can be used.
         with the Zivid SDK and perform RGBA to grayscale conversion on a
         CUDA device using OpenCV.
       - [CaptureAndConvertToDlpackTensorOnCuda] - Capture a 2D+3D frame
-        with the Zivid SDK and build DLPack tensors directly from the
-        Zivid DeviceArrays on the CUDA device.
+        and build DLPack tensors directly from the Zivid DeviceArrays on
+        the CUDA device.
     - **Transform**
       - [TransformPointCloudFromMillimetersToMeters] - Transform point
         cloud data from millimeters to meters.
       - [TransformPointCloudViaArucoMarker] - Transform a point cloud
-        from camera to ArUco marker coordinate frame by estimating the
-        marker's pose from the point cloud.
+        from camera to ArUco marker coordinate frame using the marker's
+        estimated pose.
       - [TransformPointCloudViaCheckerboard] - Transform a point cloud
-        from camera to checkerboard (Zivid Calibration Board) coordinate
-        frame by getting checkerboard pose from the API.
+        from camera to checkerboard coordinate frame using the pose from
+        the API.
     - **Roi**
       - [ROIBoxViaArucoMarker] - Filter the point cloud based on a ROI
         box given relative to the ArUco marker on a Zivid Calibration
@@ -195,8 +193,8 @@ from the camera can be used.
         box given relative to the Zivid Calibration Board.
     - **Stitching**
       - [StitchContinuouslyRotatingObject] - Stitch point clouds from a
-        continuously rotating object without pre-alignment using Local
-        Point Cloud Registration and apply Voxel Downsample.
+        continuously rotating object using Local Point Cloud
+        Registration, then downsample.
       - [StitchUsingRobotMountedCamera] - Stitch multiple point clouds
         captured with a robot mounted camera.
       - [StitchViaLocalPointCloudRegistration] - Stitch two point clouds
@@ -208,23 +206,23 @@ from the camera can be used.
     - **HandEyeCalibration**
       - [HandEyeCalibration] - Perform Hand-Eye calibration.
       - [PoseConversions] - Convert to/from Transformation Matrix
-        (Rotation Matrix + Translation Vector)
-      - [UtilizeHandEyeCalibration] - Transform single data point or
-        entire point cloud from camera to robot base reference frame
-        using Hand-Eye calibration
+        (Rotation Matrix + Translation Vector).
+      - [UtilizeHandEyeCalibration] - Transform a data point or entire
+        point cloud from camera to robot base frame using the Hand-Eye
+        calibration matrix.
     - **MultiCamera**
-      - [MultiCameraCalibration] - Use captures of a calibration object
-        to generate transformation matrices to a single coordinate
-        frame, from multiple connected cameras.
+      - [MultiCameraCalibration] - Generate transformation matrices to a
+        single coordinate frame from captures by multiple connected
+        cameras.
       - [MultiCameraCalibrationFromZDF] - Use captures of a calibration
         object to generate transformation matrices to a single
         coordinate frame, from a ZDF files.
-      - [StitchByTransformation] - Use transformation matrices from
-        Multi-Camera calibration to transform point clouds into single
-        coordinate frame, from connected cameras.
-      - [StitchByTransformationFromZDF] - Use transformation matrices
-        from Multi-Camera calibration to transform point clouds into
-        single coordinate frame, from a ZDF files.
+      - [StitchByTransformation] - Transform point clouds from connected
+        cameras into one coordinate frame using Multi-Camera
+        calibration.
+      - [StitchByTransformationFromZDF] - Transform point clouds from
+        ZDF files into one coordinate frame using Multi-Camera
+        calibration.
     - **Projector**
       - [ProjectAndFindMarker] - Show a marker using the projector,
         capture a set of 2D images to find the marker coordinates (2D
@@ -232,7 +230,7 @@ from the camera can be used.
       - [ReadProjectAndCaptureImage] - Read a 2D image from file and
         project it using the camera projector.
       - [ReprojectPoints] - Illuminate checkerboard (Zivid Calibration
-        Board) centers by getting the checkerboard feature points
+        Board) centers by getting the checkerboard feature points.
 
 ## Installation
 
@@ -329,7 +327,7 @@ The following HALCON versions have been tested and confirmed to work
 with Zivid cameras:
 
 - 19.05 Progress, 20.05 Progress, 21.11 Progress, 24.05 Progress, 24.11
-  Progress-Steady, 25.05 Progress
+  Progress-Steady, 25.05 Progress, 25.11 Progress, 26.05 Progress
 
 We recommend using one of the HALCON versions we have tested.
 
@@ -377,6 +375,7 @@ If your build hangs, try to increase the memory available to Docker.
   [Multiple Zivid Cameras]: https://support.zivid.com/en/latest/camera/academy/camera/multiple-zivid-cameras.html
   [File Camera]: https://support.zivid.com/en/latest/camera/academy/camera/file-camera.html
   [Projector]: https://support.zivid.com/en/latest/camera/academy/camera/2d-image-projection.html
+  [Benchmarking Your System]: https://support.zivid.com/en/latest/camera/api-reference/benchmarks/benchmarking-your-system.html
   [Infield Correction]: https://support.zivid.com/en/latest/camera/academy/camera/infield-correction.html
   [Warm-up]: https://support.zivid.com/en/latest/camera/academy/camera/warmup.html
   [Firmware Update]: https://support.zivid.com/en/latest/camera/academy/camera/firmware-update.html

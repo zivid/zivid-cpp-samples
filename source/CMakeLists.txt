@@ -157,6 +157,7 @@ set(Clipp_DEPENDING
     CaptureViaGenICam
     CaptureWithSettingsFromYML
     CaptureWritePCLVis3D
+    Connect
     ConvertZDF
     GammaCorrection
     HandEyeCalibration
