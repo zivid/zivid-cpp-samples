@@ -157,6 +157,7 @@ set(Clipp_DEPENDING
     CaptureViaGenICam
     CaptureWithSettingsFromYML
     CaptureWritePCLVis3D
+    Connect
     ConvertZDF
     GammaCorrection
     HandEyeCalibration
@@ -251,8 +252,7 @@ if(USE_OPENCV)
     )
     if(USE_OPENCV_CUDA)
         list(
-            APPEND
-            OPENCV_COMMON_MODULES
+            APPEND OPENCV_COMMON_MODULES
             cudaarithm
             cudaimgproc
         )
@@ -286,7 +286,12 @@ if(USE_HALCON)
             "Using HALCONROOT "
             $ENV{HALCONROOT}
         )
-        string(REGEX REPLACE "\\\\" "/" HALCONROOT $ENV{HALCONROOT})
+        string(
+            REGEX REPLACE "\\\\"
+            "/"
+            HALCONROOT
+            $ENV{HALCONROOT}
+        )
     endif()
     find_package(Halcon REQUIRED)
     if(NOT HALCON_FOUND)
@@ -332,7 +337,11 @@ elseif(UNIX)
 else()
     message(FATAL_ERROR "Unsupported operating system")
 endif()
-file(TO_CMAKE_PATH "${ZIVID_SAMPLE_DATA_DIR}" ZIVID_SAMPLE_DATA_DIR)
+file(
+    TO_CMAKE_PATH
+    "${ZIVID_SAMPLE_DATA_DIR}"
+    ZIVID_SAMPLE_DATA_DIR
+)
 
 set(SAMPLE_NAMES_LIST_FILE "${CMAKE_BINARY_DIR}/SampleNames.txt")
 file(REMOVE ${SAMPLE_NAMES_LIST_FILE})
