@@ -1,5 +1,5 @@
 /*
-Use transformation matrices from Multi-Camera calibration to transform point clouds into single coordinate frame, from a ZDF files.
+Transform point clouds from ZDF files into one coordinate frame using Multi-Camera calibration.
 
 Note: This example uses experimental SDK features, which may be modified, moved, or deleted in the future without notice.
 

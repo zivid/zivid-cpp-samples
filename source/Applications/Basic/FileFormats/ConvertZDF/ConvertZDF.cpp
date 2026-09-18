@@ -1,5 +1,5 @@
 /*
-Convert point cloud data from a ZDF file to your preferred format
+Convert point cloud data from a ZDF file to your preferred format.
 If a directory is provided, all ZDF files in the directory will be converted
 
 Available formats:
