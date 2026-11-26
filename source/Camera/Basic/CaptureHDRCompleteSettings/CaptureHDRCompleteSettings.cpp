@@ -196,6 +196,7 @@ int main()
             Zivid::Settings2D::Processing::Color::Gamma{ 1.0 },
 
             Zivid::Settings2D::Processing::Color::Experimental::Mode::automatic,
+            Zivid::Settings2D::Processing::Color::Experimental::HighlightSuppression::Enabled::no,
         };
 
         Zivid::Settings settings{

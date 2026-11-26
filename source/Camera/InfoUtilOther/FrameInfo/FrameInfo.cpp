@@ -54,6 +54,18 @@ int main()
         std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(frameInfo.metrics().throttlingTime().value())
                          .count()
                   << " ms" << std::endl;
+
+        std::cout << "Transfer time:" << std::endl;
+        const auto transferTime = frameInfo.metrics().transferTime();
+        if(transferTime.hasValue())
+        {
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(transferTime.value()).count() << " ms"
+                      << std::endl;
+        }
+        else
+        {
+            std::cout << "Not available for this frame" << std::endl;
+        }
     }
     catch(const std::exception &e)
     {

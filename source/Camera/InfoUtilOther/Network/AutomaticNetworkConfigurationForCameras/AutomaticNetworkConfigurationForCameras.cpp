@@ -7,8 +7,10 @@ Usage:
   proposed IP addresses without making actual changes. Note: camera-side Ethernet
   link speed will also be skipped, as it requires connecting to the camera.
 
+Each camera keeps its current hostname.
+
 For more information on network configuration, check out this tutorial:
-https://support.zivid.com/en/latest/camera/getting-started/software-installation/zivid-two-network-configuration.html
+https://support.zivid.com/en/latest/camera/getting-started/software-installation/network-configuration.html
 */
 
 #include <Zivid/Zivid.h>
@@ -165,6 +167,7 @@ int main(int argc, char **argv)
                     ipAddressOctets[0] + "." + ipAddressOctets[1] + "." + ipAddressOctets[2];
 
                 const Zivid::NetworkConfiguration newConfig(
+                    camera.networkConfiguration().hostname(),
                     Zivid::NetworkConfiguration::IPV4(
                         Zivid::NetworkConfiguration::IPV4::Mode::manual,
                         Zivid::NetworkConfiguration::IPV4::Address(

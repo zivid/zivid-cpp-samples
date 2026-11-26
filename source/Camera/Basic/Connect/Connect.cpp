@@ -1,8 +1,16 @@
 /*
-Connect to a Zivid camera using the different available methods.
+Connect to a Zivid camera.
 
-Replace the IP address, serial number and hostname in the code with the ones of your camera,
-or provide them with --serial, --ip and --hostname.
+Without arguments, the sample connects to the first available camera. To connect to a specific camera, provide its
+serial number with --serial, its IP address with --ip, or its hostname with --hostname. To connect to all available
+cameras, use --all. The sample connects with every method you provide, and fails if any of them fails.
+
+Examples:
+    Connect --serial 2020C0DE
+    Connect --ip 172.28.60.5
+    Connect --hostname zivid-2020C0DE.local
+    Connect --serial 2020C0DE --ip 172.28.60.5
+    Connect --all
 */
 
 #include <Zivid/Zivid.h>
@@ -10,32 +18,50 @@ or provide them with --serial, --ip and --hostname.
 #include <clipp.h>
 
 #include <iostream>
+#include <optional>
+#include <vector>
 
 namespace
 {
-    struct CameraIdentifiers
+    struct ConnectOptions
     {
-        std::string serialNumber{ "2020C0DE" };
-        std::string ipAddress{ "172.28.60.5" };
-        std::string hostname{ "zivid-2020C0DE.local" };
+        std::optional<std::string> serialNumber;
+        std::optional<std::string> ipAddress;
+        std::optional<std::string> hostname;
+        bool allCameras{ false };
     };
 
-    CameraIdentifiers parseOptions(int argc, char **argv)
+    ConnectOptions parseOptions(int argc, char **argv)
     {
-        CameraIdentifiers identifiers;
+        bool useSerialNumber{ false };
+        bool useIpAddress{ false };
+        bool useHostname{ false };
+        std::string serialNumber;
+        std::string ipAddress;
+        std::string hostname;
+        bool allCameras{ false };
+
         auto cli =
-            (clipp::option("--serial")
-                 & clipp::value("serial number", identifiers.serialNumber).doc("Serial number of the camera"),
-             clipp::option("--ip") & clipp::value("ip address", identifiers.ipAddress).doc("IP address of the camera"),
-             clipp::option("--hostname")
-                 & clipp::value("hostname", identifiers.hostname).doc("Hostname of the camera"));
+            (clipp::option("--serial").set(useSerialNumber)
+                 & clipp::value("serial number", serialNumber).doc("Connect to the camera with this serial number"),
+             clipp::option("--ip").set(useIpAddress)
+                 & clipp::value("ip address", ipAddress).doc("Connect to the camera at this IP address"),
+             clipp::option("--hostname").set(useHostname)
+                 & clipp::value("hostname", hostname).doc("Connect to the camera at this hostname"),
+             clipp::option("--all").set(allCameras).doc("Connect to all available cameras"));
 
         if(!clipp::parse(argc, argv, cli))
         {
             std::cout << clipp::usage_lines(cli, "Connect") << std::endl;
             throw std::runtime_error{ "Invalid usage" };
         }
-        return identifiers;
+
+        return ConnectOptions{
+            useSerialNumber ? std::optional{ serialNumber } : std::nullopt,
+            useIpAddress ? std::optional{ ipAddress } : std::nullopt,
+            useHostname ? std::optional{ hostname } : std::nullopt,
+            allCameras,
+        };
     }
 
     void printDiscoveredCameras(Zivid::Application &zivid)
@@ -44,47 +70,43 @@ namespace
         for(const auto &camera : zivid.cameras())
         {
             std::cout << "Serial number: " << camera.info().serialNumber()
-                      << ", IP address: " << camera.state().network().ipv4().address() << std::endl;
+                      << ", IP address: " << camera.state().network().ipv4().address()
+                      << ", hostname: " << camera.state().network().hostname() << std::endl;
         }
     }
-} // namespace
 
-int main(int argc, char **argv)
-{
-    try
+    void connectToFirstAvailableCamera(Zivid::Application &zivid)
     {
-        const auto identifiers = parseOptions(argc, argv);
+        std::cout << "Connecting to the first available camera" << std::endl;
+        auto camera = zivid.connectCamera();
+        camera.disconnect();
+    }
 
-        Zivid::Application zivid;
+    void connectBySerialNumber(Zivid::Application &zivid, const std::string &serialNumber)
+    {
+        std::cout << "Connecting to the camera with serial number " << serialNumber << std::endl;
+        auto camera = zivid.connectCamera(Zivid::CameraInfo::SerialNumber{ serialNumber });
+        camera.disconnect();
+    }
 
-        printDiscoveredCameras(zivid);
+    void connectByIpAddress(Zivid::Application &zivid, const std::string &ipAddress)
+    {
+        std::cout << "Connecting to the camera at IP address " << ipAddress << std::endl;
+        auto camera = zivid.connectCamera(Zivid::CameraAddress{ ipAddress });
+        camera.disconnect();
+    }
 
-        {
-            std::cout << "Connecting to the first available camera" << std::endl;
-            auto camera = zivid.connectCamera();
-            camera.disconnect();
-        }
+    void connectByHostname(Zivid::Application &zivid, const std::string &hostname)
+    {
+        std::cout << "Connecting to the camera at hostname " << hostname << std::endl;
+        // The default hostname format is "zivid-<serial-number>"; connect to it with the ".local" suffix.
+        // The hostname is set through the network configuration, see the NetworkConfiguration sample.
+        auto camera = zivid.connectCamera(Zivid::CameraAddress{ hostname });
+        camera.disconnect();
+    }
 
-        {
-            std::cout << "Connecting to the camera with serial number " << identifiers.serialNumber << std::endl;
-            auto camera = zivid.connectCamera(Zivid::CameraInfo::SerialNumber{ identifiers.serialNumber });
-            camera.disconnect();
-        }
-
-        {
-            std::cout << "Connecting to the camera at IP address " << identifiers.ipAddress << std::endl;
-            auto camera = zivid.connectCamera(Zivid::CameraAddress{ identifiers.ipAddress });
-            camera.disconnect();
-        }
-
-        {
-            std::cout << "Connecting to the camera at hostname " << identifiers.hostname << std::endl;
-            // The default hostname format is "zivid-<serial-number>.local".
-            // The hostname cannot be read or set through the SDK.
-            auto camera = zivid.connectCamera(Zivid::CameraAddress{ identifiers.hostname });
-            camera.disconnect();
-        }
-
+    void connectToAllAvailableCameras(Zivid::Application &zivid)
+    {
         std::cout << "Connecting to all available cameras" << std::endl;
         std::vector<Zivid::Camera> connectedCameras;
         for(auto &camera : zivid.cameras())
@@ -104,6 +126,41 @@ int main(int argc, char **argv)
         for(auto &camera : connectedCameras)
         {
             camera.disconnect();
+        }
+    }
+} // namespace
+
+int main(int argc, char **argv)
+{
+    try
+    {
+        const auto options = parseOptions(argc, argv);
+
+        Zivid::Application zivid;
+
+        printDiscoveredCameras(zivid);
+
+        const bool noMethodGiven =
+            !options.serialNumber && !options.ipAddress && !options.hostname && !options.allCameras;
+        if(noMethodGiven)
+        {
+            connectToFirstAvailableCamera(zivid);
+        }
+        if(options.serialNumber)
+        {
+            connectBySerialNumber(zivid, *options.serialNumber);
+        }
+        if(options.ipAddress)
+        {
+            connectByIpAddress(zivid, *options.ipAddress);
+        }
+        if(options.hostname)
+        {
+            connectByHostname(zivid, *options.hostname);
+        }
+        if(options.allCameras)
+        {
+            connectToAllAvailableCameras(zivid);
         }
     }
     catch(const std::exception &e)

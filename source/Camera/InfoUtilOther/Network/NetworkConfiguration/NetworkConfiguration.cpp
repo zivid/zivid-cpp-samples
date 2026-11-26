@@ -1,8 +1,15 @@
 /*
-Uses Zivid API to change the IP address of the Zivid camera.
+Uses Zivid API to change the IP address and hostname of the Zivid camera.
 
-For more information on network configuration, check out this tutorial:
-https://support.zivid.com/en/latest/camera/getting-started/software-installation/zivid-two-network-configuration.html
+The new configuration keeps the camera's current hostname unless you enter a new one. A configuration without a
+hostname makes the camera use its default hostname, zivid-<serial number>. To connect to the camera by its hostname,
+add the .local suffix, for example zivid-2020C0DE.local.
+
+For how to configure a static IP address, check out this tutorial:
+https://support.zivid.com/en/latest/camera/getting-started/software-installation/network-configuration/static-ip-network-configuration.html
+
+For how to configure DHCP, check out this tutorial:
+https://support.zivid.com/en/latest/camera/getting-started/software-installation/network-configuration/dhcp-network-configuration.html
 */
 
 #include <Zivid/Zivid.h>
@@ -50,7 +57,8 @@ int main()
         auto originalConfig = camera.networkConfiguration();
 
         std::cout << "Current network configuration of camera " << camera.info().serialNumber() << ":" << std::endl;
-        std::cout << originalConfig << std::endl << std::endl;
+        std::cout << originalConfig << std::endl;
+        std::cout << "Current hostname: " << camera.state().network().hostname() << std::endl << std::endl;
 
         auto mode = Zivid::NetworkConfiguration::IPV4::Mode::manual;
         auto address = originalConfig.ipv4().address();
@@ -79,7 +87,17 @@ int main()
             }
         }
 
-        Zivid::NetworkConfiguration newConfig(Zivid::NetworkConfiguration::IPV4(mode, address, subnetMask));
+        auto hostname = originalConfig.hostname();
+        std::cout << "Enter new hostname, or leave empty to keep the current one ["
+                  << camera.state().network().hostname() << "]: ";
+        std::string inputHostname;
+        std::getline(std::cin, inputHostname);
+        if(!inputHostname.empty())
+        {
+            hostname = Zivid::NetworkConfiguration::Hostname{ inputHostname };
+        }
+
+        Zivid::NetworkConfiguration newConfig(hostname, Zivid::NetworkConfiguration::IPV4(mode, address, subnetMask));
 
         std::cout << "\nNew network configuration:" << std::endl;
         std::cout << newConfig << std::endl;
@@ -94,7 +112,8 @@ int main()
         camera.applyNetworkConfiguration(newConfig);
 
         std::cout << "Updated network configuration of camera " << camera.info().serialNumber() << ":" << std::endl;
-        std::cout << camera.networkConfiguration() << std::endl << std::endl;
+        std::cout << camera.networkConfiguration() << std::endl;
+        std::cout << "Hostname: " << camera.state().network().hostname() << std::endl << std::endl;
 
         std::cout << "Camera status is '" << camera.state().status() << "'" << std::endl;
     }
