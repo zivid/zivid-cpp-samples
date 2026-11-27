@@ -1,6 +1,6 @@
 # C++ samples
 
-This repository contains cpp code samples for Zivid SDK v2.18.0. For
+This repository contains cpp code samples for Zivid SDK v2.19.0. For
 tested compatibility with earlier SDK versions, please check out
 [accompanying releases].
 
@@ -40,6 +40,7 @@ tested compatibility with earlier SDK versions, please check out
     - [Infield Correction]
     - [Warm-up]
     - [Firmware Update]
+    - [Support Bundle]
 - **Applications**
   - **Point Cloud**
     - [Point Cloud Tutorial]
@@ -50,7 +51,7 @@ tested compatibility with earlier SDK versions, please check out
     - [Visualization Tutorial]
     - [Stitching]
   - **2D Image**
-    - [Barcode Detection]
+    - [Barcode Reading Tutorial]
   - **System**
     - [Hand-Eye Calibration]
     - [Multi-Camera Calibration]
@@ -65,6 +66,7 @@ image or other data from the camera. These samples shows how the data
 from the camera can be used.
 
 - **Camera**
+
   - **Basic**
     - [Capture] - Capture colored point cloud, save 2D image, save 3D
       ZDF, and export PLY, using the Zivid camera.
@@ -75,8 +77,7 @@ from the camera can be used.
     - [CaptureWithSettingsFromYML] - Capture images and point clouds,
       with and without color, from the Zivid camera with settings from
       YML file.
-    - [Connect] - Connect to a Zivid camera using the different
-      available methods.
+    - [Connect] - Connect to a Zivid camera.
     - [CreateFileCameraFromZDFWithDiagnostics] - Capture a frame with
       diagnostics enabled and create a file camera from it.
   - **Advanced**
@@ -125,8 +126,10 @@ from the camera can be used.
         configure the IP addresses of connected cameras to match the
         network of the user's PC.
       - [NetworkConfiguration] - Uses Zivid API to change the IP address
-        of the Zivid camera.
+        and hostname of the Zivid camera.
   - **Maintenance**
+    - [CollectSupportBundle] - Collect a support bundle to send to Zivid
+      customer support.
     - [CorrectCameraInField] - Correct the dimension trueness of a Zivid
       camera.
     - [ResetCameraInField] - Reset infield correction on a camera.
@@ -134,7 +137,9 @@ from the camera can be used.
       camera.
     - [VerifyCameraInFieldFromZDF] - Check the dimension trueness of a
       Zivid camera from a ZDF file.
+
 - **Applications**
+
   - **Basic**
     - **Visualization**
       - [CaptureAndVisualizeNormals] - Capture Zivid point clouds, with
@@ -201,8 +206,9 @@ from the camera can be used.
         using a transformation estimated by Local Point Cloud
         Registration and apply Voxel Downsample.
     - **Barcode**
-      - [BarcodeDetector] - Detect and decode linear and matrix barcodes
-        from a 2D capture.
+      - [LiveBarcodeReader] - Continuously capture 2D frames, detect and
+        decode barcodes, and display a live view with the results
+        overlaid.
     - **HandEyeCalibration**
       - [HandEyeCalibration] - Perform Hand-Eye calibration.
       - [PoseConversions] - Convert to/from Transformation Matrix
@@ -231,6 +237,12 @@ from the camera can be used.
         project it using the camera projector.
       - [ReprojectPoints] - Illuminate checkerboard (Zivid Calibration
         Board) centers by getting the checkerboard feature points.
+
+- **Camera**
+
+  > - **Barcode**
+  >   - [BarcodeDetectorAndDecoder] - Detect and decode linear and
+  >     matrix barcodes from a 2D capture.
 
 ## Installation
 
@@ -379,6 +391,7 @@ If your build hangs, try to increase the memory available to Docker.
   [Infield Correction]: https://support.zivid.com/en/latest/camera/academy/camera/infield-correction.html
   [Warm-up]: https://support.zivid.com/en/latest/camera/academy/camera/warmup.html
   [Firmware Update]: https://support.zivid.com/en/latest/camera/academy/camera/firmware-update.html
+  [Support Bundle]: https://support.zivid.com/en/latest/camera/academy/camera/support-bundle.html
   [Point Cloud Tutorial]: https://support.zivid.com/en/latest/camera/academy/applications/point-cloud-tutorial.html
   [Downsample]: https://support.zivid.com/en/latest/camera/academy/applications/downsampling.html
   [Transform]: https://support.zivid.com/en/latest/camera/academy/applications/transform.html
@@ -386,7 +399,7 @@ If your build hangs, try to increase the memory available to Docker.
   [Region of Interest Tutorial]: https://support.zivid.com/en/latest/camera/academy/applications/roi.html
   [Visualization Tutorial]: https://support.zivid.com/en/latest/camera/academy/applications/visualization-tutorial.html
   [Stitching]: https://support.zivid.com/en/latest/camera/academy/applications/stitching.html
-  [Barcode Detection]: https://support.zivid.com/en/latest/camera/academy/applications/barcode-detection.html
+  [Barcode Reading Tutorial]: https://support.zivid.com/en/latest/camera/academy/applications/barcode-detection.html
   [Hand-Eye Calibration]: https://support.zivid.com/en/latest/camera/academy/applications/hand-eye.html
   [Multi-Camera Calibration]: https://support.zivid.com/en/latest/camera/academy/applications/multi-camera-calibration.html
   [Capture]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Basic/Capture/Capture.cpp
@@ -418,6 +431,7 @@ If your build hangs, try to increase the memory available to Docker.
   [ZividBenchmark]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/ZividBenchmark/ZividBenchmark.cpp
   [AutomaticNetworkConfigurationForCameras]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/Network/AutomaticNetworkConfigurationForCameras/AutomaticNetworkConfigurationForCameras.cpp
   [NetworkConfiguration]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/InfoUtilOther/Network/NetworkConfiguration/NetworkConfiguration.cpp
+  [CollectSupportBundle]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/CollectSupportBundle/CollectSupportBundle.cpp
   [CorrectCameraInField]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/CorrectCameraInField/CorrectCameraInField.cpp
   [ResetCameraInField]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/ResetCameraInField/ResetCameraInField.cpp
   [VerifyCameraInField]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Maintenance/VerifyCameraInField/VerifyCameraInField.cpp
@@ -447,7 +461,7 @@ If your build hangs, try to increase the memory available to Docker.
   [StitchContinuouslyRotatingObject]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Stitching/StitchContinuouslyRotatingObject/StitchContinuouslyRotatingObject.cpp
   [StitchUsingRobotMountedCamera]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Stitching/StitchUsingRobotMountedCamera/StitchUsingRobotMountedCamera.cpp
   [StitchViaLocalPointCloudRegistration]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Stitching/StitchViaLocalPointCloudRegistration/StitchViaLocalPointCloudRegistration.cpp
-  [BarcodeDetector]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Barcode/BarcodeDetector/BarcodeDetector.cpp
+  [LiveBarcodeReader]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Barcode/LiveBarcodeReader/LiveBarcodeReader.cpp
   [HandEyeCalibration]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/HandEyeCalibration/HandEyeCalibration.cpp
   [PoseConversions]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/PoseConversions/PoseConversions.cpp
   [UtilizeHandEyeCalibration]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/HandEyeCalibration/UtilizeHandEyeCalibration/UtilizeHandEyeCalibration.cpp
@@ -458,6 +472,7 @@ If your build hangs, try to increase the memory available to Docker.
   [ProjectAndFindMarker]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Projector/ProjectAndFindMarker/ProjectAndFindMarker.cpp
   [ReadProjectAndCaptureImage]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Projector/ReadProjectAndCaptureImage/ReadProjectAndCaptureImage.cpp
   [ReprojectPoints]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Applications/Advanced/Projector/ReprojectPoints/ReprojectPoints.cpp
+  [BarcodeDetectorAndDecoder]: https://github.com/zivid/zivid-cpp-samples/tree/master/source/Camera/Advanced/Barcode/BarcodeDetectorAndDecoder/BarcodeDetectorAndDecoder.cpp
   [Install Zivid Software]: https://support.zivid.com/en/latest//camera/getting-started/software-installation.html
   [Download Zivid Sample Data]: https://support.zivid.com/en/latest//camera/api-reference/samples/sample-data.html
   [Configure C++ Samples With CMake and Build Them in Visual Studio in Windows]:

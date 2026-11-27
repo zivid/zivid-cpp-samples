@@ -36,7 +36,7 @@ set(SAMPLES
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/Basic/FileFormats/ConvertZDF
     Applications/Basic/FileFormats/ReadIterateZDF
-    Applications/Advanced/Barcode/BarcodeDetector
+    Applications/Advanced/Barcode/LiveBarcodeReader
     Applications/Advanced/CaptureUndistort2D
     Applications/Advanced/CreateDepthMap
     Applications/Advanced/Downsample
@@ -72,6 +72,7 @@ set(SAMPLES
     Camera/Basic/CaptureHDRCompleteSettings
     Camera/Basic/CreateFileCameraFromZDFWithDiagnostics
     Camera/Advanced/AllocateMemoryForPointCloudData
+    Camera/Advanced/Barcode/BarcodeDetectorAndDecoder
     Camera/Advanced/Capture2DAnd3D
     Camera/Advanced/CaptureAndPrintNormals
     Camera/Advanced/CaptureHalconViaGenICam
@@ -93,6 +94,7 @@ set(SAMPLES
     Camera/InfoUtilOther/SettingsInfo
     Camera/InfoUtilOther/Warmup
     Camera/InfoUtilOther/ZividBenchmark
+    Camera/Maintenance/CollectSupportBundle
     Camera/Maintenance/CorrectCameraInField
     Camera/Maintenance/ResetCameraInField
     Camera/Maintenance/VerifyCameraInField
@@ -118,6 +120,7 @@ set(PCL_DEPENDING
 )
 set(OpenCV_DEPENDING
     AllocateMemoryForPointCloudData
+    LiveBarcodeReader
     Capture2DAnd3D
     CaptureAndConvertImageWithOpenCVOnCuda
     CaptureUndistort2D
